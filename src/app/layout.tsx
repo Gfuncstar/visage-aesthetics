@@ -1,12 +1,9 @@
 import type { Metadata } from 'next'
 import { Cormorant_Garamond, Inter } from 'next/font/google'
-import Script from 'next/script'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import RevealRoot from '@/components/ui/Reveal'
-
-const themeScript = `(function(){try{var k='visage-theme';var s=localStorage.getItem(k);var d=s==='dark'||(!s&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.documentElement.classList.add('dark');}catch(e){}})()`
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -30,8 +27,8 @@ export const metadata: Metadata = {
     template: '%s | Visage Aesthetics',
   },
   description:
-    "Beautifully balanced, naturally subtle aesthetic treatments. Performed by Bernadette Tobin RGN, MSc, in a small considered clinic on Friars Lane, Braintree.",
-  keywords: ['aesthetics braintree', 'botox essex', 'dermal filler braintree', 'profhilo essex', 'nurse-led aesthetics', 'visage aesthetics'],
+    "A private nurse-led aesthetics clinic in Braintree, Essex. Beautifully balanced, naturally subtle treatments by Bernadette Tobin RGN, MSc — strictly by appointment, one client at a time, on Friars Lane.",
+  keywords: ['private aesthetics clinic essex', 'aesthetics braintree', 'botox essex', 'dermal filler braintree', 'profhilo essex', 'nurse-led aesthetics', 'visage aesthetics', 'discreet clinic braintree'],
   alternates: {
     canonical: '/',
   },
@@ -39,14 +36,14 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_GB',
     siteName: 'Visage Aesthetics',
-    title: "Visage Aesthetics | Naturally yours.",
-    description: "A small, considered aesthetics clinic on Friars Lane, Braintree. Led by Bernadette Tobin, RGN MSc.",
+    title: "Visage Aesthetics | A private nurse-led clinic in Braintree.",
+    description: "A small, private aesthetics clinic on Friars Lane, Braintree. Led by Bernadette Tobin, RGN MSc — strictly by appointment.",
     url: 'https://www.vaclinic.co.uk',
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Visage Aesthetics | Naturally yours.",
-    description: "A small, considered aesthetics clinic on Friars Lane, Braintree. Led by Bernadette Tobin, RGN MSc.",
+    title: "Visage Aesthetics | A private nurse-led clinic in Braintree.",
+    description: "A small, private aesthetics clinic on Friars Lane, Braintree. Led by Bernadette Tobin, RGN MSc — strictly by appointment.",
   },
   themeColor: '#F5F0EC',
   robots: {
@@ -91,16 +88,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${cormorant.variable} ${inter.variable}`}>
       <body>
-        <Script id="visage-theme-init" strategy="beforeInteractive">
-          {themeScript}
-        </Script>
-        <Script
-          id="visage-jsonld"
+        <script
           type="application/ld+json"
-          strategy="afterInteractive"
-        >
-          {JSON.stringify(jsonLd)}
-        </Script>
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <RevealRoot />
         <Header />
         <main>{children}</main>

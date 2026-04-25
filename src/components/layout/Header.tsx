@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import { treatments } from '@/lib/treatments'
-import ThemeToggle from '@/components/ui/ThemeToggle'
 import { BOOKING_LINK_PROPS } from '@/lib/booking'
 
 const primaryNav = [
@@ -46,7 +45,7 @@ export default function Header() {
           <div className="flex items-center justify-between">
             <Link href="/" className="flex flex-col" aria-label="Visage Aesthetics home">
               <span className="font-display text-charcoal" style={{ fontSize: 19, fontWeight: 400, letterSpacing: '0.01em' }}>Visage Aesthetics</span>
-              <span className="eyebrow" style={{ fontSize: 9.5, marginTop: 2 }}>Braintree</span>
+              <span className="eyebrow" style={{ fontSize: 9.5, marginTop: 2 }}>Private clinic · Braintree</span>
             </Link>
 
             <nav className="hidden lg:flex items-center gap-10">
@@ -84,7 +83,6 @@ export default function Header() {
             </nav>
 
             <div className="flex items-center gap-3">
-              <ThemeToggle />
               <a
                 {...BOOKING_LINK_PROPS}
                 className="hidden md:inline-block text-charcoal hover:text-gold-deep transition-colors pb-1.5 border-b border-charcoal hover:border-gold-deep"

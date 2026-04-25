@@ -143,9 +143,9 @@ export default function ScrollScrubHero() {
                   color: '#FFFFFF',
                 }}
               >
-                Nurse-led Aesthetics
+                Private nurse-led clinic
                 <br />
-                Braintree, Essex
+                By appointment · Braintree
               </div>
               <h1 className="text-h1 text-charcoal">
                 <span className="block">

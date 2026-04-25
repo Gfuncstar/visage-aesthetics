@@ -64,14 +64,14 @@ export default function Home() {
               <div className="reveal">
                 <h2 className="text-h1 text-charcoal">A different kind of clinic.</h2>
                 <p className="text-body-lg mt-8 max-w-[540px]">
-                  A small, considered space on Friars Lane. No conveyor belt, no hard sell. Every treatment plan starts with a proper consultation, and only goes ahead if it&apos;s genuinely right for you.
+                  A small, private clinic on Friars Lane — quiet by design, with a single appointment in the room at a time. No conveyor belt, no hard sell. Every treatment plan begins with a proper consultation, and only goes ahead if it&apos;s genuinely right for you.
                 </p>
               </div>
               <ul className="brand-bullets reveal-stagger mt-20">
                 <li>Medically led, ethically delivered</li>
                 <li>Bespoke treatment planning</li>
                 <li>Premium product partners</li>
-                <li>Discretion as standard</li>
+                <li>Strictly private &mdash; one client at a time</li>
               </ul>
               <div className="mt-10">
                 <Link href="/about" className="btn btn-secondary">
@@ -149,7 +149,7 @@ export default function Home() {
               <div className="font-display italic text-charcoal" style={{ fontSize: 22, fontWeight: 300, lineHeight: 1.4 }}>
                 Tuesday &mdash; Saturday
               </div>
-              <p className="mt-2 text-stone text-[15px]">By appointment. Free on-site parking.</p>
+              <p className="mt-2 text-stone text-[15px]">Strictly by appointment. Discreet entrance and private parking on site.</p>
             </div>
           </div>
         </div>

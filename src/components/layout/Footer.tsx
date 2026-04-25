@@ -69,6 +69,7 @@ export default function Footer() {
         <div className="pt-7 flex flex-col md:flex-row gap-3 md:items-end md:justify-between" style={{ fontSize: 11, color: 'rgba(245, 240, 236, 0.4)' }}>
           <div className="flex flex-col gap-1">
             <span>Visage Aesthetics &middot; Bernadette Tobin RGN, MSc Advanced Practice</span>
+            <span>A private aesthetics clinic &middot; Strictly by appointment</span>
             <span>© {year} Visage Aesthetics. All rights reserved.</span>
           </div>
           <span>Brand by EB Design Agency</span>

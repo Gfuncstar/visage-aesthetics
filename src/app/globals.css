@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   /* Official Visage Aesthetics brand palette (Brand Guidelines, Edition 01 / 2026) */
@@ -34,33 +33,6 @@
   --section-y: clamp(24px, 4vh, 56px);
   color-scheme: light;
 }
-
-/* ---------- Dark mode ---------- */
-/* Token swap: cream becomes warm dark, charcoal becomes cream. The dark CTA + footer use inline #1F1B1A so they remain stable as the hero "always dark" zones. */
-.dark {
-  color-scheme: dark;
-  --bg: #1B1817;
-  --foreground: #F1ECE5;
-  --color-cream: #1B1817;
-  --color-cream-soft: #221E1C;
-  --color-cream-deep: #2A2522;
-  --color-linen: #2A2522;
-  --color-blush: #5C4F44;
-  --color-charcoal: #F1ECE5;
-  --color-ink: #F1ECE5;
-  --color-ink-soft: #C7BBAD;
-  --color-ink-mute: #998A7B;
-  --color-line: #3A3534;
-  --color-stone: #998A7B;
-  --color-gold: #C7A887;
-  --color-gold-deep: #D4B89A;
-  --color-gold-soft: #8C6F47;
-}
-
-.dark ::selection { background: #C7A887; color: #1B1817; }
-
-/* Header / footer / cta keep an explicit dark surface in light mode and a subtly elevated one in dark mode */
-.dark .surface-dark { background: #100E0D !important; }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
@@ -471,7 +443,6 @@ section.reveal { opacity: 1; transform: none; transition: none; }
 
 /* Hero monogram tone — subtle in light mode, brightened in dark */
 .hero-monogram img { opacity: 0.55; mix-blend-mode: multiply; }
-.dark .hero-monogram img { opacity: 0.7; mix-blend-mode: screen; filter: invert(1); }
 
 /* Hero word rise animation */
 .word-rise { display: inline-block; overflow: hidden; }
