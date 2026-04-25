@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { Instagram } from 'lucide-react'
 
 const links = [
   { label: 'Treatments', href: '/treatments' },
@@ -51,6 +52,17 @@ export default function Footer() {
             </a>
             <a href="mailto:info@vaclinic.co.uk" className="mt-5 inline-block border-b text-[14px]" style={{ color: '#F5F0EC', borderColor: 'rgba(245, 240, 236, 0.3)' }}>
               info@vaclinic.co.uk
+            </a>
+            <a
+              href="https://www.instagram.com/visageaestheticclinic"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Visage Aesthetics on Instagram"
+              className="mt-5 inline-flex items-center gap-2 text-[13px] hover:text-cream transition-colors"
+              style={{ color: 'rgba(245, 240, 236, 0.7)' }}
+            >
+              <Instagram size={16} strokeWidth={1.5} />
+              <span>@visageaestheticclinic</span>
             </a>
           </div>
           <div className="md:col-span-4">
