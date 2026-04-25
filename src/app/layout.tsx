@@ -32,15 +32,33 @@ export const metadata: Metadata = {
   description:
     "Beautifully balanced, naturally subtle aesthetic treatments. Performed by Bernadette Tobin RGN, MSc, in a small considered clinic on Friars Lane, Braintree.",
   keywords: ['aesthetics braintree', 'botox essex', 'dermal filler braintree', 'profhilo essex', 'nurse-led aesthetics', 'visage aesthetics'],
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_GB',
     siteName: 'Visage Aesthetics',
     title: "Visage Aesthetics | Naturally yours.",
     description: "A small, considered aesthetics clinic on Friars Lane, Braintree. Led by Bernadette Tobin, RGN MSc.",
+    url: 'https://www.vaclinic.co.uk',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Visage Aesthetics | Naturally yours.",
+    description: "A small, considered aesthetics clinic on Friars Lane, Braintree. Led by Bernadette Tobin, RGN MSc.",
   },
   themeColor: '#F5F0EC',
-  robots: { index: true, follow: true },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 }
 
 const jsonLd = {
