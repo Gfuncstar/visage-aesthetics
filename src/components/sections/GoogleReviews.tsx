@@ -1,5 +1,6 @@
 import { Star } from 'lucide-react'
 import GoogleG from '@/components/ui/GoogleG'
+import GoogleReviewCard from '@/components/ui/GoogleReviewCard'
 import { getGoogleReviews } from '@/lib/google-reviews'
 
 export const revalidate = 21600 // 6 hours
@@ -46,37 +47,14 @@ export default async function GoogleReviews() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-px reveal-stagger" style={{ background: '#D9CDBE', border: '1px solid #D9CDBE' }}>
           {data.reviews.slice(0, 6).map((r, i) => (
-            <article key={i} className="bg-cream-soft p-7 md:p-8 flex flex-col">
-              <div className="flex items-center gap-3 mb-5">
-                {r.profilePhoto ? (
-                  <img
-                    src={r.profilePhoto}
-                    alt={r.author}
-                    className="w-9 h-9 rounded-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <div className="w-9 h-9 rounded-full bg-blush flex items-center justify-center text-charcoal" style={{ fontSize: 13, fontWeight: 500 }}>
-                    {r.author.charAt(0)}
-                  </div>
-                )}
-                <div className="flex flex-col leading-tight">
-                  <span className="text-charcoal text-[13px] font-medium">{r.author}</span>
-                  <span className="text-stone text-[11px] mt-0.5">{r.relativeTime}</span>
-                </div>
-                <div className="ml-auto">
-                  <GoogleG size={14} />
-                </div>
-              </div>
-              <div className="flex gap-0.5 mb-4">
-                {Array.from({ length: r.rating }).map((_, j) => (
-                  <Star key={j} size={12} className="fill-gold text-gold" />
-                ))}
-              </div>
-              <p className="font-display italic text-charcoal flex-1" style={{ fontSize: 17, lineHeight: 1.45, fontWeight: 300 }}>
-                &ldquo;{r.text}&rdquo;
-              </p>
-            </article>
+            <GoogleReviewCard
+              key={i}
+              author={r.author}
+              profilePhoto={r.profilePhoto}
+              relativeTime={r.relativeTime}
+              rating={r.rating}
+              text={r.text}
+            />
           ))}
         </div>
 

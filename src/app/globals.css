@@ -346,7 +346,7 @@ section.reveal { opacity: 1; transform: none; transition: none; }
   text-shadow: none;
 }
 .scrub-panel h1 {
-  font-weight: 400;
+  font-weight: 600;
   font-size: clamp(54px, 10vw, 110px);
   line-height: 1.0;
   color: #1F1B1A;
