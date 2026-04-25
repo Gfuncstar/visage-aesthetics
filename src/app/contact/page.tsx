@@ -10,8 +10,24 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <>
-      <section className="bg-cream text-charcoal pt-32 md:pt-44 pb-12 md:pb-16 relative overflow-hidden">
-        <div className="max-w-[1280px] mx-auto px-5 md:px-8 relative">
+      <section className="relative overflow-hidden text-charcoal" style={{ minHeight: 'min(70vh, 640px)' }}>
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/video/contact.mp4" type="video/mp4" media="(min-width: 720px)" />
+          <source src="/video/contact-mobile.mp4" type="video/mp4" />
+        </video>
+        <div
+          aria-hidden
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'linear-gradient(180deg, rgba(245,240,236,0.4) 0%, rgba(245,240,236,0.15) 35%, rgba(245,240,236,0.6) 100%)' }}
+        />
+        <div className="relative max-w-[1280px] mx-auto px-5 md:px-8 pt-32 md:pt-44 pb-16 md:pb-24">
           <div className="section-num mb-6">Book &nbsp; · &nbsp; Visit</div>
           <h1 className="font-display italic text-hero text-charcoal max-w-3xl">A free, no-obligation conversation.</h1>
           <p className="mt-6 text-body-lg text-ink-soft max-w-2xl">
@@ -71,14 +87,13 @@ export default function ContactPage() {
               </li>
               <li className="flex gap-4">
                 <MessageCircle size={18} strokeWidth={1.5} className="text-gold mt-1 shrink-0" />
-                <a href="https://wa.me/447000000000" className="hover:text-gold">Message on WhatsApp</a>
+                <a href="https://wa.me/447931395246" target="_blank" rel="noopener noreferrer" className="hover:text-gold">Chat on WhatsApp</a>
               </li>
               <li className="flex gap-4">
                 <Clock size={18} strokeWidth={1.5} className="text-gold mt-1 shrink-0" />
                 <span>
-                  Tuesday to Saturday<br/>
-                  By appointment<br/>
-                  Free on-site parking
+                  Strictly by appointment<br/>
+                  Discreet entrance and private parking on site
                 </span>
               </li>
             </ul>
