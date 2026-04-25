@@ -146,10 +146,11 @@ export default function Home() {
             </div>
             <div className="reveal pt-6 border-t" style={{ borderColor: '#D9CDBE' }}>
               <div className="eyebrow mb-3">Hours</div>
-              <div className="font-display italic text-charcoal" style={{ fontSize: 22, fontWeight: 300, lineHeight: 1.4 }}>
-                Tuesday &mdash; Saturday
-              </div>
-              <p className="mt-2 text-stone text-[15px]">Strictly by appointment. Discreet entrance and private parking on site.</p>
+              <p className="font-display italic text-charcoal" style={{ fontSize: 22, fontWeight: 300, lineHeight: 1.4 }}>
+                Strictly by appointment.
+                <br />
+                Discreet entrance and private parking on site.
+              </p>
             </div>
           </div>
         </div>
