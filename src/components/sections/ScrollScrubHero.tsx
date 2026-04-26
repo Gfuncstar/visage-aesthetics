@@ -118,18 +118,33 @@ export default function ScrollScrubHero() {
           <source src="/video/walkthrough-mobile.mp4" type="video/mp4" />
         </video>
         <div className="scrub-overlay" aria-hidden />
-        <div className="award-badge" aria-label="Best Non-Surgical Aesthetics Clinic 2026, Essex">
-          <span className="award-eyebrow">Awarded</span>
-          <span className="award-laurel" aria-hidden>
-            <span className="laurel-l">❦</span>
-            <span className="award-title">
-              Best Non-Surgical
-              <br />
-              Aesthetics Clinic
+        <div className="award-stack">
+          <div className="award-badge" aria-label="Best Non-Surgical Aesthetics Clinic 2026, Essex">
+            <span className="award-eyebrow">Awarded</span>
+            <span className="award-laurel" aria-hidden>
+              <span className="laurel-l">❦</span>
+              <span className="award-title">
+                Best Non-Surgical
+                <br />
+                Aesthetics Clinic
+              </span>
+              <span className="laurel-r">❦</span>
             </span>
-            <span className="laurel-r">❦</span>
-          </span>
-          <span className="award-meta">2026 &nbsp;·&nbsp; Essex</span>
+            <span className="award-meta">2026 &nbsp;·&nbsp; Essex</span>
+          </div>
+          <div className="award-badge award-badge-nominee" aria-label="Educator of the Year 2026 Nominee">
+            <span className="award-eyebrow">Nominated</span>
+            <span className="award-laurel" aria-hidden>
+              <span className="laurel-l">❦</span>
+              <span className="award-title">
+                Educator of
+                <br />
+                the Year
+              </span>
+              <span className="laurel-r">❦</span>
+            </span>
+            <span className="award-meta">2026 &nbsp;·&nbsp; Nominee</span>
+          </div>
         </div>
         <div className="scrub-content" style={{ padding: '120px var(--pad-x) 160px', justifyContent: 'flex-end', gap: 32 }}>
           <div ref={panel1Ref} className="scrub-panel">

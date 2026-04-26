@@ -71,6 +71,7 @@ export default async function Home() {
         sameAs: ['https://www.instagram.com/visageaestheticclinic'],
         award: [
           'Best Non-Surgical Aesthetics Clinic 2026 — Essex (Health, Beauty & Wellness Awards)',
+          'Educator of the Year 2026 — Nominee (Beauty & Aesthetics Awards)',
         ],
         hasCredential: [
           { '@type': 'EducationalOccupationalCredential', credentialCategory: 'professional registration', name: 'NMC Registered Nurse', identifier: '05G1755E' },

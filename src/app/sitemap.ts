@@ -23,8 +23,17 @@ const PAGE_DATES: Record<string, string> = {
   '/privacy': '2025-09-01',
   // Geo landing pages (local SEO)
   '/braintree-botox': '2026-04-26',
+  '/braintree-lip-filler': '2026-04-26',
+  '/braintree-profhilo': '2026-04-26',
   '/chelmsford-botox': '2026-04-26',
+  '/chelmsford-lip-filler': '2026-04-26',
   '/halstead-botox': '2026-04-26',
+  '/witham-botox': '2026-04-26',
+  '/colchester-botox': '2026-04-26',
+  '/about/qualifications': '2026-04-26',
+  '/blog/botox-vs-filler': '2026-04-26',
+  '/blog/how-long-does-profhilo-last': '2026-04-26',
+  '/blog/what-is-a-nurse-led-clinic': '2026-04-26',
   // Treatments
   '/treatments/anti-wrinkle-injections': '2026-04-26',
   '/treatments/dermal-filler': '2026-04-26',
@@ -58,9 +67,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE}/blog`,            changeFrequency: 'weekly',  priority: 0.8,  lastModified: dateOf('/blog') },
     { url: `${SITE}/privacy`,         changeFrequency: 'yearly',  priority: 0.2,  lastModified: dateOf('/privacy') },
     // Geo landing pages
-    { url: `${SITE}/braintree-botox`, changeFrequency: 'monthly', priority: 0.9,  lastModified: dateOf('/braintree-botox') },
-    { url: `${SITE}/chelmsford-botox`,changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/chelmsford-botox') },
-    { url: `${SITE}/halstead-botox`,  changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/halstead-botox') },
+    { url: `${SITE}/braintree-botox`,      changeFrequency: 'monthly', priority: 0.9,  lastModified: dateOf('/braintree-botox') },
+    { url: `${SITE}/braintree-lip-filler`, changeFrequency: 'monthly', priority: 0.9,  lastModified: dateOf('/braintree-lip-filler') },
+    { url: `${SITE}/braintree-profhilo`,   changeFrequency: 'monthly', priority: 0.9,  lastModified: dateOf('/braintree-profhilo') },
+    { url: `${SITE}/chelmsford-botox`,     changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/chelmsford-botox') },
+    { url: `${SITE}/chelmsford-lip-filler`,changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/chelmsford-lip-filler') },
+    { url: `${SITE}/halstead-botox`,       changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/halstead-botox') },
+    { url: `${SITE}/witham-botox`,         changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/witham-botox') },
+    { url: `${SITE}/colchester-botox`,     changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/colchester-botox') },
+    // Authority pages
+    { url: `${SITE}/about/qualifications`, changeFrequency: 'yearly',  priority: 0.7,  lastModified: dateOf('/about/qualifications') },
+    // Long-form blog posts
+    { url: `${SITE}/blog/botox-vs-filler`,             changeFrequency: 'monthly', priority: 0.7, lastModified: dateOf('/blog/botox-vs-filler') },
+    { url: `${SITE}/blog/how-long-does-profhilo-last`, changeFrequency: 'monthly', priority: 0.7, lastModified: dateOf('/blog/how-long-does-profhilo-last') },
+    { url: `${SITE}/blog/what-is-a-nurse-led-clinic`,  changeFrequency: 'monthly', priority: 0.7, lastModified: dateOf('/blog/what-is-a-nurse-led-clinic') },
   ]
 
   const treatmentRoutes: MetadataRoute.Sitemap = treatments.map((t) => ({

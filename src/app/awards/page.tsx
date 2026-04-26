@@ -6,11 +6,11 @@ import { BOOKING_LINK_PROPS } from '@/lib/booking'
 
 export const metadata: Metadata = {
   title: 'Awards & Recognition | Visage Aesthetics, Braintree',
-  description: "Visage Aesthetics — Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards). An award-winning nurse-led clinic in Braintree run by Bernadette Tobin RGN, MSc.",
+  description: "Best Non-Surgical Aesthetics Clinic 2026 — Essex (Health, Beauty & Wellness Awards). Educator of the Year 2026 nominee (Beauty & Aesthetics Awards). An award-winning nurse-led clinic in Braintree run by Bernadette Tobin RGN, MSc.",
   alternates: { canonical: '/awards' },
   openGraph: {
-    title: 'Best Non-Surgical Aesthetics Clinic 2026, Essex',
-    description: 'Visage Aesthetics has been awarded Best Non-Surgical Aesthetics Clinic 2026 — Essex at the Health, Beauty & Wellness Awards.',
+    title: 'Best Non-Surgical Aesthetics Clinic 2026, Essex | Educator of the Year 2026 Nominee',
+    description: 'Award-winning nurse-led aesthetics clinic in Braintree. Best Non-Surgical Aesthetics Clinic 2026 — Essex. Educator of the Year 2026 nominee.',
     url: 'https://www.vaclinic.co.uk/awards',
   },
 }
@@ -23,6 +23,7 @@ type AwardEntry = {
   awardingBody: string
   awardingBodyUrl?: string
   description: string
+  status: 'won' | 'nominee'
 }
 
 const awards: AwardEntry[] = [
@@ -34,6 +35,17 @@ const awards: AwardEntry[] = [
     awardingBody: 'Health, Beauty & Wellness Awards',
     description:
       "Recognised across the county for naturally subtle, medically led aesthetic treatments. The award celebrates clinics that demonstrate clinical excellence, exceptional client care, and a commitment to ethical, conservative practice.",
+    status: 'won',
+  },
+  {
+    year: 2026,
+    name: 'Educator of the Year 2026 — Nominee',
+    category: 'Educator of the Year',
+    region: 'United Kingdom',
+    awardingBody: 'Beauty & Aesthetics Awards',
+    description:
+      "Bernadette Tobin nominated for her contribution to aesthetics training and education across the industry — recognising practitioners who raise standards beyond their own clinic and pass clinical rigour on to the next generation.",
+    status: 'nominee',
   },
 ]
 
@@ -47,7 +59,7 @@ const jsonLd = {
         { '@type': 'ListItem', position: 2, name: 'Awards', item: 'https://www.vaclinic.co.uk/awards' },
       ],
     },
-    ...awards.map((a) => ({
+    ...awards.filter((a) => a.status === 'won').map((a) => ({
       '@type': 'Award',
       name: a.name,
       awardedTo: {
@@ -64,11 +76,24 @@ const jsonLd = {
       category: a.category,
       dateCreated: `${a.year}`,
       description: a.description,
-      issuedBy: {
-        '@type': 'Organization',
-        name: a.awardingBody,
-      },
+      issuedBy: { '@type': 'Organization', name: a.awardingBody },
       areaServed: { '@type': 'AdministrativeArea', name: a.region },
+    })),
+    // Nominations / shortlists tracked as Person.honorificSuffix is wrong;
+    // we use schema:Action -> NominateAction so search engines understand
+    // the distinction from an actual Award win.
+    ...awards.filter((a) => a.status === 'nominee').map((a) => ({
+      '@type': 'NominateAction',
+      object: {
+        '@type': 'Person',
+        name: 'Bernadette Tobin',
+        jobTitle: 'Registered Nurse, MSc Advanced Practice',
+        url: 'https://www.vaclinic.co.uk/about',
+      },
+      agent: { '@type': 'Organization', name: a.awardingBody },
+      name: a.name,
+      description: a.description,
+      startTime: `${a.year}`,
     })),
   ],
 }
@@ -94,7 +119,9 @@ export default function AwardsPage() {
           </h1>
           <p className="mt-6 text-body-lg text-ink-soft max-w-2xl">
             Recognised across Essex for naturally subtle results, medically led care, and a refusal
-            to treat aesthetics as anything less than a clinical discipline.
+            to treat aesthetics as anything less than a clinical discipline. Bernadette is also a 2026
+            nominee for Educator of the Year — for the work she does training the next generation of
+            aesthetic practitioners.
           </p>
         </div>
       </section>
@@ -106,46 +133,29 @@ export default function AwardsPage() {
             className="relative overflow-hidden rounded-md p-8 md:p-14 text-cream"
             style={{ background: 'linear-gradient(160deg, #C09F6E 0%, #A8895E 55%, #8E7245 100%)' }}
           >
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-14 items-center relative">
-              <div className="md:col-span-7">
-                <div className="inline-flex items-center gap-3 mb-6 px-3 py-1.5 bg-cream/10 border border-cream/30 rounded-full">
-                  <AwardIcon size={14} />
-                  <span className="text-[11px] tracking-[0.24em] uppercase font-medium">Awarded 2026</span>
-                </div>
-                <h2 className="font-display italic" style={{ fontSize: 'clamp(34px, 5vw, 56px)', lineHeight: 1.05, fontWeight: 500 }}>
-                  Best Non-Surgical
-                  <br />
-                  Aesthetics Clinic
-                  <br />
-                  <span className="opacity-90">Essex 2026</span>
-                </h2>
-                <p className="mt-7 max-w-md text-cream/85 leading-relaxed">
-                  Awarded by the <strong className="font-medium">Health, Beauty &amp; Wellness Awards</strong> —
-                  an industry-judged programme recognising clinics demonstrating clinical excellence,
-                  exceptional client care, and ethical, conservative practice.
-                </p>
-                <p className="mt-5 text-cream/70 text-[13px] tracking-[0.06em]">
-                  &ldquo;What started as a vision has grown into something I care so deeply about.
-                  Every client who&apos;s trusted me, every bit of support, every late night and early
-                  morning. I&apos;m beyond grateful.&rdquo;
-                </p>
-                <p className="mt-2 text-eyebrow text-cream/60">— Bernadette Tobin, Founder</p>
+            <div className="max-w-3xl relative">
+              <div className="inline-flex items-center gap-3 mb-6 px-3 py-1.5 bg-cream/10 border border-cream/30 rounded-full">
+                <AwardIcon size={14} />
+                <span className="text-[11px] tracking-[0.24em] uppercase font-medium">Awarded 2026</span>
               </div>
-              <div className="md:col-span-5">
-                <div className="relative aspect-[4/5] rounded-md overflow-hidden bg-cream/10 backdrop-blur-sm border border-cream/20 flex items-center justify-center">
-                  <div className="text-center px-6 py-10">
-                    <div className="text-cream/70 text-[10px] tracking-[0.32em] uppercase mb-4">Awarded</div>
-                    <div className="font-display italic mb-3" style={{ fontSize: 28, lineHeight: 1.1, fontWeight: 600 }}>
-                      Best Non-Surgical
-                      <br />
-                      Aesthetics Clinic
-                    </div>
-                    <div className="w-12 h-px bg-cream/40 mx-auto my-5" />
-                    <div className="text-cream/70 text-[11px] tracking-[0.32em] uppercase">2026 &nbsp;·&nbsp; Essex</div>
-                    <div className="mt-8 text-cream/60 text-[10px] tracking-[0.2em] uppercase">Health, Beauty &amp; Wellness Awards</div>
-                  </div>
-                </div>
-              </div>
+              <h2 className="font-display italic" style={{ fontSize: 'clamp(34px, 5vw, 56px)', lineHeight: 1.05, fontWeight: 500 }}>
+                Best Non-Surgical
+                <br />
+                Aesthetics Clinic
+                <br />
+                <span className="opacity-90">Essex 2026</span>
+              </h2>
+              <p className="mt-7 max-w-md text-cream/85 leading-relaxed">
+                Awarded by the <strong className="font-medium">Health, Beauty &amp; Wellness Awards</strong> —
+                an industry-judged programme recognising clinics demonstrating clinical excellence,
+                exceptional client care, and ethical, conservative practice.
+              </p>
+              <p className="mt-5 text-cream/70 text-[13px] tracking-[0.06em] max-w-xl">
+                &ldquo;What started as a vision has grown into something I care so deeply about.
+                Every client who&apos;s trusted me, every bit of support, every late night and early
+                morning. I&apos;m beyond grateful.&rdquo;
+              </p>
+              <p className="mt-2 text-eyebrow text-cream/60">— Bernadette Tobin, Founder</p>
             </div>
           </article>
         </div>
@@ -189,12 +199,24 @@ export default function AwardsPage() {
               <li key={`${a.year}-${a.name}`} className="bg-cream p-6 md:p-8">
                 <div className="flex items-start justify-between gap-6 flex-wrap">
                   <div className="flex-1 min-w-0">
-                    <div className="text-eyebrow text-gold mb-2">{a.year} &nbsp;·&nbsp; {a.region}</div>
+                    <div className="flex items-center gap-3 mb-2 flex-wrap">
+                      <span className="text-eyebrow text-gold">{a.year} &nbsp;·&nbsp; {a.region}</span>
+                      <span
+                        className="text-[10px] tracking-[0.24em] uppercase font-medium px-2 py-1 rounded-sm"
+                        style={
+                          a.status === 'won'
+                            ? { background: '#A8895E', color: '#F5F0EC' }
+                            : { background: 'transparent', color: '#8A807D', border: '1px solid rgba(168, 137, 94, 0.4)' }
+                        }
+                      >
+                        {a.status === 'won' ? 'Winner' : 'Nominee'}
+                      </span>
+                    </div>
                     <h3 className="font-display italic text-charcoal" style={{ fontSize: 26, lineHeight: 1.15, fontWeight: 500 }}>
                       {a.name}
                     </h3>
                     <p className="mt-3 text-body text-ink-soft max-w-2xl">{a.description}</p>
-                    <p className="mt-4 text-eyebrow text-stone">Awarded by {a.awardingBody}</p>
+                    <p className="mt-4 text-eyebrow text-stone">By {a.awardingBody}</p>
                   </div>
                   <AwardIcon className="text-gold mt-1 shrink-0" size={28} strokeWidth={1.4} />
                 </div>

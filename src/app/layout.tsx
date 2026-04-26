@@ -83,7 +83,10 @@ const jsonLd = {
   telephone: '+44 7931 395246',
   openingHours: ['Tu-Sa 09:00-18:00'],
   medicalSpecialty: 'Aesthetic Medicine',
-  award: 'Best Non-Surgical Aesthetics Clinic 2026 — Essex (Health, Beauty & Wellness Awards)',
+  award: [
+    'Best Non-Surgical Aesthetics Clinic 2026 — Essex (Health, Beauty & Wellness Awards)',
+    'Educator of the Year 2026 — Nominee (Beauty & Aesthetics Awards)',
+  ],
   employee: {
     '@type': 'Person',
     name: 'Bernadette Tobin',
