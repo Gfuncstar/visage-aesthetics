@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "description": "Evergreen topic bank for the Visage Aesthetics auto-blog generator. The script picks one topic per run that (a) hasn't been covered yet, (b) has high search intent, and (c) ideally connects to a recent news angle from web search.",
+  "evergreenTopics": [
+    {
+      "slug": "lip-filler-aftercare-guide",
+      "title": "Lip filler aftercare: a complete guide",
+      "intent": "informational/commercial",
+      "targetKeywords": ["lip filler aftercare", "what to do after lip filler", "lip filler swelling timeline"],
+      "angle": "Calm walkthrough of the first 48 hours, the 2-week settle, what to avoid, when to worry. Bernadette's checklist.",
+      "treatment": "/treatments/dermal-filler"
+    },
+    {
+      "slug": "how-long-does-botox-last",
+      "title": "How long does Botox actually last?",
+      "intent": "informational",
+      "targetKeywords": ["how long does botox last", "botox duration", "when does botox wear off"],
+      "angle": "3-4 month answer, plus the variables (dose, area, metabolism, frequency of use) that move the timeline.",
+      "treatment": "/treatments/anti-wrinkle-injections"
+    },
+    {
+      "slug": "first-time-botox-mistakes",
+      "title": "Five mistakes first-time Botox clients make",
+      "intent": "informational",
+      "targetKeywords": ["first time botox", "botox mistakes", "what to avoid before botox"],
+      "angle": "Practical: too much, too soon, wrong clinic, no consultation, no review. Honest.",
+      "treatment": "/treatments/anti-wrinkle-injections"
+    },
+    {
+      "slug": "profhilo-treatment-guide",
+      "title": "Profhilo: a no-nonsense treatment guide",
+      "intent": "informational/commercial",
+      "targetKeywords": ["what is profhilo", "profhilo treatment", "profhilo course"],
+      "angle": "What it is, what it isn't, who it works on, who it doesn't. Why a course of two.",
+      "treatment": "/treatments/profhilo"
+    },
+    {
+      "slug": "anti-wrinkle-aftercare",
+      "title": "Anti-wrinkle aftercare: the first 24 hours",
+      "intent": "informational",
+      "targetKeywords": ["botox aftercare", "anti-wrinkle aftercare", "what to avoid after botox"],
+      "angle": "Hour-by-hour. Don't lie down, don't massage, don't exercise hard. Why each rule.",
+      "treatment": "/treatments/anti-wrinkle-injections"
+    },
+    {
+      "slug": "natural-looking-aesthetics-essex",
+      "title": "How to find a natural-looking aesthetics clinic in Essex",
+      "intent": "commercial",
+      "targetKeywords": ["natural aesthetics essex", "best aesthetics clinic essex", "nurse led aesthetics"],
+      "angle": "What to ask in a consultation, what red flags to watch for, why nurse-led matters.",
+      "treatment": "/about"
+    },
+    {
+      "slug": "uk-aesthetics-regulation-2026",
+      "title": "UK aesthetics regulation in 2026: what's actually changing",
+      "intent": "informational/news",
+      "targetKeywords": ["uk aesthetics regulation", "botox licensing uk", "aesthetic practitioner law"],
+      "angle": "Latest legislative state of play, what it means for clients, why it matters who you see.",
+      "treatment": "/about/qualifications"
+    },
+    {
+      "slug": "aqualyx-fat-dissolving-explained",
+      "title": "AQUALYX fat dissolving: what to expect",
+      "intent": "informational/commercial",
+      "targetKeywords": ["aqualyx", "fat dissolving injection", "double chin treatment"],
+      "angle": "Mechanism, candidate selection, course planning, downtime, realistic results.",
+      "treatment": "/treatments/aqualyx"
+    },
+    {
+      "slug": "tear-trough-filler-truth",
+      "title": "Tear trough filler: when it works and when it really doesn't",
+      "intent": "informational/commercial",
+      "targetKeywords": ["tear trough filler", "under eye filler", "dark circles treatment"],
+      "angle": "The hardest area in aesthetics. Why most clients are not candidates, and what to do instead.",
+      "treatment": "/treatments/dermal-filler"
+    },
+    {
+      "slug": "preventative-botox-late-twenties",
+      "title": "Preventative Botox in your late twenties: yes or no",
+      "intent": "informational",
+      "targetKeywords": ["preventative botox", "botox in 20s", "early botox"],
+      "angle": "An honest answer for the under-30 demographic. When it makes sense, when it doesn't, what to start with.",
+      "treatment": "/treatments/anti-wrinkle-injections"
+    },
+    {
+      "slug": "men-aesthetics-guide",
+      "title": "Aesthetic treatment for men: what's different",
+      "intent": "informational/commercial",
+      "targetKeywords": ["men botox", "male aesthetics", "men aesthetic treatment"],
+      "angle": "Different anatomy, different dosing, different goals. Subtle is even more important.",
+      "treatment": "/treatments/mens-aesthetics"
+    },
+    {
+      "slug": "consultation-questions-to-ask",
+      "title": "Ten questions to ask at any aesthetics consultation",
+      "intent": "informational",
+      "targetKeywords": ["aesthetics consultation questions", "what to ask before botox", "choosing aesthetic clinic"],
+      "angle": "Question 1: NMC pin? Question 2: indemnity insurer? Question 3: reversal protocols on site?",
+      "treatment": "/about/qualifications"
+    },
+    {
+      "slug": "micro-needling-results-timeline",
+      "title": "Micro-needling: when you'll see results, and what to expect",
+      "intent": "informational/commercial",
+      "targetKeywords": ["micro-needling results", "micro-needling timeline", "skin needling course"],
+      "angle": "Collagen takes time. 4-6 weeks per session, courses of 3, real-life expectations.",
+      "treatment": "/treatments/micro-needling"
+    },
+    {
+      "slug": "hyperhidrosis-botox-explained",
+      "title": "Botox for excessive sweating: a medical use of an aesthetic treatment",
+      "intent": "informational/commercial",
+      "targetKeywords": ["hyperhidrosis treatment", "botox for sweating", "underarm botox"],
+      "angle": "Mechanism (acetylcholine block), longevity (6+ months), why this works medically.",
+      "treatment": "/treatments/hyperhidrosis-migraines"
+    },
+    {
+      "slug": "harmonyca-vs-traditional-filler",
+      "title": "HarmonyCa vs traditional dermal filler: when to choose which",
+      "intent": "informational/commercial",
+      "targetKeywords": ["harmonyca", "harmonyca vs filler", "calcium hydroxyapatite filler"],
+      "angle": "Hybrid HA + CaHA, biostimulation, who's the right candidate.",
+      "treatment": "/treatments/harmonyca"
+    },
+    {
+      "slug": "vitamin-b12-injections-when-they-work",
+      "title": "Vitamin B12 injections: when they actually work",
+      "intent": "informational/commercial",
+      "targetKeywords": ["vitamin b12 injection", "b12 deficiency", "energy injections"],
+      "angle": "The science of injectable vs oral, who genuinely benefits, who's wasting money.",
+      "treatment": "/treatments/vitamin-b12"
+    }
+  ],
+  "newsAngles": [
+    "MHRA / regulatory updates affecting aesthetic practice",
+    "Save Face / JCCP / BACN industry announcements",
+    "New product launches in UK aesthetic injectables",
+    "Reported complications or industry incidents prompting consumer education",
+    "Government licensing scheme rollout for non-surgical cosmetic procedures",
+    "Insurance / indemnity changes affecting practitioners",
+    "Notable celebrity / public conversation shifting consumer awareness",
+    "Seasonal trends (wedding season, summer skin prep, winter recovery, NYE)"
+  ],
+  "voiceRules": [
+    "First-person from Bernadette where appropriate; British English spelling",
+    "Calm, considered, never breathy or salesy. No exclamation marks except in quotes.",
+    "Concrete numbers and timeframes over vague reassurance",
+    "Acknowledge industry weaknesses honestly (unregulated, over-treatment, etc.)",
+    "Always include reversibility/safety where relevant",
+    "Internal links to /treatments/[relevant] and /about/qualifications where natural",
+    "End with a free-consultation CTA, never an aggressive book-now",
+    "Avoid emojis, avoid 'amazing/incredible/transformative'"
+  ]
+}
