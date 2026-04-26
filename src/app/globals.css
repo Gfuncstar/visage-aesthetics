@@ -366,11 +366,12 @@ section.reveal { opacity: 1; transform: none; transition: none; }
   display: flex;
   flex-direction: column;
   gap: 14px;
-  align-items: flex-end;
+  align-items: stretch;
+  width: 250px;
 }
 .award-badge {
   position: relative;
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -383,8 +384,8 @@ section.reveal { opacity: 1; transform: none; transition: none; }
   -webkit-backdrop-filter: none;
   border: 0;
   border-radius: 22px;
-  width: auto;
-  height: auto;
+  width: 100%;
+  min-height: 150px;
   box-shadow: 0 22px 58px rgba(31, 27, 26, 0.32);
   opacity: 0;
   animation: fadeUp 1s 0.6s var(--ease) forwards;
@@ -449,17 +450,17 @@ section.reveal { opacity: 1; transform: none; transition: none; }
   white-space: nowrap;
 }
 @media (max-width: 720px) {
-  .award-stack { top: 92px; gap: 10px; }
+  .award-stack { top: 88px; gap: 8px; width: 160px; }
   .award-badge {
-    max-width: 220px;
-    padding: 14px 18px;
-    gap: 6px;
-    border-radius: 16px;
+    padding: 11px 14px;
+    gap: 5px;
+    border-radius: 13px;
+    min-height: 96px;
   }
-  .award-badge .award-eyebrow { font-size: 11px; letter-spacing: 0.24em; }
-  .award-badge .award-title { font-size: 15px; line-height: 1.15; }
-  .award-badge .award-meta { font-size: 11px; letter-spacing: 0.18em; }
-  .award-badge .laurel-l, .award-badge .laurel-r { font-size: 14px; }
+  .award-badge .award-eyebrow { font-size: 9px; letter-spacing: 0.24em; }
+  .award-badge .award-title { font-size: 12px; line-height: 1.15; }
+  .award-badge .award-meta { font-size: 9px; letter-spacing: 0.18em; }
+  .award-badge .laurel-l, .award-badge .laurel-r { font-size: 11px; }
 }
 .scrub-panel .btn-primary {
   box-shadow: none;
