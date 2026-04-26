@@ -3,11 +3,11 @@ import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
   title: 'Botox Maldon | Award-Winning Nurse-Led Clinic | Visage Aesthetics',
-  description: "Anti-wrinkle (Botox) injections for Maldon clients at Visage Aesthetics, Braintree — 25 minutes via the A414. Best Non-Surgical Aesthetics Clinic 2026 — Essex. Bernadette Tobin RGN, MSc. From £150.",
+  description: "Anti-wrinkle (Botox) injections for Maldon clients at Visage Aesthetics, Braintree — 25 minutes via the A414. Best Non-Surgical Aesthetics Clinic 2026 — Essex. Bernadette Tobin RGN, MSc. From £120.",
   alternates: { canonical: '/maldon-botox' },
   openGraph: {
     title: 'Botox for Maldon Clients | Visage Aesthetics, Braintree',
-    description: 'Award-winning nurse-led Botox 25 minutes from Maldon. From £150.',
+    description: 'Award-winning nurse-led Botox 25 minutes from Maldon. From £120.',
     url: 'https://www.vaclinic.co.uk/maldon-botox',
   },
 }
@@ -25,7 +25,7 @@ export default function MaldonBotox() {
         { title: 'Worth the 25-minute drive', body: "Free on-site parking on Friars Lane. One client in the room at a time. The drive is quieter than the Maldon High Street parking circuit." },
         { title: 'Conservative, never overdone', body: "Many Maldon clients arrive after over-treatment elsewhere. We start small. We listen. We dose to the muscle, not the area." },
       ]}
-      priceFrom="From £150 / 1 area"
+      priceFrom="From £120 / 1 area"
       postcode="CM7 9BL"
       treatmentHref="/treatments/anti-wrinkle-injections"
       faqs={[
@@ -39,7 +39,7 @@ export default function MaldonBotox() {
         },
         {
           question: 'How much does Botox cost?',
-          answer: '£150 for one area, £190 for two, £220 for three. Free consultation included. See /pricing for the full transparent price table.',
+          answer: '£120 for one area, £170 for two, £220 for three. Free consultation included. See /pricing for the full transparent price table.',
         },
         {
           question: 'Will it look natural?',

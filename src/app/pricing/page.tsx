@@ -7,7 +7,7 @@ import { BOOKING_LINK_PROPS } from '@/lib/booking'
 
 export const metadata: Metadata = {
   title: 'Treatment Prices | Visage Aesthetics, Braintree',
-  description: "Transparent prices for every treatment at Visage Aesthetics, Braintree. Anti-wrinkle from £150, dermal filler from £200, Profhilo from £300. Free consultation, no pressure.",
+  description: "Transparent prices for every treatment at Visage Aesthetics, Braintree. Anti-wrinkle from £120, dermal filler from £110, Profhilo from £300. Free consultation, no pressure.",
   alternates: { canonical: '/pricing' },
   openGraph: {
     title: 'Treatment Prices | Visage Aesthetics, Braintree',
@@ -27,8 +27,8 @@ const rows: Row[] = [
     treatment: 'Anti-Wrinkle Injections',
     href: '/treatments/anti-wrinkle-injections',
     options: [
-      { area: '1 area', price: '£150', duration: '15 min' },
-      { area: '2 areas', price: '£190', duration: '20 min' },
+      { area: '1 area', price: '£120', duration: '15 min' },
+      { area: '2 areas', price: '£170', duration: '20 min' },
       { area: '3 areas', price: '£220', duration: '25 min' },
     ],
   },
@@ -36,11 +36,10 @@ const rows: Row[] = [
     treatment: 'Dermal Filler',
     href: '/treatments/dermal-filler',
     options: [
-      { area: 'Lip filler (0.5ml)', price: '£200', duration: '30 min' },
-      { area: 'Lip filler (1ml)', price: '£260', duration: '30 min' },
-      { area: 'Cheek filler (1ml)', price: '£280', duration: '30 min' },
-      { area: 'Tear trough (1ml)', price: '£320', duration: '40 min' },
-      { area: 'Jawline / chin (1ml)', price: '£280', duration: '40 min' },
+      { area: 'Lip filler (0.5ml)', price: '£110', duration: '30 min' },
+      { area: 'Lip filler (1ml)', price: '£200', duration: '30 min' },
+      { area: 'Cheek filler (1ml)', price: '£200', duration: '30 min' },
+      { area: 'Jawline / chin (1ml)', price: '£250', duration: '40 min' },
     ],
   },
   {

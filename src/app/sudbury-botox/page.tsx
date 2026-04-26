@@ -3,11 +3,11 @@ import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
   title: 'Botox Sudbury | Award-Winning Nurse-Led Clinic | Visage Aesthetics',
-  description: "Anti-wrinkle (Botox) injections for Sudbury and South Suffolk clients at Visage Aesthetics, Braintree — 25 minutes via the A131. Best Non-Surgical Aesthetics Clinic 2026 — Essex. From £150.",
+  description: "Anti-wrinkle (Botox) injections for Sudbury and South Suffolk clients at Visage Aesthetics, Braintree — 25 minutes via the A131. Best Non-Surgical Aesthetics Clinic 2026 — Essex. From £120.",
   alternates: { canonical: '/sudbury-botox' },
   openGraph: {
     title: 'Botox for Sudbury Clients | Visage Aesthetics, Braintree',
-    description: 'Award-winning nurse-led Botox 25 minutes from Sudbury. From £150.',
+    description: 'Award-winning nurse-led Botox 25 minutes from Sudbury. From £120.',
     url: 'https://www.vaclinic.co.uk/sudbury-botox',
   },
 }
@@ -25,7 +25,7 @@ export default function SudburyBotox() {
         { title: 'Twenty years of clinical experience', body: "Bernadette is an NMC-registered nurse with an MSc in Advanced Practice. Most aesthetic options around Sudbury are beauty-led; Visage is medical." },
         { title: 'Free parking, no Sudbury queue', body: "Friars Lane has free on-site parking. The A131 to Braintree is one straight road. Many Sudbury clients tell us the drive is the easiest part." },
       ]}
-      priceFrom="From £150 / 1 area"
+      priceFrom="From £120 / 1 area"
       postcode="CM7 9BL"
       treatmentHref="/treatments/anti-wrinkle-injections"
       faqs={[
@@ -39,7 +39,7 @@ export default function SudburyBotox() {
         },
         {
           question: 'How much does Botox cost?',
-          answer: '£150 for one area, £190 for two, £220 for three. Free consultation included. See /pricing for the full transparent table.',
+          answer: '£120 for one area, £170 for two, £220 for three. Free consultation included. See /pricing for the full transparent table.',
         },
         {
           question: 'Will it look natural?',

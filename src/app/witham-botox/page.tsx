@@ -3,11 +3,11 @@ import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
   title: 'Botox Witham | Award-Winning Nurse-Led Clinic | Visage Aesthetics',
-  description: "Anti-wrinkle (Botox) injections for Witham clients at Visage Aesthetics, Braintree — 12 minutes away. Best Non-Surgical Aesthetics Clinic 2026 — Essex. Bernadette Tobin RGN, MSc. From £150.",
+  description: "Anti-wrinkle (Botox) injections for Witham clients at Visage Aesthetics, Braintree — 12 minutes away. Best Non-Surgical Aesthetics Clinic 2026 — Essex. Bernadette Tobin RGN, MSc. From £120.",
   alternates: { canonical: '/witham-botox' },
   openGraph: {
     title: 'Botox for Witham Clients | Visage Aesthetics',
-    description: 'Award-winning nurse-led Botox clinic 12 minutes from Witham. From £150.',
+    description: 'Award-winning nurse-led Botox clinic 12 minutes from Witham. From £120.',
     url: 'https://www.vaclinic.co.uk/witham-botox',
   },
 }
@@ -25,7 +25,7 @@ export default function WithamBotox() {
         { title: 'Award-winning local clinic', body: "Best Non-Surgical Aesthetics Clinic 2026 — Essex. Few clinics within a 12-minute drive of Witham can say the same." },
         { title: 'Truly medical', body: "Performed by a registered nurse with an MSc in Advanced Practice (Level 7) — the highest postgraduate nursing qualification. Twenty years of clinical experience." },
       ]}
-      priceFrom="From £150 / 1 area"
+      priceFrom="From £120 / 1 area"
       postcode="CM7 9BL"
       treatmentHref="/treatments/anti-wrinkle-injections"
       faqs={[
@@ -43,7 +43,7 @@ export default function WithamBotox() {
         },
         {
           question: 'How much does Botox cost?',
-          answer: '£150 for one area, £190 for two, £220 for three. The free consultation is included. Pricing is transparent — see /pricing for the full table.',
+          answer: '£120 for one area, £170 for two, £220 for three. The free consultation is included. Pricing is transparent — see /pricing for the full table.',
         },
         {
           question: 'Will it hurt?',

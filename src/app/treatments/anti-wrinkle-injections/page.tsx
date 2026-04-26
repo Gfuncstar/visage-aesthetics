@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/treatments/anti-wrinkle-injections' },
   title: 'Anti-Wrinkle Injections (Botox) Braintree | Visage Aesthetics',
   description:
-    'Award-winning nurse-led anti-wrinkle injections in Braintree, Essex. Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Naturally subtle results, full expression preserved. From £150.',
+    'Award-winning nurse-led anti-wrinkle injections in Braintree, Essex. Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Naturally subtle results, full expression preserved. From £120.',
 }
 
 export default function Page() {
@@ -55,7 +55,7 @@ export default function Page() {
         after:
           'Stay upright for four hours and avoid the gym, sauna, hot yoga and lying flat. Avoid massaging or rubbing the treated area for 24 hours. Results begin to appear from day three, peak around day seven, and settle by day fourteen — at which point your complimentary review takes place to fine-tune anything that has come up uneven.',
       }}
-      pricingNote="From £150 for a single area, £190 for two, and £220 for three areas at the same appointment. The fee covers your treatment, all product, and a complimentary two-week review. There is no consultation fee. Pricing is transparent across the site — see the /pricing page for the full table including filler and Profhilo."
+      pricingNote="From £120 for a single area, £170 for two, and £220 for three areas at the same appointment. The fee covers your treatment, all product, and a complimentary two-week review. There is no consultation fee. Pricing is transparent across the site — see the /pricing page for the full table including filler and Profhilo."
       faqs={[
         {
           question: 'What is the difference between anti-wrinkle injections and dermal filler?',

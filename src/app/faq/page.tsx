@@ -56,7 +56,7 @@ const treatmentsFaq: AccordionItem[] = [
 const booking: AccordionItem[] = [
   {
     question: 'How much do treatments cost?',
-    answer: 'Pricing varies by treatment. As a guide: anti-wrinkle from £150, dermal filler from £200 per ml, Profhilo from £300 per session, AQUALYX from £250 per area, micro-needling from £150, CryoPen from £80. Full pricing is discussed openly at consultation, in line with what is right for you.',
+    answer: 'Pricing varies by treatment. As a guide: anti-wrinkle from £120, dermal filler from £110 per ml, Profhilo from £300 per session, AQUALYX from £250 per area, micro-needling from £150, CryoPen from £80. Full pricing is discussed openly at consultation, in line with what is right for you.',
   },
   {
     question: 'What happens at a free consultation?',

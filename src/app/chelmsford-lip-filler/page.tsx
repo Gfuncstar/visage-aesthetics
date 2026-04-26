@@ -3,11 +3,11 @@ import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
   title: 'Lip Filler Chelmsford | Award-Winning Nurse-Led Clinic | Visage Aesthetics',
-  description: "Subtle, balanced lip filler for Chelmsford clients at Visage Aesthetics, Braintree (25 mins). Best Non-Surgical Aesthetics Clinic 2026 — Essex. Bernadette Tobin RGN, MSc. From £200.",
+  description: "Subtle, balanced lip filler for Chelmsford clients at Visage Aesthetics, Braintree (25 mins). Best Non-Surgical Aesthetics Clinic 2026 — Essex. Bernadette Tobin RGN, MSc. From £110.",
   alternates: { canonical: '/chelmsford-lip-filler' },
   openGraph: {
     title: 'Lip Filler for Chelmsford Clients | Visage Aesthetics',
-    description: 'Award-winning nurse-led lip filler 25 minutes from Chelmsford. From £200.',
+    description: 'Award-winning nurse-led lip filler 25 minutes from Chelmsford. From £110.',
     url: 'https://www.vaclinic.co.uk/chelmsford-lip-filler',
   },
 }
@@ -25,7 +25,7 @@ export default function ChelmsfordLipFiller() {
         { title: 'Worth the 25-minute drive', body: "Free parking, one client in the room at a time, no salon vibe. The opposite of a busy high-street experience." },
         { title: 'Reversible and safe', body: "Hyaluronic acid filler with built-in lidocaine for comfort. Fully dissolvable with hyaluronidase if you change your mind. Performed by a registered nurse with an MSc Advanced Practice." },
       ]}
-      priceFrom="From £200 / 0.5ml"
+      priceFrom="From £110 / 0.5ml"
       postcode="CM7 9BL"
       treatmentHref="/treatments/dermal-filler"
       faqs={[
@@ -43,7 +43,7 @@ export default function ChelmsfordLipFiller() {
         },
         {
           question: 'How much does lip filler cost?',
-          answer: '£200 for 0.5ml, £260 for 1ml. Free consultation included. See the pricing page for the full table — no hidden costs.',
+          answer: '£110 for 0.5ml, £200 for 1ml. Free consultation included. See the pricing page for the full table — no hidden costs.',
         },
         {
           question: 'How long does lip filler last?',

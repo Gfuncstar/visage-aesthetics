@@ -3,11 +3,11 @@ import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
   title: 'Botox Colchester | Award-Winning Nurse-Led Clinic | Visage Aesthetics',
-  description: "Anti-wrinkle (Botox) injections for Colchester clients at Visage Aesthetics, Braintree — 25 minutes. Best Non-Surgical Aesthetics Clinic 2026 — Essex. Bernadette Tobin RGN, MSc. From £150.",
+  description: "Anti-wrinkle (Botox) injections for Colchester clients at Visage Aesthetics, Braintree — 25 minutes. Best Non-Surgical Aesthetics Clinic 2026 — Essex. Bernadette Tobin RGN, MSc. From £120.",
   alternates: { canonical: '/colchester-botox' },
   openGraph: {
     title: 'Botox for Colchester Clients | Visage Aesthetics, Braintree',
-    description: 'Award-winning nurse-led Botox 25 minutes from Colchester. From £150.',
+    description: 'Award-winning nurse-led Botox 25 minutes from Colchester. From £120.',
     url: 'https://www.vaclinic.co.uk/colchester-botox',
   },
 }
@@ -25,7 +25,7 @@ export default function ColchesterBotox() {
         { title: 'A nurse with an MSc', body: "Bernadette holds a Level 7 MSc in Advanced Practice — the highest postgraduate nursing qualification. Most Colchester aesthetic practitioners are trained at Level 4-5." },
         { title: 'Award-winning clinic', body: "Best Non-Surgical Aesthetics Clinic 2026 — Essex. The closest award-recognised clinic for the Colchester area." },
       ]}
-      priceFrom="From £150 / 1 area"
+      priceFrom="From £120 / 1 area"
       postcode="CM7 9BL"
       treatmentHref="/treatments/anti-wrinkle-injections"
       faqs={[
@@ -39,7 +39,7 @@ export default function ColchesterBotox() {
         },
         {
           question: 'How much does Botox cost?',
-          answer: 'From £150 for one area, £190 for two, £220 for three. Free consultation included. Pricing transparent at /pricing.',
+          answer: 'From £120 for one area, £170 for two, £220 for three. Free consultation included. Pricing transparent at /pricing.',
         },
         {
           question: 'Will it look natural?',

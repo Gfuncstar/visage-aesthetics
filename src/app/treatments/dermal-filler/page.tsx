@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/treatments/dermal-filler' },
   title: 'Dermal Filler Braintree | Award-Winning Nurse-Led | Visage Aesthetics',
   description:
-    'Subtle, balanced dermal filler in Braintree, Essex. Hyaluronic acid for lips, cheeks, jawline and tear troughs by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). From £200, fully reversible.',
+    'Subtle, balanced dermal filler in Braintree, Essex. Hyaluronic acid for lips, cheeks and jawline by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). From £110, fully reversible.',
 }
 
 export default function Page() {
@@ -54,7 +54,7 @@ export default function Page() {
         after:
           'Some swelling for 24-48 hours is normal; bruising is possible but not guaranteed. You can return to work the same day for most areas (lips can look briefly fuller). Avoid the gym, sauna, hot yoga, alcohol and dental work for 24 hours. Two-week review included.',
       }}
-      pricingNote="Lip filler from £200 (0.5ml) or £260 (1ml). Cheek filler £280 per ml. Tear trough £320 per ml (technically demanding area). Jawline £280 per ml. The fee covers your treatment, all product and a complimentary two-week review. There is no consultation fee. See /pricing for the full transparent table."
+      pricingNote="Lip filler from £110 (0.5ml) or £200 (1ml). Cheek filler £200 per ml. Jawline £250 per ml. The fee covers your treatment, all product and a complimentary two-week review. There is no consultation fee. See /pricing for the full transparent table."
       faqs={[
         {
           question: 'How much filler should I have for my first time?',

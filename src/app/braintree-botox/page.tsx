@@ -3,11 +3,11 @@ import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
   title: 'Botox Braintree | Award-Winning Nurse-Led Clinic | Visage Aesthetics',
-  description: "Anti-wrinkle (Botox) injections in Braintree, Essex by Bernadette Tobin RGN, MSc — NMC PIN 05G1755E. Best Non-Surgical Aesthetics Clinic 2026. Free consultation, naturally subtle results from £150.",
+  description: "Anti-wrinkle (Botox) injections in Braintree, Essex by Bernadette Tobin RGN, MSc — NMC PIN 05G1755E. Best Non-Surgical Aesthetics Clinic 2026. Free consultation, naturally subtle results from £120.",
   alternates: { canonical: '/braintree-botox' },
   openGraph: {
     title: 'Botox in Braintree, Essex | Visage Aesthetics',
-    description: 'Award-winning nurse-led Botox clinic on Friars Lane, Braintree. From £150.',
+    description: 'Award-winning nurse-led Botox clinic on Friars Lane, Braintree. From £120.',
     url: 'https://www.vaclinic.co.uk/braintree-botox',
   },
 }
@@ -25,7 +25,7 @@ export default function BraintreeBotox() {
         { title: 'Medical, not beauty-counter', body: "Performed by an NMC-registered nurse with an MSc in Advanced Practice — Level 7, the highest postgraduate qualification a nurse can hold. Most local clinics are Level 4-5." },
         { title: 'Naturally subtle', body: "Conservative dosing means you still look like yourself, just refreshed. Colleagues won't notice. Mirrors will." },
       ]}
-      priceFrom="From £150 / 1 area"
+      priceFrom="From £120 / 1 area"
       postcode="CM7 9BL"
       treatmentHref="/treatments/anti-wrinkle-injections"
       faqs={[
@@ -43,7 +43,7 @@ export default function BraintreeBotox() {
         },
         {
           question: 'How much does Botox cost in Braintree?',
-          answer: 'Anti-wrinkle injections at Visage start from £150 for one area, £190 for two areas, and £220 for three areas. Pricing is transparent — no consultation fee, no hidden costs, and a complimentary two-week review is included.',
+          answer: 'Anti-wrinkle injections at Visage start from £120 for one area, £170 for two areas, and £220 for three areas. Pricing is transparent — no consultation fee, no hidden costs, and a complimentary two-week review is included.',
         },
         {
           question: 'How long does Botox last?',

@@ -3,11 +3,11 @@ import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
   title: 'Botox Great Dunmow | Award-Winning Nurse-Led Clinic | Visage Aesthetics',
-  description: "Anti-wrinkle (Botox) injections for Great Dunmow clients at Visage Aesthetics, Braintree — 15 minutes via the A120. Best Non-Surgical Aesthetics Clinic 2026 — Essex. Bernadette Tobin RGN, MSc. From £150.",
+  description: "Anti-wrinkle (Botox) injections for Great Dunmow clients at Visage Aesthetics, Braintree — 15 minutes via the A120. Best Non-Surgical Aesthetics Clinic 2026 — Essex. Bernadette Tobin RGN, MSc. From £120.",
   alternates: { canonical: '/great-dunmow-botox' },
   openGraph: {
     title: 'Botox for Great Dunmow Clients | Visage Aesthetics, Braintree',
-    description: 'Award-winning nurse-led Botox 15 minutes from Great Dunmow. From £150.',
+    description: 'Award-winning nurse-led Botox 15 minutes from Great Dunmow. From £120.',
     url: 'https://www.vaclinic.co.uk/great-dunmow-botox',
   },
 }
@@ -25,7 +25,7 @@ export default function GreatDunmowBotox() {
         { title: 'Fifteen minutes door-to-door', body: "A120 eastbound, free parking on Friars Lane. Quicker and quieter than driving into Stansted or Bishops Stortford for treatment." },
         { title: 'A nurse with an MSc', body: "Bernadette holds a Level 7 MSc in Advanced Practice — rare in Essex aesthetics. Most local aestheticians are Level 4-5 trained or beauty-led." },
       ]}
-      priceFrom="From £150 / 1 area"
+      priceFrom="From £120 / 1 area"
       postcode="CM7 9BL"
       treatmentHref="/treatments/anti-wrinkle-injections"
       faqs={[
@@ -39,7 +39,7 @@ export default function GreatDunmowBotox() {
         },
         {
           question: 'How much does Botox cost?',
-          answer: '£150 for one area, £190 for two, £220 for three. Free consultation included. Pricing transparent at /pricing.',
+          answer: '£120 for one area, £170 for two, £220 for three. Free consultation included. Pricing transparent at /pricing.',
         },
         {
           question: 'How quickly can I be seen?',

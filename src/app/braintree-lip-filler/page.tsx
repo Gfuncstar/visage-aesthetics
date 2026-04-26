@@ -3,11 +3,11 @@ import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
   title: 'Lip Filler Braintree | Award-Winning Nurse-Led Clinic | Visage Aesthetics',
-  description: "Subtle, balanced lip filler in Braintree, Essex by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Best Non-Surgical Aesthetics Clinic 2026. From £200. Hyaluronic acid filler, fully reversible.",
+  description: "Subtle, balanced lip filler in Braintree, Essex by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Best Non-Surgical Aesthetics Clinic 2026. From £110. Hyaluronic acid filler, fully reversible.",
   alternates: { canonical: '/braintree-lip-filler' },
   openGraph: {
     title: 'Lip Filler in Braintree | Visage Aesthetics',
-    description: 'Award-winning nurse-led lip filler clinic on Friars Lane, Braintree. From £200.',
+    description: 'Award-winning nurse-led lip filler clinic on Friars Lane, Braintree. From £110.',
     url: 'https://www.vaclinic.co.uk/braintree-lip-filler',
   },
 }
@@ -25,7 +25,7 @@ export default function BraintreeLipFiller() {
         { title: 'Award-winning local clinic', body: "Best Non-Surgical Aesthetics Clinic 2026 — Essex. Hyaluronic acid fillers from regulated, reputable manufacturers. Fully reversible at any time." },
         { title: 'Built-in numbing', body: "All filler products contain lidocaine for comfort. We numb the area first when you'd like extra. Most Braintree clients describe the procedure as easier than they expected." },
       ]}
-      priceFrom="From £200 / 0.5ml"
+      priceFrom="From £110 / 0.5ml"
       postcode="CM7 9BL"
       treatmentHref="/treatments/dermal-filler"
       faqs={[
@@ -35,7 +35,7 @@ export default function BraintreeLipFiller() {
         },
         {
           question: 'How much does lip filler cost in Braintree?',
-          answer: 'Lip filler at Visage starts from £200 for 0.5ml and £260 for 1ml. Pricing is transparent — see /pricing for the full table. The free consultation is included.',
+          answer: 'Lip filler at Visage starts from £110 for 0.5ml and £200 for 1ml. Pricing is transparent — see /pricing for the full table. The free consultation is included.',
         },
         {
           question: 'Will my lips look obvious?',

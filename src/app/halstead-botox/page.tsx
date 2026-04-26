@@ -3,11 +3,11 @@ import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
   title: 'Botox Halstead | Award-Winning Nurse-Led Clinic | Visage Aesthetics',
-  description: "Anti-wrinkle (Botox) injections for Halstead clients at Visage Aesthetics, Braintree — 12 minutes away. Best Non-Surgical Aesthetics Clinic 2026 — Essex. Bernadette Tobin RGN, MSc. From £150.",
+  description: "Anti-wrinkle (Botox) injections for Halstead clients at Visage Aesthetics, Braintree — 12 minutes away. Best Non-Surgical Aesthetics Clinic 2026 — Essex. Bernadette Tobin RGN, MSc. From £120.",
   alternates: { canonical: '/halstead-botox' },
   openGraph: {
     title: 'Botox for Halstead Clients | Visage Aesthetics, Braintree',
-    description: 'Award-winning nurse-led Botox clinic 12 minutes from Halstead. From £150.',
+    description: 'Award-winning nurse-led Botox clinic 12 minutes from Halstead. From £120.',
     url: 'https://www.vaclinic.co.uk/halstead-botox',
   },
 }
@@ -25,7 +25,7 @@ export default function HalsteadBotox() {
         { title: 'Award-winning in your district', body: "Best Non-Surgical Aesthetics Clinic 2026 — Essex. The closest award-recognised clinic for the Halstead, Earls Colne and Sible Hedingham area." },
         { title: 'Genuinely medical-grade', body: "Performed by a registered nurse with an MSc in Advanced Practice. Twenty years of clinical experience. Aesthetics treated as a clinical discipline, not a beauty service." },
       ]}
-      priceFrom="From £150 / 1 area"
+      priceFrom="From £120 / 1 area"
       postcode="CM7 9BL"
       treatmentHref="/treatments/anti-wrinkle-injections"
       faqs={[
@@ -43,7 +43,7 @@ export default function HalsteadBotox() {
         },
         {
           question: 'How much does it cost?',
-          answer: 'Anti-wrinkle injections start from £150 for one area, £190 for two, £220 for three. Your consultation is free. A complimentary two-week review is included.',
+          answer: 'Anti-wrinkle injections start from £120 for one area, £170 for two, £220 for three. Your consultation is free. A complimentary two-week review is included.',
         },
         {
           question: 'How long do results last?',
