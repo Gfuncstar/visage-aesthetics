@@ -90,9 +90,9 @@ export default function TreatmentTemplate({
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {/* HERO */}
-      <section className="relative bg-cream text-charcoal pt-20 md:pt-24 pb-6 md:pb-10 overflow-hidden">
+      <section className="relative bg-cream text-charcoal pt-20 md:pt-24 pb-4 md:pb-8 overflow-hidden">
         <div className="arc-bg" aria-hidden />
-        <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center relative">
+        <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-12 items-center relative">
           <div className="lg:col-span-7">
             <nav aria-label="Breadcrumb" className="text-eyebrow text-stone mb-5">
               <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
