@@ -11,6 +11,7 @@ const primaryNav = [
   { label: 'Prices', href: '/pricing' },
   { label: 'Approach', href: '/about' },
   { label: 'Awards', href: '/awards' },
+  { label: 'News', href: '/blog' },
   { label: 'Visit', href: '/contact' },
 ]
 
