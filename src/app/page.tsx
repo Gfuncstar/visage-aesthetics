@@ -39,8 +39,17 @@ export default async function Home() {
         '@id': 'https://www.vaclinic.co.uk/#website',
         url: 'https://www.vaclinic.co.uk/',
         name: 'Visage Aesthetics',
+        alternateName: ['Visage Aesthetics Braintree', 'VA Clinic'],
         publisher: { '@id': 'https://www.vaclinic.co.uk/#org' },
         inLanguage: 'en-GB',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: 'https://www.vaclinic.co.uk/search?q={search_term_string}',
+          },
+          'query-input': 'required name=search_term_string',
+        },
       },
       {
         '@type': ['Organization', 'MedicalBusiness', 'LocalBusiness'],

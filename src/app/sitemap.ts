@@ -36,6 +36,7 @@ const PAGE_DATES: Record<string, string> = {
   '/chelmsford-profhilo': '2026-04-26',
   '/halstead-profhilo': '2026-04-26',
   '/about/qualifications': '2026-04-26',
+  '/author/bernadette-tobin': '2026-04-26',
   '/blog/botox-vs-filler': '2026-04-26',
   '/blog/how-long-does-profhilo-last': '2026-04-26',
   '/blog/what-is-a-nurse-led-clinic': '2026-04-26',
@@ -89,6 +90,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE}/halstead-profhilo`,    changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/halstead-profhilo') },
     // Authority pages
     { url: `${SITE}/about/qualifications`, changeFrequency: 'yearly',  priority: 0.7,  lastModified: dateOf('/about/qualifications') },
+    { url: `${SITE}/author/bernadette-tobin`, changeFrequency: 'monthly', priority: 0.75, lastModified: dateOf('/author/bernadette-tobin') },
     // Long-form blog posts
     { url: `${SITE}/blog/botox-vs-filler`,             changeFrequency: 'monthly', priority: 0.7, lastModified: dateOf('/blog/botox-vs-filler') },
     { url: `${SITE}/blog/how-long-does-profhilo-last`, changeFrequency: 'monthly', priority: 0.7, lastModified: dateOf('/blog/how-long-does-profhilo-last') },

@@ -26,9 +26,11 @@ export function articleJsonLd(post: BlogPostMeta) {
     dateModified: post.dateModified ?? post.datePublished,
     author: {
       '@type': 'Person',
+      '@id': `${SITE}/author/bernadette-tobin#person`,
       name: 'Bernadette Tobin',
       jobTitle: 'Registered Nurse, MSc Advanced Practice',
-      url: `${SITE}/about`,
+      url: `${SITE}/author/bernadette-tobin`,
+      identifier: { '@type': 'PropertyValue', propertyID: 'NMC PIN', value: '05G1755E' },
     },
     publisher: {
       '@type': 'Organization',
