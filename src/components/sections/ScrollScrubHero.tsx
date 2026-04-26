@@ -156,14 +156,14 @@ export default function ScrollScrubHero() {
                   opacity: 0,
                   lineHeight: 1.6,
                   color: '#FFFFFF',
-                  textShadow: '0 2px 24px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.15)',
+                  textShadow: '0 2px 24px rgba(0, 0, 0, 0.20), 0 1px 3px rgba(0, 0, 0, 0.20)',
                 }}
               >
                 Private nurse-led clinic
                 <br />
                 By appointment · Braintree
               </div>
-              <h1 className="text-h1" style={{ color: '#F5F0EC', fontWeight: 300, textShadow: '0 4px 32px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.15)' }}>
+              <h1 className="text-h1" style={{ color: '#F5F0EC', fontWeight: 300, textShadow: '0 4px 32px rgba(0, 0, 0, 0.20), 0 2px 6px rgba(0, 0, 0, 0.20)' }}>
                 <span className="block">
                   <span className="word-rise"><span style={{ animationDelay: '0.30s' }}>Enhancing what&apos;s</span></span>
                 </span>

@@ -83,6 +83,18 @@ async function main() {
   // Phase 4: update sitemap
   updateSitemap(topic.slug, today)
   console.log('Sitemap updated')
+
+  // Phase 5: register the post in the blog manifest so it appears on /blog
+  updateBlogManifest({
+    slug: topic.slug,
+    title: topic.title,
+    excerpt: await summarise(client, topic, draft),
+    category: deriveCategory(topic.treatment),
+    datePublished: today,
+    dateModified: today,
+    readTime: estimateReadTime(wordCount),
+  })
+  console.log('Blog manifest updated')
 }
 
 async function researchNews(
@@ -207,6 +219,84 @@ ${body}
 
 function autoDescription(topic: Topic): string {
   return `${topic.title} — written by Bernadette Tobin RGN, MSc Advanced Practice. Award-winning nurse-led clinic in Braintree, Essex.`.slice(0, 160)
+}
+
+async function summarise(client: Anthropic, topic: Topic, draft: string): Promise<string> {
+  const prompt = `Below is the body of a new blog post titled "${topic.title}". Write a single-sentence excerpt (140-180 chars) that would make a reader click. British English, calm and clinical, no marketing fluff. Output the sentence only.
+
+---
+${draft.slice(0, 4000)}
+---`
+  try {
+    const res = await client.messages.create({
+      model: MODEL,
+      max_tokens: 200,
+      messages: [{ role: 'user', content: prompt }],
+    })
+    const text = res.content
+      .filter((b: { type: string }) => b.type === 'text')
+      .map((b: { type: string; text?: string }) => b.text ?? '')
+      .join('')
+      .trim()
+      .replace(/^"|"$/g, '')
+    return text.slice(0, 200)
+  } catch {
+    return `${topic.angle.slice(0, 160)}`
+  }
+}
+
+function deriveCategory(treatmentHref: string): string {
+  const map: Record<string, string> = {
+    '/treatments/anti-wrinkle-injections': 'Anti-wrinkle',
+    '/treatments/dermal-filler': 'Dermal filler',
+    '/treatments/profhilo': 'Skin quality',
+    '/treatments/harmonyca': 'Hybrid filler',
+    '/treatments/micro-needling': 'Skin quality',
+    '/treatments/aqualyx': 'Body contouring',
+    '/treatments/cryopen': 'Skin lesions',
+    '/treatments/hyperhidrosis-migraines': 'Medical aesthetics',
+    '/treatments/vitamin-b12': 'Wellness',
+    '/treatments/mens-aesthetics': 'Men',
+    '/about': 'Clinic',
+    '/about/qualifications': 'Clinic',
+  }
+  return map[treatmentHref] ?? 'Treatment guide'
+}
+
+function estimateReadTime(wordCount: number): string {
+  const minutes = Math.max(3, Math.round(wordCount / 220))
+  return `${minutes} min read`
+}
+
+function updateBlogManifest(post: {
+  slug: string
+  title: string
+  excerpt: string
+  category: string
+  datePublished: string
+  dateModified: string
+  readTime: string
+}) {
+  const path = join(ROOT, 'src/lib/blog-posts.ts')
+  let src = readFileSync(path, 'utf-8')
+  // Idempotency: skip if slug already present
+  if (src.includes(`slug: '${post.slug}'`)) return
+  const entry = `  {
+    slug: '${post.slug}',
+    category: ${JSON.stringify(post.category)},
+    title: ${JSON.stringify(post.title)},
+    excerpt: ${JSON.stringify(post.excerpt)},
+    readTime: ${JSON.stringify(post.readTime)},
+    datePublished: '${post.datePublished}',
+    dateModified: '${post.dateModified}',
+    image: '/images/og-home.jpg',
+  },
+`
+  src = src.replace(
+    /(\s*\/\/ AUTO-BLOG-INSERT[^\n]*\n)/,
+    `\n${entry}$1`,
+  )
+  writeFileSync(path, src)
 }
 
 function updateSitemap(slug: string, isoDate: string) {
