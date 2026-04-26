@@ -451,7 +451,7 @@ section.reveal { opacity: 1; transform: none; transition: none; }
 }
 @media (max-width: 720px) {
   .award-stack {
-    top: 120px;
+    top: 110px;
     gap: 8px;
     width: 160px;
     right: clamp(16px, 5vw, 28px);
