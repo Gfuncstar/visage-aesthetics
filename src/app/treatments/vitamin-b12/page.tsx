@@ -3,6 +3,7 @@ import TreatmentTemplate from '@/components/sections/TreatmentTemplate'
 import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/treatments/vitamin-b12' },
   title: 'Vitamin B12 Injections | Visage Aesthetics Braintree',
   description:
     'Vitamin B12 injections for energy, focus, mood and deficiency support. Quick clinical appointment in Braintree, Essex.',

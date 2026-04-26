@@ -2,10 +2,31 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import Accordion from '@/components/ui/Accordion'
 import BookingCTA from '@/components/sections/BookingCTA'
+import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
+
+const POST = {
+  slug: 'first-botox-appointment',
+  title: 'What to expect from your first Botox appointment.',
+  description: 'A calm, honest guide to your first anti-wrinkle injection appointment from Bernadette Tobin, registered nurse. Consultation, treatment, recovery and results explained.',
+  datePublished: '2025-09-12',
+  dateModified: '2026-04-01',
+  image: '/images/og-home.jpg',
+  wordCount: 1450,
+}
 
 export const metadata: Metadata = {
   title: 'What to Expect from Your First Botox Appointment | Visage Aesthetics',
-  description: 'A calm, honest guide to your first anti-wrinkle injection appointment from Bernadette Tobin, registered nurse. Consultation, treatment, recovery and results explained.',
+  description: POST.description,
+  alternates: { canonical: `/blog/${POST.slug}` },
+  openGraph: {
+    type: 'article',
+    title: POST.title,
+    description: POST.description,
+    url: `https://www.vaclinic.co.uk/blog/${POST.slug}`,
+    publishedTime: POST.datePublished,
+    modifiedTime: POST.dateModified,
+    authors: ['Bernadette Tobin'],
+  },
 }
 
 const faqs = [
@@ -30,6 +51,8 @@ const faqs = [
 export default function FirstBotoxPost() {
   return (
     <article className="bg-cream">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd(POST)) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(POST.slug, POST.title)) }} />
       {/* HERO BAND */}
       <section className="relative bg-cream text-charcoal overflow-hidden pt-24 md:pt-28 pb-8 md:pb-12">
         <div className="arc-bg" aria-hidden />

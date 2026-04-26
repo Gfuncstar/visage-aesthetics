@@ -3,6 +3,7 @@ import TreatmentTemplate from '@/components/sections/TreatmentTemplate'
 import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/treatments/micro-needling' },
   title: 'Micro-Needling | Visage Aesthetics Braintree',
   description:
     'Medical micro-needling for acne scarring, texture, pores and skin rejuvenation. Nurse-led collagen induction therapy in Braintree, Essex.',

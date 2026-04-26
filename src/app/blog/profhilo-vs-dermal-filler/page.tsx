@@ -1,15 +1,38 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import BookingCTA from '@/components/sections/BookingCTA'
+import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
+
+const POST = {
+  slug: 'profhilo-vs-dermal-filler',
+  title: 'Profhilo vs dermal filler: which one do you actually need?',
+  description: 'Both are injectable. Both contain hyaluronic acid. They do completely different jobs. Bernadette Tobin, RN MSc, explains the real difference and how to choose.',
+  datePublished: '2025-11-18',
+  dateModified: '2026-04-01',
+  image: '/images/og-home.jpg',
+  wordCount: 1500,
+}
 
 export const metadata: Metadata = {
   title: 'Profhilo vs Dermal Filler: Which Do You Actually Need? | Visage Aesthetics',
-  description: 'Both are injectable. Both contain hyaluronic acid. They do completely different jobs. Bernadette Tobin, RN MSc, explains the real difference and how to choose.',
+  description: POST.description,
+  alternates: { canonical: `/blog/${POST.slug}` },
+  openGraph: {
+    type: 'article',
+    title: POST.title,
+    description: POST.description,
+    url: `https://www.vaclinic.co.uk/blog/${POST.slug}`,
+    publishedTime: POST.datePublished,
+    modifiedTime: POST.dateModified,
+    authors: ['Bernadette Tobin'],
+  },
 }
 
 export default function ProfhiloVsFillerPost() {
   return (
     <article className="bg-cream">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd(POST)) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(POST.slug, POST.title)) }} />
       {/* HERO BAND */}
       <section className="relative bg-cream text-charcoal overflow-hidden pt-24 md:pt-28 pb-8 md:pb-12">
         <div className="arc-bg" aria-hidden />

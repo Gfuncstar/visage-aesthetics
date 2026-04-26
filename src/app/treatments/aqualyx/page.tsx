@@ -3,6 +3,7 @@ import TreatmentTemplate from '@/components/sections/TreatmentTemplate'
 import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/treatments/aqualyx' },
   title: 'AQUALYX Fat Dissolving | Visage Aesthetics Braintree',
   description:
     'AQUALYX injectable fat-dissolving treatment for double chin, jowls, flanks and stubborn pockets. Nurse-led care in Braintree, Essex.',

@@ -3,6 +3,7 @@ import TreatmentTemplate from '@/components/sections/TreatmentTemplate'
 import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/treatments/dermal-filler' },
   title: 'Dermal Filler | Visage Aesthetics Braintree',
   description:
     'Hyaluronic acid dermal filler for lips, cheeks, jawline and non-surgical nose reshaping. Subtle, considered results in Braintree, Essex.',

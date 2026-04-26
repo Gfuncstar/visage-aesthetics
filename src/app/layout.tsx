@@ -7,10 +7,11 @@ import RevealRoot from '@/components/ui/Reveal'
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['400', '500', '700'],
   style: ['normal', 'italic'],
   variable: '--font-cormorant',
   display: 'swap',
+  preload: true,
 })
 
 const inter = Inter({
@@ -23,7 +24,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.vaclinic.co.uk'),
   title: {
-    default: "Visage Aesthetics | Naturally yours. Nurse-led clinic, Braintree Essex",
+    default: "Visage Aesthetics | Nurse-Led Clinic, Braintree",
     template: '%s | Visage Aesthetics',
   },
   description:
@@ -45,7 +46,6 @@ export const metadata: Metadata = {
     title: "Visage Aesthetics | A private nurse-led clinic in Braintree.",
     description: "A small, private aesthetics clinic on Friars Lane, Braintree. Led by Bernadette Tobin, RGN MSc — strictly by appointment.",
   },
-  themeColor: '#F5F0EC',
   robots: {
     index: true,
     follow: true,
@@ -56,6 +56,12 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+}
+
+export const viewport = {
+  themeColor: '#F5F0EC',
+  width: 'device-width',
+  initialScale: 1,
 }
 
 const jsonLd = {

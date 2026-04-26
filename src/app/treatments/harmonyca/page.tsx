@@ -3,6 +3,7 @@ import TreatmentTemplate from '@/components/sections/TreatmentTemplate'
 import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/treatments/harmonyca' },
   title: 'HarmonyCa | Visage Aesthetics Braintree',
   description:
     'HarmonyCa hybrid injectable for instant lift and long-term collagen stimulation. Natural lower-face contouring in Braintree, Essex.',

@@ -3,6 +3,7 @@ import TreatmentTemplate from '@/components/sections/TreatmentTemplate'
 import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/treatments/anti-wrinkle-injections' },
   title: 'Anti-Wrinkle Injections | Visage Aesthetics Braintree',
   description:
     'Natural-looking anti-wrinkle injections for forehead lines, frown lines and crow\u2019s feet. Nurse-led botulinum toxin treatment in Braintree, Essex.',

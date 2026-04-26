@@ -1,12 +1,87 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import ScrollScrubHero from '@/components/sections/ScrollScrubHero'
 import BookingCTA from '@/components/sections/BookingCTA'
 import GoogleReviews from '@/components/sections/GoogleReviews'
 import { treatments } from '@/lib/treatments'
+import { getGoogleReviews } from '@/lib/google-reviews'
 
-export default function Home() {
+export const metadata: Metadata = {
+  title: 'Visage Aesthetics | Nurse-Led Aesthetics Clinic, Braintree',
+  description: "Nurse-led aesthetic clinic in Braintree, Essex. Anti-wrinkle, dermal filler, Profhilo, micro-needling and more by Bernadette Tobin RGN, MSc. Free consultation, naturally subtle results.",
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    locale: 'en_GB',
+    url: 'https://www.vaclinic.co.uk/',
+    siteName: 'Visage Aesthetics',
+    title: 'Visage Aesthetics | Naturally yours.',
+    description: 'A small, considered aesthetics clinic on Friars Lane, Braintree. Led by Bernadette Tobin, RGN MSc.',
+    images: [{ url: '/images/og-home.jpg', width: 1200, height: 630, alt: 'Visage Aesthetics, Braintree' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Visage Aesthetics | Naturally yours.',
+    description: 'Nurse-led aesthetics clinic, Braintree. Bernadette Tobin RGN, MSc.',
+    images: ['/images/og-home.jpg'],
+  },
+}
+
+export default async function Home() {
+  const reviews = await getGoogleReviews()
+
+  const homeJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        '@id': 'https://www.vaclinic.co.uk/#website',
+        url: 'https://www.vaclinic.co.uk/',
+        name: 'Visage Aesthetics',
+        publisher: { '@id': 'https://www.vaclinic.co.uk/#org' },
+        inLanguage: 'en-GB',
+      },
+      {
+        '@type': ['Organization', 'MedicalBusiness', 'LocalBusiness'],
+        '@id': 'https://www.vaclinic.co.uk/#org',
+        name: 'Visage Aesthetics',
+        url: 'https://www.vaclinic.co.uk/',
+        logo: 'https://www.vaclinic.co.uk/icon.png',
+        image: 'https://www.vaclinic.co.uk/images/clinic-wide.jpg',
+        telephone: '+44 7931 395246',
+        email: 'info@vaclinic.co.uk',
+        priceRange: '££',
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: '17A Friars Lane',
+          addressLocality: 'Braintree',
+          addressRegion: 'Essex',
+          postalCode: 'CM7 9BL',
+          addressCountry: 'GB',
+        },
+        geo: { '@type': 'GeoCoordinates', latitude: 51.8779, longitude: 0.5494 },
+        areaServed: [
+          { '@type': 'City', name: 'Braintree' },
+          { '@type': 'City', name: 'Chelmsford' },
+          { '@type': 'City', name: 'Colchester' },
+          { '@type': 'AdministrativeArea', name: 'Essex' },
+        ],
+        openingHoursSpecification: [{ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], opens: '09:00', closes: '18:00' }],
+        sameAs: ['https://www.instagram.com/visageaestheticclinic'],
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: reviews.rating.toFixed(1),
+          reviewCount: reviews.total,
+          bestRating: '5',
+          worstRating: '1',
+        },
+      },
+    ],
+  }
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }} />
       <ScrollScrubHero />
 
       {/* GOOGLE REVIEWS — replaces the founder Vision section */}

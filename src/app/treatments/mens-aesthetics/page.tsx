@@ -3,6 +3,7 @@ import TreatmentTemplate from '@/components/sections/TreatmentTemplate'
 import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/treatments/mens-aesthetics' },
   title: 'Men\u2019s Aesthetics | Visage Aesthetics Braintree',
   description:
     'Discreet, clinical aesthetic treatments for men in Braintree, Essex. Anti-wrinkle, jawline filler, Profhilo and AQUALYX tailored to male anatomy.',

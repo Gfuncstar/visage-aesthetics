@@ -1,15 +1,38 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import BookingCTA from '@/components/sections/BookingCTA'
+import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
+
+const POST = {
+  slug: 'natural-looking-filler',
+  title: 'How to get natural-looking dermal filler results.',
+  description: 'Why does some filler look overdone and other filler look like nothing at all? Bernadette Tobin, RN MSc, explains what actually creates natural, balanced filler results.',
+  datePublished: '2025-10-04',
+  dateModified: '2026-04-01',
+  image: '/images/og-home.jpg',
+  wordCount: 1300,
+}
 
 export const metadata: Metadata = {
   title: 'How to Get Natural-Looking Dermal Filler Results | Visage Aesthetics',
-  description: 'Why does some filler look overdone and other filler look like nothing at all? Bernadette Tobin, RN MSc, explains what actually creates natural, balanced filler results.',
+  description: POST.description,
+  alternates: { canonical: `/blog/${POST.slug}` },
+  openGraph: {
+    type: 'article',
+    title: POST.title,
+    description: POST.description,
+    url: `https://www.vaclinic.co.uk/blog/${POST.slug}`,
+    publishedTime: POST.datePublished,
+    modifiedTime: POST.dateModified,
+    authors: ['Bernadette Tobin'],
+  },
 }
 
 export default function NaturalFillerPost() {
   return (
     <article className="bg-cream">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd(POST)) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(POST.slug, POST.title)) }} />
       {/* HERO BAND */}
       <section className="relative bg-cream text-charcoal overflow-hidden pt-24 md:pt-28 pb-8 md:pb-12">
         <div className="arc-bg" aria-hidden />

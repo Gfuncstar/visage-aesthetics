@@ -3,6 +3,7 @@ import TreatmentTemplate from '@/components/sections/TreatmentTemplate'
 import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/treatments/profhilo' },
   title: 'Profhilo | Visage Aesthetics Braintree',
   description:
     'Profhilo bio-remodelling injections for hydrated, firmer, glowing skin on face, neck and hands. Nurse-led treatment in Braintree, Essex.',

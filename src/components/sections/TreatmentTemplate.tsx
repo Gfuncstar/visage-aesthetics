@@ -33,8 +33,62 @@ export default function TreatmentTemplate({
 }: TreatmentPageProps) {
   const related = treatments.filter((t) => t.slug !== treatment.slug).slice(0, 3)
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.vaclinic.co.uk/' },
+          { '@type': 'ListItem', position: 2, name: 'Treatments', item: 'https://www.vaclinic.co.uk/treatments' },
+          { '@type': 'ListItem', position: 3, name: treatment.name, item: `https://www.vaclinic.co.uk${treatment.href}` },
+        ],
+      },
+      {
+        '@type': 'MedicalProcedure',
+        name: treatment.name,
+        description: oneLineBenefit,
+        howPerformed: overview,
+        bodyLocation: 'Face',
+        procedureType: 'https://schema.org/NoninvasiveProcedure',
+        url: `https://www.vaclinic.co.uk${treatment.href}`,
+        image: `https://www.vaclinic.co.uk${treatment.image}`,
+        offers: {
+          '@type': 'Offer',
+          price: treatment.price.replace(/[^\d]/g, ''),
+          priceCurrency: 'GBP',
+          priceSpecification: { '@type': 'PriceSpecification', price: treatment.price, priceCurrency: 'GBP' },
+          availability: 'https://schema.org/InStock',
+          url: `https://www.vaclinic.co.uk${treatment.href}`,
+        },
+        provider: {
+          '@type': 'MedicalBusiness',
+          name: 'Visage Aesthetics',
+          url: 'https://www.vaclinic.co.uk/',
+          telephone: '+44 7931 395246',
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: '17A Friars Lane',
+            addressLocality: 'Braintree',
+            postalCode: 'CM7 9BL',
+            addressCountry: 'GB',
+          },
+        },
+      },
+      faqs.length > 0 ? {
+        '@type': 'FAQPage',
+        mainEntity: faqs.map((f) => ({
+          '@type': 'Question',
+          name: f.question,
+          acceptedAnswer: { '@type': 'Answer', text: f.answer },
+        })),
+      } : null,
+    ].filter(Boolean),
+  }
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {/* HERO */}
       <section className="relative bg-cream text-charcoal pt-20 md:pt-24 pb-6 md:pb-10 overflow-hidden">
         <div className="arc-bg" aria-hidden />
