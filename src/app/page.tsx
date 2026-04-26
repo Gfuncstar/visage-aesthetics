@@ -3,6 +3,7 @@ import Link from 'next/link'
 import ScrollScrubHero from '@/components/sections/ScrollScrubHero'
 import BookingCTA from '@/components/sections/BookingCTA'
 import GoogleReviews from '@/components/sections/GoogleReviews'
+import AutoplayVideo from '@/components/ui/AutoplayVideo'
 import { treatments } from '@/lib/treatments'
 import { getGoogleReviews } from '@/lib/google-reviews'
 
@@ -59,7 +60,7 @@ export default async function Home() {
           postalCode: 'CM7 9BL',
           addressCountry: 'GB',
         },
-        geo: { '@type': 'GeoCoordinates', latitude: 51.8779, longitude: 0.5494 },
+        geo: { '@type': 'GeoCoordinates', latitude: 51.885914, longitude: 0.555411 },
         areaServed: [
           { '@type': 'City', name: 'Braintree' },
           { '@type': 'City', name: 'Chelmsford' },
@@ -93,14 +94,9 @@ export default async function Home() {
           <div className="section-num reveal mb-12">02 &nbsp; Approach</div>
           <div className="grid grid-cols-1 md:grid-cols-[1.05fr_1fr] gap-12 md:gap-20 items-start">
             <div className="reveal-image relative aspect-[4/5] md:aspect-[4/5.4] overflow-hidden">
-              <video
+              <AutoplayVideo
                 src="/video/approach.mp4"
                 poster="/images/clinic-portrait.jpg"
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
                 className="w-full h-full object-cover"
                 style={{ objectPosition: 'center' }}
               />
@@ -196,7 +192,7 @@ export default async function Home() {
           <div className="reveal-image aspect-[16/9] overflow-hidden mb-14 relative">
             <iframe
               title="Visage Aesthetics, 17A Friars Lane, Braintree"
-              src="https://www.openstreetmap.org/export/embed.html?bbox=0.5414%2C51.8754%2C0.5574%2C51.8804&layer=mapnik&marker=51.87790%2C0.54940"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=0.5524%2C51.8844%2C0.5584%2C51.8874&layer=mapnik&marker=51.885914%2C0.555411"
               className="w-full h-full"
               style={{ border: 0, filter: 'grayscale(0.35) contrast(0.95) saturate(0.85)' }}
               loading="lazy"

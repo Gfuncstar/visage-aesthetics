@@ -73,6 +73,14 @@ export default function Footer() {
               info@vaclinic.co.uk
             </a>
             <a
+              href="tel:+447931395246"
+              className="mt-3 block text-[14px] hover:text-cream transition-colors"
+              style={{ color: 'rgba(245, 240, 236, 0.7)' }}
+              aria-label="Call Visage Aesthetics"
+            >
+              +44 7931 395246
+            </a>
+            <a
               href="https://www.instagram.com/visageaestheticclinic"
               target="_blank"
               rel="noopener noreferrer"

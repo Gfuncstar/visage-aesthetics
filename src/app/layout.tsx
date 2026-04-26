@@ -78,7 +78,7 @@ const jsonLd = {
     postalCode: 'CM7 9BL',
     addressCountry: 'GB',
   },
-  geo: { '@type': 'GeoCoordinates', latitude: 51.8779, longitude: 0.5494 },
+  geo: { '@type': 'GeoCoordinates', latitude: 51.885914, longitude: 0.555411 },
   email: 'info@vaclinic.co.uk',
   openingHours: ['Tu-Sa 09:00-18:00'],
   medicalSpecialty: 'Aesthetic Medicine',
@@ -93,14 +93,26 @@ const jsonLd = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${cormorant.variable} ${inter.variable}`}>
+      <head>
+        <link rel="preload" as="image" href="/images/hero-poster.jpg" fetchPriority="high" />
+        <link rel="dns-prefetch" href="https://www.openstreetmap.org" />
+        <link rel="dns-prefetch" href="https://visage-aesthetics.book.app" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
       <body>
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:bg-charcoal focus:text-cream focus:px-4 focus:py-2 focus:rounded-sm focus:outline-2 focus:outline-gold"
+        >
+          Skip to main content
+        </a>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <RevealRoot />
         <Header />
-        <main>{children}</main>
+        <main id="main">{children}</main>
         <Footer />
       </body>
     </html>

@@ -429,15 +429,15 @@ section.reveal { opacity: 1; transform: none; transition: none; }
 @media (max-width: 720px) {
   .award-badge {
     top: 100px;
-    max-width: 168px;
-    padding: 10px 12px;
-    gap: 4px;
-    border-radius: 12px;
+    max-width: 220px;
+    padding: 14px 18px;
+    gap: 6px;
+    border-radius: 16px;
   }
-  .award-badge .award-eyebrow { font-size: 8px; letter-spacing: 0.24em; }
-  .award-badge .award-title { font-size: 11px; line-height: 1.15; }
-  .award-badge .award-meta { font-size: 8px; letter-spacing: 0.18em; }
-  .award-badge .laurel-l, .award-badge .laurel-r { font-size: 10px; }
+  .award-badge .award-eyebrow { font-size: 11px; letter-spacing: 0.24em; }
+  .award-badge .award-title { font-size: 15px; line-height: 1.15; }
+  .award-badge .award-meta { font-size: 11px; letter-spacing: 0.18em; }
+  .award-badge .laurel-l, .award-badge .laurel-r { font-size: 14px; }
 }
 .scrub-panel .btn-primary {
   box-shadow: none;
