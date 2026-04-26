@@ -23,6 +23,36 @@ export type BlogPost = {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: 'consultation-questions-to-ask',
+    category: 'Choosing a clinic',
+    title: 'Ten questions to ask at any aesthetics consultation.',
+    excerpt: 'A practical checklist before you let anyone put a needle in your face. The ten questions every aesthetics consultation should answer — and the red flags if they don\'t.',
+    readTime: '8 min read',
+    datePublished: '2026-04-26',
+    dateModified: '2026-04-26',
+    image: '/images/og-home.jpg',
+  },
+  {
+    slug: 'what-is-a-nurse-led-clinic',
+    category: 'Choosing a clinic',
+    title: 'What is a nurse-led aesthetics clinic — and why does it matter?',
+    excerpt: 'In a largely unregulated UK aesthetics industry, "nurse-led" means something specific. What it is, what it isn\'t, and how to verify it.',
+    readTime: '8 min read',
+    datePublished: '2026-04-26',
+    dateModified: '2026-04-26',
+    image: '/images/og-home.jpg',
+  },
+  {
+    slug: 'how-long-does-profhilo-last',
+    category: 'Skin quality',
+    title: 'How long does Profhilo actually last?',
+    excerpt: 'Profhilo lasts 6 to 9 months from a course of two — but the picture is more nuanced than that. The realistic timeline, the variables, and what to expect long-term.',
+    readTime: '7 min read',
+    datePublished: '2026-04-26',
+    dateModified: '2026-04-26',
+    image: '/images/og-home.jpg',
+  },
+  {
     slug: 'lip-filler-aftercare-guide',
     category: 'Dermal filler',
     title: 'Lip filler aftercare: a complete guide.',

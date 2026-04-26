@@ -84,6 +84,25 @@ export default async function Home() {
           bestRating: '5',
           worstRating: '1',
         },
+        hasOfferCatalog: {
+          '@type': 'OfferCatalog',
+          name: 'Visage Aesthetics treatment menu',
+          itemListElement: treatments.map((t) => ({
+            '@type': 'Offer',
+            itemOffered: {
+              '@type': 'MedicalProcedure',
+              name: t.name,
+              description: t.tagline,
+              url: `https://www.vaclinic.co.uk${t.href}`,
+              procedureType: 'https://schema.org/NoninvasiveProcedure',
+            },
+            price: t.price.replace(/[^\d]/g, ''),
+            priceCurrency: 'GBP',
+            priceSpecification: { '@type': 'PriceSpecification', price: t.price, priceCurrency: 'GBP' },
+            url: `https://www.vaclinic.co.uk${t.href}`,
+            availability: 'https://schema.org/InStock',
+          })),
+        },
       },
     ],
   }

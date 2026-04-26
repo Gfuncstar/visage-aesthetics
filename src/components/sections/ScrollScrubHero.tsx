@@ -188,16 +188,16 @@ export default function ScrollScrubHero() {
                   <span>Book a free consultation</span>
                   <span className="btn-arrow">→</span>
                 </a>
-                <div className="hidden sm:flex items-center gap-5 lg:gap-7 text-stone">
+                <div className="hidden sm:flex items-center gap-4 lg:gap-6 text-stone">
                   <MiniSignal icon={<GoogleG size={14} />} label="5.0" />
                   <Dot />
-                  <MiniSignal label="MSc" />
+                  <MiniSignal label="NMC 05G1755E" />
                   <Dot />
-                  <MiniSignal label="RN" />
+                  <MiniSignal label="MSc Level 7" />
+                  <Dot />
+                  <MiniSignal label="RCN" />
                   <Dot />
                   <MiniSignal label="20+ years" />
-                  <Dot />
-                  <MiniSignal label="Accredited" />
                 </div>
               </div>
             </div>

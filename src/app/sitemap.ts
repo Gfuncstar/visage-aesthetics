@@ -30,6 +30,11 @@ const PAGE_DATES: Record<string, string> = {
   '/halstead-botox': '2026-04-26',
   '/witham-botox': '2026-04-26',
   '/colchester-botox': '2026-04-26',
+  '/maldon-botox': '2026-04-26',
+  '/sudbury-botox': '2026-04-26',
+  '/great-dunmow-botox': '2026-04-26',
+  '/chelmsford-profhilo': '2026-04-26',
+  '/halstead-profhilo': '2026-04-26',
   '/about/qualifications': '2026-04-26',
   '/blog/botox-vs-filler': '2026-04-26',
   '/blog/how-long-does-profhilo-last': '2026-04-26',
@@ -50,6 +55,7 @@ const PAGE_DATES: Record<string, string> = {
   '/blog/natural-looking-filler': '2026-04-01',
   '/blog/profhilo-vs-dermal-filler': '2026-04-01',
   '/blog/lip-filler-aftercare-guide': '2026-04-26',
+  '/blog/consultation-questions-to-ask': '2026-04-26',
 }
 
 const dateOf = (path: string) => new Date(PAGE_DATES[path] ?? '2026-04-26')
@@ -76,6 +82,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE}/halstead-botox`,       changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/halstead-botox') },
     { url: `${SITE}/witham-botox`,         changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/witham-botox') },
     { url: `${SITE}/colchester-botox`,     changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/colchester-botox') },
+    { url: `${SITE}/maldon-botox`,         changeFrequency: 'monthly', priority: 0.8,  lastModified: dateOf('/maldon-botox') },
+    { url: `${SITE}/sudbury-botox`,        changeFrequency: 'monthly', priority: 0.8,  lastModified: dateOf('/sudbury-botox') },
+    { url: `${SITE}/great-dunmow-botox`,   changeFrequency: 'monthly', priority: 0.8,  lastModified: dateOf('/great-dunmow-botox') },
+    { url: `${SITE}/chelmsford-profhilo`,  changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/chelmsford-profhilo') },
+    { url: `${SITE}/halstead-profhilo`,    changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/halstead-profhilo') },
     // Authority pages
     { url: `${SITE}/about/qualifications`, changeFrequency: 'yearly',  priority: 0.7,  lastModified: dateOf('/about/qualifications') },
     // Long-form blog posts
@@ -95,6 +106,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'first-botox-appointment',
     'natural-looking-filler',
     'profhilo-vs-dermal-filler',
+    'botox-vs-filler',
+    'lip-filler-aftercare-guide',
+    'how-long-does-profhilo-last',
+    'what-is-a-nurse-led-clinic',
+    'consultation-questions-to-ask',
   ].map((slug) => ({
     url: `${SITE}/blog/${slug}`,
     changeFrequency: 'monthly',
