@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function TreatmentsPage() {
   return (
     <>
-      <section className="relative bg-cream text-charcoal pt-32 md:pt-44 pb-16 md:pb-24 overflow-hidden">
+      <section className="relative bg-cream text-charcoal pt-24 md:pt-28 pb-6 md:pb-10 overflow-hidden">
         <div className="arc-bg" aria-hidden />
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 relative">
           <div className="text-eyebrow text-stone mb-6">What we offer</div>
@@ -26,7 +26,7 @@ export default function TreatmentsPage() {
         </div>
       </section>
 
-      <section className="py-16 md:py-24">
+      <section className="py-5 md:py-8">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8">
           <div className="divide-y divide-taupe-dark/25 border-t border-b border-line/25">
             {treatments.map((t, i) => (

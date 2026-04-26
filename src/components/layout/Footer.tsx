@@ -66,7 +66,7 @@ export default function Footer() {
           </div>
           <div className="md:col-span-3">
             <div className="eyebrow mb-5" style={{ color: 'rgba(245, 240, 236, 0.45)' }}>Visit</div>
-            <a href="https://maps.google.com/?q=17A+Friars+Lane+Braintree+CM7+9BL" className="block text-[14px] leading-relaxed" style={{ color: 'rgba(245, 240, 236, 0.7)' }}>
+            <a href="https://maps.google.com/?q=CM7+9BL" className="block text-[14px] leading-relaxed" style={{ color: 'rgba(245, 240, 236, 0.7)' }}>
               17A Friars Lane<br/>Braintree, Essex<br/>CM7 9BL
             </a>
             <a href="mailto:info@vaclinic.co.uk" className="mt-5 inline-block border-b text-[14px]" style={{ color: '#F5F0EC', borderColor: 'rgba(245, 240, 236, 0.3)' }}>

@@ -38,7 +38,7 @@ export default async function GoogleReviews() {
                   </span>
                 </div>
                 <div className="eyebrow mt-1 text-stone group-hover:text-gold-deep transition-colors">
-                  {data.total}+ Google reviews &nbsp;→
+                  {data.live ? `${data.total} Google reviews` : `${data.total}+ Google reviews`} &nbsp;→
                 </div>
               </div>
             </a>

@@ -1,4 +1,4 @@
-import { reviews as fallbackReviews } from './reviews'
+import { reviews as fallbackReviews, toRelativeTime } from './reviews'
 
 export type GoogleReview = {
   author: string
@@ -73,7 +73,7 @@ export async function getGoogleReviews(): Promise<GoogleReviewsResult> {
       author: r.name,
       rating: r.rating,
       text: r.text,
-      relativeTime: r.treatment,
+      relativeTime: toRelativeTime(r.date),
     })),
   }
 }

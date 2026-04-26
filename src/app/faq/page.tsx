@@ -98,7 +98,7 @@ const aftercare: AccordionItem[] = [
 export default function FAQPage() {
   return (
     <>
-      <section className="bg-cream text-charcoal pt-32 md:pt-44 pb-20 md:pb-28 relative overflow-hidden">
+      <section className="bg-cream text-charcoal pt-24 md:pt-28 pb-8 md:pb-12 relative overflow-hidden">
         <div className="arc-bg" aria-hidden />
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 relative">
           <div className="text-eyebrow text-stone mb-5">Frequently asked</div>
@@ -115,7 +115,7 @@ export default function FAQPage() {
         { title: 'Booking and cost', items: booking },
         { title: 'Before and after', items: aftercare },
       ].map((cat) => (
-        <section key={cat.title} className="py-12 md:py-16 border-b border-line/20 last:border-b-0">
+        <section key={cat.title} className="py-7 md:py-10 border-b border-line/20 last:border-b-0">
           <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
             <div className="md:col-span-4">
               <span className="hairline hairline-left mb-6" />

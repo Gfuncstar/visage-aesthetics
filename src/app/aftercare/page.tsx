@@ -33,7 +33,7 @@ const callIf = [
 export default function AftercarePage() {
   return (
     <>
-      <section className="bg-cream text-charcoal pt-32 md:pt-44 pb-20 md:pb-28 relative overflow-hidden">
+      <section className="bg-cream text-charcoal pt-24 md:pt-28 pb-8 md:pb-12 relative overflow-hidden">
         <div className="arc-bg" aria-hidden />
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 relative">
           <div className="text-eyebrow text-stone mb-5">After your treatment</div>
@@ -44,7 +44,7 @@ export default function AftercarePage() {
         </div>
       </section>
 
-      <section className="py-20 md:py-28">
+      <section className="py-6 md:py-9">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           <div className="border border-line/30 rounded-md p-7 md:p-9">
             <div className="text-eyebrow text-gold mb-3">Please do</div>
@@ -73,7 +73,7 @@ export default function AftercarePage() {
         </div>
       </section>
 
-      <section className="bg-cream-soft py-20 md:py-28">
+      <section className="bg-cream-soft py-6 md:py-9">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
           <div>
             <span className="hairline hairline-left mb-6" />

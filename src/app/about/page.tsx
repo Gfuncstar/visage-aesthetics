@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 }
 
 const credentials = [
-  { Icon: GraduationCap, title: 'MSc Advanced Practice', desc: 'University-level qualification in advanced clinical practice.' },
+  { Icon: GraduationCap, title: 'MSc Advanced Practice', desc: 'Level 7 postgraduate qualification in advanced clinical practice.' },
   { Icon: Stethoscope, title: 'Registered Nurse', desc: '20+ years clinical experience, NMC regulated.' },
   { Icon: ShieldCheck, title: 'Accredited Practitioner', desc: 'Meeting the highest standards of safety and conduct.' },
   { Icon: Award, title: 'CPD Certified', desc: 'Ongoing continuing professional development.' },
@@ -26,7 +26,7 @@ const values = [
 export default function AboutPage() {
   return (
     <>
-      <section className="bg-cream text-charcoal pt-32 md:pt-44 pb-20 md:pb-28 relative overflow-hidden">
+      <section className="bg-cream text-charcoal pt-24 md:pt-28 pb-8 md:pb-12 relative overflow-hidden">
         <div className="arc-bg" aria-hidden />
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 relative grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
           <div className="lg:col-span-7">
@@ -46,14 +46,9 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="py-20 md:py-28">
-        <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
-          <div className="md:col-span-5">
-            <div className="relative aspect-[4/5] rounded-md overflow-hidden">
-              <Image src="/images/clinic-2.jpg" alt="Inside the Visage clinic" fill sizes="(min-width: 768px) 40vw, 90vw" className="object-cover" />
-            </div>
-          </div>
-          <div className="md:col-span-7">
+      <section className="py-6 md:py-9">
+        <div className="max-w-[860px] mx-auto px-5 md:px-8">
+          <div>
             <span className="hairline hairline-left mb-6" />
             <div className="text-eyebrow text-gold mb-3">My story</div>
             <h2 className="font-display text-h1 text-charcoal">Why I do this work.</h2>
@@ -70,7 +65,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="bg-cream-soft py-20 md:py-28">
+      <section className="bg-cream-soft py-6 md:py-9">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8">
           <div className="max-w-2xl mb-12">
             <span className="hairline hairline-left mb-6" />
@@ -90,7 +85,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="py-20 md:py-28">
+      <section className="py-6 md:py-9">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8">
           <div className="max-w-2xl mb-12">
             <span className="hairline hairline-left mb-6" />

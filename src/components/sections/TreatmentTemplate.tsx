@@ -36,7 +36,7 @@ export default function TreatmentTemplate({
   return (
     <>
       {/* HERO */}
-      <section className="relative bg-cream text-charcoal pt-28 md:pt-40 pb-16 md:pb-24 overflow-hidden">
+      <section className="relative bg-cream text-charcoal pt-20 md:pt-24 pb-6 md:pb-10 overflow-hidden">
         <div className="arc-bg" aria-hidden />
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center relative">
           <div className="lg:col-span-7">
@@ -70,7 +70,7 @@ export default function TreatmentTemplate({
       </section>
 
       {/* OVERVIEW */}
-      <section className="py-20 md:py-28">
+      <section className="py-6 md:py-9">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
           <div className="md:col-span-5">
             <span className="hairline hairline-left mb-6" />
@@ -84,7 +84,7 @@ export default function TreatmentTemplate({
       </section>
 
       {/* BENEFITS */}
-      <section className="bg-cream-soft py-20 md:py-28">
+      <section className="bg-cream-soft py-6 md:py-9">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
           <div className="md:col-span-4">
             <span className="hairline hairline-left mb-6" />
@@ -105,7 +105,7 @@ export default function TreatmentTemplate({
       </section>
 
       {/* SUITABLE / NOT SUITABLE */}
-      <section className="py-20 md:py-28">
+      <section className="py-6 md:py-9">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           <div className="border border-line/30 rounded-md p-7 md:p-9">
             <div className="text-eyebrow text-gold mb-3">Who it&apos;s for</div>
@@ -135,7 +135,7 @@ export default function TreatmentTemplate({
       </section>
 
       {/* WHAT TO EXPECT */}
-      <section className="bg-cream-soft py-20 md:py-28">
+      <section className="bg-cream-soft py-6 md:py-9">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8">
           <div className="max-w-2xl mb-12">
             <span className="hairline hairline-left mb-6" />
@@ -154,7 +154,7 @@ export default function TreatmentTemplate({
       </section>
 
       {/* PRICING */}
-      <section className="py-20 md:py-28">
+      <section className="py-6 md:py-9">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16 items-center">
           <div className="md:col-span-7">
             <span className="hairline hairline-left mb-6" />
@@ -175,7 +175,7 @@ export default function TreatmentTemplate({
       </section>
 
       {/* FAQ */}
-      <section className="bg-cream-soft py-20 md:py-28">
+      <section className="bg-cream-soft py-6 md:py-9">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
           <div className="md:col-span-4">
             <span className="hairline hairline-left mb-6" />
@@ -189,7 +189,7 @@ export default function TreatmentTemplate({
       </section>
 
       {/* BERNADETTE'S NOTE */}
-      <section className="py-20 md:py-28">
+      <section className="py-6 md:py-9">
         <div className="max-w-3xl mx-auto px-5 md:px-8 text-center">
           <span className="hairline mb-8 inline-block" />
           <div className="text-eyebrow text-gold mb-3">A note from Bernadette</div>
@@ -201,7 +201,7 @@ export default function TreatmentTemplate({
       </section>
 
       {/* RELATED */}
-      <section className="bg-cream-soft py-20 md:py-28">
+      <section className="bg-cream-soft py-6 md:py-9">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8">
           <div className="flex items-end justify-between gap-6 mb-10 md:mb-12">
             <div>

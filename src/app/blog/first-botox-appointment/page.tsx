@@ -31,7 +31,7 @@ export default function FirstBotoxPost() {
   return (
     <article className="bg-cream">
       {/* HERO BAND */}
-      <section className="relative bg-cream text-charcoal overflow-hidden pt-32 md:pt-40 pb-20 md:pb-24">
+      <section className="relative bg-cream text-charcoal overflow-hidden pt-24 md:pt-28 pb-8 md:pb-12">
         <div className="arc-bg" aria-hidden />
         <div className="max-w-3xl mx-auto px-5 md:px-8 relative">
           <Link href="/blog" className="text-stone text-sm hover:opacity-70 transition-opacity mb-8 inline-block">
@@ -53,7 +53,7 @@ export default function FirstBotoxPost() {
       </section>
 
       {/* BODY */}
-      <div className="max-w-3xl mx-auto px-5 md:px-8 py-16 md:py-24">
+      <div className="max-w-3xl mx-auto px-5 md:px-8 py-5 md:py-8">
         <p className="text-body-lg text-charcoal leading-relaxed mb-5">
           Being nervous before your first anti-wrinkle appointment is completely normal. I have seen it hundreds of times in the clinic, and almost every first-timer tells me afterwards that they wish they had done it sooner. The fear is nearly always bigger than the experience itself.
         </p>

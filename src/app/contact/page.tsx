@@ -10,24 +10,8 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <>
-      <section className="relative overflow-hidden text-charcoal" style={{ minHeight: 'min(70vh, 640px)' }}>
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          className="absolute inset-0 w-full h-full object-cover"
-        >
-          <source src="/video/contact.mp4" type="video/mp4" media="(min-width: 720px)" />
-          <source src="/video/contact-mobile.mp4" type="video/mp4" />
-        </video>
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: 'linear-gradient(180deg, rgba(245,240,236,0.4) 0%, rgba(245,240,236,0.15) 35%, rgba(245,240,236,0.6) 100%)' }}
-        />
-        <div className="relative max-w-[1280px] mx-auto px-5 md:px-8 pt-32 md:pt-44 pb-16 md:pb-24">
+      <section className="bg-cream text-charcoal">
+        <div className="relative max-w-[1280px] mx-auto px-5 md:px-8 pt-24 md:pt-28 pb-6 md:pb-8">
           <div className="section-num mb-6">Book &nbsp; · &nbsp; Visit</div>
           <h1 className="font-display italic text-hero text-charcoal max-w-3xl">A free, no-obligation conversation.</h1>
           <p className="mt-6 text-body-lg text-ink-soft max-w-2xl">
@@ -36,7 +20,27 @@ export default function ContactPage() {
         </div>
       </section>
 
-      <section className="pb-16 md:pb-24">
+      <section className="pb-6 md:pb-8">
+        <div className="max-w-[1280px] mx-auto px-5 md:px-8">
+          <figure className="relative bg-cream-soft border border-line/25 rounded-md overflow-hidden aspect-video">
+            <video
+              controls
+              playsInline
+              preload="metadata"
+              poster="/images/contact-poster.jpg"
+              className="w-full h-full object-cover"
+            >
+              <source src="/video/contact.mp4" type="video/mp4" media="(min-width: 720px)" />
+              <source src="/video/contact-mobile.mp4" type="video/mp4" />
+            </video>
+            <figcaption className="absolute top-4 left-4 px-3 py-1.5 bg-cream/90 text-[11px] font-medium tracking-[0.18em] uppercase text-charcoal rounded-sm pointer-events-none" style={{ backdropFilter: 'blur(4px)' }}>
+              ▶ &nbsp;Watch · 17A Friars Lane
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section className="pb-6 md:pb-10">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16" id="book">
           <div className="lg:col-span-7 order-2 lg:order-1">
             <div className="bg-cream-soft border border-line/25 rounded-md overflow-hidden">
@@ -77,7 +81,7 @@ export default function ContactPage() {
             <ul className="mt-8 space-y-5 text-body text-charcoal">
               <li className="flex gap-4">
                 <MapPin size={18} strokeWidth={1.5} className="text-gold mt-1 shrink-0" />
-                <a href="https://maps.google.com/?q=17A+Friars+Lane+Braintree+CM7+9BL" target="_blank" rel="noopener noreferrer" className="hover:text-gold">
+                <a href="https://maps.google.com/?q=CM7+9BL" target="_blank" rel="noopener noreferrer" className="hover:text-gold">
                   17A Friars Lane<br/>Braintree, Essex CM7 9BL
                 </a>
               </li>
@@ -100,7 +104,7 @@ export default function ContactPage() {
             <div className="mt-10 aspect-video bg-cream-soft border border-line/25 rounded-md overflow-hidden">
               <iframe
                 title="Visage Aesthetics on Google Maps"
-                src="https://maps.google.com/maps?q=17A+Friars+Lane+Braintree+CM7+9BL&output=embed"
+                src="https://maps.google.com/maps?q=CM7+9BL&output=embed"
                 width="100%"
                 height="100%"
                 loading="lazy"

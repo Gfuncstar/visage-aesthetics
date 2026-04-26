@@ -36,7 +36,7 @@ export default function BlogPage() {
   return (
     <>
       {/* HERO */}
-      <section className="relative bg-cream text-charcoal overflow-hidden pt-32 md:pt-40 pb-20 md:pb-24">
+      <section className="relative bg-cream text-charcoal overflow-hidden pt-24 md:pt-28 pb-8 md:pb-12">
         <div className="arc-bg" aria-hidden />
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 relative">
           <div className="max-w-3xl">
@@ -55,7 +55,7 @@ export default function BlogPage() {
       </section>
 
       {/* POSTS GRID */}
-      <section className="py-20 md:py-28 bg-cream">
+      <section className="py-6 md:py-9 bg-cream">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
             {posts.map((post) => (

@@ -21,7 +21,7 @@
   --color-gold-soft: #D4B89A;
 
   --font-display: var(--font-cormorant), Georgia, serif;
-  --font-body: var(--font-inter), -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-body: var(--font-cormorant), Georgia, serif;
 
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -40,10 +40,10 @@ html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 body {
   background: var(--bg);
   color: var(--foreground);
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-family: var(--font-cormorant), Georgia, serif;
   font-weight: 400;
-  line-height: 1.5;
-  font-size: 12.5px;
+  line-height: 1.6;
+  font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -367,24 +367,24 @@ section.reveal { opacity: 1; transform: none; transition: none; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6.5px;
-  padding: 14px 18px;
+  gap: 11px;
+  padding: 24px 32px;
   text-align: center;
   color: #1F1B1A;
   background: linear-gradient(160deg, #C09F6E 0%, #A8895E 55%, #8E7245 100%);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border: 0;
-  border-radius: 13px;
+  border-radius: 22px;
   width: auto;
   height: auto;
-  box-shadow: 0 12px 36px rgba(31, 27, 26, 0.25);
+  box-shadow: 0 22px 58px rgba(31, 27, 26, 0.32);
   opacity: 0;
   animation: fadeUp 1s 0.6s var(--ease) forwards;
 }
 .award-badge .award-eyebrow {
   font-family: var(--font-inter), system-ui, sans-serif;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.32em;
   text-transform: uppercase;
@@ -399,7 +399,7 @@ section.reveal { opacity: 1; transform: none; transition: none; }
 .award-badge .laurel-l,
 .award-badge .laurel-r {
   color: #FFFFFF;
-  font-size: 16px;
+  font-size: 21px;
   line-height: 1;
   opacity: 0.85;
 }
@@ -407,14 +407,16 @@ section.reveal { opacity: 1; transform: none; transition: none; }
   font-family: var(--font-cormorant), Georgia, serif;
   font-style: italic;
   font-weight: 700;
-  font-size: 16px;
+  font-size: 22px;
   line-height: 1.12;
   letter-spacing: -0.005em;
   color: #FFFFFF;
+  text-shadow: 0 0 1px rgba(255, 255, 255, 0.45);
+  -webkit-text-stroke: 0.5px #FFFFFF;
 }
 .award-badge .award-meta {
   font-family: var(--font-inter), system-ui, sans-serif;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.24em;
   text-transform: uppercase;

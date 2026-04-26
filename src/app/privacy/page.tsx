@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <>
-      <section className="bg-cream text-charcoal pt-32 md:pt-44 pb-16 md:pb-20 relative overflow-hidden">
+      <section className="bg-cream text-charcoal pt-24 md:pt-28 pb-6 md:pb-10 relative overflow-hidden">
         <div className="arc-bg" aria-hidden />
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 relative">
           <div className="text-eyebrow text-stone mb-5">Legal</div>
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
         </div>
       </section>
 
-      <section className="py-16 md:py-24">
+      <section className="py-5 md:py-8">
         <div className="max-w-3xl mx-auto px-5 md:px-8 prose prose-lg">
           <p className="text-eyebrow text-ink-soft">Last updated: April 2026</p>
 

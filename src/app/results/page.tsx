@@ -26,7 +26,7 @@ export default function ResultsPage() {
   const visible = filter === 'All' ? gallery : gallery.filter((g) => g.treatment === filter)
   return (
     <>
-      <section className="bg-cream text-charcoal pt-32 md:pt-44 pb-16 md:pb-24 relative overflow-hidden">
+      <section className="bg-cream text-charcoal pt-24 md:pt-28 pb-6 md:pb-10 relative overflow-hidden">
         <div className="arc-bg" aria-hidden />
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 relative">
           <div className="text-eyebrow text-stone mb-5">Results</div>
@@ -37,7 +37,7 @@ export default function ResultsPage() {
         </div>
       </section>
 
-      <section className="py-12 md:py-16">
+      <section className="py-7 md:py-10">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8">
           <div className="flex flex-wrap gap-2 mb-10 md:mb-12">
             {filters.map((f) => (

@@ -128,7 +128,7 @@ export default function Home() {
               referrerPolicy="no-referrer-when-downgrade"
             />
             <a
-              href="https://maps.google.com/?q=17A+Friars+Lane+Braintree+CM7+9BL"
+              href="https://maps.google.com/?q=CM7+9BL"
               target="_blank"
               rel="noopener noreferrer"
               className="absolute bottom-3 right-3 px-3 py-2 text-[11px] font-medium tracking-[0.18em] uppercase bg-cream/90 text-charcoal hover:bg-cream"
@@ -140,7 +140,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-14">
             <div className="reveal pt-6 border-t" style={{ borderColor: '#D9CDBE' }}>
               <div className="eyebrow mb-3">Address</div>
-              <a href="https://maps.google.com/?q=17A+Friars+Lane+Braintree+CM7+9BL" className="font-display italic text-charcoal block" style={{ fontSize: 22, fontWeight: 300, lineHeight: 1.4 }}>
+              <a href="https://maps.google.com/?q=CM7+9BL" className="font-display italic text-charcoal block" style={{ fontSize: 22, fontWeight: 300, lineHeight: 1.4 }}>
                 17A Friars Lane<br/>Braintree, Essex<br/>CM7 9BL
               </a>
             </div>
