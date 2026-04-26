@@ -7,7 +7,7 @@ import RevealRoot from '@/components/ui/Reveal'
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
-  weight: ['400', '500', '700'],
+  weight: ['300', '400', '500', '700'],
   style: ['normal', 'italic'],
   variable: '--font-cormorant',
   display: 'swap',

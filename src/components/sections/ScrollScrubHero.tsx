@@ -162,7 +162,7 @@ export default function ScrollScrubHero() {
                 <br />
                 By appointment · Braintree
               </div>
-              <h1 className="text-h1 text-charcoal">
+              <h1 className="text-h1" style={{ color: '#F5F0EC', fontWeight: 300, textShadow: '0 1px 12px rgba(0, 0, 0, 0.25)' }}>
                 <span className="block">
                   <span className="word-rise"><span style={{ animationDelay: '0.30s' }}>Enhancing what&apos;s</span></span>
                 </span>
