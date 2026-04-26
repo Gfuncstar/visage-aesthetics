@@ -19,6 +19,7 @@ export const treatments: Treatment[] = [
   { name: 'Hyperhidrosis & Migraines', slug: 'hyperhidrosis-migraines', tagline: 'Medical-grade relief', description: 'Botulinum toxin for excessive sweating and chronic migraine prevention. Life-changing for the right candidates.', price: 'From £200', href: '/treatments/hyperhidrosis-migraines', image: '/images/hyperhidrosis.jpg' },
   { name: 'Vitamin B12', slug: 'vitamin-b12', tagline: 'Energy and wellbeing support', description: 'Intramuscular B12 injections for rapid absorption. Energy, mood and clarity where oral supplements fall short.', price: 'From £30', href: '/treatments/vitamin-b12', image: '/images/treatment-4.jpg' },
   { name: "Men's Aesthetics", slug: 'mens-aesthetics', tagline: 'Treatments designed for men', description: 'Anti-wrinkle, filler, Profhilo and AQUALYX, all tailored to male facial anatomy. Subtle, effective, clinical.', price: 'From £150', href: '/treatments/mens-aesthetics', image: '/images/mens-aesthetics.jpg' },
+  { name: 'Map My Mole', slug: 'map-my-mole', tagline: 'Consultant dermatologist mole review', description: 'Have a concerning mole or skin lesion reviewed by a UK consultant dermatologist within 24 hours, using medical-grade dermoscopy.', price: '£90 per mole', href: '/treatments/map-my-mole', image: '/images/treatment-3.jpg' },
 ]
 
 export const getTreatment = (slug: string) => treatments.find((t) => t.slug === slug)

@@ -107,6 +107,13 @@ const rows: Row[] = [
       { area: 'Filler (1ml)', price: '£260', duration: '40 min' },
     ],
   },
+  {
+    treatment: 'Map My Mole',
+    href: '/treatments/map-my-mole',
+    options: [
+      { area: 'Per mole assessment', price: '£90', duration: '20 min' },
+    ],
+  },
 ]
 
 const jsonLd = {

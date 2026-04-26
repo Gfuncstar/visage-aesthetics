@@ -51,6 +51,7 @@ const PAGE_DATES: Record<string, string> = {
   '/treatments/hyperhidrosis-migraines': '2026-04-26',
   '/treatments/vitamin-b12': '2026-04-26',
   '/treatments/mens-aesthetics': '2026-04-26',
+  '/treatments/map-my-mole': '2026-04-26',
   // Blog posts
   '/blog/first-botox-appointment': '2026-04-01',
   '/blog/natural-looking-filler': '2026-04-01',
