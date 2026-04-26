@@ -369,7 +369,13 @@ section.reveal { opacity: 1; transform: none; transition: none; }
   gap: 14px;
   align-items: stretch;
   width: 250px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.4s var(--ease);
 }
+.award-stack:hover { transform: translateY(-2px); }
+.award-stack:hover .award-badge { box-shadow: 0 28px 70px rgba(31, 27, 26, 0.38); }
+.award-stack:focus-visible { outline: 2px solid #A8895E; outline-offset: 6px; border-radius: 22px; }
 .award-badge {
   position: relative;
   display: flex;

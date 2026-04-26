@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import Link from 'next/link'
 import GoogleG from '@/components/ui/GoogleG'
 import { BOOKING_LINK_PROPS } from '@/lib/booking'
 
@@ -118,7 +119,7 @@ export default function ScrollScrubHero() {
           <source src="/video/walkthrough-mobile.mp4" type="video/mp4" />
         </video>
         <div className="scrub-overlay" aria-hidden />
-        <div className="award-stack">
+        <Link href="/awards" className="award-stack" aria-label="View Visage Aesthetics awards and recognition">
           <div className="award-badge" aria-label="Best Non-Surgical Aesthetics Clinic 2026, Essex">
             <span className="award-eyebrow">Awarded</span>
             <span className="award-laurel" aria-hidden>
@@ -145,7 +146,7 @@ export default function ScrollScrubHero() {
             </span>
             <span className="award-meta">2026 &nbsp;·&nbsp; Nominee</span>
           </div>
-        </div>
+        </Link>
         <div className="scrub-content" style={{ padding: '120px var(--pad-x) 130px', justifyContent: 'flex-end', gap: 32 }}>
           <div ref={panel1Ref} className="scrub-panel">
             <div className="max-w-[1280px] mx-auto">
