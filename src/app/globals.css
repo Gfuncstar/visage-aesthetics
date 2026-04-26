@@ -325,7 +325,8 @@ section.reveal { opacity: 1; transform: none; transition: none; }
     linear-gradient(180deg,
       color-mix(in srgb, var(--bg) 28%, transparent) 0%,
       color-mix(in srgb, var(--bg) 10%, transparent) 30%,
-      color-mix(in srgb, var(--bg) 10%, transparent) 100%);
+      color-mix(in srgb, var(--bg) 10%, transparent) 100%),
+    rgba(0, 0, 0, 0.10);
   z-index: 1;
   pointer-events: none;
 }
