@@ -94,11 +94,15 @@ export default function TreatmentTemplate({
         <div className="arc-bg" aria-hidden />
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center relative">
           <div className="lg:col-span-7">
-            <div className="text-eyebrow text-stone mb-5">
-              <Link href="/treatments" className="hover:text-gold">Treatments</Link>
-              <span className="mx-2 opacity-40">/</span>
-              <span>{treatment.name}</span>
-            </div>
+            <nav aria-label="Breadcrumb" className="text-eyebrow text-stone mb-5">
+              <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <li><Link href="/" className="hover:text-gold">Home</Link></li>
+                <li aria-hidden className="opacity-40">/</li>
+                <li><Link href="/treatments" className="hover:text-gold">Treatments</Link></li>
+                <li aria-hidden className="opacity-40">/</li>
+                <li aria-current="page" className="text-charcoal/80">{treatment.name}</li>
+              </ol>
+            </nav>
             <h1 className="font-display italic text-hero text-charcoal">{treatment.name}.</h1>
             <p className="mt-5 text-body-lg text-ink-soft max-w-xl">{oneLineBenefit}</p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3">

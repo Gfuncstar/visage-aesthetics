@@ -8,9 +8,9 @@ import { BOOKING_LINK_PROPS } from '@/lib/booking'
 
 const primaryNav = [
   { label: 'Treatments', href: '/treatments', dropdown: true },
+  { label: 'Prices', href: '/pricing' },
   { label: 'Approach', href: '/about' },
-  { label: 'Results', href: '/results' },
-  { label: 'Aftercare', href: '/aftercare' },
+  { label: 'Awards', href: '/awards' },
   { label: 'Visit', href: '/contact' },
 ]
 

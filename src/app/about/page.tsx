@@ -9,12 +9,12 @@ export const metadata: Metadata = {
 }
 
 const credentials = [
-  { Icon: GraduationCap, title: 'MSc Advanced Practice', desc: 'Level 7 postgraduate qualification in advanced clinical practice.' },
-  { Icon: Stethoscope, title: 'Registered Nurse', desc: '20+ years clinical experience, NMC regulated.' },
-  { Icon: ShieldCheck, title: 'Accredited Practitioner', desc: 'Meeting the highest standards of safety and conduct.' },
-  { Icon: Award, title: 'CPD Certified', desc: 'Ongoing continuing professional development.' },
-  { Icon: BookOpen, title: 'Aesthetics Training', desc: 'Advanced injectable techniques across leading product ranges.' },
-  { Icon: Heart, title: 'Safeguarding Trained', desc: 'Patient welfare and consent at the centre of every consultation.' },
+  { Icon: GraduationCap, title: 'MSc Advanced Practice', desc: 'Level 7 postgraduate qualification in advanced clinical practice — the highest academic level a nurse can hold.' },
+  { Icon: Stethoscope, title: 'NMC Registered Nurse', desc: 'NMC PIN 05G1755E. 20+ years clinical experience, fully regulated by the Nursing and Midwifery Council.' },
+  { Icon: ShieldCheck, title: 'Royal College of Nursing', desc: 'Member of the RCN — the largest nursing union and professional body in the United Kingdom.' },
+  { Icon: Award, title: 'CPD Certified', desc: 'Ongoing continuing professional development across all treatments offered.' },
+  { Icon: BookOpen, title: 'Aesthetics Training', desc: 'Advanced injectable techniques across leading regulated product ranges (Allergan, Galderma, IBSA).' },
+  { Icon: Heart, title: 'Safeguarding Trained', desc: 'Patient welfare and informed consent at the centre of every consultation.' },
 ]
 
 const values = [

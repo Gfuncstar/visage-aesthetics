@@ -23,7 +23,9 @@ function InstagramIcon({ size = 16 }: { size?: number }) {
 
 const links = [
   { label: 'Treatments', href: '/treatments' },
+  { label: 'Prices', href: '/pricing' },
   { label: 'About', href: '/about' },
+  { label: 'Awards', href: '/awards' },
   { label: 'Results', href: '/results' },
   { label: 'Aftercare', href: '/aftercare' },
   { label: 'FAQ', href: '/faq' },
@@ -108,6 +110,7 @@ export default function Footer() {
         <div className="pt-7 flex flex-col md:flex-row gap-3 md:items-end md:justify-between" style={{ fontSize: 11, color: 'rgba(245, 240, 236, 0.4)' }}>
           <div className="flex flex-col gap-1">
             <span>Visage Aesthetics &middot; Bernadette Tobin RGN, MSc Advanced Practice</span>
+            <span>NMC PIN 05G1755E &middot; Registered with the Royal College of Nursing</span>
             <span>A private aesthetics clinic &middot; Strictly by appointment</span>
             <span>© {year} Visage Aesthetics. All rights reserved.</span>
           </div>

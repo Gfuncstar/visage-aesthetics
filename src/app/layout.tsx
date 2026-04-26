@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     template: '%s | Visage Aesthetics',
   },
   description:
-    "A private nurse-led aesthetics clinic in Braintree, Essex. Beautifully balanced, naturally subtle treatments by Bernadette Tobin RGN, MSc — strictly by appointment, one client at a time, on Friars Lane.",
+    "Best Non-Surgical Aesthetics Clinic 2026 — Essex. A private nurse-led clinic on Friars Lane, Braintree. Naturally subtle treatments by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Strictly by appointment.",
   keywords: ['private aesthetics clinic essex', 'aesthetics braintree', 'botox essex', 'dermal filler braintree', 'profhilo essex', 'nurse-led aesthetics', 'visage aesthetics', 'discreet clinic braintree'],
   alternates: {
     canonical: '/',
@@ -80,13 +80,26 @@ const jsonLd = {
   },
   geo: { '@type': 'GeoCoordinates', latitude: 51.885914, longitude: 0.555411 },
   email: 'info@vaclinic.co.uk',
+  telephone: '+44 7931 395246',
   openingHours: ['Tu-Sa 09:00-18:00'],
   medicalSpecialty: 'Aesthetic Medicine',
+  award: 'Best Non-Surgical Aesthetics Clinic 2026 — Essex (Health, Beauty & Wellness Awards)',
   employee: {
     '@type': 'Person',
     name: 'Bernadette Tobin',
-    jobTitle: 'Aesthetic Practitioner',
-    description: 'Registered nurse with MSc in Advanced Practice and 20+ years clinical experience',
+    jobTitle: 'Registered Nurse, MSc Advanced Practice',
+    description: 'Registered nurse (NMC PIN 05G1755E) with MSc Advanced Practice (Level 7) and 20+ years clinical experience. Member of the Royal College of Nursing.',
+    identifier: [
+      { '@type': 'PropertyValue', propertyID: 'NMC PIN', value: '05G1755E' },
+    ],
+    memberOf: [
+      { '@type': 'Organization', name: 'Nursing and Midwifery Council', url: 'https://www.nmc.org.uk/' },
+      { '@type': 'Organization', name: 'Royal College of Nursing', url: 'https://www.rcn.org.uk/' },
+    ],
+    hasCredential: [
+      { '@type': 'EducationalOccupationalCredential', credentialCategory: 'degree', name: 'MSc Advanced Practice (Level 7)' },
+      { '@type': 'EducationalOccupationalCredential', credentialCategory: 'professional registration', name: 'NMC Registered Nurse', identifier: '05G1755E' },
+    ],
   },
 }
 

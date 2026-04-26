@@ -12,6 +12,8 @@ const SITE = 'https://www.vaclinic.co.uk'
 const PAGE_DATES: Record<string, string> = {
   '/': '2026-04-26',
   '/about': '2026-04-26',
+  '/awards': '2026-04-26',
+  '/pricing': '2026-04-26',
   '/treatments': '2026-04-26',
   '/results': '2026-04-26',
   '/aftercare': '2026-04-26',
@@ -19,6 +21,10 @@ const PAGE_DATES: Record<string, string> = {
   '/contact': '2026-04-26',
   '/blog': '2026-04-26',
   '/privacy': '2025-09-01',
+  // Geo landing pages (local SEO)
+  '/braintree-botox': '2026-04-26',
+  '/chelmsford-botox': '2026-04-26',
+  '/halstead-botox': '2026-04-26',
   // Treatments
   '/treatments/anti-wrinkle-injections': '2026-04-26',
   '/treatments/dermal-filler': '2026-04-26',
@@ -40,15 +46,21 @@ const dateOf = (path: string) => new Date(PAGE_DATES[path] ?? '2026-04-26')
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: `${SITE}/`,           changeFrequency: 'weekly',  priority: 1.0,  lastModified: dateOf('/') },
-    { url: `${SITE}/about`,      changeFrequency: 'monthly', priority: 0.9,  lastModified: dateOf('/about') },
-    { url: `${SITE}/treatments`, changeFrequency: 'weekly',  priority: 0.95, lastModified: dateOf('/treatments') },
-    { url: `${SITE}/results`,    changeFrequency: 'monthly', priority: 0.7,  lastModified: dateOf('/results') },
-    { url: `${SITE}/aftercare`,  changeFrequency: 'monthly', priority: 0.6,  lastModified: dateOf('/aftercare') },
-    { url: `${SITE}/faq`,        changeFrequency: 'monthly', priority: 0.6,  lastModified: dateOf('/faq') },
-    { url: `${SITE}/contact`,    changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/contact') },
-    { url: `${SITE}/blog`,       changeFrequency: 'weekly',  priority: 0.8,  lastModified: dateOf('/blog') },
-    { url: `${SITE}/privacy`,    changeFrequency: 'yearly',  priority: 0.2,  lastModified: dateOf('/privacy') },
+    { url: `${SITE}/`,                changeFrequency: 'weekly',  priority: 1.0,  lastModified: dateOf('/') },
+    { url: `${SITE}/about`,           changeFrequency: 'monthly', priority: 0.9,  lastModified: dateOf('/about') },
+    { url: `${SITE}/awards`,          changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/awards') },
+    { url: `${SITE}/pricing`,         changeFrequency: 'monthly', priority: 0.9,  lastModified: dateOf('/pricing') },
+    { url: `${SITE}/treatments`,      changeFrequency: 'weekly',  priority: 0.95, lastModified: dateOf('/treatments') },
+    { url: `${SITE}/results`,         changeFrequency: 'monthly', priority: 0.7,  lastModified: dateOf('/results') },
+    { url: `${SITE}/aftercare`,       changeFrequency: 'monthly', priority: 0.6,  lastModified: dateOf('/aftercare') },
+    { url: `${SITE}/faq`,             changeFrequency: 'monthly', priority: 0.6,  lastModified: dateOf('/faq') },
+    { url: `${SITE}/contact`,         changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/contact') },
+    { url: `${SITE}/blog`,            changeFrequency: 'weekly',  priority: 0.8,  lastModified: dateOf('/blog') },
+    { url: `${SITE}/privacy`,         changeFrequency: 'yearly',  priority: 0.2,  lastModified: dateOf('/privacy') },
+    // Geo landing pages
+    { url: `${SITE}/braintree-botox`, changeFrequency: 'monthly', priority: 0.9,  lastModified: dateOf('/braintree-botox') },
+    { url: `${SITE}/chelmsford-botox`,changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/chelmsford-botox') },
+    { url: `${SITE}/halstead-botox`,  changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/halstead-botox') },
   ]
 
   const treatmentRoutes: MetadataRoute.Sitemap = treatments.map((t) => ({

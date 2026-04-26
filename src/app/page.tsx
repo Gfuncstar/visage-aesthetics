@@ -8,8 +8,8 @@ import { treatments } from '@/lib/treatments'
 import { getGoogleReviews } from '@/lib/google-reviews'
 
 export const metadata: Metadata = {
-  title: 'Visage Aesthetics | Nurse-Led Aesthetics Clinic, Braintree',
-  description: "Nurse-led aesthetic clinic in Braintree, Essex. Anti-wrinkle, dermal filler, Profhilo, micro-needling and more by Bernadette Tobin RGN, MSc. Free consultation, naturally subtle results.",
+  title: 'Visage Aesthetics | Award-Winning Nurse-Led Clinic, Braintree',
+  description: "Best Non-Surgical Aesthetics Clinic 2026 — Essex. Anti-wrinkle, dermal filler, Profhilo and more by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Free consultation, naturally subtle results.",
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
@@ -69,6 +69,13 @@ export default async function Home() {
         ],
         openingHoursSpecification: [{ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], opens: '09:00', closes: '18:00' }],
         sameAs: ['https://www.instagram.com/visageaestheticclinic'],
+        award: [
+          'Best Non-Surgical Aesthetics Clinic 2026 — Essex (Health, Beauty & Wellness Awards)',
+        ],
+        hasCredential: [
+          { '@type': 'EducationalOccupationalCredential', credentialCategory: 'professional registration', name: 'NMC Registered Nurse', identifier: '05G1755E' },
+          { '@type': 'EducationalOccupationalCredential', credentialCategory: 'degree', name: 'MSc Advanced Practice (Level 7)' },
+        ],
         aggregateRating: {
           '@type': 'AggregateRating',
           ratingValue: reviews.rating.toFixed(1),
