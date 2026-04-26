@@ -146,7 +146,7 @@ export default function ScrollScrubHero() {
             <span className="award-meta">2026 &nbsp;·&nbsp; Nominee</span>
           </div>
         </div>
-        <div className="scrub-content" style={{ padding: '120px var(--pad-x) 160px', justifyContent: 'flex-end', gap: 32 }}>
+        <div className="scrub-content" style={{ padding: '120px var(--pad-x) 130px', justifyContent: 'flex-end', gap: 32 }}>
           <div ref={panel1Ref} className="scrub-panel">
             <div className="max-w-[1280px] mx-auto">
               <div
@@ -156,14 +156,14 @@ export default function ScrollScrubHero() {
                   opacity: 0,
                   lineHeight: 1.6,
                   color: '#FFFFFF',
-                  textShadow: '0 2px 24px rgba(0, 0, 0, 0.20), 0 1px 3px rgba(0, 0, 0, 0.20)',
+                  textShadow: '0 2px 24px rgba(0, 0, 0, 0.10), 0 1px 3px rgba(0, 0, 0, 0.10)',
                 }}
               >
                 Private nurse-led clinic
                 <br />
                 By appointment · Braintree
               </div>
-              <h1 className="text-h1" style={{ color: '#F5F0EC', fontWeight: 300, textShadow: '0 4px 32px rgba(0, 0, 0, 0.20), 0 2px 6px rgba(0, 0, 0, 0.20)' }}>
+              <h1 className="text-h1" style={{ color: '#F5F0EC', fontWeight: 300, textShadow: '0 4px 32px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.10)' }}>
                 <span className="block">
                   <span className="word-rise"><span style={{ animationDelay: '0.30s' }}>Enhancing what&apos;s</span></span>
                 </span>
