@@ -54,8 +54,7 @@ const rows: Row[] = [
     treatment: 'HarmonyCa',
     href: '/treatments/harmonyca',
     options: [
-      { area: '1 syringe', price: '£500', duration: '45 min' },
-      { area: '2 syringes', price: '£800', duration: '60 min' },
+      { area: 'Treatment session', price: '£500', duration: '60 min' },
     ],
   },
   {
