@@ -49,6 +49,7 @@ const PAGE_DATES: Record<string, string> = {
   '/blog/first-botox-appointment': '2026-04-01',
   '/blog/natural-looking-filler': '2026-04-01',
   '/blog/profhilo-vs-dermal-filler': '2026-04-01',
+  '/blog/lip-filler-aftercare-guide': '2026-04-26',
 }
 
 const dateOf = (path: string) => new Date(PAGE_DATES[path] ?? '2026-04-26')
