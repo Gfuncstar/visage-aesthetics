@@ -115,7 +115,15 @@ export default function Footer() {
             <span>A private aesthetics clinic &middot; Strictly by appointment</span>
             <span>© {year} Visage Aesthetics. All rights reserved.</span>
           </div>
-          <span>Brand by EB Design Agency</span>
+          <a
+            href="https://ebdesignagency.co.uk/"
+            target="_blank"
+            rel="noopener"
+            className="hover:text-cream transition-colors"
+            style={{ color: 'rgba(245, 240, 236, 0.4)' }}
+          >
+            Brand by EB Design Agency
+          </a>
         </div>
       </div>
     </footer>
