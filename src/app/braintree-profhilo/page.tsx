@@ -3,11 +3,11 @@ import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
   title: 'Profhilo Braintree | Award-Winning Nurse-Led Clinic | Visage Aesthetics',
-  description: "Profhilo skin bio-remodelling in Braintree, Essex by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Best Non-Surgical Aesthetics Clinic 2026. From £300. Hyaluronic acid, deep hydration, no fill.",
+  description: "Profhilo skin bio-remodelling in Braintree, Essex by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Best Non-Surgical Aesthetics Clinic 2026. From £180. Hyaluronic acid, deep hydration, no fill.",
   alternates: { canonical: '/braintree-profhilo' },
   openGraph: {
     title: 'Profhilo in Braintree | Visage Aesthetics',
-    description: 'Award-winning Profhilo treatment on Friars Lane, Braintree. From £300.',
+    description: 'Award-winning Profhilo treatment on Friars Lane, Braintree. From £180.',
     url: 'https://www.vaclinic.co.uk/braintree-profhilo',
   },
 }
@@ -25,7 +25,7 @@ export default function BraintreeProfhilo() {
         { title: 'Award-winning local clinic', body: "Best Non-Surgical Aesthetics Clinic 2026 — Essex. Authentic Profhilo from IBSA, never relabelled or repackaged. Two sessions, four weeks apart, included in the course price." },
         { title: 'A short, calm appointment', body: "Profhilo uses the BAP injection technique — five small points on each side. Around 30 minutes. Most Braintree clients walk in on their lunch break and back out without any visible signs." },
       ]}
-      priceFrom="From £300 / single session"
+      priceFrom="From £180 / single session"
       postcode="CM7 9BL"
       treatmentHref="/treatments/profhilo"
       faqs={[
@@ -35,7 +35,7 @@ export default function BraintreeProfhilo() {
         },
         {
           question: 'How much does Profhilo cost in Braintree?',
-          answer: 'A single session is £300. The recommended course of two sessions (four weeks apart) is £550 in total — saving £50 vs. booking individually. See the full pricing page for all treatments.',
+          answer: 'A single session is £180. The recommended course of two sessions (four weeks apart) is £380. See the full pricing page for all treatments.',
         },
         {
           question: 'How quickly will I see results?',

@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/treatments/profhilo' },
   title: 'Profhilo Braintree | Award-Winning Nurse-Led | Visage Aesthetics',
   description:
-    'Authentic Profhilo skin bio-remodelling in Braintree, Essex by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Best Non-Surgical Aesthetics Clinic 2026. Hydration, glow, no fill. From £300.',
+    'Authentic Profhilo skin bio-remodelling in Braintree, Essex by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Best Non-Surgical Aesthetics Clinic 2026. Hydration, glow, no fill. From £180.',
 }
 
 export default function Page() {
@@ -53,7 +53,7 @@ export default function Page() {
         after:
           'Small bumps at the five injection points on each side are normal for 12-24 hours and settle quickly. Most clients return to work the same day. Avoid the gym, sauna and hot yoga for 24 hours. Visible improvement begins at 2-3 weeks; a second session is scheduled at four weeks; full settle around 8 weeks after the second session.',
       }}
-      pricingNote="Single session £300. Recommended course of two sessions (four weeks apart) £550 — saving £50 vs booking individually. The fee includes the genuine IBSA Profhilo product. Profhilo Body (upper arms, neck, décolletage) priced separately at consultation. See /pricing for the full transparent table."
+      pricingNote="Single session £180. Recommended course of two sessions (four weeks apart) £380. The fee includes the genuine IBSA Profhilo product. Profhilo Body (upper arms, neck, décolletage) priced separately at consultation. See /pricing for the full transparent table."
       faqs={[
         {
           question: "Is Profhilo a filler?",

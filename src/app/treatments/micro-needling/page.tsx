@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/treatments/micro-needling' },
   title: 'Micro-Needling Braintree | Award-Winning Nurse-Led | Visage Aesthetics',
   description:
-    'Medical-grade micro-needling in Braintree, Essex by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Best Non-Surgical Aesthetics Clinic 2026. Collagen induction therapy from £150. Course of 3 from £400.',
+    'Medical-grade micro-needling in Braintree, Essex by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Best Non-Surgical Aesthetics Clinic 2026. Collagen induction therapy from £80. Exosome upgrade £150. Course of 3 from £240.',
 }
 
 export default function Page() {
@@ -55,7 +55,7 @@ export default function Page() {
         after:
           'Redness usually settles within 24-48 hours; some clients experience minor flaking around days 3-5 as cell turnover accelerates. Avoid the gym, sauna, hot yoga, makeup, swimming and direct sun for 48 hours. Sun protection (SPF50) is essential for 4 weeks afterwards. Visible improvement begins at 4-6 weeks; full collagen response 3-6 months after the final session.',
       }}
-      pricingNote="Single session £150. Recommended course of three sessions (four weeks apart) £400 — saving £50 vs booking individually. The fee includes the procedure, all serums applied, and post-treatment skincare guidance. There is no consultation fee. See /pricing for the full transparent table."
+      pricingNote="Single session £80, or £150 with Exosomes. Recommended course of three sessions (four weeks apart) £240, or £400 with Exosomes throughout the course. The fee includes the procedure, all serums applied, and post-treatment skincare guidance. There is no consultation fee. See /pricing for the full transparent table."
       faqs={[
         {
           question: 'How is medical micro-needling different from a dermaroller I can buy?',

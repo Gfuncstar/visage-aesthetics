@@ -3,11 +3,11 @@ import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
   title: 'Profhilo Chelmsford | Award-Winning Nurse-Led | Visage Aesthetics',
-  description: "Authentic Profhilo skin bio-remodelling for Chelmsford clients at Visage Aesthetics, Braintree — 25 minutes. Best Non-Surgical Aesthetics Clinic 2026 — Essex. Bernadette Tobin RGN, MSc. From £300.",
+  description: "Authentic Profhilo skin bio-remodelling for Chelmsford clients at Visage Aesthetics, Braintree — 25 minutes. Best Non-Surgical Aesthetics Clinic 2026 — Essex. Bernadette Tobin RGN, MSc. From £180.",
   alternates: { canonical: '/chelmsford-profhilo' },
   openGraph: {
     title: 'Profhilo for Chelmsford Clients | Visage Aesthetics',
-    description: 'Award-winning Profhilo treatment 25 minutes from Chelmsford. From £300.',
+    description: 'Award-winning Profhilo treatment 25 minutes from Chelmsford. From £180.',
     url: 'https://www.vaclinic.co.uk/chelmsford-profhilo',
   },
 }
@@ -25,7 +25,7 @@ export default function ChelmsfordProfhilo() {
         { title: 'Award-winning, nurse-led', body: "Best Non-Surgical Aesthetics Clinic 2026 — Essex. Performed by Bernadette Tobin RGN, MSc Advanced Practice (Level 7) — twenty years clinical experience." },
         { title: 'Worth the 25-minute drive', body: "Free on-site parking on Friars Lane. One client in the room at a time. The drive is the easiest part." },
       ]}
-      priceFrom="From £300 / single session"
+      priceFrom="From £180 / single session"
       postcode="CM7 9BL"
       treatmentHref="/treatments/profhilo"
       faqs={[
@@ -39,7 +39,7 @@ export default function ChelmsfordProfhilo() {
         },
         {
           question: 'How much does Profhilo cost?',
-          answer: 'Single session £300. Recommended course of two sessions four weeks apart £550 (saves £50). Pricing transparent at /pricing.',
+          answer: 'Single session £180. Recommended course of two sessions four weeks apart £380. Pricing transparent at /pricing.',
         },
         {
           question: 'How quickly will I see results?',

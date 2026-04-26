@@ -7,7 +7,7 @@ import { BOOKING_LINK_PROPS } from '@/lib/booking'
 
 export const metadata: Metadata = {
   title: 'Treatment Prices | Visage Aesthetics, Braintree',
-  description: "Transparent prices for every treatment at Visage Aesthetics, Braintree. Anti-wrinkle from £120, dermal filler from £110, Profhilo from £300. Free consultation, no pressure.",
+  description: "Transparent prices for every treatment at Visage Aesthetics, Braintree. Anti-wrinkle from £120, dermal filler from £110, Profhilo from £180, micro-needling from £80. Free consultation, no pressure.",
   alternates: { canonical: '/pricing' },
   openGraph: {
     title: 'Treatment Prices | Visage Aesthetics, Braintree',
@@ -46,15 +46,15 @@ const rows: Row[] = [
     treatment: 'Profhilo',
     href: '/treatments/profhilo',
     options: [
-      { area: 'Single session (2ml)', price: '£300', duration: '30 min' },
-      { area: 'Course of two', price: '£550', duration: '30 min × 2' },
+      { area: 'Single session (2ml)', price: '£180', duration: '30 min' },
+      { area: 'Course of two', price: '£380', duration: '30 min × 2' },
     ],
   },
   {
     treatment: 'HarmonyCa',
     href: '/treatments/harmonyca',
     options: [
-      { area: '1 syringe', price: '£450', duration: '45 min' },
+      { area: '1 syringe', price: '£500', duration: '45 min' },
       { area: '2 syringes', price: '£800', duration: '60 min' },
     ],
   },
@@ -62,8 +62,10 @@ const rows: Row[] = [
     treatment: 'Micro-Needling',
     href: '/treatments/micro-needling',
     options: [
-      { area: 'Single session', price: '£150', duration: '60 min' },
-      { area: 'Course of three', price: '£400', duration: '60 min × 3' },
+      { area: 'Single session', price: '£80', duration: '60 min' },
+      { area: 'Single session with Exosomes', price: '£150', duration: '45 min' },
+      { area: 'Course of three', price: '£240', duration: '60 min × 3' },
+      { area: 'Course of three with Exosomes', price: '£400', duration: '45 min × 3' },
     ],
   },
   {

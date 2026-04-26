@@ -3,11 +3,11 @@ import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
   title: 'Profhilo Halstead | Award-Winning Nurse-Led | Visage Aesthetics',
-  description: "Authentic Profhilo skin bio-remodelling for Halstead clients at Visage Aesthetics, Braintree — 12 minutes via the A131. Best Non-Surgical Aesthetics Clinic 2026 — Essex. From £300.",
+  description: "Authentic Profhilo skin bio-remodelling for Halstead clients at Visage Aesthetics, Braintree — 12 minutes via the A131. Best Non-Surgical Aesthetics Clinic 2026 — Essex. From £180.",
   alternates: { canonical: '/halstead-profhilo' },
   openGraph: {
     title: 'Profhilo for Halstead Clients | Visage Aesthetics',
-    description: 'Award-winning Profhilo treatment 12 minutes from Halstead. From £300.',
+    description: 'Award-winning Profhilo treatment 12 minutes from Halstead. From £180.',
     url: 'https://www.vaclinic.co.uk/halstead-profhilo',
   },
 }
@@ -25,7 +25,7 @@ export default function HalsteadProfhilo() {
         { title: 'Award-winning local clinic', body: "Best Non-Surgical Aesthetics Clinic 2026 — Essex. The closest award-recognised clinic for Halstead, Earls Colne and Sible Hedingham." },
         { title: 'Authentic IBSA Profhilo', body: "Sourced direct from the manufacturer. Never diluted, never substituted. The same product the clinical evidence is based on." },
       ]}
-      priceFrom="From £300 / single session"
+      priceFrom="From £180 / single session"
       postcode="CM7 9BL"
       treatmentHref="/treatments/profhilo"
       faqs={[
@@ -39,7 +39,7 @@ export default function HalsteadProfhilo() {
         },
         {
           question: 'How much does Profhilo cost?',
-          answer: 'Single session £300. Recommended course of two sessions £550 (saves £50). Pricing transparent at /pricing.',
+          answer: 'Single session £180. Recommended course of two sessions £380. Pricing transparent at /pricing.',
         },
         {
           question: 'When will I see results?',
