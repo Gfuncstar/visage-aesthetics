@@ -72,8 +72,8 @@ const rows: Row[] = [
     treatment: 'AQUALYX (fat dissolving)',
     href: '/treatments/aqualyx',
     options: [
-      { area: 'Per area, single session', price: '£250', duration: '30 min' },
-      { area: 'Course of three (per area)', price: '£650', duration: '30 min × 3' },
+      { area: 'Per area, single session', price: 'Per consultation', duration: '30 min' },
+      { area: 'Course of three (per area)', price: 'Per consultation', duration: '30 min × 3' },
     ],
   },
   {
@@ -88,16 +88,16 @@ const rows: Row[] = [
     treatment: 'Hyperhidrosis Treatment',
     href: '/treatments/hyperhidrosis-migraines',
     options: [
-      { area: 'Underarms (both)', price: '£350', duration: '30 min' },
-      { area: 'Migraine prevention', price: 'From £350', duration: '30 min' },
+      { area: 'Underarms (both)', price: '£290', duration: '30 min' },
+      { area: 'Migraine prevention', price: 'From £200', duration: '30 min' },
     ],
   },
   {
     treatment: 'Vitamin B12',
     href: '/treatments/vitamin-b12',
     options: [
-      { area: 'Single injection', price: '£35', duration: '10 min' },
-      { area: 'Course of four', price: '£120', duration: '10 min × 4' },
+      { area: 'Single injection', price: '£30', duration: '10 min' },
+      { area: 'Course of four', price: '£100', duration: '10 min × 4' },
     ],
   },
   {
