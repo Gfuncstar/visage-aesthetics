@@ -450,7 +450,12 @@ section.reveal { opacity: 1; transform: none; transition: none; }
   white-space: nowrap;
 }
 @media (max-width: 720px) {
-  .award-stack { top: 88px; gap: 8px; width: 160px; }
+  .award-stack {
+    top: 120px;
+    gap: 8px;
+    width: 160px;
+    right: clamp(16px, 5vw, 28px);
+  }
   .award-badge {
     padding: 11px 14px;
     gap: 5px;
