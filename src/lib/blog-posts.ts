@@ -6,7 +6,18 @@
  * sibling articles.
  *
  * The auto-blog generator (scripts/generate-blog-post.ts) appends to
- * this array via the `// AUTO-BLOG-INSERT` marker — keep that comment
+ * this array via the `
+  {
+    slug: 'tear-trough-filler-truth',
+    category: "Dermal filler",
+    title: "Tear trough filler: when it works and when it really doesn't",
+    excerpt: "Under-eye filler suits a narrow group; for most, the anatomy works against it—here's how to tell which category you fall into.",
+    readTime: "8 min read",
+    datePublished: '2026-04-29',
+    dateModified: '2026-04-29',
+    image: '/images/og-home.jpg',
+  },
+// AUTO-BLOG-INSERT` marker — keep that comment
  * exactly where it is so new posts land cleanly.
  */
 export type BlogPost = {
