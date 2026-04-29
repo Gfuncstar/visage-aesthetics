@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/_next/'],
+        disallow: ['/api/', '/_next/', '/staff/', '/staff'],
       },
     ],
     sitemap: 'https://www.vaclinic.co.uk/sitemap.xml',
