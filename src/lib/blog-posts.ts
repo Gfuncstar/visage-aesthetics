@@ -17,6 +17,17 @@
     dateModified: '2026-04-29',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'first-time-botox-mistakes',
+    category: "Anti-wrinkle",
+    title: "Five mistakes first-time Botox clients make",
+    excerpt: "Understanding why these errors occur helps first-time clients avoid them and approach their treatment with realistic expectations.",
+    readTime: "9 min read",
+    datePublished: '2026-04-29',
+    dateModified: '2026-04-29',
+    image: '/images/og-home.jpg',
+  },
+
 // AUTO-BLOG-INSERT` marker — keep that comment
  * exactly where it is so new posts land cleanly.
  */
