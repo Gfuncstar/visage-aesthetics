@@ -6,30 +6,8 @@
  * sibling articles.
  *
  * The auto-blog generator (scripts/generate-blog-post.ts) appends to
- * this array via the `
-  {
-    slug: 'tear-trough-filler-truth',
-    category: "Dermal filler",
-    title: "Tear trough filler: when it works and when it really doesn't",
-    excerpt: "Under-eye filler suits a narrow group; for most, the anatomy works against it—here's how to tell which category you fall into.",
-    readTime: "8 min read",
-    datePublished: '2026-04-29',
-    dateModified: '2026-04-29',
-    image: '/images/og-home.jpg',
-  },
-  {
-    slug: 'first-time-botox-mistakes',
-    category: "Anti-wrinkle",
-    title: "Five mistakes first-time Botox clients make",
-    excerpt: "Understanding why these errors occur helps first-time clients avoid them and approach their treatment with realistic expectations.",
-    readTime: "9 min read",
-    datePublished: '2026-04-29',
-    dateModified: '2026-04-29',
-    image: '/images/og-home.jpg',
-  },
-
-// AUTO-BLOG-INSERT` marker — keep that comment
- * exactly where it is so new posts land cleanly.
+ * this array via the marker comment near the end of the array. Keep
+ * that marker exactly where it is so new posts land cleanly.
  */
 export type BlogPost = {
   slug: string
@@ -122,6 +100,26 @@ export const blogPosts: BlogPost[] = [
     readTime: '7 min read',
     datePublished: '2025-09-12',
     dateModified: '2026-04-01',
+    image: '/images/og-home.jpg',
+  },
+  {
+    slug: 'tear-trough-filler-truth',
+    category: 'Dermal filler',
+    title: "Tear trough filler: when it works and when it really doesn't",
+    excerpt: "Under-eye filler suits a narrow group; for most, the anatomy works against it—here's how to tell which category you fall into.",
+    readTime: '8 min read',
+    datePublished: '2026-04-29',
+    dateModified: '2026-04-29',
+    image: '/images/og-home.jpg',
+  },
+  {
+    slug: 'first-time-botox-mistakes',
+    category: 'Anti-wrinkle',
+    title: 'Five mistakes first-time Botox clients make',
+    excerpt: 'Understanding why these errors occur helps first-time clients avoid them and approach their treatment with realistic expectations.',
+    readTime: '9 min read',
+    datePublished: '2026-04-29',
+    dateModified: '2026-04-29',
     image: '/images/og-home.jpg',
   },
   // AUTO-BLOG-INSERT — generator appends new posts immediately above this line. Do not delete this marker.

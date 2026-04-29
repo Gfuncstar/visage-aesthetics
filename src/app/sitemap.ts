@@ -116,6 +116,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'how-long-does-profhilo-last',
     'what-is-a-nurse-led-clinic',
     'consultation-questions-to-ask',
+    'tear-trough-filler-truth',
+    'first-time-botox-mistakes',
+    // AUTO-BLOG-SITEMAP-INSERT — generator appends new slugs immediately above this line. Do not delete this marker.
   ].map((slug) => ({
     url: `${SITE}/blog/${slug}`,
     changeFrequency: 'monthly',

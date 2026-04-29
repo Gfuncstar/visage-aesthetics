@@ -336,10 +336,10 @@ function updateSitemap(slug: string, isoDate: string) {
     )
   }
   // Ensure the route is registered in blogRoutes too
-  if (!src.includes(`'${slug}',`) && !src.includes(`'${slug}'\n`)) {
+  if (!src.includes(`'${slug}',`)) {
     src = src.replace(
-      /(\['first-botox-appointment',\s*'natural-looking-filler',\s*'profhilo-vs-dermal-filler',)/,
-      `$1\n    '${slug}',`,
+      /(\s*\/\/ AUTO-BLOG-SITEMAP-INSERT[^\n]*\n)/,
+      `    '${slug}',\n$1`,
     )
   }
   writeFileSync(path, src)
