@@ -102,21 +102,39 @@ async function researchNews(
   topic: Topic,
   newsAngles: string[],
 ): Promise<string> {
-  const prompt = `You are a research assistant for an aesthetics clinic blog. Spend up to 3 web searches finding any relevant UK news from the last 60 days that could be referenced in a blog post about: "${topic.title}".
+  const prompt = `You are a research assistant for an aesthetics clinic blog. Spend up to 5 web searches gathering verified facts for a blog post about: "${topic.title}".
 
 Topic angle: ${topic.angle}
 Target keywords: ${topic.targetKeywords.join(', ')}
 
-News angles to look for:
+You have two jobs:
+
+1. **Topical news**: find any relevant UK news from the last 60 days that could give the post a current angle. Look for:
 ${newsAngles.map((a) => `- ${a}`).join('\n')}
 
-Return a short list of 3-5 facts/quotes/dates with their source URLs. If nothing recent applies, say "No fresh news angle — write evergreen". Do not write the post yet.`
+2. **Fact verification**: gather authoritative sources that confirm or correct the standard clinical claims this topic will rely on (durations, dosing windows, mechanism of action, regulatory status, product names, indication boundaries). Prefer manufacturer SmPCs, MHRA, NHS, NICE, peer-reviewed journals, JCCP, BACN, Save Face. Where two sources disagree, flag the disagreement.
+
+Return your output in this exact format:
+
+## Topical news (last 60 days)
+- [Headline / fact] — [date] — [source URL]
+(or "No fresh news angle — write evergreen")
+
+## Verified clinical facts
+- [claim] — supported by [source URL] and [source URL]  ← cite at least 2 sources per non-obvious claim
+- [claim] — supported by [source URL]
+
+## Disputed / uncertain
+- [claim] — sources disagree: [URL] says X, [URL] says Y
+(or "None")
+
+Do not write the post itself yet.`
 
   try {
     const res = await client.messages.create({
       model: MODEL,
-      max_tokens: 1500,
-      tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 3 } as never],
+      max_tokens: 2500,
+      tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 } as never],
       messages: [{ role: 'user', content: prompt }],
     })
     return res.content
@@ -144,8 +162,14 @@ Target keywords: ${topic.targetKeywords.join(', ')}
 Angle: ${topic.angle}
 Most relevant treatment page: ${topic.treatment}
 
-Recent news context (use only if it actually adds value — never force):
+Research notes (topical news + verified clinical facts + disputed items):
 ${newsContext}
+
+Fact discipline (non-negotiable):
+- Every numeric claim (durations, doses, percentages, prices, timeframes) must be supported by the "Verified clinical facts" section above. If a number isn't in there, do not state it — speak in qualitative terms instead.
+- Every regulatory or product-specific claim (MHRA status, licensing, JCCP rules, brand-specific facts) must come from the verified facts. If unverified, omit.
+- For any item in "Disputed / uncertain", either reflect the disagreement honestly or skip the topic.
+- Use the topical news angle only if it genuinely strengthens the post — never force.
 
 Voice & style guide (follow strictly):
 ${voiceGuide}

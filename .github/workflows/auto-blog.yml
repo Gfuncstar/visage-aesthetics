@@ -74,7 +74,7 @@ jobs:
         run: |
           git config user.name "Visage auto-blog"
           git config user.email "auto-blog@vaclinic.co.uk"
-          git pull --rebase origin main
+          git pull --rebase --autostash origin main
           git add -A
           git commit -m "chore(blog): auto-generated post"
           git push origin main
