@@ -122,6 +122,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-04-29',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'anti-wrinkle-aftercare',
+    category: "Anti-wrinkle",
+    title: "Anti-wrinkle aftercare: the first 24 hours",
+    excerpt: "What you do in the first 24 hours after anti-wrinkle injections can affect how well the toxin binds — here's the hour-by-hour reasoning.",
+    readTime: "10 min read",
+    datePublished: '2026-04-29',
+    dateModified: '2026-04-29',
+    image: '/images/og-home.jpg',
+  },
+
   // AUTO-BLOG-INSERT — generator appends new posts immediately above this line. Do not delete this marker.
 ]
 
