@@ -59,11 +59,42 @@ export async function POST(req: Request) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ secret: sharedSecret, ...body }),
       cache: 'no-store',
+      redirect: 'follow',
     })
-    if (!upstream.ok) {
-      const text = await upstream.text()
-      console.error('Sheet webhook failed', upstream.status, text)
-      return NextResponse.json({ error: 'Could not save to sheet' }, { status: 502 })
+    const text = await upstream.text()
+
+    // Apps Script web apps redirect POST → 302 → /macros/echo, where the
+    // response body might come back as JSON or HTML depending on how the
+    // runtime handled the redirect. We treat as failure ONLY when we can
+    // see a clear failure signal: explicit {ok:false} JSON, the
+    // "Script function not found" error page, or a non-2xx status.
+    let parsed: { ok?: boolean; error?: string } | null = null
+    try {
+      parsed = JSON.parse(text)
+    } catch {
+      // not JSON; might be Apps Script's HTML redirect chrome — that's
+      // OK as long as the status was 2xx and the body isn't a known error.
+    }
+
+    const knownDeployError =
+      text.includes('Script function not found') ||
+      text.includes('TypeError') ||
+      text.includes('ReferenceError')
+
+    if (!upstream.ok || parsed?.ok === false || knownDeployError) {
+      console.error('Sheet webhook rejected submission', {
+        status: upstream.status,
+        contentType: upstream.headers.get('content-type') || '',
+        bodySnippet: text.slice(0, 300),
+      })
+      return NextResponse.json(
+        {
+          error:
+            parsed?.error ||
+            'The clinic notes sheet did not accept this submission. Please tell Giles.',
+        },
+        { status: 502 },
+      )
     }
   } catch (err) {
     console.error('Sheet webhook error', err)
