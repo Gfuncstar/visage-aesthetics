@@ -56,6 +56,7 @@ const PAGE_DATES: Record<string, string> = {
   '/blog/first-botox-appointment': '2026-04-01',
   '/blog/natural-looking-filler': '2026-04-01',
   '/blog/profhilo-vs-dermal-filler': '2026-04-01',
+  '/blog/how-long-does-botox-last': '2026-05-01',
   '/blog/anti-wrinkle-aftercare': '2026-04-29',
   '/blog/first-time-botox-mistakes': '2026-04-29',
   '/blog/tear-trough-filler-truth': '2026-04-29',
@@ -118,7 +119,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'what-is-a-nurse-led-clinic',
     'consultation-questions-to-ask',
     'tear-trough-filler-truth',
-    'first-time-botox-mistakes',    'anti-wrinkle-aftercare',
+    'first-time-botox-mistakes',    'anti-wrinkle-aftercare',    'how-long-does-botox-last',
+
 
     // AUTO-BLOG-SITEMAP-INSERT — generator appends new slugs immediately above this line. Do not delete this marker.
   ].map((slug) => ({

@@ -132,6 +132,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-04-29',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'how-long-does-botox-last',
+    category: "Anti-wrinkle",
+    title: "How long does Botox actually last?",
+    excerpt: "Most patients see results for three to four months, but your own timeline depends on dose, treatment area and metabolism—here's what the evidence shows.",
+    readTime: "10 min read",
+    datePublished: '2026-05-01',
+    dateModified: '2026-05-01',
+    image: '/images/og-home.jpg',
+  },
+
 
   // AUTO-BLOG-INSERT — generator appends new posts immediately above this line. Do not delete this marker.
 ]
