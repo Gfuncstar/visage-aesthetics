@@ -6,7 +6,7 @@ import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
 const POST = {
   slug: 'lip-filler-aftercare-guide',
   title: "Lip filler aftercare: a complete guide",
-  description: "Lip filler aftercare: a complete guide — written by Bernadette Tobin RGN, MSc Advanced Practice. Award-winning nurse-led clinic in Braintree, Essex.",
+  description: "Lip filler aftercare: a complete guide, written by Bernadette Tobin RGN, MSc Advanced Practice. Award-winning nurse-led clinic in Braintree, Essex.",
   datePublished: '2026-04-26',
   dateModified: '2026-04-26',
   image: '/images/og-home.jpg',
@@ -50,7 +50,7 @@ export default function Post() {
 
     <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">The short version</h2>
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      Swelling peaks at 24 to 48 hours and resolves substantially by day 5. Bruising, if present, typically fades within 7 to 10 days. Your final result is not visible until the two-week mark. During the first 48 hours, avoid heat, alcohol, strenuous exercise, and pressure on the lips. Do not massage unless specifically instructed. If you experience rapid swelling, difficulty breathing, or skin blanching, contact your practitioner immediately — these are rare but require prompt attention.
+      Swelling peaks at 24 to 48 hours and resolves substantially by day 5. Bruising, if present, typically fades within 7 to 10 days. Your final result is not visible until the two-week mark. During the first 48 hours, avoid heat, alcohol, strenuous exercise, and pressure on the lips. Do not massage unless specifically instructed. If you experience rapid swelling, difficulty breathing, or skin blanching, contact your practitioner immediately, these are rare but require prompt attention.
     </p>
 
     <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">The first 48 hours: what is normal</h2>
@@ -58,10 +58,10 @@ export default function Post() {
       The immediate post-treatment period is when your lips will look most unlike themselves. I tell every client: the lips you see in the mirror tonight are not the lips you are keeping. Swelling from the injection process, combined with the hydrophilic nature of hyaluronic acid (it draws water to itself), means your lips may appear 30 to 50 percent larger than your intended result.
     </p>
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      Within the first 2 to 4 hours, you may notice increasing tightness and fullness. This is normal. The local anaesthetic in the filler will wear off after approximately 1 to 2 hours, and you may become more aware of tenderness at the injection sites. Small lumps or unevenness are common at this stage — the filler has not yet integrated with your tissue.
+      Within the first 2 to 4 hours, you may notice increasing tightness and fullness. This is normal. The local anaesthetic in the filler will wear off after approximately 1 to 2 hours, and you may become more aware of tenderness at the injection sites. Small lumps or unevenness are common at this stage, the filler has not yet integrated with your tissue.
     </p>
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      By 12 to 24 hours, swelling typically reaches its peak. One side may swell more than the other; this asymmetry is temporary and relates to your individual lymphatic drainage rather than a problem with placement. Bruising, if it occurs, usually becomes visible during this window. Not everyone bruises — in my clinic, roughly 40 percent of lip filler clients experience some bruising, ranging from a faint yellow shadow to a more noticeable purple mark.
+      By 12 to 24 hours, swelling typically reaches its peak. One side may swell more than the other; this asymmetry is temporary and relates to your individual lymphatic drainage rather than a problem with placement. Bruising, if it occurs, usually becomes visible during this window. Not everyone bruises, in my clinic, roughly 40 percent of lip filler clients experience some bruising, ranging from a faint yellow shadow to a more noticeable purple mark.
     </p>
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
       At the 48-hour mark, most clients notice the swelling beginning to subside. Your lips will still feel firm and may look slightly uneven. This is expected. The filler needs time to soften and settle into its final position.
@@ -89,7 +89,7 @@ export default function Post() {
       I provide every client with written aftercare instructions, but the essentials are straightforward:
     </p>
     <ul className="space-y-2 mb-6 text-body-lg text-ink-soft">
-      <li>· <strong>Apply a cool compress</strong> for 10 to 15 minutes at a time during the first 24 hours. Wrap ice in a clean cloth — never apply ice directly to skin. This helps reduce swelling but will not eliminate it entirely.</li>
+      <li>· <strong>Apply a cool compress</strong> for 10 to 15 minutes at a time during the first 24 hours. Wrap ice in a clean cloth, never apply ice directly to skin. This helps reduce swelling but will not eliminate it entirely.</li>
       <li>· <strong>Sleep elevated</strong> for the first 1 to 2 nights if possible. An extra pillow reduces fluid pooling in the face overnight.</li>
       <li>· <strong>Stay hydrated.</strong> Hyaluronic acid binds to water, and adequate hydration supports optimal filler integration.</li>
       <li>· <strong>Use a gentle lip balm</strong> to keep the lips moisturised. Dry, cracked lips can feel more uncomfortable post-treatment.</li>
@@ -98,7 +98,7 @@ export default function Post() {
       <li>· <strong>Keep the area clean.</strong> You can wash your face normally, but avoid rubbing or pressing on the lips.</li>
     </ul>
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      These are simple measures. The filler does most of the work itself — your job is mainly to avoid interfering with the settling process.
+      These are simple measures. The filler does most of the work itself, your job is mainly to avoid interfering with the settling process.
     </p>
 
     <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">What to avoid after lip filler</h2>
@@ -127,15 +127,15 @@ export default function Post() {
       Contact your practitioner promptly if you experience any of the following:
     </p>
     <ul className="space-y-2 mb-6 text-body-lg text-ink-soft">
-      <li>· <strong>Skin blanching or white patches</strong> — this can indicate compromised blood supply and requires immediate attention.</li>
+      <li>· <strong>Skin blanching or white patches</strong>, this can indicate compromised blood supply and requires immediate attention.</li>
       <li>· <strong>Severe pain</strong> that is disproportionate to what you were told to expect, particularly if accompanied by colour changes.</li>
       <li>· <strong>Rapidly increasing swelling</strong> after the initial 48-hour peak, especially if one-sided or accompanied by warmth.</li>
-      <li>· <strong>Signs of infection</strong> — increasing redness, warmth, pus, or fever developing after day 2 or 3.</li>
-      <li>· <strong>Difficulty breathing or swallowing</strong> — extremely rare but requires emergency medical attention.</li>
+      <li>· <strong>Signs of infection</strong>, increasing redness, warmth, pus, or fever developing after day 2 or 3.</li>
+      <li>· <strong>Difficulty breathing or swallowing</strong>, extremely rare but requires emergency medical attention.</li>
       <li>· <strong>Darkening or dusky discolouration</strong> of the lip tissue.</li>
     </ul>
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      The most serious potential complication is vascular occlusion — where filler inadvertently blocks a blood vessel. This is why I always have hyaluronidase (the enzyme that dissolves hyaluronic acid filler) available in clinic. It is also why choosing a practitioner with proper medical training matters. They need to recognise complications early and act quickly.
+      The most serious potential complication is vascular occlusion, where filler inadvertently blocks a blood vessel. This is why I always have hyaluronidase (the enzyme that dissolves hyaluronic acid filler) available in clinic. It is also why choosing a practitioner with proper medical training matters. They need to recognise complications early and act quickly.
     </p>
 
     <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">A note on practitioner choice and the changing regulatory landscape</h2>
@@ -143,10 +143,10 @@ export default function Post() {
       The UK government confirmed in August 2025 that lip fillers will come under a new local authority licensing system, requiring practitioners to meet rigorous standards for training, insurance, and premises safety. This regulatory change, expected to take effect in 2026, reflects what many of us in the medical aesthetics field have advocated for years.
     </p>
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      Until then, the industry remains largely unregulated. Anyone can technically inject filler after a short course. This is why aftercare quality varies so dramatically — some clients are sent home with comprehensive instructions and 24-hour contact details, while others receive nothing.
+      Until then, the industry remains largely unregulated. Anyone can technically inject filler after a short course. This is why aftercare quality varies so dramatically, some clients are sent home with comprehensive instructions and 24-hour contact details, while others receive nothing.
     </p>
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      When choosing a practitioner, verify they are registered with a professional body such as the <a href="/about/qualifications" className="text-gold hover:underline">NMC (for nurses)</a>, GMC (for doctors), or GDC (for dentists). Check whether they are listed on the Save Face or JCCP registers. Ask whether they have hyaluronidase on site and what their emergency protocol involves. These are not unreasonable questions — any reputable practitioner will answer them readily.
+      When choosing a practitioner, verify they are registered with a professional body such as the <a href="/about/qualifications" className="text-gold hover:underline">NMC (for nurses)</a>, GMC (for doctors), or GDC (for dentists). Check whether they are listed on the Save Face or JCCP registers. Ask whether they have hyaluronidase on site and what their emergency protocol involves. These are not unreasonable questions, any reputable practitioner will answer them readily.
     </p>
 
     <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">The two-week review</h2>

@@ -22,7 +22,7 @@ Stack assumed: **Next.js 16 (App Router), Vercel, GitHub, TypeScript**. Most of 
 
 ---
 
-## Phase 1 — Foundation (do first)
+## Phase 1, Foundation (do first)
 
 ### 1.1 Set up `metadataBase` and a global `metadata` export
 
@@ -67,7 +67,7 @@ const PAGE_DATES: Record<string, string> = {
 const dateOf = (path: string) => new Date(PAGE_DATES[path] ?? '2026-04-26')
 ```
 
-Don't bump every URL to `now` on every deploy — Google learns to ignore the signal.
+Don't bump every URL to `now` on every deploy, Google learns to ignore the signal.
 
 ### 1.4 Robots.txt
 
@@ -89,7 +89,7 @@ export default function robots(): MetadataRoute.Robots {
 
 ---
 
-## Phase 2 — Schema / JSON-LD (the largest competitive wedge)
+## Phase 2, Schema / JSON-LD (the largest competitive wedge)
 
 In most local-business niches, **almost no competitors emit schema**. Shipping a full graph is the single biggest technical-SEO differentiator.
 
@@ -114,7 +114,7 @@ In most local-business niches, **almost no competitors emit schema**. Shipping a
 ### 2.2 Reusable JSON-LD helpers
 
 ```ts
-// src/lib/blog-jsonld.ts — shared by every blog post
+// src/lib/blog-jsonld.ts, shared by every blog post
 export function articleJsonLd(post: BlogPostMeta) { /* ... */ }
 export function breadcrumbJsonLd(slug: string, title: string) { /* ... */ }
 ```
@@ -130,7 +130,7 @@ Inside the page component, immediately after the `return (`:
 />
 ```
 
-Use a `@graph` array when emitting multiple types together — cleaner and Google handles it correctly.
+Use a `@graph` array when emitting multiple types together, cleaner and Google handles it correctly.
 
 ### 2.4 Validate before shipping
 
@@ -139,7 +139,7 @@ Use a `@graph` array when emitting multiple types together — cleaner and Googl
 
 ---
 
-## Phase 3 — Authority / E-E-A-T signals
+## Phase 3, Authority / E-E-A-T signals
 
 For health, medical, financial, or legal sites (Google's YMYL category), authority signals matter more than for general sites.
 
@@ -166,15 +166,15 @@ Single reference page with every credential, link to public register for verific
 
 ### 3.4 Author archive at `/author/<name>`
 
-`ProfilePage` + `Person` schema + ItemList of every post by author. Critical for E-E-A-T — Google's medical/health ranking factor weights named expert authors heavily.
+`ProfilePage` + `Person` schema + ItemList of every post by author. Critical for E-E-A-T, Google's medical/health ranking factor weights named expert authors heavily.
 
 ---
 
-## Phase 4 — Geo / Local SEO
+## Phase 4, Geo / Local SEO
 
 ### 4.1 Geo landing pages (treatment × town)
 
-Pattern: `/{treatment}-{town}` or `/{town}-{treatment}` — pick one and stay consistent.
+Pattern: `/{treatment}-{town}` or `/{town}-{treatment}`, pick one and stay consistent.
 
 For each town within a 20-mile radius:
 - Hero with travel time + town name in H1
@@ -213,7 +213,7 @@ Postcode centroids can be 1km off. Verify.
 
 ---
 
-## Phase 5 — Content depth (beat Nuovo-class competitors)
+## Phase 5, Content depth (beat Nuovo-class competitors)
 
 ### 5.1 Treatment pages: 1,500+ words
 
@@ -254,7 +254,7 @@ Structure:
 
 ---
 
-## Phase 6 — Performance
+## Phase 6, Performance
 
 ### 6.1 Font optimisation
 
@@ -284,7 +284,7 @@ Audit your CSS for `font-weight: <X>` references and load **only** those weights
 ### 6.3 Image discipline
 
 - All images via `next/image` (auto WebP/AVIF + responsive)
-- Zero raw `<img>` tags — audit with `grep -rn "<img " src --include="*.tsx"`
+- Zero raw `<img>` tags, audit with `grep -rn "<img " src --include="*.tsx"`
 - `priority` on the LCP image (hero); `loading="lazy"` (default) elsewhere
 - `sizes` prop on every responsive image
 
@@ -292,7 +292,7 @@ Audit your CSS for `font-weight: <X>` references and load **only** those weights
 
 - `playsInline` on autoplay videos
 - `preload="metadata"` (not `auto`) unless it's the LCP
-- Respect `prefers-reduced-motion` — wrap autoplay videos in a client component that pauses on mount when the media query matches:
+- Respect `prefers-reduced-motion`, wrap autoplay videos in a client component that pauses on mount when the media query matches:
 
 ```tsx
 useEffect(() => {
@@ -316,7 +316,7 @@ Reference it in metadata `openGraph.images`.
 
 ---
 
-## Phase 7 — Accessibility (also helps SEO)
+## Phase 7, Accessibility (also helps SEO)
 
 ### 7.1 Skip-to-main link in layout
 
@@ -357,7 +357,7 @@ Match the visible breadcrumbs to the `BreadcrumbList` JSON-LD exactly.
 
 ---
 
-## Phase 8 — Discovery channels beyond the sitemap
+## Phase 8, Discovery channels beyond the sitemap
 
 ### 8.1 RSS feed at `/blog/rss.xml`
 
@@ -373,7 +373,7 @@ Submit to GSC alongside sitemap. Helps Google discover new content faster than s
 
 ### 8.2 OpenSearch description
 
-`/opensearch.xml` route — lets browsers (and Google) register the site as a searchable target. Pairs with `WebSite.SearchAction` schema.
+`/opensearch.xml` route, lets browsers (and Google) register the site as a searchable target. Pairs with `WebSite.SearchAction` schema.
 
 ### 8.3 Site search at `/search`
 
@@ -381,7 +381,7 @@ Real `<form method="GET" action="/search">` with server-rendered keyword scoring
 
 ---
 
-## Phase 9 — Auto-content pipeline
+## Phase 9, Auto-content pipeline
 
 We built a GitHub Actions workflow that runs every 2 days:
 
@@ -399,7 +399,7 @@ Cost: ~£12-15/year at Anthropic API list price for ~180 posts/year.
 Files:
 - `.github/workflows/auto-blog.yml` (cron schedule)
 - `scripts/generate-blog-post.ts` (the script)
-- `scripts/blog-topics.json` (topic bank — start with 16 evergreen topics)
+- `scripts/blog-topics.json` (topic bank, start with 16 evergreen topics)
 - `scripts/voice-guide.md` (brand voice rules)
 - `src/lib/blog-posts.ts` (manifest with `// AUTO-BLOG-INSERT` marker)
 
@@ -413,13 +413,13 @@ Quality safeguards:
 
 ---
 
-## Phase 10 — External setup
+## Phase 10, External setup
 
 These can't be code-shipped. Done by the site owner.
 
 ### 10.1 Google Search Console
 
-1. **Verify ownership**: HTML tag method is easiest in Next.js — add `verification: { google: '<token>' }` to layout metadata.
+1. **Verify ownership**: HTML tag method is easiest in Next.js, add `verification: { google: '<token>' }` to layout metadata.
 2. **Submit sitemap**: `https://www.example.co.uk/sitemap.xml`
 3. **Submit RSS**: `https://www.example.co.uk/blog/rss.xml`
 4. **Manual indexing**: Top 10 priority URLs via URL Inspection → Request Indexing. Spread across days due to quota.
@@ -427,7 +427,7 @@ These can't be code-shipped. Done by the site owner.
 
 ### 10.2 Bing Webmaster Tools
 
-Same drill — verify, submit sitemap. ~5% of UK search traffic but often higher converting.
+Same drill, verify, submit sitemap. ~5% of UK search traffic but often higher converting.
 
 ### 10.3 Google Business Profile (for local businesses)
 
@@ -454,7 +454,7 @@ One-click in Vercel dashboard. Real-User Core Web Vitals.
 
 ---
 
-## Phase 11 — Competitive audit method
+## Phase 11, Competitive audit method
 
 Before deciding what to build, audit the actual competition:
 
@@ -472,11 +472,11 @@ Before deciding what to build, audit the actual competition:
    - Blog cadence
    - Mobile UX feel
 5. Identify white-space gaps (things almost no competitor does)
-6. **Build for the white space** — that's where rankings move fastest
+6. **Build for the white space**, that's where rankings move fastest
 
 ---
 
-## Phase 12 — File structure (transferable)
+## Phase 12, File structure (transferable)
 
 Key files / paths to mirror in another project:
 
@@ -523,36 +523,36 @@ scripts/
 
 ---
 
-## Phase 13 — Order of execution
+## Phase 13, Order of execution
 
 If you're starting from scratch on a new site, this is the order that compounds fastest:
 
-1. **Foundation** (Phase 1) — metadata, sitemap, robots, canonicals, 404
-2. **Audit competitors** (Phase 11) — know what you're building against
-3. **Authority pages first** (Phase 3) — about, qualifications, awards, author archive
-4. **Schema everywhere** (Phase 2) — graph on home + per-page types
-5. **Content depth** (Phase 5) — bring service/product pages to 1,500+ words
-6. **Geo pages** (Phase 4) — one per high-value town/service combination
-7. **Performance polish** (Phase 6) — fonts, images, preloads, OG
-8. **Discovery channels** (Phase 8) — RSS, search, OpenSearch
-9. **Auto-content pipeline** (Phase 9) — once site is good enough to amplify
-10. **External setup** (Phase 10) — GSC, Bing, GBP, citations
-11. **Measure for 2-4 weeks before judging** — patience
+1. **Foundation** (Phase 1), metadata, sitemap, robots, canonicals, 404
+2. **Audit competitors** (Phase 11), know what you're building against
+3. **Authority pages first** (Phase 3), about, qualifications, awards, author archive
+4. **Schema everywhere** (Phase 2), graph on home + per-page types
+5. **Content depth** (Phase 5), bring service/product pages to 1,500+ words
+6. **Geo pages** (Phase 4), one per high-value town/service combination
+7. **Performance polish** (Phase 6), fonts, images, preloads, OG
+8. **Discovery channels** (Phase 8), RSS, search, OpenSearch
+9. **Auto-content pipeline** (Phase 9), once site is good enough to amplify
+10. **External setup** (Phase 10), GSC, Bing, GBP, citations
+11. **Measure for 2-4 weeks before judging**, patience
 
 ---
 
 ## Common mistakes to avoid
 
-- **Bumping every URL's `lastModified` on every deploy** — trains Google to ignore the signal.
-- **Generic meta descriptions** — write each one to match search intent.
-- **One H1 = one page** — never two H1s on a page.
-- **Same canonical for paginated content** — each page gets its own canonical.
-- **Missing breadcrumb schema** when you have visual breadcrumbs — Google wants both.
-- **Using `<img>` instead of `next/image`** — kills Lighthouse and image-format optimisation.
-- **Loading every font weight** — page-load tax for nothing. Audit and trim.
-- **Branded 404 with `index: true`** — should always be noindex.
-- **Submitting sitemap before pages are live** — wait until at least the top 10 pages can render.
-- **Auto-publish blog without quality safeguards** — at minimum: build verification, slug collision check, content-length guard.
+- **Bumping every URL's `lastModified` on every deploy**, trains Google to ignore the signal.
+- **Generic meta descriptions**, write each one to match search intent.
+- **One H1 = one page**, never two H1s on a page.
+- **Same canonical for paginated content**, each page gets its own canonical.
+- **Missing breadcrumb schema** when you have visual breadcrumbs, Google wants both.
+- **Using `<img>` instead of `next/image`**, kills Lighthouse and image-format optimisation.
+- **Loading every font weight**, page-load tax for nothing. Audit and trim.
+- **Branded 404 with `index: true`**, should always be noindex.
+- **Submitting sitemap before pages are live**, wait until at least the top 10 pages can render.
+- **Auto-publish blog without quality safeguards**, at minimum: build verification, slug collision check, content-length guard.
 
 ---
 
@@ -564,7 +564,7 @@ If you're starting from scratch on a new site, this is the order that compounds 
 | 7 | Sitemap fully processed. Performance tab starts showing impressions. |
 | 14 | First click data. Branded queries rank first. |
 | 30 | Geo pages start appearing for `<treatment> <town>` queries. |
-| 60 | Content depth pays off — informational queries (e.g. "how long does X last") start ranking. |
+| 60 | Content depth pays off, informational queries (e.g. "how long does X last") start ranking. |
 | 90 | Compete-for-real with established competitors on the main service queries. The auto-blog has compounded by 45 posts. |
 
 ---

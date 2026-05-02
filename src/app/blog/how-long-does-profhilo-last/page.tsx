@@ -6,7 +6,7 @@ import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
 const POST = {
   slug: 'how-long-does-profhilo-last',
   title: 'How long does Profhilo actually last?',
-  description: 'Profhilo lasts 6 to 9 months from a course of two — but the picture is more nuanced than that. Bernadette Tobin RGN, MSc explains the timeline, the variables, and what to expect long-term.',
+  description: 'Profhilo lasts 6 to 9 months from a course of two, but the picture is more nuanced than that. Bernadette Tobin RGN, MSc explains the timeline, the variables, and what to expect long-term.',
   datePublished: '2026-04-26',
   dateModified: '2026-04-26',
   image: '/images/og-home.jpg',
@@ -46,7 +46,7 @@ export default function ProfhiloDurationPost() {
           <p className="mt-6 text-body-lg text-ink-soft">
             The short answer most clinics give is &ldquo;6 to 9 months&rdquo;. The honest answer is more layered than that.
             Profhilo is not filler, so it does not have a clean &ldquo;dissolves on day X&rdquo; profile. The product itself
-            metabolises within weeks, but the changes it triggers in your skin can keep developing — and the visible benefit can
+            metabolises within weeks, but the changes it triggers in your skin can keep developing, and the visible benefit can
             outlast the product itself by months.
           </p>
         </div>
@@ -63,21 +63,21 @@ export default function ProfhiloDurationPost() {
 
           <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">What actually happens after the injections</h2>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-            Profhilo is a high-concentration ultra-stabilised hyaluronic acid (HA), placed at five anatomical points on each side of the face using the BAP injection technique. The HA itself is not designed to sit in place forever — within around 28 days, it has fully metabolised. So if &ldquo;lasting&rdquo; meant &ldquo;the gel is still there&rdquo;, the answer would be &ldquo;a month&rdquo;, which is misleading.
+            Profhilo is a high-concentration ultra-stabilised hyaluronic acid (HA), placed at five anatomical points on each side of the face using the BAP injection technique. The HA itself is not designed to sit in place forever, within around 28 days, it has fully metabolised. So if &ldquo;lasting&rdquo; meant &ldquo;the gel is still there&rdquo;, the answer would be &ldquo;a month&rdquo;, which is misleading.
           </p>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-            What actually keeps Profhilo working is what it triggers while it is in your skin. The HA spreads through the dermis, attracts water, and signals fibroblast cells (your collagen-and-elastin makers) to start producing again. By the time the product is gone, you have new collagen and elastin scaffolding that did not exist before — and that is what creates the visible glow, bounce and improved texture for months afterwards.
+            What actually keeps Profhilo working is what it triggers while it is in your skin. The HA spreads through the dermis, attracts water, and signals fibroblast cells (your collagen-and-elastin makers) to start producing again. By the time the product is gone, you have new collagen and elastin scaffolding that did not exist before, and that is what creates the visible glow, bounce and improved texture for months afterwards.
           </p>
 
           <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">A realistic timeline</h2>
           <ul className="space-y-2 mb-6 text-body-lg text-ink-soft">
             <li>· <strong>Week 0:</strong> First session. Small bumps at injection points settle within 12-24 hours.</li>
-            <li>· <strong>Week 2-3:</strong> First visible softening — clients describe it as a glow rather than a change.</li>
+            <li>· <strong>Week 2-3:</strong> First visible softening, clients describe it as a glow rather than a change.</li>
             <li>· <strong>Week 4:</strong> Second session. Bumps again, settle in 24 hours.</li>
             <li>· <strong>Week 6-8:</strong> Peak visible result. Skin looks smoother, more bounce, often described as &ldquo;rested&rdquo; by people who don&apos;t know you&apos;ve had treatment.</li>
             <li>· <strong>Month 4-5:</strong> Result is still clearly there but starting to soften gradually.</li>
             <li>· <strong>Month 6-7:</strong> Most clients begin to notice the glow returning to baseline, and book a maintenance session.</li>
-            <li>· <strong>Month 9-12:</strong> Without maintenance, most clients are back to where they started — though the underlying collagen stimulation does not fully reverse, so each course can build on the last.</li>
+            <li>· <strong>Month 9-12:</strong> Without maintenance, most clients are back to where they started, though the underlying collagen stimulation does not fully reverse, so each course can build on the last.</li>
           </ul>
 
           <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">What makes it last longer (or shorter)</h2>
@@ -85,11 +85,11 @@ export default function ProfhiloDurationPost() {
             The 6-to-9 month range is wide because individual responses vary considerably. Variables that lengthen the result:
           </p>
           <ul className="space-y-2 mb-6 text-body-lg text-ink-soft">
-            <li>· Consistent daily SPF50 — sun damage breaks down collagen faster than anything else.</li>
+            <li>· Consistent daily SPF50, sun damage breaks down collagen faster than anything else.</li>
             <li>· Good sleep, hydration and a sensible skincare routine.</li>
-            <li>· Not smoking — smokers metabolise hyaluronic acid faster and produce less collagen.</li>
+            <li>· Not smoking, smokers metabolise hyaluronic acid faster and produce less collagen.</li>
             <li>· Lower stress and lower cortisol levels.</li>
-            <li>· Regular maintenance sessions every 6 months — each course builds on the last.</li>
+            <li>· Regular maintenance sessions every 6 months, each course builds on the last.</li>
           </ul>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
             Variables that shorten the result:
@@ -99,12 +99,12 @@ export default function ProfhiloDurationPost() {
             <li>· Smoking and high alcohol intake.</li>
             <li>· High-intensity training every day (athletes metabolise HA notably faster).</li>
             <li>· Significant weight loss or fluctuation during the treatment window.</li>
-            <li>· Ageing &mdash; younger clients tend to respond more strongly than older clients, simply because there is more functional collagen to wake up.</li>
+            <li>· Ageing , younger clients tend to respond more strongly than older clients, simply because there is more functional collagen to wake up.</li>
           </ul>
 
           <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">Does it last longer the second time?</h2>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-            For most clients, yes. The collagen and elastin stimulated by your first course does not fully disappear when the visible glow softens. So when you repeat the course six months later, you are building on a stronger foundation than you started with. Many clients tell me their second course holds visibly for longer — closer to 9 months than 6 — and the results compound over multiple cycles.
+            For most clients, yes. The collagen and elastin stimulated by your first course does not fully disappear when the visible glow softens. So when you repeat the course six months later, you are building on a stronger foundation than you started with. Many clients tell me their second course holds visibly for longer, closer to 9 months than 6, and the results compound over multiple cycles.
           </p>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
             This is one of the reasons I recommend Profhilo as a long-term skin maintenance strategy rather than a one-off treatment. The first course is the foundation. Subsequent courses are upkeep, and they get more economical with time.
@@ -112,10 +112,10 @@ export default function ProfhiloDurationPost() {
 
           <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">Why &ldquo;authentic Profhilo&rdquo; matters for longevity</h2>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-            Profhilo is made by IBSA, an Italian pharmaceutical company. It is sold in distinctive single-use syringes with traceable batch numbers. Some clinics — particularly in less regulated parts of the industry — substitute cheaper hyaluronic acid skin boosters and call them &ldquo;Profhilo&rdquo;. These can produce some result, but the longevity is rarely what the genuine product delivers. If a clinic offering &ldquo;Profhilo&rdquo; cannot show you the box and the syringe, you may not be getting Profhilo.
+            Profhilo is made by IBSA, an Italian pharmaceutical company. It is sold in distinctive single-use syringes with traceable batch numbers. Some clinics, particularly in less regulated parts of the industry, substitute cheaper hyaluronic acid skin boosters and call them &ldquo;Profhilo&rdquo;. These can produce some result, but the longevity is rarely what the genuine product delivers. If a clinic offering &ldquo;Profhilo&rdquo; cannot show you the box and the syringe, you may not be getting Profhilo.
           </p>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-            At Visage we use authentic IBSA Profhilo, sourced direct from the manufacturer, in the original syringe, with batch traceability. Never relabelled, never substituted. The clinical evidence I have based my advice on this whole article comes from studies of the genuine product — substitutes do not have the same data behind them.
+            At Visage we use authentic IBSA Profhilo, sourced direct from the manufacturer, in the original syringe, with batch traceability. Never relabelled, never substituted. The clinical evidence I have based my advice on this whole article comes from studies of the genuine product, substitutes do not have the same data behind them.
           </p>
 
           <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">When Profhilo does not last well</h2>
@@ -123,7 +123,7 @@ export default function ProfhiloDurationPost() {
             Occasionally a client comes back at 8 weeks disappointed that the result has not been as visible or as long as expected. There are usually one of three explanations:
           </p>
           <ul className="space-y-2 mb-6 text-body-lg text-ink-soft">
-            <li>· <strong>Wrong treatment for the goal.</strong> If you wanted volume change (cheeks, lips, jawline), Profhilo was never going to deliver that — it does not add volume. <Link href="/treatments/dermal-filler" className="underline decoration-gold/40 hover:decoration-gold-deep text-charcoal">Filler</Link> would have been the right answer.</li>
+            <li>· <strong>Wrong treatment for the goal.</strong> If you wanted volume change (cheeks, lips, jawline), Profhilo was never going to deliver that, it does not add volume. <Link href="/treatments/dermal-filler" className="underline decoration-gold/40 hover:decoration-gold-deep text-charcoal">Filler</Link> would have been the right answer.</li>
             <li>· <strong>Skin needed more than two sessions.</strong> A small subset of clients with significantly compromised skin (heavy sun damage, smoker history) need three sessions rather than two for a strong first response.</li>
             <li>· <strong>Expectations were unrealistic.</strong> Profhilo is gentle. The result is &ldquo;your skin on a really good day, sustained&rdquo;, not a dramatic change. If you wanted dramatic, we should have spotted that at consultation and suggested a different plan.</li>
           </ul>
@@ -138,7 +138,7 @@ export default function ProfhiloDurationPost() {
             </p>
             <p className="text-body text-ink-soft mb-5">
               Bring photos of your face you like and ones you don&apos;t. We will look together and plan
-              something that genuinely suits you — Profhilo, filler, micro-needling, or none of the above.
+              something that genuinely suits you, Profhilo, filler, micro-needling, or none of the above.
               No upselling, no pressure.
             </p>
             <Link href="/contact" className="btn btn-primary">

@@ -3,7 +3,7 @@ import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
   title: 'Botox Maldon | Award-Winning Nurse-Led Clinic | Visage Aesthetics',
-  description: "Anti-wrinkle (Botox) injections for Maldon clients at Visage Aesthetics, Braintree — 25 minutes via the A414. Best Non-Surgical Aesthetics Clinic 2026 — Essex. Bernadette Tobin RGN, MSc. From £120.",
+  description: "Anti-wrinkle (Botox) injections for Maldon clients at Visage Aesthetics, Braintree, 25 minutes via the A414. Best Non-Surgical Aesthetics Clinic 2026, Essex. Bernadette Tobin RGN, MSc. From £120.",
   alternates: { canonical: '/maldon-botox' },
   openGraph: {
     title: 'Botox for Maldon Clients | Visage Aesthetics, Braintree',
@@ -19,9 +19,9 @@ export default function MaldonBotox() {
       town="Maldon"
       treatment="Botox"
       travel="25 minutes from Maldon via the A414 / B1018"
-      positioningLine="Maldon does not have many nurse-led aesthetics clinics. Visage is a 25-minute drive — Best Non-Surgical Aesthetics Clinic 2026, Essex — and the closest award-winning option for clients along the Blackwater estuary."
+      positioningLine="Maldon does not have many nurse-led aesthetics clinics. Visage is a 25-minute drive, Best Non-Surgical Aesthetics Clinic 2026, Essex, and the closest award-winning option for clients along the Blackwater estuary."
       reasons={[
-        { title: 'Closest award-winning clinic', body: "Best Non-Surgical Aesthetics Clinic 2026 — Essex. Most Maldon-area aesthetic options are beauty-counter setups; Visage is medically-led with twenty years of clinical experience." },
+        { title: 'Closest award-winning clinic', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. Most Maldon-area aesthetic options are beauty-counter setups; Visage is medically-led with twenty years of clinical experience." },
         { title: 'Worth the 25-minute drive', body: "Free on-site parking on Friars Lane. One client in the room at a time. The drive is quieter than the Maldon High Street parking circuit." },
         { title: 'Conservative, never overdone', body: "Many Maldon clients arrive after over-treatment elsewhere. We start small. We listen. We dose to the muscle, not the area." },
       ]}
@@ -31,11 +31,11 @@ export default function MaldonBotox() {
       faqs={[
         {
           question: 'How far is Visage from Maldon?',
-          answer: 'About 25 minutes by car via the A414 then B1018 northbound. Free on-site parking — no Maldon High Street meters.',
+          answer: 'About 25 minutes by car via the A414 then B1018 northbound. Free on-site parking, no Maldon High Street meters.',
         },
         {
           question: 'Why come to Visage from Maldon?',
-          answer: "It is the closest award-winning aesthetics clinic to Maldon. Bernadette holds an MSc in Advanced Practice (Level 7) — rare in Essex aesthetics. Most local options are Level 4-5 trained or beauty-led. Many Maldon clients drive past several closer clinics to get here for that reason.",
+          answer: "It is the closest award-winning aesthetics clinic to Maldon. Bernadette holds an MSc in Advanced Practice (Level 7), rare in Essex aesthetics. Most local options are Level 4-5 trained or beauty-led. Many Maldon clients drive past several closer clinics to get here for that reason.",
         },
         {
           question: 'How much does Botox cost?',
@@ -43,7 +43,7 @@ export default function MaldonBotox() {
         },
         {
           question: 'Will it look natural?',
-          answer: 'Yes — that is the entire approach. Conservative dosing, full expression preserved. Most clients return to work and find that colleagues notice they look "well-rested" rather than "different".',
+          answer: 'Yes, that is the entire approach. Conservative dosing, full expression preserved. Most clients return to work and find that colleagues notice they look "well-rested" rather than "different".',
         },
         {
           question: 'How long do results last?',
@@ -51,7 +51,7 @@ export default function MaldonBotox() {
         },
         {
           question: 'How quickly can I be seen?',
-          answer: 'Most consultations available within the same week. Strictly private — one appointment at a time, no shared waiting room.',
+          answer: 'Most consultations available within the same week. Strictly private, one appointment at a time, no shared waiting room.',
         },
       ]}
       alsoServes={['Heybridge', 'Burnham-on-Crouch', 'Tollesbury', 'Goldhanger', 'Tolleshunt D\'Arcy', 'Wickham Bishops', 'Hatfield Peverel', 'Great Totham']}

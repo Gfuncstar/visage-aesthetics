@@ -8,11 +8,11 @@
  * pushes direct to main, controlled by AUTO_PUBLISH env var).
  *
  * Required env vars:
- *   ANTHROPIC_API_KEY — your Claude API key
+ *   ANTHROPIC_API_KEY: your Claude API key
  *
  * Optional env vars:
- *   AUTO_PUBLISH=true — push direct to main instead of opening a PR
- *   FORCE_TOPIC=slug  — pick a specific topic from blog-topics.json
+ *   AUTO_PUBLISH=true: push direct to main instead of opening a PR
+ *   FORCE_TOPIC=slug:  pick a specific topic from blog-topics.json
  */
 import Anthropic from '@anthropic-ai/sdk'
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs'
@@ -119,15 +119,15 @@ ${newsAngles.map((a) => `- ${a}`).join('\n')}
 Return your output in this exact format:
 
 ## Topical news (last 60 days)
-- [Headline / fact] — [date] — [source URL]
-(or "No fresh news angle — write evergreen")
+- [Headline / fact] :: [date] :: [source URL]
+(or "No fresh news angle, write evergreen")
 
 ## Verified clinical facts
-- [claim] — supported by [source URL] and [source URL]  ← cite at least 2 sources per non-obvious claim
-- [claim] — supported by [source URL]
+- [claim] :: supported by [source URL] and [source URL]  (cite at least 2 sources per non-obvious claim)
+- [claim] :: supported by [source URL]
 
 ## Disputed / uncertain
-- [claim] — sources disagree: [URL] says X, [URL] says Y
+- [claim] :: sources disagree: [URL] says X, [URL] says Y
 (or "None")
 
 Do not write the post itself yet.`
@@ -145,7 +145,7 @@ Do not write the post itself yet.`
       .join('\n')
   } catch (err) {
     console.warn('Web search unavailable, proceeding evergreen:', err)
-    return 'No fresh news angle — write evergreen.'
+    return 'No fresh news angle, write evergreen.'
   }
 }
 
@@ -168,15 +168,15 @@ Research notes (topical news + verified clinical facts + disputed items):
 ${newsContext}
 
 Fact discipline (non-negotiable):
-- Every numeric claim (durations, doses, percentages, prices, timeframes) must be supported by the "Verified clinical facts" section above. If a number isn't in there, do not state it — speak in qualitative terms instead.
+- Every numeric claim (durations, doses, percentages, prices, timeframes) must be supported by the "Verified clinical facts" section above. If a number isn't in there, do not state it. Speak in qualitative terms instead.
 - Every regulatory or product-specific claim (MHRA status, licensing, JCCP rules, brand-specific facts) must come from the verified facts. If unverified, omit.
 - For any item in "Disputed / uncertain", either reflect the disagreement honestly or skip the topic.
-- Use the topical news angle only if it genuinely strengthens the post — never force.
+- Use the topical news angle only if it genuinely strengthens the post. Never force.
 
 Voice & style guide (follow strictly):
 ${voiceGuide}
 
-Output the post as **JSX body content only** — no <html>, no <head>, no <body>, no top-level <article>. Start at the first <section> and end at the last </section>. Use the same component structure and class names as a typical post on the site:
+Output the post as **JSX body content only**, with no <html>, no <head>, no <body>, and no top-level <article>. Start at the first <section> and end at the last </section>. Use the same component structure and class names as a typical post on the site:
 
 - One <section className="relative bg-cream text-charcoal overflow-hidden pt-24 md:pt-28 pb-8 md:pb-12"> for the hero band, containing a "Back to all articles" link, a <span className="hairline hairline-left mb-8 bg-gold" />, an eyebrow, the H1, and the opening paragraph.
 - Then a <section className="pb-6 md:pb-10"> with a max-w-3xl wrapper and the body content. Headings as <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">. Body paragraphs as <p className="text-body-lg text-ink-soft leading-relaxed mb-5">. Bulleted lists as <ul className="space-y-2 mb-6 text-body-lg text-ink-soft"> with each <li> prefixed with "· ".
@@ -185,7 +185,7 @@ Output the post as **JSX body content only** — no <html>, no <head>, no <body>
 
 Length: 1,500-1,700 words of body copy.
 
-Output ONLY the JSX. No prose explanation, no markdown fence, no JavaScript imports — just the JSX block.`
+Output ONLY the JSX. No prose explanation, no markdown fence, no JavaScript imports. Just the JSX block.`
 
   const res = await client.messages.create({
     model: MODEL,

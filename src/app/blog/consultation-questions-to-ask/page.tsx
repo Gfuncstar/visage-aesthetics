@@ -6,7 +6,7 @@ import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
 const POST = {
   slug: 'consultation-questions-to-ask',
   title: 'Ten questions to ask at any aesthetics consultation.',
-  description: 'A practical checklist before you let anyone put a needle in your face. Bernadette Tobin RGN, MSc lists the ten questions every aesthetics consultation should answer — and the red flags if they don\'t.',
+  description: 'A practical checklist before you let anyone put a needle in your face. Bernadette Tobin RGN, MSc lists the ten questions every aesthetics consultation should answer, and the red flags if they don\'t.',
   datePublished: '2026-04-26',
   dateModified: '2026-04-26',
   image: '/images/og-home.jpg',
@@ -46,7 +46,7 @@ export default function ConsultationQuestionsPost() {
           <p className="mt-6 text-body-lg text-ink-soft">
             Aesthetics in the UK is largely unregulated. Anyone can legally inject. The protection you have, as a
             client, is in the questions you ask before you commit. These are the ten I would ask if I were sitting on
-            the other side of the desk — and the red flags if a clinic struggles to answer them.
+            the other side of the desk, and the red flags if a clinic struggles to answer them.
           </p>
         </div>
       </section>
@@ -78,7 +78,7 @@ export default function ConsultationQuestionsPost() {
           <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">3. What level of qualification do you hold for aesthetic injectables?</h2>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
             Most UK aesthetic injectors hold a Level 4 or Level 5 qualification. Level 7 (MSc) is the highest. A short
-            weekend course is not a meaningful qualification. The honest answer here will tell you a lot — and a
+            weekend course is not a meaningful qualification. The honest answer here will tell you a lot, and a
             practitioner with deeper training will be open about it because it is a competitive advantage.
           </p>
 
@@ -86,7 +86,7 @@ export default function ConsultationQuestionsPost() {
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
             Every legitimate practitioner has indemnity insurance, and they should be able to name their insurer
             without thinking. The insurer matters because some providers do not cover certain procedures, and policy
-            limits vary widely. If a practitioner cannot answer this clearly, they may be uninsured — which is a
+            limits vary widely. If a practitioner cannot answer this clearly, they may be uninsured, which is a
             significant red flag both for safety and for what happens if something goes wrong.
           </p>
 
@@ -100,7 +100,7 @@ export default function ConsultationQuestionsPost() {
 
           <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">6. What would you do if you hit a vessel?</h2>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-            Vascular occlusion — accidentally injecting filler into an artery — is rare but serious. A practitioner
+            Vascular occlusion, accidentally injecting filler into an artery, is rare but serious. A practitioner
             should be able to walk you through their protocol clearly: stop, recognise the signs, hyaluronidase
             flooded into the area, hot compress, aspirin, follow-up. Fluency here tells you they have trained for it
             and thought about it. Vagueness tells you they haven&apos;t.
@@ -120,7 +120,7 @@ export default function ConsultationQuestionsPost() {
             Proper consultation includes a written medical history and a documented, signed consent form before any
             product is opened. A clinic that says &ldquo;just sign here&rdquo; without going through the form, or
             doesn&apos;t document at all, is operating below clinical standard. The consent form is not just legal
-            protection for them — it is your record of the conversation, including discussed risks and agreed
+            protection for them, it is your record of the conversation, including discussed risks and agreed
             outcomes.
           </p>
 
@@ -137,7 +137,7 @@ export default function ConsultationQuestionsPost() {
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
             This is the question that separates clinical practitioners from sales operations. A good answer is
             specific: &ldquo;You came in asking for tear-trough filler, but I can see your concern is more about skin
-            quality than volume — I would suggest Profhilo first.&rdquo; Or: &ldquo;You wanted 2ml in lips today, but
+            quality than volume, I would suggest Profhilo first.&rdquo; Or: &ldquo;You wanted 2ml in lips today, but
             we should start at 0.5ml and review.&rdquo; Or simply: &ldquo;I don&apos;t think you need treatment yet.&rdquo;
             A practitioner who tells you what they would <em>not</em> do is a practitioner thinking clinically. A
             practitioner who agrees to whatever you ask for is a practitioner thinking commercially.
@@ -153,7 +153,7 @@ export default function ConsultationQuestionsPost() {
           </p>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
             If you leave the consultation feeling pressured, sold to, or like you didn&apos;t fully understand what
-            was being recommended — that is the answer to whether you should book. Trust that feeling.
+            was being recommended, that is the answer to whether you should book. Trust that feeling.
           </p>
 
           <div className="mt-12 p-7 md:p-8 border border-line/30 rounded-md bg-cream-soft">
@@ -162,8 +162,8 @@ export default function ConsultationQuestionsPost() {
               We will happily answer all ten of these.
             </p>
             <p className="text-body text-ink-soft mb-5">
-              Free consultation, no commitment. NMC PIN 05G1755E. Best Non-Surgical Aesthetics Clinic 2026 — Essex.
-              Bring this list with you and read it out — we&apos;ll be glad you did.
+              Free consultation, no commitment. NMC PIN 05G1755E. Best Non-Surgical Aesthetics Clinic 2026, Essex.
+              Bring this list with you and read it out, we&apos;ll be glad you did.
             </p>
             <Link href="/contact" className="btn btn-primary">
               <span>Book consultation</span>

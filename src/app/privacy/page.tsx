@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import BookingCTA from '@/components/sections/BookingCTA'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy — Visage Aesthetics',
+  title: 'Privacy Policy, Visage Aesthetics',
   description: 'How Visage Aesthetics collects, stores and protects your personal data, in line with UK GDPR.',
 }
 

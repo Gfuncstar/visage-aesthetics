@@ -3,7 +3,7 @@ import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
   title: 'Botox Sudbury | Award-Winning Nurse-Led Clinic | Visage Aesthetics',
-  description: "Anti-wrinkle (Botox) injections for Sudbury and South Suffolk clients at Visage Aesthetics, Braintree — 25 minutes via the A131. Best Non-Surgical Aesthetics Clinic 2026 — Essex. From £120.",
+  description: "Anti-wrinkle (Botox) injections for Sudbury and South Suffolk clients at Visage Aesthetics, Braintree, 25 minutes via the A131. Best Non-Surgical Aesthetics Clinic 2026, Essex. From £120.",
   alternates: { canonical: '/sudbury-botox' },
   openGraph: {
     title: 'Botox for Sudbury Clients | Visage Aesthetics, Braintree',
@@ -19,9 +19,9 @@ export default function SudburyBotox() {
       town="Sudbury"
       treatment="Botox"
       travel="25 minutes from Sudbury via the A131 southbound"
-      positioningLine="Sudbury sits across the Suffolk border from Essex. Most South Suffolk clients drive south for clinical-grade aesthetics — Visage is the closest award-winning clinic, 25 minutes via the A131."
+      positioningLine="Sudbury sits across the Suffolk border from Essex. Most South Suffolk clients drive south for clinical-grade aesthetics, Visage is the closest award-winning clinic, 25 minutes via the A131."
       reasons={[
-        { title: 'Cross the border for better care', body: "South Suffolk has very few medically-led aesthetics clinics. Best Non-Surgical Aesthetics Clinic 2026 — Essex. Worth the short drive across the border." },
+        { title: 'Cross the border for better care', body: "South Suffolk has very few medically-led aesthetics clinics. Best Non-Surgical Aesthetics Clinic 2026, Essex. Worth the short drive across the border." },
         { title: 'Twenty years of clinical experience', body: "Bernadette is an NMC-registered nurse with an MSc in Advanced Practice. Most aesthetic options around Sudbury are beauty-led; Visage is medical." },
         { title: 'Free parking, no Sudbury queue', body: "Friars Lane has free on-site parking. The A131 to Braintree is one straight road. Many Sudbury clients tell us the drive is the easiest part." },
       ]}
@@ -31,11 +31,11 @@ export default function SudburyBotox() {
       faqs={[
         {
           question: 'How far is Visage from Sudbury?',
-          answer: 'About 25 minutes by car via the A131 southbound, depending on traffic. Free on-site parking at the clinic — no need to use Sudbury\'s town-centre car parks.',
+          answer: 'About 25 minutes by car via the A131 southbound, depending on traffic. Free on-site parking at the clinic, no need to use Sudbury\'s town-centre car parks.',
         },
         {
           question: 'Why come to Visage from Sudbury?',
-          answer: "Closest award-winning aesthetics clinic to South Suffolk. Bernadette is one of very few aesthetic practitioners in the region with an MSc in Advanced Practice (Level 7) — the highest postgraduate nursing qualification.",
+          answer: "Closest award-winning aesthetics clinic to South Suffolk. Bernadette is one of very few aesthetic practitioners in the region with an MSc in Advanced Practice (Level 7), the highest postgraduate nursing qualification.",
         },
         {
           question: 'How much does Botox cost?',
@@ -43,7 +43,7 @@ export default function SudburyBotox() {
         },
         {
           question: 'Will it look natural?',
-          answer: 'Yes — conservative dosing is the whole approach. Full expression preserved. Most clients tell us colleagues do not notice; only mirrors do.',
+          answer: 'Yes, conservative dosing is the whole approach. Full expression preserved. Most clients tell us colleagues do not notice; only mirrors do.',
         },
         {
           question: 'How long do results last?',
@@ -51,7 +51,7 @@ export default function SudburyBotox() {
         },
         {
           question: 'How quickly can I be seen?',
-          answer: 'Most consultations available within the same week. Strictly private — one appointment at a time.',
+          answer: 'Most consultations available within the same week. Strictly private, one appointment at a time.',
         },
       ]}
       alsoServes={['Long Melford', 'Lavenham', 'Cavendish', 'Glemsford', 'Bures', 'Acton', 'Great Cornard', 'Hadleigh']}

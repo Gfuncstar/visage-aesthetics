@@ -10,7 +10,7 @@ type AutoplayVideoProps = {
   /**
    * The video autoplays muted and loops by default. If the user has
    * `prefers-reduced-motion: reduce` set, autoplay is skipped and the
-   * poster image stays visible — the user can still play manually
+   * poster image stays visible, the user can still play manually
    * if controls are enabled.
    */
   controls?: boolean
@@ -30,7 +30,7 @@ export default function AutoplayVideo({ src, poster, className, style, controls 
     }
     // Browsers may decline autoplay if not explicitly muted; ensure mute.
     v.muted = true
-    v.play().catch(() => { /* ignore — falls back to poster */ })
+    v.play().catch(() => { /* ignore, falls back to poster */ })
   }, [])
 
   return (

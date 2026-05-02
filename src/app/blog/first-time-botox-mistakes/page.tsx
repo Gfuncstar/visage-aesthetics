@@ -6,7 +6,7 @@ import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
 const POST = {
   slug: 'first-time-botox-mistakes',
   title: "Five mistakes first-time Botox clients make",
-  description: "Five mistakes first-time Botox clients make — written by Bernadette Tobin RGN, MSc Advanced Practice. Award-winning nurse-led clinic in Braintree, Essex.",
+  description: "Five mistakes first-time Botox clients make, written by Bernadette Tobin RGN, MSc Advanced Practice. Award-winning nurse-led clinic in Braintree, Essex.",
   datePublished: '2026-04-29',
   dateModified: '2026-04-29',
   image: '/images/og-home.jpg',
@@ -44,7 +44,7 @@ export default function Post() {
       Five mistakes first-time Botox clients make
     </h1>
     <p className="text-body-lg text-ink-soft leading-relaxed">
-      Most people researching their first anti-wrinkle treatment are sensible, thoughtful, and slightly nervous. That combination usually leads to good outcomes. The problems I see tend to come from the opposite end — clients who move too fast, trust too easily, or skip the steps that protect them. This post covers the five mistakes I encounter most often, and how to avoid each one.
+      Most people researching their first anti-wrinkle treatment are sensible, thoughtful, and slightly nervous. That combination usually leads to good outcomes. The problems I see tend to come from the opposite end, clients who move too fast, trust too easily, or skip the steps that protect them. This post covers the five mistakes I encounter most often, and how to avoid each one.
     </p>
   </div>
 </section>
@@ -64,15 +64,15 @@ export default function Post() {
     </h2>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      The most frequent conversation I have with first-time clients goes something like this: they have spent months researching, finally decided to proceed, and now want everything addressed in one sitting — forehead, frown lines, crow's feet, perhaps a brow lift, maybe something around the mouth. The reasoning is understandable. If you are going to do it, why not do it properly?
+      The most frequent conversation I have with first-time clients goes something like this: they have spent months researching, finally decided to proceed, and now want everything addressed in one sitting, forehead, frown lines, crow's feet, perhaps a brow lift, maybe something around the mouth. The reasoning is understandable. If you are going to do it, why not do it properly?
     </p>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      The answer is that <a href="/treatments/anti-wrinkle-injections" className="text-gold hover:text-gold/80 transition-colors">anti-wrinkle injections</a> are not like painting a wall. You cannot see the finished result on the day. The onset of effect generally takes two to three days, with the maximum effect observed around day thirty. If a practitioner treats multiple areas aggressively at your first appointment, neither of you truly knows how your muscles will respond until weeks later — by which point any over-treatment is already done.
+      The answer is that <a href="/treatments/anti-wrinkle-injections" className="text-gold hover:text-gold/80 transition-colors">anti-wrinkle injections</a> are not like painting a wall. You cannot see the finished result on the day. The onset of effect generally takes two to three days, with the maximum effect observed around day thirty. If a practitioner treats multiple areas aggressively at your first appointment, neither of you truly knows how your muscles will respond until weeks later, by which point any over-treatment is already done.
     </p>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      A conservative first treatment allows your practitioner to learn your anatomy and your preferences. It also allows you to adjust to the change gradually. I would rather a client return for a small top-up at their review than spend three to four months waiting for an overly frozen result to metabolise naturally. The toxin always wears off — generally within three to six months depending on the area, dose, and individual response — but that is a long time to feel unlike yourself.
+      A conservative first treatment allows your practitioner to learn your anatomy and your preferences. It also allows you to adjust to the change gradually. I would rather a client return for a small top-up at their review than spend three to four months waiting for an overly frozen result to metabolise naturally. The toxin always wears off, generally within three to six months depending on the area, dose, and individual response, but that is a long time to feel unlike yourself.
     </p>
 
     <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">
@@ -80,11 +80,11 @@ export default function Post() {
     </h2>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      This is where the aesthetics industry lets people down most badly. Botulinum toxin is a prescription-only medicine, which means it must be prescribed by an appropriate practitioner such as a doctor, dentist, or qualified nurse prescriber. However — and this is the part that surprises most people — who actually injects the product is not regulated in the UK. As long as someone works with a prescriber, they can legally inject the toxin regardless of whether they have any medical background at all.
+      This is where the aesthetics industry lets people down most badly. Botulinum toxin is a prescription-only medicine, which means it must be prescribed by an appropriate practitioner such as a doctor, dentist, or qualified nurse prescriber. However, and this is the part that surprises most people, who actually injects the product is not regulated in the UK. As long as someone works with a prescriber, they can legally inject the toxin regardless of whether they have any medical background at all.
     </p>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      This regulatory gap has real consequences. Between June and August 2025, the MHRA reported forty-one confirmed cases of botulism across England, believed to be linked to unlicensed botulinum toxin products. These were not minor reactions. Botulism is a potentially life-threatening condition that causes paralysis. The MHRA's Criminal Enforcement Unit launched criminal investigations, and the case remains a stark reminder that what you are injected with — and by whom — matters enormously.
+      This regulatory gap has real consequences. Between June and August 2025, the MHRA reported forty-one confirmed cases of botulism across England, believed to be linked to unlicensed botulinum toxin products. These were not minor reactions. Botulism is a potentially life-threatening condition that causes paralysis. The MHRA's Criminal Enforcement Unit launched criminal investigations, and the case remains a stark reminder that what you are injected with, and by whom, matters enormously.
     </p>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
@@ -92,9 +92,9 @@ export default function Post() {
     </p>
 
     <ul className="space-y-2 mb-6 text-body-lg text-ink-soft">
-      <li>· Is the person prescribing your treatment registered with a professional body you can verify — the NMC for nurses, the GMC for doctors, the GDC for dentists?</li>
+      <li>· Is the person prescribing your treatment registered with a professional body you can verify, the NMC for nurses, the GMC for doctors, the GDC for dentists?</li>
       <li>· Is the person injecting the same as the person prescribing, or are they different people?</li>
-      <li>· What product will be used, and is it one of the UK-licensed botulinum toxin brands — Botox, Azzalure, Dysport, or Bocouture?</li>
+      <li>· What product will be used, and is it one of the UK-licensed botulinum toxin brands, Botox, Azzalure, Dysport, or Bocouture?</li>
       <li>· What happens if something goes wrong? Is there a clear pathway to reach the prescriber?</li>
       <li>· Does the clinic have appropriate insurance cover?</li>
     </ul>
@@ -108,7 +108,7 @@ export default function Post() {
     </h2>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      Since June 2025, nurse and midwife prescribers have been required by the Nursing and Midwifery Council to consult with patients face-to-face before prescribing non-surgical cosmetic medicines, including botulinum toxin. This is not optional guidance — it is a professional requirement. The same principle applies more broadly: a key regulatory change in 2025 established that all prescribing of prescription-only medicines must be preceded by a mandatory face-to-face consultation with the prescribing clinician.
+      Since June 2025, nurse and midwife prescribers have been required by the Nursing and Midwifery Council to consult with patients face-to-face before prescribing non-surgical cosmetic medicines, including botulinum toxin. This is not optional guidance, it is a professional requirement. The same principle applies more broadly: a key regulatory change in 2025 established that all prescribing of prescription-only medicines must be preceded by a mandatory face-to-face consultation with the prescribing clinician.
     </p>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
@@ -124,11 +124,11 @@ export default function Post() {
     </h2>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      Botulinum toxin type A works by blocking the release of acetylcholine at the neuromuscular junction. In plain terms, it temporarily prevents the nerve signal from reaching the muscle, which reduces the muscle's ability to contract. This is why lines caused by repeated muscle movement — such as frown lines or crow's feet — soften when the muscle is relaxed.
+      Botulinum toxin type A works by blocking the release of acetylcholine at the neuromuscular junction. In plain terms, it temporarily prevents the nerve signal from reaching the muscle, which reduces the muscle's ability to contract. This is why lines caused by repeated muscle movement, such as frown lines or crow's feet, soften when the muscle is relaxed.
     </p>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      What the treatment does not do is fill lines, add volume, or tighten skin. If your concern is volume loss in the cheeks, hollowing under the eyes, or deep folds that remain even when your face is at rest, then anti-wrinkle injections alone will not address it. Those concerns typically require <a href="/treatments/dermal-filler" className="text-gold hover:text-gold/80 transition-colors">dermal filler</a> or skin-quality treatments like <a href="/treatments/profhilo" className="text-gold hover:text-gold/80 transition-colors">Profhilo</a>. A good consultation will clarify which treatment — if any — is appropriate for your specific concern.
+      What the treatment does not do is fill lines, add volume, or tighten skin. If your concern is volume loss in the cheeks, hollowing under the eyes, or deep folds that remain even when your face is at rest, then anti-wrinkle injections alone will not address it. Those concerns typically require <a href="/treatments/dermal-filler" className="text-gold hover:text-gold/80 transition-colors">dermal filler</a> or skin-quality treatments like <a href="/treatments/profhilo" className="text-gold hover:text-gold/80 transition-colors">Profhilo</a>. A good consultation will clarify which treatment, if any, is appropriate for your specific concern.
     </p>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
@@ -136,7 +136,7 @@ export default function Post() {
     </p>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      It is also worth understanding that the effect is temporary. Depending on the area treated, dose used, and individual response, repeat treatments are typically required every three to six months. The toxin metabolises naturally — your body breaks it down over time, and muscle function returns. This is actually a safety feature. If you dislike the result, or if something goes wrong, it will resolve on its own. Unlike some other procedures, there is no permanent alteration.
+      It is also worth understanding that the effect is temporary. Depending on the area treated, dose used, and individual response, repeat treatments are typically required every three to six months. The toxin metabolises naturally, your body breaks it down over time, and muscle function returns. This is actually a safety feature. If you dislike the result, or if something goes wrong, it will resolve on its own. Unlike some other procedures, there is no permanent alteration.
     </p>
 
     <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">
@@ -148,11 +148,11 @@ export default function Post() {
     </p>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      I include a review appointment as standard at Visage Aesthetics, and I encourage every client to attend even if they think everything is fine. Sometimes clients notice asymmetry they had not spotted before treatment — one brow slightly higher than the other, for example — and assume the injections caused it. Often the opposite is true: the treatment has revealed a pre-existing difference by relaxing the compensating muscles. A review allows us to discuss this calmly and decide whether any adjustment is appropriate.
+      I include a review appointment as standard at Visage Aesthetics, and I encourage every client to attend even if they think everything is fine. Sometimes clients notice asymmetry they had not spotted before treatment, one brow slightly higher than the other, for example, and assume the injections caused it. Often the opposite is true: the treatment has revealed a pre-existing difference by relaxing the compensating muscles. A review allows us to discuss this calmly and decide whether any adjustment is appropriate.
     </p>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      The review also establishes a baseline for future treatments. Because I know how you responded the first time, I can adjust dosing and placement for subsequent appointments. Clients who skip the review, or who move between clinics frequently, lose this continuity — and their results tend to be less consistent as a consequence.
+      The review also establishes a baseline for future treatments. Because I know how you responded the first time, I can adjust dosing and placement for subsequent appointments. Clients who skip the review, or who move between clinics frequently, lose this continuity, and their results tend to be less consistent as a consequence.
     </p>
 
     <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">
@@ -160,15 +160,15 @@ export default function Post() {
     </h2>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      I have worked in aesthetics long enough to know that the industry has a reputation problem, and much of it is deserved. The 2025 botulism cases were not an isolated incident — they were a predictable outcome of a sector that has grown faster than regulation can follow. The government has acknowledged this, and a new licensing scheme is in development, but until it is fully implemented, the burden falls on individual practitioners to maintain standards voluntarily.
+      I have worked in aesthetics long enough to know that the industry has a reputation problem, and much of it is deserved. The 2025 botulism cases were not an isolated incident, they were a predictable outcome of a sector that has grown faster than regulation can follow. The government has acknowledged this, and a new licensing scheme is in development, but until it is fully implemented, the burden falls on individual practitioners to maintain standards voluntarily.
     </p>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      I take that responsibility seriously. I use only UK-licensed products with clear provenance. I prescribe and inject myself — there is no separation between the person making clinical decisions and the person carrying them out. I keep detailed records, carry appropriate insurance, and maintain my registration with the NMC. These things should be baseline expectations, not differentiators, but in the current climate they are worth stating plainly.
+      I take that responsibility seriously. I use only UK-licensed products with clear provenance. I prescribe and inject myself, there is no separation between the person making clinical decisions and the person carrying them out. I keep detailed records, carry appropriate insurance, and maintain my registration with the NMC. These things should be baseline expectations, not differentiators, but in the current climate they are worth stating plainly.
     </p>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      If you are considering your first treatment, take your time. A few weeks of research now will serve you far better than rushing into a decision you might regret. And if, after reading this, you decide that anti-wrinkle injections are not for you — that is a perfectly reasonable conclusion too.
+      If you are considering your first treatment, take your time. A few weeks of research now will serve you far better than rushing into a decision you might regret. And if, after reading this, you decide that anti-wrinkle injections are not for you, that is a perfectly reasonable conclusion too.
     </p>
 
     <div className="bg-white border border-gold/20 rounded-sm p-8 my-12 text-center">

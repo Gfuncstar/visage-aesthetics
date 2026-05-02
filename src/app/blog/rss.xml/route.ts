@@ -35,9 +35,9 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
-    <title>Visage Aesthetics — Insights &amp; Advice</title>
+    <title>Visage Aesthetics, Insights &amp; Advice</title>
     <link>${SITE}/blog</link>
-    <description>Plain-English notes on aesthetic treatments from Bernadette Tobin RGN, MSc — registered nurse, NMC PIN 05G1755E. Best Non-Surgical Aesthetics Clinic 2026, Essex. New articles every two days.</description>
+    <description>Plain-English notes on aesthetic treatments from Bernadette Tobin RGN, MSc, registered nurse, NMC PIN 05G1755E. Best Non-Surgical Aesthetics Clinic 2026, Essex. New articles every two days.</description>
     <language>en-GB</language>
     <lastBuildDate>${new Date(lastBuild).toUTCString()}</lastBuildDate>
     <atom:link href="${SITE}/blog/rss.xml" rel="self" type="application/rss+xml" />

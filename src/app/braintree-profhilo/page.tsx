@@ -19,11 +19,11 @@ export default function BraintreeProfhilo() {
       town="Braintree"
       treatment="Profhilo"
       travel="Central Braintree, Friars Lane (CM7 9BL)"
-      positioningLine="Profhilo is not filler — it is a deep skin bio-remodeller. Performed in Braintree by a registered nurse with twenty years' clinical experience and an MSc in Advanced Practice."
+      positioningLine="Profhilo is not filler, it is a deep skin bio-remodeller. Performed in Braintree by a registered nurse with twenty years' clinical experience and an MSc in Advanced Practice."
       reasons={[
-        { title: 'Hydration, not fill', body: "Profhilo deeply hydrates from within and stimulates collagen and elastin. The result is glow, bounce and texture — never volume change. Subtler and more natural than filler." },
-        { title: 'Award-winning local clinic', body: "Best Non-Surgical Aesthetics Clinic 2026 — Essex. Authentic Profhilo from IBSA, never relabelled or repackaged. Two sessions, four weeks apart, included in the course price." },
-        { title: 'A short, calm appointment', body: "Profhilo uses the BAP injection technique — five small points on each side. Around 30 minutes. Most Braintree clients walk in on their lunch break and back out without any visible signs." },
+        { title: 'Hydration, not fill', body: "Profhilo deeply hydrates from within and stimulates collagen and elastin. The result is glow, bounce and texture, never volume change. Subtler and more natural than filler." },
+        { title: 'Award-winning local clinic', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. Authentic Profhilo from IBSA, never relabelled or repackaged. Two sessions, four weeks apart, included in the course price." },
+        { title: 'A short, calm appointment', body: "Profhilo uses the BAP injection technique, five small points on each side. Around 30 minutes. Most Braintree clients walk in on their lunch break and back out without any visible signs." },
       ]}
       priceFrom="From £180 / single session"
       postcode="CM7 9BL"
@@ -31,7 +31,7 @@ export default function BraintreeProfhilo() {
       faqs={[
         {
           question: 'Is Profhilo the same as filler?',
-          answer: 'No — and the distinction matters. Filler adds volume in a specific area (lips, cheeks). Profhilo spreads through the skin and stimulates the body to produce its own collagen, elastin and hyaluronic acid. The result is hydration and texture improvement across the whole treated area, never a volume change. Many of our Braintree clients have both — they do completely different jobs.',
+          answer: 'No, and the distinction matters. Filler adds volume in a specific area (lips, cheeks). Profhilo spreads through the skin and stimulates the body to produce its own collagen, elastin and hyaluronic acid. The result is hydration and texture improvement across the whole treated area, never a volume change. Many of our Braintree clients have both, they do completely different jobs.',
         },
         {
           question: 'How much does Profhilo cost in Braintree?',
@@ -39,7 +39,7 @@ export default function BraintreeProfhilo() {
         },
         {
           question: 'How quickly will I see results?',
-          answer: 'Most clients begin to see a soft glow at 2-3 weeks, with the biggest visible change around 8 weeks. Profhilo improves gradually rather than dramatically — that is the appeal.',
+          answer: 'Most clients begin to see a soft glow at 2-3 weeks, with the biggest visible change around 8 weeks. Profhilo improves gradually rather than dramatically, that is the appeal.',
         },
         {
           question: 'How long does Profhilo last?',
@@ -51,7 +51,7 @@ export default function BraintreeProfhilo() {
         },
         {
           question: 'Can Profhilo be used on the body?',
-          answer: 'Yes — Profhilo Body is licensed for use on the upper arms, neck, décolletage and abdomen. Particularly effective for the crepey skin sometimes seen on the inner upper arm. Ask at consultation.',
+          answer: 'Yes, Profhilo Body is licensed for use on the upper arms, neck, décolletage and abdomen. Particularly effective for the crepey skin sometimes seen on the inner upper arm. Ask at consultation.',
         },
       ]}
       alsoServes={['Bocking', 'Rayne', 'Coggeshall', 'Cressing', 'Felsted', 'Great Notley', 'Black Notley', 'Stisted']}

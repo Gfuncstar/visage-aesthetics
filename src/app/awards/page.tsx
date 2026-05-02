@@ -6,11 +6,11 @@ import { BOOKING_LINK_PROPS } from '@/lib/booking'
 
 export const metadata: Metadata = {
   title: 'Awards & Recognition | Visage Aesthetics, Braintree',
-  description: "Best Non-Surgical Aesthetics Clinic 2026 — Essex (Health, Beauty & Wellness Awards). Educator of the Year 2026 nominee (Beauty & Aesthetics Awards). An award-winning nurse-led clinic in Braintree run by Bernadette Tobin RGN, MSc.",
+  description: "Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards). Educator of the Year 2026 nominee (Beauty & Aesthetics Awards). An award-winning nurse-led clinic in Braintree run by Bernadette Tobin RGN, MSc.",
   alternates: { canonical: '/awards' },
   openGraph: {
     title: 'Best Non-Surgical Aesthetics Clinic 2026, Essex | Educator of the Year 2026 Nominee',
-    description: 'Award-winning nurse-led aesthetics clinic in Braintree. Best Non-Surgical Aesthetics Clinic 2026 — Essex. Educator of the Year 2026 nominee.',
+    description: 'Award-winning nurse-led aesthetics clinic in Braintree. Best Non-Surgical Aesthetics Clinic 2026, Essex. Educator of the Year 2026 nominee.',
     url: 'https://www.vaclinic.co.uk/awards',
   },
 }
@@ -29,7 +29,7 @@ type AwardEntry = {
 const awards: AwardEntry[] = [
   {
     year: 2026,
-    name: 'Best Non-Surgical Aesthetics Clinic 2026 — Essex',
+    name: 'Best Non-Surgical Aesthetics Clinic 2026, Essex',
     category: 'Best Non-Surgical Aesthetics Clinic',
     region: 'Essex',
     awardingBody: 'Health, Beauty & Wellness Awards',
@@ -39,12 +39,12 @@ const awards: AwardEntry[] = [
   },
   {
     year: 2026,
-    name: 'Educator of the Year 2026 — Nominee',
+    name: 'Educator of the Year 2026, Nominee',
     category: 'Educator of the Year',
     region: 'United Kingdom',
     awardingBody: 'Beauty & Aesthetics Awards',
     description:
-      "Bernadette Tobin nominated for her contribution to aesthetics training and education across the industry — recognising practitioners who raise standards beyond their own clinic and pass clinical rigour on to the next generation.",
+      "Bernadette Tobin nominated for her contribution to aesthetics training and education across the industry, recognising practitioners who raise standards beyond their own clinic and pass clinical rigour on to the next generation.",
     status: 'nominee',
   },
 ]
@@ -120,7 +120,7 @@ export default function AwardsPage() {
           <p className="mt-6 text-body-lg text-ink-soft max-w-2xl">
             Recognised across Essex for naturally subtle results, medically led care, and a refusal
             to treat aesthetics as anything less than a clinical discipline. Bernadette is also a 2026
-            nominee for Educator of the Year — for the work she does training the next generation of
+            nominee for Educator of the Year, for the work she does training the next generation of
             aesthetic practitioners.
           </p>
         </div>
@@ -146,7 +146,7 @@ export default function AwardsPage() {
                 <span className="opacity-90">Essex 2026</span>
               </h2>
               <p className="mt-7 max-w-md text-cream/85 leading-relaxed">
-                Awarded by the <strong className="font-medium">Health, Beauty &amp; Wellness Awards</strong> —
+                Awarded by the <strong className="font-medium">Health, Beauty &amp; Wellness Awards</strong>,
                 an industry-judged programme recognising clinics demonstrating clinical excellence,
                 exceptional client care, and ethical, conservative practice.
               </p>
@@ -155,7 +155,7 @@ export default function AwardsPage() {
                 Every client who&apos;s trusted me, every bit of support, every late night and early
                 morning. I&apos;m beyond grateful.&rdquo;
               </p>
-              <p className="mt-2 text-eyebrow text-cream/60">— Bernadette Tobin, Founder</p>
+              <p className="mt-2 text-eyebrow text-cream/60">- Bernadette Tobin, Founder</p>
             </div>
           </article>
         </div>
@@ -171,7 +171,7 @@ export default function AwardsPage() {
           </div>
           <div className="md:col-span-7 space-y-5 text-body-lg text-ink-soft leading-relaxed">
             <p>
-              Aesthetics in the UK remains an unregulated industry — anyone, with any level of training,
+              Aesthetics in the UK remains an unregulated industry, anyone, with any level of training,
               can legally inject. Awards judged by industry peers help clients distinguish clinics that
               hold themselves to a clinical standard from those that don&apos;t.
             </p>
@@ -179,7 +179,7 @@ export default function AwardsPage() {
               Visage Aesthetics is run by a registered nurse with an MSc in Advanced Practice (Level 7)
               and over twenty years of clinical experience. Every consultation is unhurried. Every
               treatment plan starts with a clinical assessment. And we never treat for the sake of
-              treating — if something isn&apos;t in your best interest, we&apos;ll say so.
+              treating, if something isn&apos;t in your best interest, we&apos;ll say so.
             </p>
             <p>
               Being named Best Non-Surgical Aesthetics Clinic in Essex is recognition of that approach,

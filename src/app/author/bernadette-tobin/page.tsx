@@ -5,11 +5,11 @@ import BookingCTA from '@/components/sections/BookingCTA'
 import { blogPostsByDate } from '@/lib/blog-posts'
 
 export const metadata: Metadata = {
-  title: 'Bernadette Tobin RGN, MSc — Author Profile & Articles',
-  description: "Bernadette Tobin: registered nurse, MSc Advanced Practice (Level 7), founder of Visage Aesthetics. NMC PIN 05G1755E. Best Non-Surgical Aesthetics Clinic 2026 — Essex. Educator of the Year 2026 nominee. All published articles in one place.",
+  title: 'Bernadette Tobin RGN, MSc, Author Profile & Articles',
+  description: "Bernadette Tobin: registered nurse, MSc Advanced Practice (Level 7), founder of Visage Aesthetics. NMC PIN 05G1755E. Best Non-Surgical Aesthetics Clinic 2026, Essex. Educator of the Year 2026 nominee. All published articles in one place.",
   alternates: { canonical: '/author/bernadette-tobin' },
   openGraph: {
-    title: 'Bernadette Tobin RGN, MSc — Author Profile',
+    title: 'Bernadette Tobin RGN, MSc, Author Profile',
     description: 'Award-winning aesthetic nurse, MSc Advanced Practice, NMC PIN 05G1755E. All articles by Bernadette in one place.',
     url: 'https://www.vaclinic.co.uk/author/bernadette-tobin',
   },
@@ -41,7 +41,7 @@ const jsonLd = {
         familyName: 'Tobin',
         jobTitle: 'Registered Nurse, MSc Advanced Practice',
         description:
-          'Registered Nurse (NMC PIN 05G1755E) with MSc Advanced Practice (Level 7) and 20+ years clinical experience. Founder of Visage Aesthetics, Braintree — Best Non-Surgical Aesthetics Clinic 2026 — Essex (Health, Beauty & Wellness Awards). Educator of the Year 2026 — Nominee (Beauty & Aesthetics Awards).',
+          'Registered Nurse (NMC PIN 05G1755E) with MSc Advanced Practice (Level 7) and 20+ years clinical experience. Founder of Visage Aesthetics, Braintree, Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards). Educator of the Year 2026, Nominee (Beauty & Aesthetics Awards).',
         url: `${SITE}/author/bernadette-tobin`,
         image: `${SITE}/images/bernadette-portrait.jpg`,
         identifier: [{ '@type': 'PropertyValue', propertyID: 'NMC PIN', value: '05G1755E' }],
@@ -54,8 +54,8 @@ const jsonLd = {
           { '@type': 'EducationalOccupationalCredential', credentialCategory: 'degree', name: 'MSc Advanced Practice (Level 7)' },
         ],
         award: [
-          'Best Non-Surgical Aesthetics Clinic 2026 — Essex (Health, Beauty & Wellness Awards)',
-          'Educator of the Year 2026 — Nominee (Beauty & Aesthetics Awards)',
+          'Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards)',
+          'Educator of the Year 2026, Nominee (Beauty & Aesthetics Awards)',
         ],
         worksFor: {
           '@type': 'MedicalBusiness',
@@ -124,8 +124,8 @@ export default function AuthorPage() {
           </h1>
           <p className="mt-6 text-body-lg text-ink-soft max-w-2xl leading-relaxed">
             Registered nurse with an MSc in Advanced Practice (Level 7) and over twenty years of clinical
-            experience. Founder of Visage Aesthetics on Friars Lane, Braintree — winner of Best Non-Surgical
-            Aesthetics Clinic 2026 — Essex (Health, Beauty &amp; Wellness Awards) and a 2026 nominee for
+            experience. Founder of Visage Aesthetics on Friars Lane, Braintree, winner of Best Non-Surgical
+            Aesthetics Clinic 2026, Essex (Health, Beauty &amp; Wellness Awards) and a 2026 nominee for
             Educator of the Year.
           </p>
         </div>
@@ -160,7 +160,7 @@ export default function AuthorPage() {
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <div className="border border-gold/40 rounded-md p-5 bg-cream">
               <div className="text-eyebrow text-gold mb-1.5">2026 Award</div>
-              <div className="font-display italic text-charcoal" style={{ fontSize: 18, fontWeight: 500, lineHeight: 1.2 }}>Best Non-Surgical Aesthetics Clinic — Essex</div>
+              <div className="font-display italic text-charcoal" style={{ fontSize: 18, fontWeight: 500, lineHeight: 1.2 }}>Best Non-Surgical Aesthetics Clinic, Essex</div>
               <div className="mt-1 text-stone text-[11px] tracking-[0.06em]">Health, Beauty &amp; Wellness Awards</div>
             </div>
             <div className="border border-line/40 rounded-md p-5 bg-cream">
@@ -181,13 +181,13 @@ export default function AuthorPage() {
           <div className="space-y-5 text-body-lg text-ink-soft leading-relaxed">
             <p>
               Bernadette qualified as a registered nurse over twenty years ago. Her career has spanned
-              acute medical wards, community nursing and advanced clinical practice — culminating in an
+              acute medical wards, community nursing and advanced clinical practice, culminating in an
               MSc in Advanced Practice, the highest postgraduate qualification a UK nurse can hold.
             </p>
             <p>
               She came into aesthetics later, and deliberately. Years of clinical practice had made it
               clear that aesthetics is, fundamentally, a medical field. It deserves the same rigour, the
-              same consent process, the same clinical care — even when the procedure is cosmetic. That
+              same consent process, the same clinical care, even when the procedure is cosmetic. That
               philosophy is the thread running through every article, every consultation, and every
               treatment plan at Visage Aesthetics.
             </p>

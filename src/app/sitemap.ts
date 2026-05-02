@@ -5,7 +5,7 @@ const SITE = 'https://www.vaclinic.co.uk'
 
 /**
  * Per-route lastModified dates. Update these when the corresponding page
- * has substantive content changes — Google uses this signal to prioritise
+ * has substantive content changes, Google uses this signal to prioritise
  * recrawl. Bumping every page on every deploy (the old behaviour) trains
  * Google to ignore the signal.
  */
@@ -124,7 +124,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
 
 
-    // AUTO-BLOG-SITEMAP-INSERT — generator appends new slugs immediately above this line. Do not delete this marker.
+    // AUTO-BLOG-SITEMAP-INSERT, generator appends new slugs immediately above this line. Do not delete this marker.
   ].map((slug) => ({
     url: `${SITE}/blog/${slug}`,
     changeFrequency: 'monthly',

@@ -46,7 +46,7 @@ export default function BotoxVsFillerPost() {
           <p className="mt-6 text-body-lg text-ink-soft">
             They are both injectable. They both come out of a syringe. They are both administered by an
             aesthetic practitioner with a needle. And that is roughly where the similarity ends. They do
-            completely different jobs — and getting them mixed up is one of the most common reasons people
+            completely different jobs, and getting them mixed up is one of the most common reasons people
             end up with results they did not want.
           </p>
         </div>
@@ -60,14 +60,14 @@ export default function BotoxVsFillerPost() {
           <p className="text-body-lg text-ink-soft leading-relaxed mb-6">
             Anti-wrinkle injections (commonly called Botox) <em>relax muscles</em>. Dermal filler <em>adds volume</em>.
             That is the entire core distinction. If a line appears when you make an expression, it is usually
-            anti-wrinkle territory. If you have lost volume — flatter cheeks, thinner lips, a hollow under the
-            eye — it is filler territory. Many clients in their forties have both, planned together, in
+            anti-wrinkle territory. If you have lost volume, flatter cheeks, thinner lips, a hollow under the
+            eye, it is filler territory. Many clients in their forties have both, planned together, in
             small amounts.
           </p>
 
           <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">What anti-wrinkle injections actually do</h2>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-            Anti-wrinkle injections use small, precise doses of botulinum toxin — a purified protein produced
+            Anti-wrinkle injections use small, precise doses of botulinum toxin, a purified protein produced
             by the bacterium <em>Clostridium botulinum</em>. The brand names you will hear are <strong>Botox</strong>,
             <strong> Bocouture</strong>, <strong>Azzalure</strong> and <strong>Dysport</strong>. They all do the same thing,
             slightly differently dosed.
@@ -76,7 +76,7 @@ export default function BotoxVsFillerPost() {
             Once injected into a specific muscle, the toxin temporarily blocks the signal from the nerve
             ending to the muscle fibre. The muscle relaxes. The lines that muscle was creating soften.
             Critically: the muscle is still there. It still has tone. You can still smile, frown and lift
-            your brows — just less aggressively. Treated well, you still look like yourself, just a bit
+            your brows, just less aggressively. Treated well, you still look like yourself, just a bit
             smoother and a bit less tired.
           </p>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
@@ -93,26 +93,26 @@ export default function BotoxVsFillerPost() {
           </ul>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
             What it will not do: it cannot replace lost volume. It cannot reshape your face. It cannot
-            fill in static lines that are present even when your face is at rest — those are usually
+            fill in static lines that are present even when your face is at rest, those are usually
             the territory of skin treatments like Profhilo, micro-needling, or in some cases very
             fine filler.
           </p>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
             Results show within 7-14 days, last 3-4 months, and are completely reversible by waiting
-            for the effect to wear off. There is no &ldquo;eraser&rdquo; — but the toxin is metabolised
+            for the effect to wear off. There is no &ldquo;eraser&rdquo;, but the toxin is metabolised
             naturally and the muscle returns to baseline.
           </p>
 
           <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">What dermal filler actually does</h2>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-            Dermal filler is, in almost every reputable UK clinic in 2026, <strong>hyaluronic acid (HA)</strong> —
+            Dermal filler is, in almost every reputable UK clinic in 2026, <strong>hyaluronic acid (HA)</strong>,
             a sugar molecule that occurs naturally in your skin, joints and connective tissue. Brand names
             include <em>Juvederm, Restylane, Teosyal, Belotero</em>. They differ in viscosity, longevity and
             licensed indication, but the active ingredient is the same.
           </p>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-            HA filler is injected into a specific layer of tissue — usually the dermis, sometimes deeper
-            for structural work — where it physically takes up space. That is it. It does not stimulate
+            HA filler is injected into a specific layer of tissue, usually the dermis, sometimes deeper
+            for structural work, where it physically takes up space. That is it. It does not stimulate
             the body to do anything. It just sits there, holding up the surrounding tissue, until the body
             slowly metabolises it.
           </p>
@@ -122,7 +122,7 @@ export default function BotoxVsFillerPost() {
           <ul className="space-y-2 mb-6 text-body-lg text-ink-soft">
             <li>· Lip volume and definition (most popular use)</li>
             <li>· Cheek augmentation and contour</li>
-            <li>· Tear trough (the hollow under the eye — the most technically demanding area)</li>
+            <li>· Tear trough (the hollow under the eye, the most technically demanding area)</li>
             <li>· Jawline definition and chin projection</li>
             <li>· Non-surgical rhinoplasty (subtle bridge or tip adjustment)</li>
             <li>· Nasolabial folds (the lines from nose to mouth corner)</li>
@@ -131,7 +131,7 @@ export default function BotoxVsFillerPost() {
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
             What it will not do: it cannot soften lines caused by muscle movement (that is anti-wrinkle).
             It cannot improve skin quality, hydration or texture (that is Profhilo, micro-needling or topical
-            skincare). And — this is the one most clients are surprised by — it does not stimulate your
+            skincare). And, this is the one most clients are surprised by, it does not stimulate your
             face to grow more of anything. When the filler is gone, your face returns to where it was.
           </p>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
@@ -139,15 +139,15 @@ export default function BotoxVsFillerPost() {
             product and area (lips dissolve faster than cheeks). Critically: HA filler can be dissolved
             on demand using an enzyme called <strong>hyaluronidase</strong>. If you do not like the result,
             or if a complication occurs, the filler can be removed within 24-48 hours. This reversibility is
-            one of the safest features of HA — and a major reason we do not work with permanent or
+            one of the safest features of HA, and a major reason we do not work with permanent or
             semi-permanent fillers at Visage.
           </p>
 
-          <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">When you might be told you need filler — and you do not</h2>
+          <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">When you might be told you need filler, and you do not</h2>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
             This is the hardest part of an honest aesthetics consultation. Filler is more expensive than
             anti-wrinkle, lasts longer, and is more visible to the practitioner during placement. Some
-            clinics — and this is a known problem in the wider industry — recommend filler when
+            clinics, and this is a known problem in the wider industry, recommend filler when
             another treatment would actually serve the client better. A few examples:
           </p>
           <ul className="space-y-2 mb-6 text-body-lg text-ink-soft">
@@ -165,7 +165,7 @@ export default function BotoxVsFillerPost() {
 
           <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">When you might genuinely benefit from both</h2>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-            Many clients in their late thirties through fifties get the best result from a combination —
+            Many clients in their late thirties through fifties get the best result from a combination,
             small amounts of each, planned together. A typical example: 1ml of filler split between cheeks
             and tear troughs to address volume loss, plus anti-wrinkle to the forehead, glabella (frown
             lines) and crow&apos;s feet. The filler restores the structure, the anti-wrinkle softens the
@@ -173,14 +173,14 @@ export default function BotoxVsFillerPost() {
           </p>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
             Done well, the combined effect is a face that looks rested rather than altered.
-            Done poorly, you get the &ldquo;done&rdquo; look — flat, frozen, doughy. The difference is
+            Done poorly, you get the &ldquo;done&rdquo; look, flat, frozen, doughy. The difference is
             almost entirely in the dosing and placement. There is no aesthetic ingredient that is
             inherently bad; there is only a long history of overuse.
           </p>
 
           <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">A short safety note</h2>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-            Both treatments are very safe in qualified hands. Both have known complications —
+            Both treatments are very safe in qualified hands. Both have known complications,
             bruising, swelling, asymmetry, rare vascular events with filler. Both should only be
             performed by a registered medical professional with an indemnity insurer, a documented
             consent process, and reversal/protocol products on site. Aesthetics is largely

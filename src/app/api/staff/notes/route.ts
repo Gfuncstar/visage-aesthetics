@@ -72,7 +72,7 @@ export async function POST(req: Request) {
     try {
       parsed = JSON.parse(text)
     } catch {
-      // not JSON; might be Apps Script's HTML redirect chrome — that's
+      // not JSON; might be Apps Script's HTML redirect chrome, that's
       // OK as long as the status was 2xx and the body isn't a known error.
     }
 

@@ -4,11 +4,11 @@ import BookingCTA from '@/components/sections/BookingCTA'
 import { BOOKING_LINK_PROPS } from '@/lib/booking'
 
 export type GeoLandingProps = {
-  /** URL slug — used in canonicals and breadcrumbs */
+  /** URL slug, used in canonicals and breadcrumbs */
   slug: string
   /** Town this landing page targets, e.g. "Braintree" */
   town: string
-  /** Treatment focus — usually "Botox" or "Anti-Wrinkle Injections" */
+  /** Treatment focus, usually "Botox" or "Anti-Wrinkle Injections" */
   treatment: string
   /** Distance/travel summary, e.g. "Less than 1 mile away" */
   travel: string
@@ -104,7 +104,7 @@ export default function GeoLandingTemplate({
               <span className="btn btn-ghost-dark btn-block sm:btn-md:auto pointer-events-none">{priceFrom}</span>
             </div>
             <div className="mt-6 flex items-center gap-2 text-stone text-[12px] tracking-[0.18em] uppercase">
-              <span>Best Non-Surgical Aesthetics Clinic 2026 — Essex</span>
+              <span>Best Non-Surgical Aesthetics Clinic 2026, Essex</span>
             </div>
           </div>
           <div className="lg:col-span-5">
@@ -150,7 +150,7 @@ export default function GeoLandingTemplate({
           </div>
           <div className="md:col-span-7 space-y-4 text-body-lg text-ink-soft leading-relaxed">
             <p>
-              Aesthetics in the UK remains an unregulated industry — anyone can legally inject. {town} clients
+              Aesthetics in the UK remains an unregulated industry, anyone can legally inject. {town} clients
               who want medical reassurance choose Visage because every treatment is performed by a registered
               nurse with two decades of clinical experience and the highest postgraduate nursing qualification
               available (MSc, Level 7).

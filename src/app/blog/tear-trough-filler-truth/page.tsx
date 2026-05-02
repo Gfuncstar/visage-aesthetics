@@ -6,7 +6,7 @@ import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
 const POST = {
   slug: 'tear-trough-filler-truth',
   title: "Tear trough filler: when it works and when it really doesn't",
-  description: "Tear trough filler: when it works and when it really doesn't — written by Bernadette Tobin RGN, MSc Advanced Practice. Award-winning nurse-led clinic in Braintr",
+  description: "Tear trough filler: when it works and when it really doesn't, written by Bernadette Tobin RGN, MSc Advanced Practice. Award-winning nurse-led clinic in Braintr",
   datePublished: '2026-04-29',
   dateModified: '2026-04-29',
   image: '/images/og-home.jpg',
@@ -42,7 +42,7 @@ export default function Post() {
     <p className="text-sm uppercase tracking-wider text-ink-soft mb-3">Dermal Filler</p>
     <h1 className="font-display italic text-h1 text-charcoal mb-6">Tear trough filler: when it works and when it really doesn't</h1>
     <p className="text-body-lg text-ink-soft leading-relaxed">
-      The tear trough is widely recognised as the most challenging area to treat with hyaluronic acid filler. That is not marketing language — it is the clinical consensus. Most people who enquire about under eye filler are not suitable candidates, and I turn away more than I treat. This post explains why, what makes a good candidate, and what alternatives exist when filler is not the answer.
+      The tear trough is widely recognised as the most challenging area to treat with hyaluronic acid filler. That is not marketing language, it is the clinical consensus. Most people who enquire about under eye filler are not suitable candidates, and I turn away more than I treat. This post explains why, what makes a good candidate, and what alternatives exist when filler is not the answer.
     </p>
   </div>
 </section>
@@ -53,32 +53,32 @@ export default function Post() {
     <div className="bg-white border border-gold/20 rounded-lg p-6 my-8">
       <h2 className="font-display italic text-h3 text-charcoal mb-3">The short version</h2>
       <p className="text-body-lg text-ink-soft leading-relaxed mb-0">
-        Tear trough filler works well for a narrow group of patients: those with mild to moderate hollowing, good skin elasticity, and minimal fat pads or puffiness. If you have chronic fluid retention, prominent eye bags, very thin skin, or deep hollows, filler will likely make things worse — not better. The area has uniquely thin skin, limited lymphatic drainage, and sits close to critical blood vessels. I assess every patient against a validated scoring system and recommend treatment only when the anatomy supports a good outcome. For everyone else, I discuss alternatives including skin quality treatments, lifestyle factors, or referral to an oculoplastic surgeon.
+        Tear trough filler works well for a narrow group of patients: those with mild to moderate hollowing, good skin elasticity, and minimal fat pads or puffiness. If you have chronic fluid retention, prominent eye bags, very thin skin, or deep hollows, filler will likely make things worse, not better. The area has uniquely thin skin, limited lymphatic drainage, and sits close to critical blood vessels. I assess every patient against a validated scoring system and recommend treatment only when the anatomy supports a good outcome. For everyone else, I discuss alternatives including skin quality treatments, lifestyle factors, or referral to an oculoplastic surgeon.
       </p>
     </div>
 
     <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">Why the tear trough is different from every other area</h2>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      The skin beneath the eye is approximately 0.5mm thick — compare that to around 2mm on the cheeks. This difference matters enormously. Place filler even slightly too superficially, and it becomes visible: you see contour irregularities, or worse, a bluish-grey discolouration called the Tyndall effect, where the filler shows through the skin.
+      The skin beneath the eye is approximately 0.5mm thick, compare that to around 2mm on the cheeks. This difference matters enormously. Place filler even slightly too superficially, and it becomes visible: you see contour irregularities, or worse, a bluish-grey discolouration called the Tyndall effect, where the filler shows through the skin.
     </p>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      The under-eye area also has limited lymphatic drainage compared to other facial regions. When filler disrupts the normal drainage pathways — even slightly — the result is persistent puffiness that can last for months. I have seen patients arrive at clinic having had tear trough filler elsewhere, convinced they now have worse eye bags than before. In most cases, they are correct. The filler has created or worsened oedema.
+      The under-eye area also has limited lymphatic drainage compared to other facial regions. When filler disrupts the normal drainage pathways, even slightly, the result is persistent puffiness that can last for months. I have seen patients arrive at clinic having had tear trough filler elsewhere, convinced they now have worse eye bags than before. In most cases, they are correct. The filler has created or worsened oedema.
     </p>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      Then there is the vascular anatomy. The infraorbital vessels run close to the treatment plane. Vascular occlusion — where filler enters or compresses a blood vessel — is rare, but the consequences are severe: tissue necrosis and, in documented cases, blindness. This is not theoretical. It has happened. It is why I only treat this area with a cannula, take my time, and work with reversible hyaluronic acid products exclusively.
+      Then there is the vascular anatomy. The infraorbital vessels run close to the treatment plane. Vascular occlusion, where filler enters or compresses a blood vessel, is rare, but the consequences are severe: tissue necrosis and, in documented cases, blindness. This is not theoretical. It has happened. It is why I only treat this area with a cannula, take my time, and work with reversible hyaluronic acid products exclusively.
     </p>
 
     <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">Who is actually a good candidate</h2>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      The ideal candidate has a specific presentation: mild to moderate hollowing creating a visible shadow, good skin tone with minimal laxity, and — critically — no significant fat pads or pseudo-bulging beneath the eye. Published clinical guidance states that patients with values below 2 on a validated tear trough scoring system are ideal for hyaluronic acid treatment, while those scoring above 8 should be assessed for surgery instead.
+      The ideal candidate has a specific presentation: mild to moderate hollowing creating a visible shadow, good skin tone with minimal laxity, and, critically, no significant fat pads or pseudo-bulging beneath the eye. Published clinical guidance states that patients with values below 2 on a validated tear trough scoring system are ideal for hyaluronic acid treatment, while those scoring above 8 should be assessed for surgery instead.
     </p>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      In practical terms, I am looking for someone whose dark circles are caused by a groove — a genuine volume deficit — rather than by pigmentation, thin skin showing underlying muscle, or bags pushing forward. Volume loss responds to volume replacement. The other causes do not.
+      In practical terms, I am looking for someone whose dark circles are caused by a groove, a genuine volume deficit, rather than by pigmentation, thin skin showing underlying muscle, or bags pushing forward. Volume loss responds to volume replacement. The other causes do not.
     </p>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
@@ -93,7 +93,7 @@ export default function Post() {
 
     <ul className="space-y-2 mb-6 text-body-lg text-ink-soft">
       <li>· Chronic puffiness or fluid retention around the eyes, particularly if worse in the morning</li>
-      <li>· Prominent fat pads or bulging — the classic "eye bags" that cast their own shadow</li>
+      <li>· Prominent fat pads or bulging, the classic "eye bags" that cast their own shadow</li>
       <li>· Very thin, crepey skin where filler will show through regardless of depth</li>
       <li>· Deep hollowing extending across multiple anatomical zones, which requires more volume than the area can safely accommodate</li>
       <li>· Significant skin laxity or excess lower eyelid skin</li>
@@ -105,17 +105,17 @@ export default function Post() {
     </p>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      I understand this is disappointing to hear. Many patients arrive having researched tear trough filler online, seen beautiful before-and-after photographs, and already decided this is what they want. Part of my role is to explain — kindly but clearly — when the treatment will not deliver what they are hoping for.
+      I understand this is disappointing to hear. Many patients arrive having researched tear trough filler online, seen beautiful before-and-after photographs, and already decided this is what they want. Part of my role is to explain, kindly but clearly, when the treatment will not deliver what they are hoping for.
     </p>
 
     <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">What happens when tear trough filler goes wrong</h2>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      A systematic review of tear trough filler complications found that swelling was the most common delayed issue, occurring in over 40 percent of reported complications, followed by lumps and nodules in around a quarter of cases. The Tyndall effect — that telltale blue-grey tint — and contour irregularities are also frequently reported.
+      A systematic review of tear trough filler complications found that swelling was the most common delayed issue, occurring in over 40 percent of reported complications, followed by lumps and nodules in around a quarter of cases. The Tyndall effect, that telltale blue-grey tint, and contour irregularities are also frequently reported.
     </p>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      Many of these complications can be addressed. Massage helps with some lumps. Hyaluronidase — an enzyme that dissolves hyaluronic acid — can reverse filler that has been placed incorrectly or has migrated. This is one reason I only use HA-based products in the tear trough: they are reversible. If something goes wrong, we have an exit strategy.
+      Many of these complications can be addressed. Massage helps with some lumps. Hyaluronidase, an enzyme that dissolves hyaluronic acid, can reverse filler that has been placed incorrectly or has migrated. This is one reason I only use HA-based products in the tear trough: they are reversible. If something goes wrong, we have an exit strategy.
     </p>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
@@ -125,7 +125,7 @@ export default function Post() {
     <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">How I approach tear trough treatment</h2>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-      When a patient is suitable, I use conservative volumes. Research supports using a maximum of 1ml across both eyes in a single sitting, and in practice I typically use less — published studies report an average of around 0.45ml per side. I use a cannula rather than a needle for this area. While research shows no statistically significant difference in aesthetic outcomes between the two techniques, the cannula reduces the risk of vascular injury, and that matters more to me than marginal efficiency gains.
+      When a patient is suitable, I use conservative volumes. Research supports using a maximum of 1ml across both eyes in a single sitting, and in practice I typically use less, published studies report an average of around 0.45ml per side. I use a cannula rather than a needle for this area. While research shows no statistically significant difference in aesthetic outcomes between the two techniques, the cannula reduces the risk of vascular injury, and that matters more to me than marginal efficiency gains.
     </p>
 
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
@@ -145,7 +145,7 @@ export default function Post() {
     <ul className="space-y-2 mb-6 text-body-lg text-ink-soft">
       <li>· <strong>For skin quality concerns:</strong> <a href="/treatments/profhilo" className="text-gold hover:underline">Profhilo</a> or medical-grade skincare can improve skin texture, hydration, and fine crepiness without adding volume to an area that cannot accommodate it.</li>
       <li>· <strong>For pigmentation:</strong> Targeted skincare ingredients and sun protection address discolouration that filler cannot touch.</li>
-      <li>· <strong>For prominent fat pads or true eye bags:</strong> Lower blepharoplasty — surgical removal or repositioning of fat — is the appropriate treatment. I refer to trusted oculoplastic surgeons when this is the case.</li>
+      <li>· <strong>For prominent fat pads or true eye bags:</strong> Lower blepharoplasty, surgical removal or repositioning of fat, is the appropriate treatment. I refer to trusted oculoplastic surgeons when this is the case.</li>
       <li>· <strong>For fluid retention:</strong> Addressing sleep, salt intake, allergies, and alcohol consumption often makes a visible difference. These are not glamorous interventions, but they work.</li>
     </ul>
 
@@ -189,7 +189,7 @@ export default function Post() {
       <a href="/treatments/profhilo" className="block bg-white border border-gold/20 rounded-lg p-6 hover:border-gold transition-colors">
         <h3 className="font-display italic text-h4 text-charcoal mb-2">Profhilo</h3>
         <p className="text-body text-ink-soft">
-          Skin quality treatment using injectable hyaluronic acid to hydrate and improve laxity — an alternative when filler volume is not the answer.
+          Skin quality treatment using injectable hyaluronic acid to hydrate and improve laxity, an alternative when filler volume is not the answer.
         </p>
       </a>
     </div>

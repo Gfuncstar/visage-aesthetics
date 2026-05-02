@@ -26,7 +26,7 @@ export const blogPosts: BlogPost[] = [
     slug: 'consultation-questions-to-ask',
     category: 'Choosing a clinic',
     title: 'Ten questions to ask at any aesthetics consultation.',
-    excerpt: 'A practical checklist before you let anyone put a needle in your face. The ten questions every aesthetics consultation should answer — and the red flags if they don\'t.',
+    excerpt: 'A practical checklist before you let anyone put a needle in your face. The ten questions every aesthetics consultation should answer, and the red flags if they don\'t.',
     readTime: '8 min read',
     datePublished: '2026-04-26',
     dateModified: '2026-04-26',
@@ -35,7 +35,7 @@ export const blogPosts: BlogPost[] = [
   {
     slug: 'what-is-a-nurse-led-clinic',
     category: 'Choosing a clinic',
-    title: 'What is a nurse-led aesthetics clinic — and why does it matter?',
+    title: 'What is a nurse-led aesthetics clinic, and why does it matter?',
     excerpt: 'In a largely unregulated UK aesthetics industry, "nurse-led" means something specific. What it is, what it isn\'t, and how to verify it.',
     readTime: '8 min read',
     datePublished: '2026-04-26',
@@ -46,7 +46,7 @@ export const blogPosts: BlogPost[] = [
     slug: 'how-long-does-profhilo-last',
     category: 'Skin quality',
     title: 'How long does Profhilo actually last?',
-    excerpt: 'Profhilo lasts 6 to 9 months from a course of two — but the picture is more nuanced than that. The realistic timeline, the variables, and what to expect long-term.',
+    excerpt: 'Profhilo lasts 6 to 9 months from a course of two, but the picture is more nuanced than that. The realistic timeline, the variables, and what to expect long-term.',
     readTime: '7 min read',
     datePublished: '2026-04-26',
     dateModified: '2026-04-26',
@@ -106,7 +106,7 @@ export const blogPosts: BlogPost[] = [
     slug: 'tear-trough-filler-truth',
     category: 'Dermal filler',
     title: "Tear trough filler: when it works and when it really doesn't",
-    excerpt: "Under-eye filler suits a narrow group; for most, the anatomy works against it—here's how to tell which category you fall into.",
+    excerpt: "Under-eye filler suits a narrow group; for most, the anatomy works against it-here's how to tell which category you fall into.",
     readTime: '8 min read',
     datePublished: '2026-04-29',
     dateModified: '2026-04-29',
@@ -126,7 +126,7 @@ export const blogPosts: BlogPost[] = [
     slug: 'anti-wrinkle-aftercare',
     category: "Anti-wrinkle",
     title: "Anti-wrinkle aftercare: the first 24 hours",
-    excerpt: "What you do in the first 24 hours after anti-wrinkle injections can affect how well the toxin binds — here's the hour-by-hour reasoning.",
+    excerpt: "What you do in the first 24 hours after anti-wrinkle injections can affect how well the toxin binds, here's the hour-by-hour reasoning.",
     readTime: "10 min read",
     datePublished: '2026-04-29',
     dateModified: '2026-04-29',
@@ -136,7 +136,7 @@ export const blogPosts: BlogPost[] = [
     slug: 'how-long-does-botox-last',
     category: "Anti-wrinkle",
     title: "How long does Botox actually last?",
-    excerpt: "Most patients see results for three to four months, but your own timeline depends on dose, treatment area and metabolism—here's what the evidence shows.",
+    excerpt: "Most patients see results for three to four months, but your own timeline depends on dose, treatment area and metabolism-here's what the evidence shows.",
     readTime: "10 min read",
     datePublished: '2026-05-01',
     dateModified: '2026-05-01',
@@ -155,7 +155,7 @@ export const blogPosts: BlogPost[] = [
 
 
 
-  // AUTO-BLOG-INSERT — generator appends new posts immediately above this line. Do not delete this marker.
+  // AUTO-BLOG-INSERT, generator appends new posts immediately above this line. Do not delete this marker.
 ]
 
 /** Most recent first */

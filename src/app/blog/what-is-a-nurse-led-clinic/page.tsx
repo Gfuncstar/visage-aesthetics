@@ -5,7 +5,7 @@ import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
 
 const POST = {
   slug: 'what-is-a-nurse-led-clinic',
-  title: 'What is a nurse-led aesthetics clinic — and why does it matter?',
+  title: 'What is a nurse-led aesthetics clinic, and why does it matter?',
   description: 'In a largely unregulated UK aesthetics industry, "nurse-led" means something specific. Bernadette Tobin RGN, MSc explains what it is, what it isn\'t, and how to verify it.',
   datePublished: '2026-04-26',
   dateModified: '2026-04-26',
@@ -42,10 +42,10 @@ export default function NurseLedPost() {
           </Link>
           <span className="hairline hairline-left mb-8 bg-gold" />
           <div className="text-eyebrow text-gold mb-3">Choosing a clinic</div>
-          <h1 className="font-display italic text-hero text-charcoal">What is a nurse-led aesthetics clinic — and why does it matter?</h1>
+          <h1 className="font-display italic text-hero text-charcoal">What is a nurse-led aesthetics clinic, and why does it matter?</h1>
           <p className="mt-6 text-body-lg text-ink-soft">
             &ldquo;Nurse-led&rdquo; is a phrase you see on a lot of clinic websites. In aesthetics it can mean very different
-            things in practice — from a registered nurse with twenty years of clinical experience and an MSc, to a
+            things in practice, from a registered nurse with twenty years of clinical experience and an MSc, to a
             short-course-trained injector with no other clinical background. The difference is enormous, and the UK
             industry currently has very little to stop the latter calling themselves the former.
           </p>
@@ -89,11 +89,11 @@ export default function NurseLedPost() {
             A genuine nurse-led aesthetics clinic should be able to demonstrate all of the following:
           </p>
           <ul className="space-y-2 mb-6 text-body-lg text-ink-soft">
-            <li>· The injecting practitioner is on the <strong>NMC register</strong> — verifiable on the public NMC website using their PIN.</li>
-            <li>· The practitioner has a clinical nursing career outside aesthetics — wards, community, A&E, theatres, or similar — not just a Level 4 aesthetic injector course.</li>
+            <li>· The injecting practitioner is on the <strong>NMC register</strong>, verifiable on the public NMC website using their PIN.</li>
+            <li>· The practitioner has a clinical nursing career outside aesthetics, wards, community, A&E, theatres, or similar, not just a Level 4 aesthetic injector course.</li>
             <li>· They hold full medical indemnity insurance with a recognised UK insurer.</li>
             <li>· They take a documented medical history, document consent, and use clinical-grade record-keeping.</li>
-            <li>· They have <strong>reversal product (hyaluronidase) on site</strong> for HA filler emergencies — and will tell you what they would do if they hit a vessel.</li>
+            <li>· They have <strong>reversal product (hyaluronidase) on site</strong> for HA filler emergencies, and will tell you what they would do if they hit a vessel.</li>
             <li>· They will openly discuss complications and how they would be managed.</li>
             <li>· They will say no when treatment isn&apos;t clinically appropriate, including when you ask for it.</li>
           </ul>
@@ -104,11 +104,11 @@ export default function NurseLedPost() {
 
           <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">Why a clinical background outside aesthetics matters</h2>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-            The aesthetic injecting bit of the job is — surprisingly — the smallest part. The much harder part is
+            The aesthetic injecting bit of the job is, surprisingly, the smallest part. The much harder part is
             recognising when something is going wrong. Vascular occlusions, allergic reactions, vasovagal syncope,
             anaphylaxis: these are clinical emergencies. They happen in aesthetics, rarely but predictably. A
-            practitioner who has only ever worked in aesthetics — who has never seen a sick patient, never run a
-            cardiac arrest, never assessed a deteriorating airway — is not equipped to spot these things or respond.
+            practitioner who has only ever worked in aesthetics, who has never seen a sick patient, never run a
+            cardiac arrest, never assessed a deteriorating airway, is not equipped to spot these things or respond.
           </p>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
             A nurse with a long clinical career outside aesthetics has muscle memory for clinical alertness. They
@@ -120,12 +120,12 @@ export default function NurseLedPost() {
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
             Most aesthetic nurse practitioners in the UK hold a Level 4 or Level 5 aesthetic-injectables qualification.
             These are valid, sit above the minimum, and represent reasonable training. A Level 7 MSc in Advanced
-            Practice — what Bernadette holds — is the highest postgraduate qualification a UK nurse can hold. It
+            Practice, what Bernadette holds, is the highest postgraduate qualification a UK nurse can hold. It
             covers advanced clinical assessment, complex decision-making, evidence-based practice and prescribing-
             level competencies.
           </p>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-            In aesthetics, this matters because the sharper end of the job is not the injection itself — it is
+            In aesthetics, this matters because the sharper end of the job is not the injection itself, it is
             deciding whether to inject at all, and what, and where, and to what extent. An MSc-level practitioner has
             been trained to make complex clinical decisions and to document them.
           </p>
@@ -135,15 +135,15 @@ export default function NurseLedPost() {
             A few minutes&apos; research will tell you almost everything you need:
           </p>
           <ul className="space-y-2 mb-6 text-body-lg text-ink-soft">
-            <li>· <strong>NMC public register</strong> — search by name. You will see active registration status, qualifications and any conditions.</li>
-            <li>· <strong>Save Face register</strong> — voluntary, but practitioners on it have been independently verified.</li>
-            <li>· <strong>JCCP register</strong> (Joint Council for Cosmetic Practitioners) — voluntary, with similar verification.</li>
+            <li>· <strong>NMC public register</strong>, search by name. You will see active registration status, qualifications and any conditions.</li>
+            <li>· <strong>Save Face register</strong>, voluntary, but practitioners on it have been independently verified.</li>
+            <li>· <strong>JCCP register</strong> (Joint Council for Cosmetic Practitioners), voluntary, with similar verification.</li>
             <li>· <strong>Ask for the NMC pin number</strong> in the consultation. A genuine nurse will give it freely; a non-nurse won&apos;t have one.</li>
             <li>· <strong>Ask who else does treatments</strong>. &ldquo;Nurse-led&rdquo; should mean the nurse does the treatments, not that there is a nurse somewhere on staff.</li>
             <li>· <strong>Ask about indemnity insurance</strong>. They should name their insurer without hesitation.</li>
           </ul>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-            For reference, Bernadette&apos;s NMC PIN is <strong>05G1755E</strong> — and you can verify it on the
+            For reference, Bernadette&apos;s NMC PIN is <strong>05G1755E</strong>, and you can verify it on the
             public NMC register at any time. Visage Aesthetics&apos;s full credential reference is documented at <Link href="/about/qualifications" className="underline decoration-gold/40 hover:decoration-gold-deep text-charcoal">/about/qualifications</Link>.
           </p>
 
@@ -154,11 +154,11 @@ export default function NurseLedPost() {
             clinician and a rapidly-trained injector becomes the difference between a managed problem and an
             irreversible one. Filler can be dissolved if the practitioner has hyaluronidase on site and knows when to
             use it. Vascular occlusions can be reversed if recognised within hours. The window is narrow and the
-            consequences if it closes are not cosmetic — they include skin necrosis and, in rare cases, blindness.
+            consequences if it closes are not cosmetic, they include skin necrosis and, in rare cases, blindness.
           </p>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-            This is why nurse-led — actually nurse-led, by an actual registered nurse with actual clinical experience
-            — matters. Most of the time you will not need any of it. But when you do, it will be the only thing that
+            This is why nurse-led, actually nurse-led, by an actual registered nurse with actual clinical experience
+            matters. Most of the time you will not need any of it. But when you do, it will be the only thing that
             does.
           </p>
 
@@ -169,7 +169,7 @@ export default function NurseLedPost() {
             </p>
             <p className="text-body text-ink-soft mb-5">
               NMC PIN 05G1755E (verifiable on the public register). MSc Advanced Practice (Level 7).
-              Royal College of Nursing member. Best Non-Surgical Aesthetics Clinic 2026 — Essex.
+              Royal College of Nursing member. Best Non-Surgical Aesthetics Clinic 2026, Essex.
               Free, unhurried consultation. No pressure.
             </p>
             <Link href="/contact" className="btn btn-primary">

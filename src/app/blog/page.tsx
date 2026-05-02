@@ -6,12 +6,12 @@ import { blogPostsByDate } from '@/lib/blog-posts'
 
 export const metadata: Metadata = {
   title: 'Aesthetics Insights & Advice from a Registered Nurse',
-  description: "Honest, evidence-based aesthetic-treatment guidance from Bernadette Tobin RGN, MSc — registered nurse, NMC PIN 05G1755E. New articles every two days. Best Non-Surgical Aesthetics Clinic 2026, Essex.",
+  description: "Honest, evidence-based aesthetic-treatment guidance from Bernadette Tobin RGN, MSc, registered nurse, NMC PIN 05G1755E. New articles every two days. Best Non-Surgical Aesthetics Clinic 2026, Essex.",
   alternates: { canonical: '/blog' },
   openGraph: {
     type: 'website',
     title: 'Aesthetics Insights from Visage Aesthetics, Braintree',
-    description: 'Plain-English notes on aesthetic treatments — written by Bernadette Tobin RGN, MSc.',
+    description: 'Plain-English notes on aesthetic treatments, written by Bernadette Tobin RGN, MSc.',
     url: 'https://www.vaclinic.co.uk/blog',
   },
 }
@@ -31,7 +31,7 @@ const blogJsonLd = {
     {
       '@type': 'Blog',
       '@id': `${SITE}/blog#blog`,
-      name: 'Visage Aesthetics — Insights & Advice',
+      name: 'Visage Aesthetics, Insights & Advice',
       description:
         'Plain-English, evidence-based aesthetic-treatment guidance from Bernadette Tobin RGN, MSc, founder of Visage Aesthetics. New posts every 2 days.',
       url: `${SITE}/blog`,
@@ -117,12 +117,12 @@ export default function BlogPage() {
             </h1>
             <p className="mt-7 text-body-lg text-ink-soft max-w-2xl leading-relaxed">
               Honest, evidence-based aesthetic-treatment guidance from <Link href="/about/qualifications" className="underline decoration-gold/40 hover:decoration-gold-deep text-charcoal">Bernadette Tobin RGN, MSc</Link>
-              {' '}— a registered nurse with twenty years of clinical experience and an MSc in Advanced Practice (Level 7).
+              {' '}- a registered nurse with twenty years of clinical experience and an MSc in Advanced Practice (Level 7).
               No marketing spin, no scare tactics, no hidden agenda. Just clear answers to the questions people actually
               ask in the consultation room.
             </p>
             <p className="mt-5 text-body text-stone max-w-2xl leading-relaxed">
-              Visage Aesthetics was named <strong className="text-charcoal font-medium">Best Non-Surgical Aesthetics Clinic 2026 — Essex</strong>{' '}
+              Visage Aesthetics was named <strong className="text-charcoal font-medium">Best Non-Surgical Aesthetics Clinic 2026, Essex</strong>{' '}
               by the Health, Beauty &amp; Wellness Awards. Bernadette is also a 2026 nominee for Educator of the Year.
               {' '}<Link href="/awards" className="underline decoration-gold/40 hover:decoration-gold-deep">More on awards →</Link>
             </p>
@@ -220,7 +220,7 @@ export default function BlogPage() {
         </section>
       )}
 
-      {/* INTERNAL LINK BLOCK — feeds the funnel + crawl depth */}
+      {/* INTERNAL LINK BLOCK, feeds the funnel + crawl depth */}
       <section className="py-6 md:py-9 bg-cream-soft">
         <div className="max-w-[1100px] mx-auto px-5 md:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
           <div>
@@ -229,7 +229,7 @@ export default function BlogPage() {
             <h2 className="font-display text-h2 text-charcoal mb-5">Why I write this blog.</h2>
             <p className="text-body-lg text-ink-soft leading-relaxed">
               Most aesthetic-treatment information online is written by marketing teams, not practitioners.
-              I write these articles myself, in the same voice you would hear if you came in for a consultation —
+              I write these articles myself, in the same voice you would hear if you came in for a consultation,
               calm, conservative, clinical. The aim is to help you make a properly-informed decision before any
               syringe is opened.
             </p>

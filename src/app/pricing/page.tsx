@@ -119,7 +119,7 @@ const rows: Row[] = [
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'PriceSpecification',
-  name: 'Visage Aesthetics — Treatment Prices',
+  name: 'Visage Aesthetics, Treatment Prices',
   url: 'https://www.vaclinic.co.uk/pricing',
   priceCurrency: 'GBP',
 }
@@ -152,7 +152,7 @@ export default function PricingPage() {
           <h1 className="font-display italic text-hero text-charcoal max-w-3xl">Honest, transparent prices.</h1>
           <p className="mt-6 text-body-lg text-ink-soft max-w-2xl">
             No hidden costs. No pressure to upgrade. Every treatment plan starts with a free, unhurried
-            consultation — and only goes ahead if it&apos;s genuinely right for you.
+            consultation, and only goes ahead if it&apos;s genuinely right for you.
           </p>
         </div>
       </section>
@@ -190,11 +190,11 @@ export default function PricingPage() {
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             <div className="border border-line/30 rounded-md p-6">
               <div className="text-eyebrow text-gold mb-3">Free consultation</div>
-              <p className="text-body text-ink-soft">Every consultation is free. We discuss what you want, what&apos;s realistic, and what won&apos;t work — before you commit to anything.</p>
+              <p className="text-body text-ink-soft">Every consultation is free. We discuss what you want, what&apos;s realistic, and what won&apos;t work, before you commit to anything.</p>
             </div>
             <div className="border border-line/30 rounded-md p-6">
               <div className="text-eyebrow text-gold mb-3">Two-week review</div>
-              <p className="text-body text-ink-soft">Anti-wrinkle treatments include a complimentary review at two weeks to fine-tune any unevenness — included in the price.</p>
+              <p className="text-body text-ink-soft">Anti-wrinkle treatments include a complimentary review at two weeks to fine-tune any unevenness, included in the price.</p>
             </div>
             <div className="border border-line/30 rounded-md p-6">
               <div className="text-eyebrow text-gold mb-3">No pressure</div>

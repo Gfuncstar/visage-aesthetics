@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/about/qualifications' },
   openGraph: {
     title: 'Qualifications & Credentials | Bernadette Tobin RGN, MSc',
-    description: 'Full credential reference for Bernadette Tobin — registered nurse, MSc Advanced Practice (Level 7), NMC PIN 05G1755E.',
+    description: 'Full credential reference for Bernadette Tobin, registered nurse, MSc Advanced Practice (Level 7), NMC PIN 05G1755E.',
     url: 'https://www.vaclinic.co.uk/about/qualifications',
   },
 }
@@ -38,12 +38,12 @@ const jsonLd = {
       hasCredential: [
         { '@type': 'EducationalOccupationalCredential', credentialCategory: 'professional registration', name: 'NMC Registered Nurse', identifier: '05G1755E' },
         { '@type': 'EducationalOccupationalCredential', credentialCategory: 'degree', name: 'MSc Advanced Practice (Level 7)' },
-        { '@type': 'EducationalOccupationalCredential', credentialCategory: 'continuing professional development', name: 'Aesthetic Injectables — Advanced Techniques' },
+        { '@type': 'EducationalOccupationalCredential', credentialCategory: 'continuing professional development', name: 'Aesthetic Injectables, Advanced Techniques' },
       ],
       worksFor: { '@type': 'MedicalBusiness', name: 'Visage Aesthetics', url: 'https://www.vaclinic.co.uk/' },
       award: [
-        'Best Non-Surgical Aesthetics Clinic 2026 — Essex (Health, Beauty & Wellness Awards)',
-        'Educator of the Year 2026 — Nominee (Beauty & Aesthetics Awards)',
+        'Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards)',
+        'Educator of the Year 2026, Nominee (Beauty & Aesthetics Awards)',
       ],
     },
   ],
@@ -54,7 +54,7 @@ const sections: { Icon: typeof GraduationCap; title: string; lines: string[] }[]
     Icon: Stethoscope,
     title: 'Professional registration',
     lines: [
-      'Registered General Nurse (RGN) — Nursing and Midwifery Council',
+      'Registered General Nurse (RGN), Nursing and Midwifery Council',
       'NMC PIN: 05G1755E',
       'Verifiable on the NMC public register at nmc.org.uk',
       'Continuous live registration since the start of clinical practice',
@@ -64,8 +64,8 @@ const sections: { Icon: typeof GraduationCap; title: string; lines: string[] }[]
     Icon: GraduationCap,
     title: 'Academic qualifications',
     lines: [
-      'MSc Advanced Practice (Level 7) — the highest postgraduate level a UK nurse can hold',
-      'BSc — undergraduate nursing qualification',
+      'MSc Advanced Practice (Level 7), the highest postgraduate level a UK nurse can hold',
+      'BSc, undergraduate nursing qualification',
       'Postgraduate certifications across aesthetic injectables, advanced facial anatomy, and complications management',
     ],
   },
@@ -73,7 +73,7 @@ const sections: { Icon: typeof GraduationCap; title: string; lines: string[] }[]
     Icon: ShieldCheck,
     title: 'Professional bodies',
     lines: [
-      'Member of the Royal College of Nursing (RCN) — the largest nursing union and professional body in the UK',
+      'Member of the Royal College of Nursing (RCN), the largest nursing union and professional body in the UK',
       'Active continuing professional development (CPD) record maintained in accordance with NMC revalidation requirements',
     ],
   },
@@ -98,15 +98,15 @@ const sections: { Icon: typeof GraduationCap; title: string; lines: string[] }[]
       'Full medical indemnity insurance through a regulated UK insurer',
       'Documented consent process for every treatment, signed before any product is administered',
       'Adverse event protocols and reversal products kept on site for hyaluronic acid filler',
-      'Direct phone access for clients between appointments — never a phone tree, never a holding line',
+      'Direct phone access for clients between appointments, never a phone tree, never a holding line',
     ],
   },
   {
     Icon: Award,
     title: 'Recognition',
     lines: [
-      'Best Non-Surgical Aesthetics Clinic 2026 — Essex (Health, Beauty & Wellness Awards)',
-      'Educator of the Year 2026 — Nominee (Beauty & Aesthetics Awards)',
+      'Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards)',
+      'Educator of the Year 2026, Nominee (Beauty & Aesthetics Awards)',
     ],
   },
   {
@@ -114,7 +114,7 @@ const sections: { Icon: typeof GraduationCap; title: string; lines: string[] }[]
     title: 'Clinical experience',
     lines: [
       '20+ years across acute medical wards, community nursing, and advanced clinical practice',
-      'Single-practitioner private clinic model — every consultation, treatment and review is performed personally by Bernadette, never delegated',
+      'Single-practitioner private clinic model, every consultation, treatment and review is performed personally by Bernadette, never delegated',
       'One client in the room at a time, by appointment only',
     ],
   },
@@ -142,7 +142,7 @@ export default function QualificationsPage() {
             Qualifications, in detail.
           </h1>
           <p className="mt-6 text-body-lg text-ink-soft max-w-2xl">
-            Aesthetics in the UK is largely unregulated — anyone, with any level of training, can
+            Aesthetics in the UK is largely unregulated, anyone, with any level of training, can
             legally inject. This page is the full reference for who treats you at Visage, what
             qualifications they hold, and how every claim on this site can be independently verified.
           </p>
@@ -206,7 +206,7 @@ export default function QualificationsPage() {
           <p className="mt-5 text-body-lg text-ink-soft">
             NMC PIN <span className="text-charcoal font-medium">05G1755E</span> can be checked at any
             time on the public NMC register. Insurance documentation, training certificates and
-            full CPD records are available on request at consultation — bring identification and
+            full CPD records are available on request at consultation, bring identification and
             we will walk through whatever you would like to see.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">

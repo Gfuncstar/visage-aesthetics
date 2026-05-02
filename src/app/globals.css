@@ -478,7 +478,7 @@ section.reveal { opacity: 1; transform: none; transition: none; }
   box-shadow: none;
 }
 
-/* Hero monogram tone — subtle in light mode, brightened in dark */
+/* Hero monogram tone, subtle in light mode, brightened in dark */
 .hero-monogram img { opacity: 0.55; mix-blend-mode: multiply; }
 
 /* Hero word rise animation */

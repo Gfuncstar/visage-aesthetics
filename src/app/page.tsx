@@ -9,7 +9,7 @@ import { getGoogleReviews } from '@/lib/google-reviews'
 
 export const metadata: Metadata = {
   title: 'Visage Aesthetics | Award-Winning Nurse-Led Clinic, Braintree',
-  description: "Best Non-Surgical Aesthetics Clinic 2026 — Essex. Anti-wrinkle, dermal filler, Profhilo and more by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Free consultation, naturally subtle results.",
+  description: "Best Non-Surgical Aesthetics Clinic 2026, Essex. Anti-wrinkle, dermal filler, Profhilo and more by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Free consultation, naturally subtle results.",
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
@@ -79,8 +79,8 @@ export default async function Home() {
         openingHoursSpecification: [{ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], opens: '09:00', closes: '18:00' }],
         sameAs: ['https://www.instagram.com/visageaestheticclinic'],
         award: [
-          'Best Non-Surgical Aesthetics Clinic 2026 — Essex (Health, Beauty & Wellness Awards)',
-          'Educator of the Year 2026 — Nominee (Beauty & Aesthetics Awards)',
+          'Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards)',
+          'Educator of the Year 2026, Nominee (Beauty & Aesthetics Awards)',
         ],
         hasCredential: [
           { '@type': 'EducationalOccupationalCredential', credentialCategory: 'professional registration', name: 'NMC Registered Nurse', identifier: '05G1755E' },
@@ -121,7 +121,7 @@ export default async function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }} />
       <ScrollScrubHero />
 
-      {/* GOOGLE REVIEWS — replaces the founder Vision section */}
+      {/* GOOGLE REVIEWS, replaces the founder Vision section */}
       <GoogleReviews />
 
       {/* APPROACH */}
@@ -171,14 +171,14 @@ export default async function Home() {
               <div className="reveal">
                 <h2 className="text-h1 text-charcoal">A different kind of clinic.</h2>
                 <p className="text-body-lg mt-8 max-w-[540px]">
-                  A small, private clinic on Friars Lane — quiet by design, with a single appointment in the room at a time. No conveyor belt, no hard sell. Every treatment plan begins with a proper consultation, and only goes ahead if it&apos;s genuinely right for you.
+                  A small, private clinic on Friars Lane, quiet by design, with a single appointment in the room at a time. No conveyor belt, no hard sell. Every treatment plan begins with a proper consultation, and only goes ahead if it&apos;s genuinely right for you.
                 </p>
               </div>
               <ul className="brand-bullets reveal-stagger mt-20">
                 <li>Medically led, ethically delivered</li>
                 <li>Bespoke treatment planning</li>
                 <li>Premium product partners</li>
-                <li>Strictly private &mdash; one client at a time</li>
+                <li>Strictly private , one client at a time</li>
               </ul>
               <div className="mt-10">
                 <Link href="/about" className="btn btn-secondary">

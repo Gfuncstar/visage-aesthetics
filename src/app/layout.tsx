@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     template: '%s | Visage Aesthetics',
   },
   description:
-    "Best Non-Surgical Aesthetics Clinic 2026 — Essex. A private nurse-led clinic on Friars Lane, Braintree. Naturally subtle treatments by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Strictly by appointment.",
+    "Best Non-Surgical Aesthetics Clinic 2026, Essex. A private nurse-led clinic on Friars Lane, Braintree. Naturally subtle treatments by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Strictly by appointment.",
   keywords: ['private aesthetics clinic essex', 'aesthetics braintree', 'botox essex', 'dermal filler braintree', 'profhilo essex', 'nurse-led aesthetics', 'visage aesthetics', 'discreet clinic braintree'],
   alternates: {
     canonical: '/',
@@ -41,13 +41,13 @@ export const metadata: Metadata = {
     locale: 'en_GB',
     siteName: 'Visage Aesthetics',
     title: "Visage Aesthetics | A private nurse-led clinic in Braintree.",
-    description: "A small, private aesthetics clinic on Friars Lane, Braintree. Led by Bernadette Tobin, RGN MSc — strictly by appointment.",
+    description: "A small, private aesthetics clinic on Friars Lane, Braintree. Led by Bernadette Tobin, RGN MSc, strictly by appointment.",
     url: 'https://www.vaclinic.co.uk',
   },
   twitter: {
     card: 'summary_large_image',
     title: "Visage Aesthetics | A private nurse-led clinic in Braintree.",
-    description: "A small, private aesthetics clinic on Friars Lane, Braintree. Led by Bernadette Tobin, RGN MSc — strictly by appointment.",
+    description: "A small, private aesthetics clinic on Friars Lane, Braintree. Led by Bernadette Tobin, RGN MSc, strictly by appointment.",
   },
   robots: {
     index: true,
@@ -87,8 +87,8 @@ const jsonLd = {
   openingHours: ['Tu-Sa 09:00-18:00'],
   medicalSpecialty: 'Aesthetic Medicine',
   award: [
-    'Best Non-Surgical Aesthetics Clinic 2026 — Essex (Health, Beauty & Wellness Awards)',
-    'Educator of the Year 2026 — Nominee (Beauty & Aesthetics Awards)',
+    'Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards)',
+    'Educator of the Year 2026, Nominee (Beauty & Aesthetics Awards)',
   ],
   employee: {
     '@type': 'Person',
@@ -117,7 +117,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="dns-prefetch" href="https://www.openstreetmap.org" />
         <link rel="dns-prefetch" href="https://visage-aesthetics.book.app" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="alternate" type="application/rss+xml" title="Visage Aesthetics — Insights & Advice" href="/blog/rss.xml" />
+        <link rel="alternate" type="application/rss+xml" title="Visage Aesthetics, Insights & Advice" href="/blog/rss.xml" />
         <link rel="search" type="application/opensearchdescription+xml" title="Visage Aesthetics" href="/opensearch.xml" />
       </head>
       <body>

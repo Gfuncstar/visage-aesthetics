@@ -11,7 +11,7 @@ export default function NewsletterSignup() {
         <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold tracking-widest uppercase mb-4" style={{ background: 'rgba(176,155,191,0.2)', color: '#8B6FA0' }}>Newsletter</span>
         <h3 className="font-display text-h3 text-[#1C1C1A] mb-2">Stay in the know</h3>
         <p className="text-[#6B6660] text-sm mb-6">
-          Exclusive offers, skincare advice and clinic news — straight to your inbox.
+          Exclusive offers, skincare advice and clinic news, straight to your inbox.
         </p>
         {submitted ? (
           <p className="text-[#8B6FA0] font-semibold">Thank you! We&apos;ll be in touch soon.</p>
