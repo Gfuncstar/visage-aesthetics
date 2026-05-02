@@ -129,6 +129,14 @@
       "targetKeywords": ["vitamin b12 injection", "b12 deficiency", "energy injections"],
       "angle": "The science of injectable vs oral, who genuinely benefits, who's wasting money.",
       "treatment": "/treatments/vitamin-b12"
+    },
+    {
+      "slug": "exercise-and-botox-results",
+      "title": "Exercise after Botox: how it affects your results",
+      "intent": "informational",
+      "targetKeywords": ["exercise after botox", "gym after botox", "running after botox", "workout after anti-wrinkle"],
+      "angle": "The 24-48 hour rule and why it exists (raised heart rate, blood flow at the injection site, theoretical migration of toxin). Specific guidance on when to resume light walking, weights, HIIT, hot yoga and swimming. Whether high-frequency cardio shortens Botox duration over time, with the actual evidence. Practical timeline rather than vague reassurance.",
+      "treatment": "/treatments/anti-wrinkle-injections"
     }
   ],
   "newsAngles": [
