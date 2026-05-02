@@ -69,8 +69,10 @@ async function main() {
   console.log(`News context: ${newsContext.length} chars`)
 
   // Phase 2: draft the post
-  const draft = await draftPost(client, topic, voiceGuide, newsContext)
-  console.log(`Draft: ${draft.length} chars`)
+  const rawDraft = await draftPost(client, topic, voiceGuide, newsContext)
+  const draft = scrubDashes(rawDraft)
+  const dashesRemoved = (rawDraft.match(/[—–]/g) ?? []).length
+  console.log(`Draft: ${draft.length} chars (scrubbed ${dashesRemoved} em/en-dashes)`)
 
   // Phase 3: write the file
   const today = new Date().toISOString().slice(0, 10)
@@ -242,7 +244,19 @@ ${body}
 }
 
 function autoDescription(topic: Topic): string {
-  return `${topic.title} — written by Bernadette Tobin RGN, MSc Advanced Practice. Award-winning nurse-led clinic in Braintree, Essex.`.slice(0, 160)
+  return `${topic.title}, written by Bernadette Tobin RGN, MSc Advanced Practice. Award-winning nurse-led clinic in Braintree, Essex.`.slice(0, 160)
+}
+
+/**
+ * Strip em-dashes and en-dashes from any model output before it touches disk.
+ * Hard brand rule: em-dashes are an AI-tell and must never ship in published copy.
+ * Replacement strategy: an em/en dash flanked by spaces (sentence-level) becomes a comma+space;
+ * one without spaces (e.g. inside a hyphenated compound the model invented) becomes a hyphen.
+ */
+function scrubDashes(input: string): string {
+  return input
+    .replace(/\s+[—–]\s+/g, ', ')
+    .replace(/[—–]/g, '-')
 }
 
 async function summarise(client: Anthropic, topic: Topic, draft: string): Promise<string> {
