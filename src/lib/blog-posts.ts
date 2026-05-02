@@ -142,6 +142,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-05-01',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'exercise-and-botox-results',
+    category: "Anti-wrinkle",
+    title: "Exercise after Botox: how it affects your results",
+    excerpt: "Understanding when you can safely return to the gym after anti-wrinkle injections, and why increased blood flow in those first 24 hours matters.",
+    readTime: "9 min read",
+    datePublished: '2026-05-02',
+    dateModified: '2026-05-02',
+    image: '/images/og-home.jpg',
+  },
+
 
 
   // AUTO-BLOG-INSERT — generator appends new posts immediately above this line. Do not delete this marker.
