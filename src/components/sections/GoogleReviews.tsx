@@ -46,7 +46,7 @@ export default async function GoogleReviews() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-px reveal-stagger" style={{ background: '#D9CDBE', border: '1px solid #D9CDBE' }}>
-          {data.reviews.slice(0, 6).map((r, i) => (
+          {data.reviews.slice(0, 3).map((r, i) => (
             <GoogleReviewCard
               key={i}
               author={r.author}

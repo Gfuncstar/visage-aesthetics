@@ -1,7 +1,7 @@
 import { Star, Award, Stethoscope, Clock, ShieldCheck } from 'lucide-react'
 
 const signals = [
-  { Icon: Star, label: '5.0 Google rating', sub: '50+ reviews', filled: true },
+  { Icon: Star, label: '5.0 Google rating', sub: '60+ reviews', filled: true },
   { Icon: Award, label: 'MSc Advanced Practice', sub: 'University qualified' },
   { Icon: Stethoscope, label: 'RN Registered Nurse', sub: 'NMC regulated' },
   { Icon: Clock, label: '20+ years experience', sub: 'Clinical expertise' },

@@ -228,37 +228,34 @@ section.reveal { opacity: 1; transform: none; transition: none; }
 /* ---------- Card minimal grid ---------- */
 .minimal-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 1px;
   background: #D9CDBE;
   border: 1px solid #D9CDBE;
 }
 .minimal-card {
   background: #F5F0EC;
-  padding: 22px 28px;
+  padding: 20px 18px;
   transition: background 0.6s var(--ease);
   position: relative;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 0;
+  min-height: 180px;
 }
 .minimal-card:hover { background: #FAF6F2; }
 .minimal-card .card-arrow {
   margin-top: 14px;
-  width: 32px;
+  width: 28px;
   height: 1px;
   background: #8A807D;
   transition: width 0.5s var(--ease), background 0.5s var(--ease);
 }
-.minimal-card:hover .card-arrow { width: 56px; background: #8C6F47; }
+.minimal-card:hover .card-arrow { width: 48px; background: #8C6F47; }
 .minimal-card h3 { transition: color 0.4s var(--ease); }
 .minimal-card:hover h3 { color: #8C6F47; }
 
-@media (min-width: 720px) {
-  .minimal-grid { grid-template-columns: 1fr 1fr; }
-}
 @media (min-width: 1024px) {
   .minimal-grid { grid-template-columns: repeat(3, 1fr); }
   .minimal-card { padding: 56px 40px; min-height: 280px; }
