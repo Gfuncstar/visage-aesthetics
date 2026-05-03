@@ -152,6 +152,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-05-02',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'vitamin-b12-injections-when-they-work',
+    category: "Wellness",
+    title: "Vitamin B12 injections: when they actually work",
+    excerpt: "B12 injections are essential for some and unnecessary for most—here's how to tell which applies to you.",
+    readTime: "9 min read",
+    datePublished: '2026-05-03',
+    dateModified: '2026-05-03',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
