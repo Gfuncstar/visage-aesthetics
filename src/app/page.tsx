@@ -63,6 +63,7 @@ export default async function Home() {
         telephone: '+44 7931 395246',
         email: 'info@vaclinic.co.uk',
         priceRange: '££',
+        medicalSpecialty: 'Aesthetic Medicine',
         address: {
           '@type': 'PostalAddress',
           streetAddress: '17A Friars Lane',
@@ -78,16 +79,30 @@ export default async function Home() {
           { '@type': 'City', name: 'Colchester' },
           { '@type': 'AdministrativeArea', name: 'Essex' },
         ],
-        openingHoursSpecification: [{ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], opens: '09:00', closes: '18:00' }],
+        openingHoursSpecification: [{
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: ['Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+          opens: '09:00',
+          closes: '18:00',
+          description: 'Strictly by appointment',
+        }],
         sameAs: ['https://www.instagram.com/visageaestheticclinic'],
         award: [
           'Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards)',
           'Educator of the Year 2026, Nominee (Beauty & Aesthetics Awards)',
         ],
-        hasCredential: [
-          { '@type': 'EducationalOccupationalCredential', credentialCategory: 'professional registration', name: 'NMC Registered Nurse', identifier: '05G1755E' },
-          { '@type': 'EducationalOccupationalCredential', credentialCategory: 'degree', name: 'MSc Advanced Practice (Level 7)' },
-        ],
+        founder: {
+          '@type': 'Person',
+          '@id': 'https://www.vaclinic.co.uk/#bernadette',
+          name: 'Bernadette Tobin',
+          jobTitle: 'Founder & Lead Practitioner',
+          honorificSuffix: 'RGN, MSc',
+          worksFor: { '@id': 'https://www.vaclinic.co.uk/#org' },
+          hasCredential: [
+            { '@type': 'EducationalOccupationalCredential', credentialCategory: 'professional registration', name: 'NMC Registered Nurse', identifier: '05G1755E' },
+            { '@type': 'EducationalOccupationalCredential', credentialCategory: 'degree', name: 'MSc Advanced Practice (Level 7)' },
+          ],
+        },
         aggregateRating: {
           '@type': 'AggregateRating',
           ratingValue: reviews.rating.toFixed(1),
@@ -95,24 +110,38 @@ export default async function Home() {
           bestRating: '5',
           worstRating: '1',
         },
+        review: reviews.reviews.slice(0, 3).map((r) => ({
+          '@type': 'Review',
+          author: { '@type': 'Person', name: r.author },
+          reviewRating: { '@type': 'Rating', ratingValue: r.rating, bestRating: 5, worstRating: 1 },
+          reviewBody: r.text,
+          itemReviewed: { '@id': 'https://www.vaclinic.co.uk/#org' },
+        })),
         hasOfferCatalog: {
           '@type': 'OfferCatalog',
           name: 'Visage Aesthetics treatment menu',
-          itemListElement: treatments.map((t) => ({
-            '@type': 'Offer',
-            itemOffered: {
-              '@type': 'MedicalProcedure',
-              name: t.name,
-              description: t.tagline,
+          itemListElement: treatments.map((t) => {
+            const numericPrice = t.price.replace(/[^\d]/g, '')
+            return {
+              '@type': 'Offer',
+              itemOffered: {
+                '@type': 'MedicalProcedure',
+                name: t.name,
+                description: t.tagline,
+                url: `https://www.vaclinic.co.uk${t.href}`,
+                procedureType: 'https://schema.org/NoninvasiveProcedure',
+              },
+              ...(numericPrice
+                ? {
+                    price: numericPrice,
+                    priceSpecification: { '@type': 'PriceSpecification', price: t.price, priceCurrency: 'GBP' },
+                  }
+                : {}),
+              priceCurrency: 'GBP',
               url: `https://www.vaclinic.co.uk${t.href}`,
-              procedureType: 'https://schema.org/NoninvasiveProcedure',
-            },
-            price: t.price.replace(/[^\d]/g, ''),
-            priceCurrency: 'GBP',
-            priceSpecification: { '@type': 'PriceSpecification', price: t.price, priceCurrency: 'GBP' },
-            url: `https://www.vaclinic.co.uk${t.href}`,
-            availability: 'https://schema.org/InStock',
-          })),
+              availability: 'https://schema.org/InStock',
+            }
+          }),
         },
       },
     ],

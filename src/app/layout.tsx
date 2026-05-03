@@ -70,6 +70,7 @@ export const viewport = {
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'MedicalClinic',
+  '@id': 'https://www.vaclinic.co.uk/#org',
   name: 'Visage Aesthetics',
   url: 'https://www.vaclinic.co.uk',
   description: 'Nurse-led aesthetics clinic in Braintree, Essex',
@@ -94,13 +95,12 @@ const jsonLd = {
     '@type': 'Person',
     name: 'Bernadette Tobin',
     jobTitle: 'Registered Nurse, MSc Advanced Practice',
-    description: 'Registered nurse (NMC PIN 05G1755E) with MSc Advanced Practice (Level 7) and 20+ years clinical experience. Member of the Royal College of Nursing.',
+    description: 'Registered nurse (NMC PIN 05G1755E) with MSc Advanced Practice (Level 7) and 20+ years clinical experience.',
     identifier: [
       { '@type': 'PropertyValue', propertyID: 'NMC PIN', value: '05G1755E' },
     ],
     memberOf: [
       { '@type': 'Organization', name: 'Nursing and Midwifery Council', url: 'https://www.nmc.org.uk/' },
-      { '@type': 'Organization', name: 'Royal College of Nursing', url: 'https://www.rcn.org.uk/' },
     ],
     hasCredential: [
       { '@type': 'EducationalOccupationalCredential', credentialCategory: 'degree', name: 'MSc Advanced Practice (Level 7)' },
