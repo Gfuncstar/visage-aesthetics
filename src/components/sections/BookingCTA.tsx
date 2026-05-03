@@ -1,12 +1,12 @@
 import { BOOKING_LINK_PROPS } from '@/lib/booking'
 
-export default function BookingCTA() {
+export default function BookingCTA({ sectionNumber = '06' }: { sectionNumber?: string } = {}) {
   return (
     <section style={{ background: '#1F1B1A', color: '#F5F0EC', padding: 'var(--section-y) var(--pad-x)' }}>
       <div className="max-w-[820px] mx-auto">
         <div className="section-num mb-8" style={{ color: 'rgba(245, 240, 236, 0.55)' }}>
           <span className="hairline" style={{ background: 'rgba(245, 240, 236, 0.4)' }} />
-          06 &nbsp; Begin
+          {sectionNumber} &nbsp; Begin
         </div>
         <h2 className="text-h1" style={{ color: '#F5F0EC' }}>
           Ready when you are.

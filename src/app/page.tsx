@@ -3,7 +3,9 @@ import Link from 'next/link'
 import ScrollScrubHero from '@/components/sections/ScrollScrubHero'
 import BookingCTA from '@/components/sections/BookingCTA'
 import GoogleReviews from '@/components/sections/GoogleReviews'
+import StickyBookingBar from '@/components/layout/StickyBookingBar'
 import AutoplayVideo from '@/components/ui/AutoplayVideo'
+import Accordion from '@/components/ui/Accordion'
 import { treatments } from '@/lib/treatments'
 import { getGoogleReviews } from '@/lib/google-reviews'
 
@@ -263,7 +265,107 @@ export default async function Home() {
         </div>
       </section>
 
-      <BookingCTA />
+      {/* WHY NURSE-LED MATTERS */}
+      <section style={{ background: '#EFE8E0', padding: 'var(--section-y) var(--pad-x)' }}>
+        <div className="max-w-[1280px] mx-auto">
+          <div className="section-num reveal mb-12">06 &nbsp; Why nurse-led matters</div>
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
+            <div className="md:col-span-5">
+              <h2 className="text-h1 text-charcoal reveal">The training behind the treatment.</h2>
+            </div>
+            <div className="md:col-span-7 reveal">
+              <p className="text-body-lg">
+                Aesthetics is a medical field, even when the results look soft and natural. A registered nurse with an MSc in Advanced Practice has spent years inside the NHS before ever picking up a needle for cosmetic work. That means a deep understanding of anatomy, pharmacology, infection control, and how to manage the rare moments when something needs careful clinical judgement.
+              </p>
+              <p className="text-body-lg mt-6">
+                Bernadette is NMC registered and accountable to a regulator. Her training is Level 7, the same academic level as a master&apos;s degree, with assessed clinical practice. Non-medical practitioners, however skilled with a needle, do not work to the same framework.
+              </p>
+              <p className="text-body-lg mt-6">
+                It shows in the small things. A proper medical history. Honest conversations about what a product can and cannot do. Knowing when to recommend a treatment, and just as importantly, when to recommend nothing at all.
+              </p>
+              <p className="text-body-lg mt-6">
+                You are not buying a syringe of filler. You are buying the years of clinical experience that sit behind the decision to use it, or not.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* YOUR FIRST CONSULTATION */}
+      <section style={{ padding: 'var(--section-y) var(--pad-x)' }}>
+        <div className="max-w-[1280px] mx-auto">
+          <div className="section-num reveal mb-12">07 &nbsp; Your first consultation</div>
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
+            <div className="md:col-span-5">
+              <h2 className="text-h1 text-charcoal reveal">Calm, unhurried, no pressure.</h2>
+            </div>
+            <div className="md:col-span-7 reveal">
+              <p className="text-body-lg">
+                Every new client begins with a free consultation. It runs for around forty-five minutes, in the treatment room, with the door closed and the diary blocked off. There is only one appointment in the clinic at a time, so the space is yours.
+              </p>
+              <p className="text-body-lg mt-6">
+                We start with a chat. What you have noticed, what you would like to soften or refresh, and what you absolutely do not want to change. Photographs are taken in good light, with your permission, so we can look at your face properly together.
+              </p>
+              <p className="text-body-lg mt-6">
+                Bernadette then talks you through what is realistic. Sometimes that means a single, small treatment. Sometimes it means a plan staged over a few months. Sometimes it means skincare first, and a return visit in the new year.
+              </p>
+              <p className="text-body-lg mt-6">
+                You are never asked to decide on the day. There is no upsell, no countdown, no booking pressure. You leave with a written plan and a price, and you take whatever time you need.
+              </p>
+              <p className="text-body-lg mt-6">
+                If it is not the right fit, we will say so. That is the point of the consultation.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section style={{ background: '#EFE8E0', padding: 'var(--section-y) var(--pad-x)' }}>
+        <div className="max-w-[1280px] mx-auto">
+          <div className="section-num reveal mb-12">08 &nbsp; FAQ</div>
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
+            <div className="md:col-span-5">
+              <h2 className="text-h1 text-charcoal reveal">The questions we hear most often.</h2>
+            </div>
+            <div className="md:col-span-7 reveal">
+              <Accordion
+                defaultOpen={0}
+                items={[
+                  {
+                    question: 'How much does treatment cost?',
+                    answer:
+                      'Prices start at £80 for micro-needling and £110 for dermal filler. A full price list is on the Prices page, and you will always be quoted in writing before anything is booked. The consultation itself is free.',
+                  },
+                  {
+                    question: 'Does it hurt?',
+                    answer:
+                      'Most clients describe it as a small, brief pinch. Topical numbing cream is used for filler work, and the products themselves contain a local anaesthetic. Anti-wrinkle injections use a very fine needle and are usually over in a few minutes.',
+                  },
+                  {
+                    question: 'What is the recovery like?',
+                    answer:
+                      'Plan for a quiet evening. Tiny pinpricks, mild swelling, and the occasional bruise are normal for twenty-four to forty-eight hours. Most clients return to work the next day, with light makeup if they prefer.',
+                  },
+                  {
+                    question: 'When will I see results?',
+                    answer:
+                      'Filler results are visible immediately and settle over two weeks. Anti-wrinkle injections take three to fourteen days to take full effect. Profhilo and skin treatments build gradually over four to eight weeks.',
+                  },
+                  {
+                    question: 'Who is not suitable?',
+                    answer:
+                      'We do not treat anyone under eighteen, anyone pregnant or breastfeeding, or anyone with certain active skin or autoimmune conditions. If a treatment is not right for you, we will tell you honestly at consultation.',
+                  },
+                ]}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <BookingCTA sectionNumber="09" />
+      <StickyBookingBar />
     </>
   )
 }
