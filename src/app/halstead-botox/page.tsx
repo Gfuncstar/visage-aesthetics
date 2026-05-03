@@ -35,7 +35,7 @@ export default function HalsteadBotox() {
         },
         {
           question: 'Why come to Visage from Halstead?',
-          answer: "The closest award-winning aesthetics clinic to Halstead. Most CO9 residents are within 15 minutes' drive. Bernadette is one of the very few aesthetic practitioners in the area with an MSc Advanced Practice (Level 7), the highest postgraduate nursing qualification.",
+          answer: "The closest award-winning aesthetics clinic to Halstead. Most CO9 residents are within 15 minutes' drive. I am one of the very few aesthetic practitioners in the area with an MSc Advanced Practice (Level 7), the highest postgraduate nursing qualification.",
         },
         {
           question: 'Will it hurt?',

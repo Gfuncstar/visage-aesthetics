@@ -123,7 +123,7 @@ export default function BlogPage() {
             </p>
             <p className="mt-5 text-body text-stone max-w-2xl leading-relaxed">
               Visage Aesthetics was named <strong className="text-charcoal font-medium">Best Non-Surgical Aesthetics Clinic 2026, Essex</strong>{' '}
-              by the Health, Beauty &amp; Wellness Awards. Bernadette is also a 2026 nominee for Educator of the Year.
+              by the Health, Beauty &amp; Wellness Awards. I am also a 2026 nominee for Educator of the Year.
               {' '}<Link href="/awards" className="underline decoration-gold/40 hover:decoration-gold-deep">More on awards →</Link>
             </p>
           </div>

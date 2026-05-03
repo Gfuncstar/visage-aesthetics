@@ -35,7 +35,7 @@ export default function MaldonBotox() {
         },
         {
           question: 'Why come to Visage from Maldon?',
-          answer: "It is the closest award-winning aesthetics clinic to Maldon. Bernadette holds an MSc in Advanced Practice (Level 7), rare in Essex aesthetics. Most local options are Level 4-5 trained or beauty-led. Many Maldon clients drive past several closer clinics to get here for that reason.",
+          answer: "It is the closest award-winning aesthetics clinic to Maldon. I hold an MSc in Advanced Practice (Level 7), rare in Essex aesthetics. Most local options are Level 4-5 trained or beauty-led. Many Maldon clients drive past several closer clinics to get here for that reason.",
         },
         {
           question: 'How much does Botox cost?',

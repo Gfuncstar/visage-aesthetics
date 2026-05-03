@@ -307,7 +307,7 @@ export default async function Home() {
                 Aesthetics is a medical field, even when the results look soft and natural. A registered nurse with an MSc in Advanced Practice has spent years inside the NHS before ever picking up a needle for cosmetic work. That means a deep understanding of anatomy, pharmacology, infection control, and how to manage the rare moments when something needs careful clinical judgement.
               </p>
               <p className="text-body-lg mt-6">
-                Bernadette is NMC registered and accountable to a regulator. Her training is Level 7, the same academic level as a master&apos;s degree, with assessed clinical practice. Non-medical practitioners, however skilled with a needle, do not work to the same framework.
+                I am NMC registered and accountable to a regulator. My training is Level 7, the same academic level as a master&apos;s degree, with assessed clinical practice. Non-medical practitioners, however skilled with a needle, do not work to the same framework.
               </p>
               <p className="text-body-lg mt-6">
                 It shows in the small things. A proper medical history. Honest conversations about what a product can and cannot do. Knowing when to recommend a treatment, and just as importantly, when to recommend nothing at all.
@@ -336,7 +336,7 @@ export default async function Home() {
                 We start with a chat. What you have noticed, what you would like to soften or refresh, and what you absolutely do not want to change. Photographs are taken in good light, with your permission, so we can look at your face properly together.
               </p>
               <p className="text-body-lg mt-6">
-                Bernadette then talks you through what is realistic. Sometimes that means a single, small treatment. Sometimes it means a plan staged over a few months. Sometimes it means skincare first, and a return visit in the new year.
+                I&apos;ll then talk you through what is realistic. Sometimes that means a single, small treatment. Sometimes it means a plan staged over a few months. Sometimes it means skincare first, and a return visit in the new year.
               </p>
               <p className="text-body-lg mt-6">
                 You are never asked to decide on the day. There is no upsell, no countdown, no booking pressure. You leave with a written plan and a price, and you take whatever time you need.

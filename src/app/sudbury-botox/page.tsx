@@ -22,7 +22,7 @@ export default function SudburyBotox() {
       positioningLine="Sudbury sits across the Suffolk border from Essex. Most South Suffolk clients drive south for clinical-grade aesthetics, Visage is the closest award-winning clinic, 25 minutes via the A131."
       reasons={[
         { title: 'Cross the border for better care', body: "South Suffolk has very few medically-led aesthetics clinics. Best Non-Surgical Aesthetics Clinic 2026, Essex. Worth the short drive across the border." },
-        { title: 'Twenty years of clinical experience', body: "Bernadette is an NMC-registered nurse with an MSc in Advanced Practice. Most aesthetic options around Sudbury are beauty-led; Visage is medical." },
+        { title: 'Twenty years of clinical experience', body: "I am an NMC-registered nurse with an MSc in Advanced Practice. Most aesthetic options around Sudbury are beauty-led; Visage is medical." },
         { title: 'Free parking, no Sudbury queue', body: "Friars Lane has free on-site parking. The A131 to Braintree is one straight road. Many Sudbury clients tell us the drive is the easiest part." },
       ]}
       priceFrom="From £120 / 1 area"
@@ -35,7 +35,7 @@ export default function SudburyBotox() {
         },
         {
           question: 'Why come to Visage from Sudbury?',
-          answer: "Closest award-winning aesthetics clinic to South Suffolk. Bernadette is one of very few aesthetic practitioners in the region with an MSc in Advanced Practice (Level 7), the highest postgraduate nursing qualification.",
+          answer: "Closest award-winning aesthetics clinic to South Suffolk. I am one of very few aesthetic practitioners in the region with an MSc in Advanced Practice (Level 7), the highest postgraduate nursing qualification.",
         },
         {
           question: 'How much does Botox cost?',

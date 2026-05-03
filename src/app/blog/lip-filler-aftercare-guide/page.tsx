@@ -84,7 +84,7 @@ export default function Post() {
       If you have an event or occasion, I recommend scheduling your <a href="/treatments/dermal-filler" className="text-gold hover:underline">lip filler treatment</a> at least 3 weeks beforehand. This allows for the full settling period plus a buffer for any touch-up if needed.
     </p>
 
-    <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">What to do after lip filler: Bernadette's checklist</h2>
+    <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">What to do after lip filler: my checklist</h2>
     <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
       I provide every client with written aftercare instructions, but the essentials are straightforward:
     </p>

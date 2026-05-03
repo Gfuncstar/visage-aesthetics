@@ -63,7 +63,7 @@ export default function ConsultationQuestionsPost() {
             reason for a regulated clinician to be cagey about their registration.
           </p>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-            For context: Bernadette&apos;s NMC PIN is <strong>05G1755E</strong>, verifiable on the public NMC register.
+            For context: my NMC PIN is <strong>05G1755E</strong>, verifiable on the public NMC register.
           </p>
 
           <h2 className="font-display italic text-h2 text-charcoal mt-10 mb-5">2. Who actually does the treatments here?</h2>

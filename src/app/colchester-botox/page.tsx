@@ -22,7 +22,7 @@ export default function ColchesterBotox() {
       positioningLine="Colchester has plenty of clinics, Visage is the one Colchester clients drive to when they want medically-led, naturally subtle anti-wrinkle work. Best Non-Surgical Aesthetics Clinic 2026, Essex."
       reasons={[
         { title: 'Worth the 25-minute drive', body: "Free parking, one client in the room at a time, no high-street salon vibe. Many Colchester clients tell us the drive is the easiest part." },
-        { title: 'A nurse with an MSc', body: "Bernadette holds a Level 7 MSc in Advanced Practice, the highest postgraduate nursing qualification. Most Colchester aesthetic practitioners are trained at Level 4-5." },
+        { title: 'A nurse with an MSc', body: "I hold a Level 7 MSc in Advanced Practice, the highest postgraduate nursing qualification. Most Colchester aesthetic practitioners are trained at Level 4-5." },
         { title: 'Award-winning clinic', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. The closest award-recognised clinic for the Colchester area." },
       ]}
       priceFrom="From £120 / 1 area"
@@ -35,7 +35,7 @@ export default function ColchesterBotox() {
         },
         {
           question: 'Why come to Visage from Colchester?',
-          answer: 'Two reasons: this is the only Essex clinic awarded Best Non-Surgical Aesthetics Clinic 2026, and Bernadette holds an MSc Advanced Practice (Level 7), rare in Essex aesthetics. Many Colchester clients drive past local options to come here.',
+          answer: 'Two reasons: this is the only Essex clinic awarded Best Non-Surgical Aesthetics Clinic 2026, and I hold an MSc Advanced Practice (Level 7), rare in Essex aesthetics. Many Colchester clients drive past local options to come here.',
         },
         {
           question: 'How much does Botox cost?',

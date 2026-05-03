@@ -39,7 +39,7 @@ export default function BraintreeBotox() {
         },
         {
           question: 'Why choose Visage over other Braintree clinics?',
-          answer: 'We are the only Braintree clinic awarded Best Non-Surgical Aesthetics Clinic in Essex 2026. Bernadette is one of very few aesthetic practitioners in the area with an MSc in Advanced Practice. We treat aesthetics as a clinical discipline, not a beauty service, and only offer treatments we believe are genuinely in your best interest.',
+          answer: 'We are the only Braintree clinic awarded Best Non-Surgical Aesthetics Clinic in Essex 2026. I am one of very few aesthetic practitioners in the area with an MSc in Advanced Practice. We treat aesthetics as a clinical discipline, not a beauty service, and only offer treatments we believe are genuinely in your best interest.',
         },
         {
           question: 'How much does Botox cost in Braintree?',

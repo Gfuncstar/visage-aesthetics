@@ -23,7 +23,7 @@ export default function ChelmsfordBotox() {
       reasons={[
         { title: 'Worth the 25-minute drive', body: "A discreet private clinic with one client in the room at a time. The opposite of a busy high-street salon, and award-winning for it." },
         { title: 'Conservative, never overdone', body: "Lots of Chelmsford clients arrive having had over-treatment elsewhere. We start small. We listen. We let the result speak." },
-        { title: 'A nurse with an MSc', body: "Bernadette holds a Level 7 MSc in Advanced Practice, the highest postgraduate qualification a nurse can hold. Most Chelmsford aestheticians are Level 4-5." },
+        { title: 'A nurse with an MSc', body: "I hold a Level 7 MSc in Advanced Practice, the highest postgraduate qualification a nurse can hold. Most Chelmsford aestheticians are Level 4-5." },
       ]}
       priceFrom="From £120 / 1 area"
       postcode="CM7 9BL"
@@ -35,7 +35,7 @@ export default function ChelmsfordBotox() {
         },
         {
           question: 'Why drive to Braintree from Chelmsford for Botox?',
-          answer: "Two reasons. First, this is the only clinic in Essex awarded Best Non-Surgical Aesthetics Clinic 2026. Second, Bernadette's MSc Advanced Practice (Level 7) is rare in Essex aesthetics, most Chelmsford practitioners are Level 4-5 trained. Many Chelmsford clients tell us the 25-minute drive is the best value-for-time decision they made.",
+          answer: "Two reasons. First, this is the only clinic in Essex awarded Best Non-Surgical Aesthetics Clinic 2026. Second, my MSc Advanced Practice (Level 7) is rare in Essex aesthetics, most Chelmsford practitioners are Level 4-5 trained. Many Chelmsford clients tell us the 25-minute drive is the best value-for-time decision they made.",
         },
         {
           question: 'How much does Botox cost?',

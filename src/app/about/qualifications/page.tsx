@@ -114,7 +114,7 @@ const sections: { Icon: typeof GraduationCap; title: string; lines: string[] }[]
     title: 'Clinical experience',
     lines: [
       '20+ years across acute medical wards, community nursing, and advanced clinical practice',
-      'Single-practitioner private clinic model, every consultation, treatment and review is performed personally by Bernadette, never delegated',
+      'Single-practitioner private clinic model, every consultation, treatment and review is performed personally by me, never delegated',
       'One client in the room at a time, by appointment only',
     ],
   },

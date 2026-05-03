@@ -44,7 +44,7 @@ const awards: AwardEntry[] = [
     region: 'United Kingdom',
     awardingBody: 'Beauty & Aesthetics Awards',
     description:
-      "Bernadette Tobin nominated for her contribution to aesthetics training and education across the industry, recognising practitioners who raise standards beyond their own clinic and pass clinical rigour on to the next generation.",
+      "Nominated for my contribution to aesthetics training and education across the industry. The award recognises practitioners who raise standards beyond their own clinic and pass clinical rigour on to the next generation.",
     status: 'nominee',
   },
 ]
@@ -119,8 +119,8 @@ export default function AwardsPage() {
           </h1>
           <p className="mt-6 text-body-lg text-ink-soft max-w-2xl">
             Recognised across Essex for naturally subtle results, medically led care, and a refusal
-            to treat aesthetics as anything less than a clinical discipline. Bernadette is also a 2026
-            nominee for Educator of the Year, for the work she does training the next generation of
+            to treat aesthetics as anything less than a clinical discipline. I am also a 2026
+            nominee for Educator of the Year, for the work I do training the next generation of
             aesthetic practitioners.
           </p>
         </div>

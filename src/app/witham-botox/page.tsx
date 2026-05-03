@@ -35,7 +35,7 @@ export default function WithamBotox() {
         },
         {
           question: 'Why come to Visage from Witham?',
-          answer: "It is the closest award-winning aesthetics clinic to Witham. Bernadette holds an MSc Advanced Practice (Level 7), rare in Essex aesthetics, where most practitioners are Level 4-5 trained.",
+          answer: "It is the closest award-winning aesthetics clinic to Witham. I hold an MSc Advanced Practice (Level 7), rare in Essex aesthetics, where most practitioners are Level 4-5 trained.",
         },
         {
           question: 'Can I be seen this week?',

@@ -35,7 +35,7 @@ export default function ChelmsfordLipFiller() {
         },
         {
           question: 'Why drive from Chelmsford for lip filler?',
-          answer: "Two reasons: this is the only Essex clinic awarded Best Non-Surgical Aesthetics Clinic 2026, and Bernadette's MSc Advanced Practice (Level 7) is rare in Essex aesthetics, most Chelmsford practitioners are Level 4-5 trained. Many Chelmsford clients drive past several local clinics to get here.",
+          answer: "Two reasons: this is the only Essex clinic awarded Best Non-Surgical Aesthetics Clinic 2026, and my MSc Advanced Practice (Level 7) is rare in Essex aesthetics, most Chelmsford practitioners are Level 4-5 trained. Many Chelmsford clients drive past several local clinics to get here.",
         },
         {
           question: 'How much filler should I have?',

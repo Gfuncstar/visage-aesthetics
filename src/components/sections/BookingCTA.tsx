@@ -12,7 +12,7 @@ export default function BookingCTA({ sectionNumber = '06' }: { sectionNumber?: s
           Ready when you are.
         </h2>
         <p className="mt-8 max-w-xl" style={{ color: 'rgba(245, 240, 236, 0.7)', fontSize: 17, lineHeight: 1.7 }}>
-          Book a no-obligation consultation with Bernadette. We&apos;ll talk through what you&apos;re hoping for, what&apos;s realistic, and what isn&apos;t needed.
+          Book a no-obligation consultation with me. We&apos;ll talk through what you&apos;re hoping for, what&apos;s realistic, and what isn&apos;t needed.
         </p>
         <div className="mt-14 flex flex-col md:flex-row gap-4">
           <a {...BOOKING_LINK_PROPS} className="btn btn-primary btn-md:auto">

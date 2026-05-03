@@ -21,7 +21,7 @@ export default function TreatmentsPage() {
             A considered menu of non-surgical treatments.
           </h1>
           <p className="mt-6 text-body-lg text-ink-soft max-w-2xl">
-            Every treatment is performed by Bernadette Tobin, registered nurse and MSc Advanced Practice. Each one starts with a free consultation so we can plan exactly what suits you.
+            I perform every treatment myself, as a registered nurse with an MSc in Advanced Practice. Each one starts with a free consultation so we can plan exactly what suits you.
           </p>
         </div>
       </section>

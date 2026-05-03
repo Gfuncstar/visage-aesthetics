@@ -198,7 +198,7 @@ export default function PricingPage() {
             </div>
             <div className="border border-line/30 rounded-md p-6">
               <div className="text-eyebrow text-gold mb-3">No pressure</div>
-              <p className="text-body text-ink-soft">If a treatment isn&apos;t in your best interest, Bernadette will say so. We don&apos;t upsell. We don&apos;t package. We don&apos;t pressure.</p>
+              <p className="text-body text-ink-soft">If a treatment isn&apos;t in your best interest, I will say so. We don&apos;t upsell. We don&apos;t package. We don&apos;t pressure.</p>
             </div>
           </div>
 

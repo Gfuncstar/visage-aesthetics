@@ -120,7 +120,7 @@ export default function NurseLedPost() {
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
             Most aesthetic nurse practitioners in the UK hold a Level 4 or Level 5 aesthetic-injectables qualification.
             These are valid, sit above the minimum, and represent reasonable training. A Level 7 MSc in Advanced
-            Practice, what Bernadette holds, is the highest postgraduate qualification a UK nurse can hold. It
+            Practice, which I hold, is the highest postgraduate qualification a UK nurse can hold. It
             covers advanced clinical assessment, complex decision-making, evidence-based practice and prescribing-
             level competencies.
           </p>
@@ -143,7 +143,7 @@ export default function NurseLedPost() {
             <li>· <strong>Ask about indemnity insurance</strong>. They should name their insurer without hesitation.</li>
           </ul>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-            For reference, Bernadette&apos;s NMC PIN is <strong>05G1755E</strong>, and you can verify it on the
+            For reference, my NMC PIN is <strong>05G1755E</strong>, and you can verify it on the
             public NMC register at any time. Visage Aesthetics&apos;s full credential reference is documented at <Link href="/about/qualifications" className="underline decoration-gold/40 hover:decoration-gold-deep text-charcoal">/about/qualifications</Link>.
           </p>
 

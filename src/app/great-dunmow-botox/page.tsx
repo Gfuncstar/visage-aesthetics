@@ -23,7 +23,7 @@ export default function GreatDunmowBotox() {
       reasons={[
         { title: 'Closest award-winning clinic', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. The closest award-recognised clinic for the Great Dunmow, Felsted and Stansted area." },
         { title: 'Fifteen minutes door-to-door', body: "A120 eastbound, free parking on Friars Lane. Quicker and quieter than driving into Stansted or Bishops Stortford for treatment." },
-        { title: 'A nurse with an MSc', body: "Bernadette holds a Level 7 MSc in Advanced Practice, rare in Essex aesthetics. Most local aestheticians are Level 4-5 trained or beauty-led." },
+        { title: 'A nurse with an MSc', body: "I hold a Level 7 MSc in Advanced Practice, rare in Essex aesthetics. Most local aestheticians are Level 4-5 trained or beauty-led." },
       ]}
       priceFrom="From £120 / 1 area"
       postcode="CM7 9BL"
@@ -35,7 +35,7 @@ export default function GreatDunmowBotox() {
         },
         {
           question: 'Why come to Visage from Great Dunmow?',
-          answer: "Closest award-winning aesthetics clinic. Bernadette holds an MSc Advanced Practice (Level 7), rare in Essex aesthetics, where most practitioners are Level 4-5.",
+          answer: "Closest award-winning aesthetics clinic. I hold an MSc Advanced Practice (Level 7), rare in Essex aesthetics, where most practitioners are Level 4-5.",
         },
         {
           question: 'How much does Botox cost?',

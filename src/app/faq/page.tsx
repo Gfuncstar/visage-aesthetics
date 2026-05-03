@@ -13,7 +13,7 @@ const safety: AccordionItem[] = [
     answer: "When carried out by a qualified medical professional with regulated products, yes. Every treatment at Visage is performed by a registered nurse with an MSc in Advanced Practice and 20+ years of clinical experience. We take a full medical history, assess your suitability honestly, and only proceed when it is in your best interest. If a treatment is not right for you, I will say so.",
   },
   {
-    question: 'What qualifications does Bernadette have?',
+    question: 'What are my qualifications?',
     answer: 'Registered Nurse (NMC), MSc Advanced Practice, accredited aesthetic practitioner with continuous professional development across all treatments offered. Full evidence of qualifications and indemnity insurance is available on request and at consultation.',
   },
   {
