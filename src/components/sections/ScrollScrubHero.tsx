@@ -68,14 +68,14 @@ export default function ScrollScrubHero() {
       rafId = requestAnimationFrame(tick)
     }
 
-    let unlocked = false
-    const unlock = () => {
-      if (unlocked) return
-      unlocked = true
+    let playbackEnabled = false
+    const enablePlayback = () => {
+      if (playbackEnabled) return
+      playbackEnabled = true
       video.play().then(() => video.pause()).catch(() => {})
     }
     const events: (keyof DocumentEventMap)[] = ['touchstart', 'pointerdown', 'click', 'wheel', 'keydown']
-    events.forEach((evt) => document.addEventListener(evt, unlock, { once: true, passive: true }))
+    events.forEach((evt) => document.addEventListener(evt, enablePlayback, { once: true, passive: true }))
     video.play().then(() => video.pause()).catch(() => {})
 
     const onMeta = () => {
@@ -164,13 +164,25 @@ export default function ScrollScrubHero() {
                 <br />
                 By appointment · Braintree
               </div>
-              <h1 className="text-h1" style={{ color: '#F5F0EC', fontWeight: 300, textShadow: '0 4px 32px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.10)' }}>
+              <p className="text-h1" style={{ color: '#F5F0EC', fontWeight: 300, textShadow: '0 4px 32px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.10)' }}>
                 <span className="block">
                   <span className="word-rise"><span style={{ animationDelay: '0.30s' }}>Enhancing what&apos;s</span></span>
                 </span>
                 <span className="block">
                   <span className="word-rise"><span style={{ animationDelay: '0.45s' }}>naturally yours.</span></span>
                 </span>
+              </p>
+              <h1
+                className="eyebrow eyebrow-no-glow mt-8"
+                style={{
+                  animation: 'fadeUp 1s 0.75s var(--ease) forwards',
+                  opacity: 0,
+                  lineHeight: 1.6,
+                  color: '#FFFFFF',
+                  textShadow: '0 2px 24px rgba(0, 0, 0, 0.10), 0 1px 3px rgba(0, 0, 0, 0.10)',
+                }}
+              >
+                Award-winning aesthetics clinic in Braintree, Essex
               </h1>
             </div>
           </div>

@@ -11,7 +11,7 @@ import { getGoogleReviews } from '@/lib/google-reviews'
 
 export const metadata: Metadata = {
   title: 'Visage Aesthetics | Award-Winning Nurse-Led Clinic, Braintree',
-  description: "Best Non-Surgical Aesthetics Clinic 2026, Essex. Anti-wrinkle, dermal filler, Profhilo and more by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Free consultation, naturally subtle results.",
+  description: 'Private nurse-led aesthetics clinic on Friars Lane, Braintree. Botox, dermal filler, Profhilo and more, delivered with 20+ years clinical experience. Book a free consultation.',
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
