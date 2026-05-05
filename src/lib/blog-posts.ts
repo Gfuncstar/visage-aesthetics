@@ -162,6 +162,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-05-03',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'natural-looking-aesthetics-essex',
+    category: "Clinic",
+    title: "How to find a natural-looking aesthetics clinic in Essex",
+    excerpt: "A practical guide to vetting Essex aesthetics clinics, from prescriber credentials to consultation red flags worth knowing before you book.",
+    readTime: "10 min read",
+    datePublished: '2026-05-05',
+    dateModified: '2026-05-05',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
