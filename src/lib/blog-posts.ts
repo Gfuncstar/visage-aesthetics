@@ -172,6 +172,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-05-05',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'hyperhidrosis-botox-explained',
+    category: "Medical aesthetics",
+    title: "Botox for excessive sweating: a medical use of an aesthetic treatment",
+    excerpt: "Botulinum toxin can reduce underarm sweating by over 80 per cent for six months or longer—here is how the treatment works and who it may help.",
+    readTime: "9 min read",
+    datePublished: '2026-05-07',
+    dateModified: '2026-05-07',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
