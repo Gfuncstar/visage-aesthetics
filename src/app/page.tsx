@@ -10,8 +10,8 @@ import { treatments } from '@/lib/treatments'
 import { getGoogleReviews } from '@/lib/google-reviews'
 
 export const metadata: Metadata = {
-  title: 'Visage Aesthetics | Award-Winning Nurse-Led Clinic, Braintree',
-  description: 'Private nurse-led aesthetics clinic on Friars Lane, Braintree. Botox, dermal filler, Profhilo and more, delivered with 20+ years clinical experience. Book a free consultation.',
+  title: 'Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex | Visage',
+  description: 'Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards). A private nurse-led clinic on Friars Lane, Braintree by Bernadette Tobin RGN, MSc. Botox, dermal filler, Profhilo. Book a free consultation.',
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
