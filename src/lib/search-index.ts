@@ -22,7 +22,6 @@ const STATIC_PAGES: SearchResult[] = [
   { title: 'Pricing', url: '/pricing', category: 'Page', description: 'Transparent prices for every treatment. Free consultation, no pressure.' },
   { title: 'Frequently Asked Questions', url: '/faq', category: 'Page', description: 'Common questions about aesthetic treatments at Visage Aesthetics.' },
   { title: 'Aftercare', url: '/aftercare', category: 'Page', description: 'Post-treatment care guidance for every treatment offered.' },
-  { title: 'Results', url: '/results', category: 'Page', description: 'Before-and-after results from clients with consent.' },
   { title: 'Visit / Contact', url: '/contact', category: 'Page', description: '17A Friars Lane, Braintree CM7 9BL. Free consultation booking.' },
   { title: 'Treatments', url: '/treatments', category: 'Page', description: 'All non-surgical aesthetic treatments offered at Visage Aesthetics.' },
   { title: 'Blog', url: '/blog', category: 'Page', description: 'Aesthetic insights from a registered nurse. New articles every two days.' },
