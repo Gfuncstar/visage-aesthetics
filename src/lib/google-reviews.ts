@@ -21,7 +21,7 @@ const PLACE_ID = process.env.GOOGLE_PLACE_ID
 const API_KEY = process.env.GOOGLE_PLACES_API_KEY
 const REVALIDATE_SECONDS = 60 * 60 * 6 // 6 hours
 
-const MAPS_URL = 'https://www.google.com/search?sca_esv=6b07aea6155c767b&si=AL3DRZEsmMGCryMMFSHJ3StBhOdZ2-6yYkXd_doETEE1OR-qOZUkfYTnOK0lVRldiWlmxsHsE5-Mku8g2mXUEMi-L7oaPpk2f8Q87z_1fhbFYidX4jcSnVByacdhL7xVWnRVfHVY5K5MOMJcXXQ5oarbEB3PM0e5bA%3D%3D&q=Visage+Aesthetics+Reviews'
+const MAPS_URL = 'https://www.google.com/search?si=AL3DRZEsmMGCryMMFSHJ3StBhOdZ2-6yYkXd_doETEE1OR-qOZUkfYTnOK0lVRldiWlmxsHsE5-Mku8g2mXUEMi-L7oaPpk2f8Q87z_1fhbFYidX4jcSnVByacdhL7xVWnRVfHVY5K5MOMJcXXQ5oarbEB3PM0e5bA%3D%3D&q=Visage+Aesthetics+Reviews'
 
 export async function getGoogleReviews(): Promise<GoogleReviewsResult> {
   if (PLACE_ID && API_KEY) {
