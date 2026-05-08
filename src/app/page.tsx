@@ -103,20 +103,24 @@ export default async function Home() {
             { '@type': 'EducationalOccupationalCredential', credentialCategory: 'degree', name: 'MSc Advanced Practice (Level 7)' },
           ],
         },
-        aggregateRating: {
-          '@type': 'AggregateRating',
-          ratingValue: reviews.rating.toFixed(1),
-          reviewCount: reviews.total,
-          bestRating: '5',
-          worstRating: '1',
-        },
-        review: reviews.reviews.slice(0, 3).map((r) => ({
-          '@type': 'Review',
-          author: { '@type': 'Person', name: r.author },
-          reviewRating: { '@type': 'Rating', ratingValue: r.rating, bestRating: 5, worstRating: 1 },
-          reviewBody: r.text,
-          itemReviewed: { '@id': 'https://www.vaclinic.co.uk/#org' },
-        })),
+        ...(reviews.live
+          ? {
+              aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: reviews.rating.toFixed(1),
+                reviewCount: reviews.total,
+                bestRating: '5',
+                worstRating: '1',
+              },
+              review: reviews.reviews.slice(0, 3).map((r) => ({
+                '@type': 'Review',
+                author: { '@type': 'Person', name: r.author },
+                reviewRating: { '@type': 'Rating', ratingValue: r.rating, bestRating: 5, worstRating: 1 },
+                reviewBody: r.text,
+                itemReviewed: { '@id': 'https://www.vaclinic.co.uk/#org' },
+              })),
+            }
+          : {}),
         hasOfferCatalog: {
           '@type': 'OfferCatalog',
           name: 'Visage Aesthetics treatment menu',

@@ -65,7 +65,7 @@ export async function getGoogleReviews(): Promise<GoogleReviewsResult> {
 
   return {
     rating: 5.0,
-    total: 60,
+    total: 62,
     mapsUrl: MAPS_URL,
     live: false,
     lastSynced: new Date().toISOString(),
