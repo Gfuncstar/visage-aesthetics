@@ -33,6 +33,7 @@ const awards: AwardEntry[] = [
     category: 'Best Non-Surgical Aesthetics Clinic',
     region: 'Essex',
     awardingBody: 'Health, Beauty & Wellness Awards',
+    awardingBodyUrl: 'https://lux-life.digital/winners/vaclinic/',
     description:
       "Recognised across the county for naturally subtle, medically led aesthetic treatments. The award celebrates clinics that demonstrate clinical excellence, exceptional client care, and a commitment to ethical, conservative practice.",
     status: 'won',
@@ -150,6 +151,15 @@ export default function AwardsPage() {
                 an industry-judged programme recognising clinics demonstrating clinical excellence,
                 exceptional client care, and ethical, conservative practice.
               </p>
+              <a
+                href="https://lux-life.digital/winners/vaclinic/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex items-center gap-2 text-[12px] tracking-[0.18em] uppercase font-medium border-b border-cream/40 pb-1 hover:border-cream transition-colors"
+              >
+                View verified listing
+                <span aria-hidden>→</span>
+              </a>
               <p className="mt-5 text-cream/70 text-[13px] tracking-[0.06em] max-w-xl">
                 &ldquo;What started as a vision has grown into something I care so deeply about.
                 Every client who&apos;s trusted me, every bit of support, every late night and early
@@ -216,7 +226,21 @@ export default function AwardsPage() {
                       {a.name}
                     </h3>
                     <p className="mt-3 text-body text-ink-soft max-w-2xl">{a.description}</p>
-                    <p className="mt-4 text-eyebrow text-stone">By {a.awardingBody}</p>
+                    <p className="mt-4 text-eyebrow text-stone">
+                      By{' '}
+                      {a.awardingBodyUrl ? (
+                        <a
+                          href={a.awardingBodyUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-stone hover:text-gold border-b border-stone/40 hover:border-gold transition-colors"
+                        >
+                          {a.awardingBody}
+                        </a>
+                      ) : (
+                        a.awardingBody
+                      )}
+                    </p>
                   </div>
                   <AwardIcon className="text-gold mt-1 shrink-0" size={28} strokeWidth={1.4} />
                 </div>

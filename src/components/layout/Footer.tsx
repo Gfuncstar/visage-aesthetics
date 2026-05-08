@@ -112,6 +112,18 @@ export default function Footer() {
           <div className="flex flex-col gap-1">
             <span>Visage Aesthetics &middot; Bernadette Tobin RGN, MSc Advanced Practice</span>
             <span>NMC PIN 05G1755E &middot; Registered with the Royal College of Nursing</span>
+            <span>
+              <a
+                href="https://lux-life.digital/winners/vaclinic/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-cream transition-colors border-b"
+                style={{ borderColor: 'rgba(245, 240, 236, 0.2)' }}
+              >
+                Best Non-Surgical Aesthetics Clinic in Essex 2026
+              </a>{' '}
+              &middot; Health, Beauty &amp; Wellness Awards
+            </span>
             <span>A private aesthetics clinic &middot; Strictly by appointment</span>
             <span>© {year} Visage Aesthetics. All rights reserved.</span>
           </div>
