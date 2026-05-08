@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { MapPin, Mail, Clock, MessageCircle } from 'lucide-react'
 import { BOOKING_URL, BOOKING_LINK_PROPS } from '@/lib/booking'
+import ContactForm from './ContactForm'
 
 export const metadata: Metadata = {
   title: 'Book a Consultation | Visage Aesthetics, Braintree Essex',
@@ -112,6 +113,29 @@ export default function ContactPage() {
               />
             </div>
           </aside>
+        </div>
+      </section>
+
+      <section className="bg-cream-soft py-12 md:py-20" id="message">
+        <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+          <div className="lg:col-span-5">
+            <span className="hairline hairline-left mb-6 inline-block" />
+            <div className="eyebrow text-gold mb-3">Or send a private message</div>
+            <h2 className="font-display italic text-h1 text-charcoal">Prefer to write first?</h2>
+            <p className="mt-6 text-body-lg text-ink-soft leading-relaxed">
+              If you&apos;d rather ask a question before picking a time, this is the quietest way through. I read every enquiry myself and reply personally within 24 hours.
+            </p>
+            <p className="mt-4 text-body text-ink-soft leading-relaxed">
+              Nothing here is binding. No newsletters, no follow-up sequences, no shared lists. Just a private conversation about whether we&apos;re the right fit.
+            </p>
+            <p className="mt-8 text-eyebrow text-gold">Bernadette</p>
+          </div>
+
+          <div className="lg:col-span-7">
+            <div className="bg-cream border border-line/25 rounded-md p-6 md:p-10">
+              <ContactForm />
+            </div>
+          </div>
         </div>
       </section>
     </>

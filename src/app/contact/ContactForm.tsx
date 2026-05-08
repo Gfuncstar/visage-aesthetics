@@ -15,15 +15,36 @@ type FormValues = {
   message: string
   hearAbout: string
   consent: boolean
+  website?: string
 }
 
 export default function ContactForm() {
   const [submitted, setSubmitted] = useState(false)
+  const [serverError, setServerError] = useState<string | null>(null)
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormValues>()
 
-  const onSubmit = async (_data: FormValues) => {
-    await new Promise((r) => setTimeout(r, 600))
-    setSubmitted(true)
+  const onSubmit = async (data: FormValues) => {
+    setServerError(null)
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      const json = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string }
+      if (!res.ok || !json.ok) {
+        setServerError(
+          json.error ||
+            'Sorry, your enquiry could not be sent. Please email info@vaclinic.co.uk or call 07931 395246.',
+        )
+        return
+      }
+      setSubmitted(true)
+    } catch {
+      setServerError(
+        'Sorry, your enquiry could not be sent. Please email info@vaclinic.co.uk or call 07931 395246.',
+      )
+    }
   }
 
   if (submitted) {
@@ -45,6 +66,10 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+      <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, overflow: 'hidden' }}>
+        <label htmlFor="website">Website</label>
+        <input id="website" type="text" tabIndex={-1} autoComplete="off" {...register('website')} />
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label htmlFor="firstName" className="text-eyebrow text-ink-soft mb-2 block">First name</label>
@@ -121,6 +146,11 @@ export default function ContactForm() {
       <button type="submit" disabled={isSubmitting} className="btn btn-primary btn-block">
         {isSubmitting ? 'Sending…' : 'Send enquiry'}
       </button>
+      {serverError && (
+        <div role="alert" className="text-sm text-charcoal bg-cream border border-gold/40 rounded-sm p-4 leading-relaxed">
+          {serverError}
+        </div>
+      )}
       <p className="text-xs text-ink-soft text-center">
         Your details are never shared. We will only ever contact you about your enquiry.
       </p>
