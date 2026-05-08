@@ -6,8 +6,8 @@ import BookingCTA from '@/components/sections/BookingCTA'
 import { treatments } from '@/lib/treatments'
 
 export const metadata: Metadata = {
-  title: 'Treatments | Aesthetic Treatments in Braintree, Essex',
-  description: 'Non-surgical aesthetic treatments at Visage Aesthetics, Braintree Essex: anti-wrinkle, dermal filler, Profhilo, HarmonyCa, micro-needling, AQUALYX and more.',
+  title: 'Treatments | Award-Winning Aesthetics, Braintree',
+  description: 'Non-surgical aesthetic treatments at Visage Aesthetics, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. Anti-wrinkle, dermal filler, Profhilo, HarmonyCa, micro-needling, AQUALYX and more.',
 }
 
 export default function TreatmentsPage() {

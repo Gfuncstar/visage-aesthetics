@@ -4,8 +4,8 @@ import { Award, Stethoscope, ShieldCheck, GraduationCap, BookOpen, Heart } from 
 import BookingCTA from '@/components/sections/BookingCTA'
 
 export const metadata: Metadata = {
-  title: 'About Bernadette Tobin | Nurse-Led Aesthetics, Braintree Essex',
-  description: 'Bernadette Tobin: registered nurse, MSc Advanced Practice, founder of Visage Aesthetics in Braintree, Essex. 20+ years clinical experience and a passion for natural results.',
+  title: 'About Bernadette Tobin | Award-Winning Aesthetics, Braintree',
+  description: 'Bernadette Tobin: registered nurse, MSc Advanced Practice, founder of Visage Aesthetics. Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. 20+ years clinical experience and a passion for natural, conservative results.',
 }
 
 const credentials = [

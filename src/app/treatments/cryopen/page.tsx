@@ -4,9 +4,9 @@ import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/treatments/cryopen' },
-  title: 'CryoPen Skin Lesion Removal | Visage Aesthetics Braintree',
+  title: 'CryoPen Skin Lesion Removal | Award-Winning Clinic, Braintree',
   description:
-    'CryoPen cryotherapy for skin tags, warts, milia, age spots and benign lesions. Quick, precise treatment in Braintree, Essex.',
+    'CryoPen cryotherapy for skin tags, warts, milia, age spots and benign lesions. Visage Aesthetics, Braintree, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex.',
 }
 
 export default function Page() {

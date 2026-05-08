@@ -23,12 +23,9 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.vaclinic.co.uk'),
-  title: {
-    default: "Visage Aesthetics | Nurse-Led Clinic, Braintree",
-    template: '%s | Visage Aesthetics',
-  },
+  title: "Visage Aesthetics | Best Non-Surgical Aesthetics Clinic in Essex 2026",
   description:
-    "Best Non-Surgical Aesthetics Clinic 2026, Essex. A private nurse-led clinic on Friars Lane, Braintree. Naturally subtle treatments by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Strictly by appointment.",
+    "Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards). A private nurse-led clinic on Friars Lane, Braintree. Naturally subtle treatments by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Strictly by appointment.",
   keywords: ['private aesthetics clinic essex', 'aesthetics braintree', 'botox essex', 'dermal filler braintree', 'profhilo essex', 'nurse-led aesthetics', 'visage aesthetics', 'discreet clinic braintree'],
   alternates: {
     canonical: '/',
@@ -40,14 +37,14 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_GB',
     siteName: 'Visage Aesthetics',
-    title: "Visage Aesthetics | A private nurse-led clinic in Braintree.",
-    description: "A small, private aesthetics clinic on Friars Lane, Braintree. Led by Bernadette Tobin, RGN MSc, strictly by appointment.",
+    title: "Visage Aesthetics | Best Non-Surgical Aesthetics Clinic in Essex 2026",
+    description: "Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. A private nurse-led clinic on Friars Lane, Braintree. Bernadette Tobin RGN, MSc, strictly by appointment.",
     url: 'https://www.vaclinic.co.uk',
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Visage Aesthetics | A private nurse-led clinic in Braintree.",
-    description: "A small, private aesthetics clinic on Friars Lane, Braintree. Led by Bernadette Tobin, RGN MSc, strictly by appointment.",
+    title: "Visage Aesthetics | Best Non-Surgical Aesthetics Clinic in Essex 2026",
+    description: "Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. A private nurse-led clinic on Friars Lane, Braintree. Bernadette Tobin RGN, MSc, strictly by appointment.",
   },
   robots: {
     index: true,

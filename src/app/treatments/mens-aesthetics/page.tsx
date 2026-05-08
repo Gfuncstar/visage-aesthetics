@@ -4,9 +4,9 @@ import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/treatments/mens-aesthetics' },
-  title: 'Men\u2019s Aesthetics | Visage Aesthetics Braintree',
+  title: 'Men\u2019s Aesthetics | Award-Winning Clinic, Braintree',
   description:
-    'Discreet, clinical aesthetic treatments for men in Braintree, Essex. Anti-wrinkle, jawline filler, Profhilo and AQUALYX tailored to male anatomy.',
+    'Discreet, clinical aesthetic treatments for men. Visage Aesthetics, Braintree, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. Anti-wrinkle, jawline filler, Profhilo and AQUALYX tailored to male anatomy.',
 }
 
 export default function Page() {

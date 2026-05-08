@@ -4,9 +4,9 @@ import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/treatments/map-my-mole' },
-  title: 'Map My Mole, Dermatologist Mole Review | Visage Aesthetics',
+  title: 'Map My Mole | Award-Winning Aesthetics, Braintree',
   description:
-    'Have a concerning mole or skin lesion reviewed by a UK consultant dermatologist within 24 hours. Medical-grade dermoscopy at Visage Aesthetics, Braintree. £90 per mole.',
+    'Have a concerning mole or skin lesion reviewed by a UK consultant dermatologist within 24 hours. Medical-grade dermoscopy at Visage Aesthetics, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. £90 per mole.',
 }
 
 export default function Page() {
