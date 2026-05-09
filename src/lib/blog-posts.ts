@@ -182,6 +182,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-05-07',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'men-aesthetics-guide',
+    category: "Men",
+    title: "Aesthetic treatment for men: what's different",
+    excerpt: "Men require higher doses, different injection patterns, and a practitioner who understands that the male brow sits lower—get it wrong and the result looks feminised.",
+    readTime: "9 min read",
+    datePublished: '2026-05-09',
+    dateModified: '2026-05-09',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
