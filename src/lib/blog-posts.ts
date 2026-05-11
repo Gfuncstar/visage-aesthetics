@@ -192,6 +192,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-05-09',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'micro-needling-results-timeline',
+    category: "Skin quality",
+    title: "Micro-needling: when you'll see results, and what to expect",
+    excerpt: "Micro-needling triggers a staged healing response that unfolds over months, not days—here's what the evidence says about realistic timelines.",
+    readTime: "9 min read",
+    datePublished: '2026-05-11',
+    dateModified: '2026-05-11',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 

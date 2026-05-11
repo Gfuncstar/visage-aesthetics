@@ -55,6 +55,7 @@ const PAGE_DATES: Record<string, string> = {
   '/blog/first-botox-appointment': '2026-04-01',
   '/blog/natural-looking-filler': '2026-04-01',
   '/blog/profhilo-vs-dermal-filler': '2026-04-01',
+  '/blog/micro-needling-results-timeline': '2026-05-11',
   '/blog/men-aesthetics-guide': '2026-05-09',
   '/blog/hyperhidrosis-botox-explained': '2026-05-07',
   '/blog/natural-looking-aesthetics-essex': '2026-05-05',
@@ -122,7 +123,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'what-is-a-nurse-led-clinic',
     'consultation-questions-to-ask',
     'tear-trough-filler-truth',
-    'first-time-botox-mistakes',    'anti-wrinkle-aftercare',    'how-long-does-botox-last',    'exercise-and-botox-results',    'vitamin-b12-injections-when-they-work',    'natural-looking-aesthetics-essex',    'hyperhidrosis-botox-explained',    'men-aesthetics-guide',
+    'first-time-botox-mistakes',    'anti-wrinkle-aftercare',    'how-long-does-botox-last',    'exercise-and-botox-results',    'vitamin-b12-injections-when-they-work',    'natural-looking-aesthetics-essex',    'hyperhidrosis-botox-explained',    'men-aesthetics-guide',    'micro-needling-results-timeline',
+
 
 
 
