@@ -202,6 +202,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-05-11',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'aqualyx-fat-dissolving-explained',
+    category: "Body contouring",
+    title: "AQUALYX fat dissolving: what to expect",
+    excerpt: "A clear explanation of how AQUALYX destroys fat cells, what the treatment course involves, and the realistic results you can expect.",
+    readTime: "9 min read",
+    datePublished: '2026-05-13',
+    dateModified: '2026-05-13',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
