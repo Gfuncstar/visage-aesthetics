@@ -4,6 +4,7 @@ import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import RevealRoot from '@/components/ui/Reveal'
+import FloatingWhatsApp from '@/components/ui/FloatingWhatsApp'
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -115,6 +116,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${cormorant.variable} ${inter.variable}`}>
       <head>
         <link rel="preload" as="image" href="/images/hero-poster.jpg" fetchPriority="high" />
+        <link rel="preload" as="image" href="/images/award-badge.png" fetchPriority="high" />
         <link rel="dns-prefetch" href="https://www.openstreetmap.org" />
         <link rel="dns-prefetch" href="https://visage-aesthetics.book.app" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -136,6 +138,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Header />
         <main id="main">{children}</main>
         <Footer />
+        <FloatingWhatsApp />
       </body>
     </html>
   )
