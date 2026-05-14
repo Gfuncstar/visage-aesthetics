@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/treatments/anti-wrinkle-injections' },
   title: 'Anti-Wrinkle Injections (Botox) Braintree | Visage Aesthetics',
   description:
-    'Officially awarded nurse-led anti-wrinkle injections in Braintree, Essex. Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Naturally subtle results, full expression preserved. From £120.',
+    'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Nurse-led anti-wrinkle injections in Braintree, Essex. Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Naturally subtle results, full expression preserved. From £120.',
 }
 
 export default function Page() {

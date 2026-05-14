@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/chelmsford-profhilo' },
   openGraph: {
     title: 'Profhilo for Chelmsford Clients | Visage Aesthetics',
-    description: 'Officially awarded Profhilo treatment 25 minutes from Chelmsford. From £180.',
+    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Profhilo treatment 25 minutes from Chelmsford. From £180.',
     url: 'https://www.vaclinic.co.uk/chelmsford-profhilo',
   },
 }
@@ -19,10 +19,10 @@ export default function ChelmsfordProfhilo() {
       town="Chelmsford"
       treatment="Profhilo"
       travel="25 minutes from Chelmsford via the A131 northbound"
-      positioningLine="Profhilo is not filler, it is a deep skin bio-remodeller that hydrates from within and stimulates your own collagen. Chelmsford clients drive 25 minutes for the closest officially awarded clinic offering authentic IBSA Profhilo from a nurse-led practitioner."
+      positioningLine="Profhilo is not filler, it is a deep skin bio-remodeller that hydrates from within and stimulates your own collagen. Chelmsford clients drive 25 minutes for the closest Best Non-Surgical Aesthetics Clinic 2026, Essex winner offering authentic IBSA Profhilo from a nurse-led practitioner."
       reasons={[
         { title: 'Authentic IBSA Profhilo', body: "Never relabelled or repackaged. Sourced direct from the manufacturer. Many Chelmsford clinics dilute or substitute, we don't." },
-        { title: 'Officially awarded, nurse-led', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. RGN, MSc Advanced Practice (Level 7), twenty years clinical experience." },
+        { title: 'Winner of Best Non-Surgical Aesthetics Clinic 2026, Essex. Nurse-led', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. RGN, MSc Advanced Practice (Level 7), twenty years clinical experience." },
         { title: 'Worth the 25-minute drive', body: "Free on-site parking on Friars Lane. One client in the room at a time. The drive is the easiest part." },
       ]}
       priceFrom="From £180 / single session"

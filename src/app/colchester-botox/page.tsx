@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/colchester-botox' },
   openGraph: {
     title: 'Botox for Colchester Clients | Visage Aesthetics, Braintree',
-    description: 'Officially awarded nurse-led Botox 25 minutes from Colchester. From £120.',
+    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Nurse-led Botox 25 minutes from Colchester. From £120.',
     url: 'https://www.vaclinic.co.uk/colchester-botox',
   },
 }
@@ -23,7 +23,7 @@ export default function ColchesterBotox() {
       reasons={[
         { title: 'Worth the 25-minute drive', body: "Free parking, one client in the room at a time, no high-street salon vibe. Many Colchester clients tell us the drive is the easiest part." },
         { title: 'A nurse with an MSc', body: "I hold a Level 7 MSc in Advanced Practice, the highest postgraduate nursing qualification. Most Colchester aesthetic practitioners are trained at Level 4-5." },
-        { title: 'Officially awarded clinic', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. The closest award-recognised clinic for the Colchester area." },
+        { title: 'Winner — Best Non-Surgical Aesthetics Clinic 2026, Essex', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. The closest award-recognised clinic for the Colchester area." },
       ]}
       priceFrom="From £120 / 1 area"
       postcode="CM7 9BL"

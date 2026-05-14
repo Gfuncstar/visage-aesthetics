@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/chelmsford-lip-filler' },
   openGraph: {
     title: 'Lip Filler for Chelmsford Clients | Visage Aesthetics',
-    description: 'Officially awarded nurse-led lip filler 25 minutes from Chelmsford. From £110.',
+    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Nurse-led lip filler 25 minutes from Chelmsford. From £110.',
     url: 'https://www.vaclinic.co.uk/chelmsford-lip-filler',
   },
 }

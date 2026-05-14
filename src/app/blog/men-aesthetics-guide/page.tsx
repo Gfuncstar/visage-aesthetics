@@ -6,7 +6,7 @@ import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
 const POST = {
   slug: 'men-aesthetics-guide',
   title: "Aesthetic treatment for men: what's different",
-  description: "Aesthetic treatment for men: what's different, written by Bernadette Tobin RGN, MSc Advanced Practice. Officially awarded nurse-led clinic in Braintree, Essex.",
+  description: "Aesthetic treatment for men: what's different, written by Bernadette Tobin RGN, MSc Advanced Practice. Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Nurse-led clinic in Braintree, Essex.",
   datePublished: '2026-05-09',
   dateModified: '2026-05-09',
   image: '/images/og-home.jpg',

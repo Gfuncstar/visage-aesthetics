@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/maldon-lip-filler' },
   openGraph: {
     title: 'Lip Filler for Maldon Clients | Visage Aesthetics',
-    description: 'Officially awarded nurse-led lip filler 25 minutes from Maldon. From £110.',
+    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Nurse-led lip filler 25 minutes from Maldon. From £110.',
     url: 'https://www.vaclinic.co.uk/maldon-lip-filler',
   },
 }
@@ -22,7 +22,7 @@ export default function MaldonLipFiller() {
       positioningLine="Naturally balanced lip filler twenty-five minutes from Maldon. Performed by an awarded registered nurse with twenty years of clinical experience."
       reasons={[
         { title: 'A short drive across the county', body: "Twenty-five minutes via the A414. Free parking on Friars Lane, discreet entrance, strictly one client at a time." },
-        { title: 'Officially awarded nurse-led care', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. NMC registered, MSc Advanced Practice (Level 7), twenty years of clinical experience." },
+        { title: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Nurse-led care', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. NMC registered, MSc Advanced Practice (Level 7), twenty years of clinical experience." },
         { title: 'Conservative, fully reversible', body: "0.5ml or 1ml at a time. Hyaluronic acid only, dissolvable with hyaluronidase. Reversal product on site." },
       ]}
       priceFrom="From £110 / 0.5ml"

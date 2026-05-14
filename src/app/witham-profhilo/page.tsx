@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/witham-profhilo' },
   openGraph: {
     title: 'Profhilo for Witham Clients | Visage Aesthetics',
-    description: 'Officially awarded Profhilo treatment 12 minutes from Witham. From £180.',
+    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Profhilo treatment 12 minutes from Witham. From £180.',
     url: 'https://www.vaclinic.co.uk/witham-profhilo',
   },
 }

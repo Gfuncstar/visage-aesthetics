@@ -115,7 +115,7 @@ export default async function GeoLandingTemplate({
               </ol>
             </nav>
             <div className="text-eyebrow text-gold mb-3 inline-flex items-center gap-2">
-              <MapPin size={12} /> Officially awarded · Serving {town}
+              <MapPin size={12} /> Winner · Best Non-Surgical Aesthetics Clinic 2026, Essex
             </div>
             <h1 className="font-display italic text-hero text-charcoal">{treatment} in {town}.</h1>
             <p className="mt-5 text-body-lg text-ink-soft max-w-xl">{positioningLine}</p>
@@ -132,7 +132,7 @@ export default async function GeoLandingTemplate({
             >
               <AwardIcon size={13} strokeWidth={1.5} />
               <span className="border-b border-transparent group-hover:border-current pb-0.5 transition-colors">
-                Officially awarded · Best Clinic Essex 2026
+                Officially awarded · Best Non-Surgical Aesthetics Clinic 2026, Essex
               </span>
             </Link>
           </div>
@@ -189,7 +189,7 @@ export default async function GeoLandingTemplate({
               <li className="flex items-start gap-2"><Check size={16} className="text-gold mt-1 shrink-0" /> MSc Advanced Practice</li>
               <li className="flex items-start gap-2"><Check size={16} className="text-gold mt-1 shrink-0" /> Royal College of Nursing</li>
               <li className="flex items-start gap-2"><Check size={16} className="text-gold mt-1 shrink-0" /> 20+ years clinical experience</li>
-              <li className="flex items-start gap-2"><Check size={16} className="text-gold mt-1 shrink-0" /> Best Clinic Essex 2026</li>
+              <li className="flex items-start gap-2"><Check size={16} className="text-gold mt-1 shrink-0" /> Best Non-Surgical Aesthetics Clinic 2026, Essex</li>
               <li className="flex items-start gap-2"><Check size={16} className="text-gold mt-1 shrink-0" /> Full medical indemnity insured</li>
             </ul>
           </div>

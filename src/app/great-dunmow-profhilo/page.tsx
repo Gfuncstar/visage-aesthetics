@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/great-dunmow-profhilo' },
   openGraph: {
     title: 'Profhilo for Great Dunmow Clients | Visage Aesthetics',
-    description: 'Officially awarded Profhilo treatment 15 minutes from Great Dunmow. From £180.',
+    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Profhilo treatment 15 minutes from Great Dunmow. From £180.',
     url: 'https://www.vaclinic.co.uk/great-dunmow-profhilo',
   },
 }

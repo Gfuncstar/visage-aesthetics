@@ -11,22 +11,22 @@ import { getGoogleReviews } from '@/lib/google-reviews'
 import { BOOKING_URL } from '@/lib/booking'
 
 export const metadata: Metadata = {
-  title: 'Visage Aesthetics, Awarded Best Clinic Essex 2026 | Nurse-Led, Braintree',
-  description: 'Officially awarded Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards). Private nurse-led clinic on Friars Lane, Braintree. Botox, filler and Profhilo by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Free consultation, strictly by appointment.',
+  title: 'Visage Aesthetics | Winner — Best Non-Surgical Clinic 2026, Essex',
+  description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards). Private nurse-led clinic on Friars Lane, Braintree. Botox, filler and Profhilo by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Free consultation, strictly by appointment.',
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
     locale: 'en_GB',
     url: 'https://www.vaclinic.co.uk/',
     siteName: 'Visage Aesthetics',
-    title: 'Visage Aesthetics, Awarded Best Clinic Essex 2026 | Nurse-Led, Braintree',
-    description: 'Officially awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. Private nurse-led clinic on Friars Lane, Braintree.',
+    title: 'Visage Aesthetics | Winner — Best Non-Surgical Clinic 2026, Essex',
+    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Private nurse-led clinic on Friars Lane, Braintree.',
     images: [{ url: '/images/og-home.jpg', width: 1200, height: 630, alt: 'Visage Aesthetics, Awarded Best Non-Surgical Clinic Essex 2026' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Visage Aesthetics, Awarded Best Clinic Essex 2026 | Nurse-Led, Braintree',
-    description: 'Officially awarded Best Non-Surgical Aesthetics Clinic 2026, Essex.',
+    title: 'Visage Aesthetics | Winner — Best Non-Surgical Clinic 2026, Essex',
+    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex.',
     images: ['/images/og-home.jpg'],
   },
 }

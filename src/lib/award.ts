@@ -10,8 +10,13 @@
 export const AWARD = {
   /** Full canonical name used in schema and titles */
   fullName: 'Best Non-Surgical Aesthetics Clinic 2026, Essex',
-  /** Short form for tight UI (buttons, microcopy) */
-  shortName: 'Best Clinic Essex 2026',
+  /**
+   * Always use the full name. shortName kept for legacy callers and
+   * points at fullName intentionally — every public-facing reference
+   * must carry the complete, specific claim. This is the differentiator
+   * vs. competitors who claim "award-winning" without an actual award.
+   */
+  shortName: 'Best Non-Surgical Aesthetics Clinic 2026, Essex',
   /** Awarding body name */
   awardingBody: 'Health, Beauty & Wellness Awards',
   /** Verifiable public listing on the awarding body's site */
@@ -25,7 +30,7 @@ export const AWARD = {
   /** The canonical detail page on this site */
   detailPath: '/awards/best-non-surgical-clinic-essex-2026',
   /** One-line trust-strip copy used near CTAs sitewide */
-  ctaLine: 'Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex',
+  ctaLine: 'Winner — Best Non-Surgical Aesthetics Clinic 2026, Essex',
 }
 
 /** Schema.org Award object — reusable across Organization, Person, etc. */

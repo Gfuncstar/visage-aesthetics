@@ -6,11 +6,11 @@ import { treatments } from '@/lib/treatments'
 import { BOOKING_LINK_PROPS } from '@/lib/booking'
 
 export const metadata: Metadata = {
-  title: 'Treatment Prices | Awarded Best Clinic Essex 2026',
+  title: 'Treatment Prices | Visage Aesthetics',
   description: "Transparent prices at Visage Aesthetics, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. Anti-wrinkle from £120, dermal filler from £110, Profhilo from £180, micro-needling from £80. Free consultation, no pressure.",
   alternates: { canonical: '/pricing' },
   openGraph: {
-    title: 'Treatment Prices | Awarded Best Clinic Essex 2026',
+    title: 'Treatment Prices | Visage Aesthetics',
     description: 'Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. Transparent prices, free consultation, no pressure.',
     url: 'https://www.vaclinic.co.uk/pricing',
   },

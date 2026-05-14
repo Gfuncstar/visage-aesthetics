@@ -4,7 +4,7 @@ import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/treatments/profhilo' },
-  title: 'Profhilo Braintree | Awarded Best Nurse-Led Clinic 2026 | Visage Aesthetics',
+  title: 'Profhilo Braintree | Visage Aesthetics | Visage Aesthetics',
   description:
     'Authentic Profhilo skin bio-remodelling in Braintree, Essex by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Best Non-Surgical Aesthetics Clinic 2026. Hydration, glow, no fill. From £180.',
 }
