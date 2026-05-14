@@ -446,6 +446,22 @@ section.reveal { opacity: 1; transform: none; transition: none; }
   .reveal, .reveal-stagger > * { opacity: 1; transform: none; }
 }
 
+/* Sticky booking bar — clean transition for the auto-hide rule below */
+.sticky-booking-bar {
+  transition: transform 0.4s var(--ease), opacity 0.3s var(--ease);
+}
+/*
+ * Once the user has scrolled (FloatingWhatsApp visible), let the WhatsApp
+ * button carry the persistent CTA and drop the booking bar off-screen so
+ * the bottom of the viewport stays uncluttered. At top-of-page both UI
+ * elements are absent / hidden which keeps the hero clean.
+ */
+body:has(.floating-whatsapp[data-visible="true"]) .sticky-booking-bar {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* Floating WhatsApp button — sticks bottom-right on every page */
 .floating-whatsapp {
   position: fixed;
