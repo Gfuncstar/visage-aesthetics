@@ -278,6 +278,7 @@ export default async function Home() {
                   <div className="eyebrow mb-2">{String(i + 1).padStart(2, '0')}</div>
                   <h3 className="text-h3 text-charcoal mb-1.5">{t.name}</h3>
                   <p className="text-[14px]" style={{ color: '#5C4F44', lineHeight: 1.5 }}>{t.tagline}.</p>
+                  <div className="mt-3 text-gold" style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 500 }}>{t.price}</div>
                 </div>
                 <div className="card-arrow" />
               </Link>
