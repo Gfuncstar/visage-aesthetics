@@ -131,7 +131,9 @@ export default function ScrollScrubHero() {
             alt={`Visage Aesthetics, officially awarded ${AWARD.fullName}`}
             width={400}
             height={400}
+            sizes="(min-width: 720px) 220px, 150px"
             priority
+            fetchPriority="high"
           />
         </Link>
         <div className="scrub-content" style={{ padding: '120px var(--pad-x) 130px', justifyContent: 'flex-end', gap: 32 }}>
