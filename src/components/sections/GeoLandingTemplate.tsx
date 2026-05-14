@@ -1,7 +1,10 @@
 import Link from 'next/link'
-import { ArrowUpRight, Check, MapPin } from 'lucide-react'
+import { ArrowUpRight, Check, MapPin, Award as AwardIcon } from 'lucide-react'
 import BookingCTA from '@/components/sections/BookingCTA'
 import { BOOKING_LINK_PROPS } from '@/lib/booking'
+import { geoPages } from '@/lib/geo-pages'
+import { getGoogleReviews } from '@/lib/google-reviews'
+import { AWARD } from '@/lib/award'
 
 export type GeoLandingProps = {
   /** URL slug, used in canonicals and breadcrumbs */
@@ -28,10 +31,43 @@ export type GeoLandingProps = {
   alsoServes: string[]
 }
 
-export default function GeoLandingTemplate({
+export default async function GeoLandingTemplate({
   slug, town, treatment, travel, positioningLine, reasons, priceFrom, postcode, treatmentHref, faqs, alsoServes,
 }: GeoLandingProps) {
   const url = `https://www.vaclinic.co.uk/${slug}`
+  const reviews = await getGoogleReviews()
+
+  // Lateral links: same treatment family, different towns
+  const currentEntry = geoPages.find((g) => g.slug === slug)
+  const lateralTowns = currentEntry
+    ? geoPages.filter((g) => g.treatmentSlug === currentEntry.treatmentSlug && g.slug !== slug)
+    : []
+
+  const provider: Record<string, unknown> = {
+    '@type': 'MedicalBusiness',
+    name: 'Visage Aesthetics',
+    url: 'https://www.vaclinic.co.uk/',
+    telephone: '+44 7931 395246',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: '17A Friars Lane',
+      addressLocality: 'Braintree',
+      addressRegion: 'Essex',
+      postalCode: 'CM7 9BL',
+      addressCountry: 'GB',
+    },
+    areaServed: { '@type': 'City', name: town },
+  }
+  if (reviews.live && reviews.total > 0) {
+    provider.aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: reviews.rating.toFixed(1),
+      reviewCount: reviews.total,
+      bestRating: '5',
+      worstRating: '1',
+    }
+  }
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -49,21 +85,7 @@ export default function GeoLandingTemplate({
         bodyLocation: 'Face',
         procedureType: 'https://schema.org/NoninvasiveProcedure',
         url,
-        provider: {
-          '@type': 'MedicalBusiness',
-          name: 'Visage Aesthetics',
-          url: 'https://www.vaclinic.co.uk/',
-          telephone: '+44 7931 395246',
-          address: {
-            '@type': 'PostalAddress',
-            streetAddress: '17A Friars Lane',
-            addressLocality: 'Braintree',
-            addressRegion: 'Essex',
-            postalCode: 'CM7 9BL',
-            addressCountry: 'GB',
-          },
-          areaServed: { '@type': 'City', name: town },
-        },
+        provider,
       },
       {
         '@type': 'FAQPage',
@@ -93,7 +115,7 @@ export default function GeoLandingTemplate({
               </ol>
             </nav>
             <div className="text-eyebrow text-gold mb-3 inline-flex items-center gap-2">
-              <MapPin size={12} /> Award-winning · Serving {town}
+              <MapPin size={12} /> Officially awarded · Serving {town}
             </div>
             <h1 className="font-display italic text-hero text-charcoal">{treatment} in {town}.</h1>
             <p className="mt-5 text-body-lg text-ink-soft max-w-xl">{positioningLine}</p>
@@ -103,9 +125,16 @@ export default function GeoLandingTemplate({
               </a>
               <span className="btn btn-ghost-dark btn-block sm:btn-md:auto pointer-events-none">{priceFrom}</span>
             </div>
-            <div className="mt-6 flex items-center gap-2 text-stone text-[12px] tracking-[0.18em] uppercase">
-              <span>Best Non-Surgical Aesthetics Clinic 2026, Essex</span>
-            </div>
+            <Link
+              href={AWARD.detailPath}
+              className="mt-6 inline-flex items-center gap-2 text-gold hover:text-gold-deep transition-colors group"
+              style={{ fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 500 }}
+            >
+              <AwardIcon size={13} strokeWidth={1.5} />
+              <span className="border-b border-transparent group-hover:border-current pb-0.5 transition-colors">
+                Officially awarded · Best Clinic Essex 2026
+              </span>
+            </Link>
           </div>
           <div className="lg:col-span-5">
             <div className="border border-line/30 rounded-md p-7 bg-cream-soft">
@@ -202,6 +231,30 @@ export default function GeoLandingTemplate({
           </div>
         </div>
       </section>
+
+      {/* SAME TREATMENT, OTHER TOWNS — lateral geo links */}
+      {lateralTowns.length > 0 && (
+        <section className="py-6 md:py-9">
+          <div className="max-w-[1100px] mx-auto px-5 md:px-8">
+            <div className="text-eyebrow text-gold mb-3">{treatment} for other towns</div>
+            <h2 className="font-display text-h2 text-charcoal mb-8">{treatment} pages by location.</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px bg-line/30 border border-line/30">
+              {lateralTowns.map((g) => (
+                <Link
+                  key={g.slug}
+                  href={g.href}
+                  className="bg-cream hover:bg-cream-soft transition-colors p-5 md:p-6 group"
+                >
+                  <div className="font-display text-charcoal" style={{ fontSize: 18, lineHeight: 1.25, fontWeight: 400 }}>
+                    {g.anchor}
+                  </div>
+                  <div className="mt-2 text-stone" style={{ fontSize: 12, lineHeight: 1.4 }}>{g.travelLine}</div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <BookingCTA />
     </>

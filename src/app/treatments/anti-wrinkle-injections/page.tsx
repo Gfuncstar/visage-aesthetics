@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/treatments/anti-wrinkle-injections' },
   title: 'Anti-Wrinkle Injections (Botox) Braintree | Visage Aesthetics',
   description:
-    'Award-winning nurse-led anti-wrinkle injections in Braintree, Essex. Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Naturally subtle results, full expression preserved. From £120.',
+    'Officially awarded nurse-led anti-wrinkle injections in Braintree, Essex. Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Naturally subtle results, full expression preserved. From £120.',
 }
 
 export default function Page() {
@@ -100,7 +100,7 @@ export default function Page() {
         {
           question: 'Do you treat clients from outside Braintree?',
           answer:
-            'Yes, clients travel to Friars Lane from Chelmsford, Colchester, Halstead, Witham, Maldon, Sudbury and across Essex. We have dedicated information pages for clients travelling from /braintree-botox, /chelmsford-botox, /halstead-botox, /witham-botox and /colchester-botox with travel times and surrounding-area lists. Free on-site parking and a discreet entrance.',
+            'Yes, clients travel to Friars Lane from Chelmsford, Colchester, Halstead, Witham, Maldon, Sudbury, Great Dunmow and across Essex. Each town has its own page below with travel times, surrounding-area lists and local FAQs. Free on-site parking and a discreet entrance.',
         },
       ]}
       practitionerNote="My approach to anti-wrinkle injections is simple: less is more, and you should still look like you. I would rather under-treat first and add a touch at your two-week review than risk a heavy result. I dose to the muscle, not to the area. I tell clients honestly when I think they do not need treatment yet, or when something else, Profhilo, micro-needling, even just a different skincare routine, would serve them better. Subtle, natural and yours. That's the entire job."

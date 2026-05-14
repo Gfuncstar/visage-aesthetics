@@ -4,7 +4,7 @@ import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/treatments/vitamin-b12' },
-  title: 'Vitamin B12 Injections | Award-Winning Clinic, Braintree',
+  title: 'Vitamin B12 Injections | Awarded Best Clinic Essex 2026',
   description:
     'Vitamin B12 injections for energy, focus, mood and deficiency support. Visage Aesthetics, Braintree, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex.',
 }

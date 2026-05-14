@@ -2,12 +2,12 @@ import type { Metadata } from 'next'
 import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
-  title: 'Lip Filler Chelmsford | Award-Winning Nurse-Led Clinic | Visage Aesthetics',
+  title: 'Lip Filler in Chelmsford, from £110 | Visage Aesthetics',
   description: "Subtle, balanced lip filler for Chelmsford clients at Visage Aesthetics, Braintree (25 mins). Best Non-Surgical Aesthetics Clinic 2026, Essex. Bernadette Tobin RGN, MSc. From £110.",
   alternates: { canonical: '/chelmsford-lip-filler' },
   openGraph: {
     title: 'Lip Filler for Chelmsford Clients | Visage Aesthetics',
-    description: 'Award-winning nurse-led lip filler 25 minutes from Chelmsford. From £110.',
+    description: 'Officially awarded nurse-led lip filler 25 minutes from Chelmsford. From £110.',
     url: 'https://www.vaclinic.co.uk/chelmsford-lip-filler',
   },
 }

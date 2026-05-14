@@ -2,12 +2,12 @@ import type { Metadata } from 'next'
 import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
-  title: 'Botox Witham | Award-Winning Nurse-Led Clinic | Visage Aesthetics',
+  title: 'Botox in Witham, from £120 | Visage Aesthetics',
   description: "Anti-wrinkle (Botox) injections for Witham clients at Visage Aesthetics, Braintree, 12 minutes away. Best Non-Surgical Aesthetics Clinic 2026, Essex. Bernadette Tobin RGN, MSc. From £120.",
   alternates: { canonical: '/witham-botox' },
   openGraph: {
     title: 'Botox for Witham Clients | Visage Aesthetics',
-    description: 'Award-winning nurse-led Botox clinic 12 minutes from Witham. From £120.',
+    description: 'Officially awarded nurse-led Botox clinic 12 minutes from Witham. From £120.',
     url: 'https://www.vaclinic.co.uk/witham-botox',
   },
 }
@@ -22,7 +22,7 @@ export default function WithamBotox() {
       positioningLine="A short drive up the B1018 from Witham brings you to the only Essex clinic awarded Best Non-Surgical Aesthetics Clinic 2026. Worth the trip for anti-wrinkle work that genuinely looks like nothing has happened."
       reasons={[
         { title: 'Closer than you think', body: "12 minutes door-to-door from central Witham. Free on-site parking, discreet entrance, no crowded waiting room." },
-        { title: 'Award-winning local clinic', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. Few clinics within a 12-minute drive of Witham can say the same." },
+        { title: 'Officially awarded local clinic', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. Few clinics within a 12-minute drive of Witham can say the same." },
         { title: 'Truly medical', body: "Performed by a registered nurse with an MSc in Advanced Practice (Level 7), the highest postgraduate nursing qualification. Twenty years of clinical experience." },
       ]}
       priceFrom="From £120 / 1 area"
@@ -35,7 +35,7 @@ export default function WithamBotox() {
         },
         {
           question: 'Why come to Visage from Witham?',
-          answer: "It is the closest award-winning aesthetics clinic to Witham. I hold an MSc Advanced Practice (Level 7), rare in Essex aesthetics, where most practitioners are Level 4-5 trained.",
+          answer: "It is the closest officially awarded aesthetics clinic to Witham. I hold an MSc Advanced Practice (Level 7), rare in Essex aesthetics, where most practitioners are Level 4-5 trained.",
         },
         {
           question: 'Can I be seen this week?',

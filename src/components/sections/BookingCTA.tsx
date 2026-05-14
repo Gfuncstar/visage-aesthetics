@@ -1,4 +1,7 @@
+import Link from 'next/link'
+import { Award as AwardIcon } from 'lucide-react'
 import { BOOKING_LINK_PROPS } from '@/lib/booking'
+import { AWARD } from '@/lib/award'
 
 export default function BookingCTA({ sectionNumber = '06' }: { sectionNumber?: string } = {}) {
   return (
@@ -33,6 +36,16 @@ export default function BookingCTA({ sectionNumber = '06' }: { sectionNumber?: s
             <span className="btn-arrow">→</span>
           </a>
         </div>
+        <Link
+          href={AWARD.detailPath}
+          className="mt-8 inline-flex items-center gap-2 group"
+          style={{ color: '#C09F6E', fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 500 }}
+        >
+          <AwardIcon size={14} strokeWidth={1.5} />
+          <span className="border-b border-transparent group-hover:border-current pb-0.5 transition-colors">
+            Book with the awarded clinic · {AWARD.shortName}
+          </span>
+        </Link>
       </div>
     </section>
   )

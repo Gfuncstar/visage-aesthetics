@@ -2,8 +2,10 @@
 
 import { useEffect, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import GoogleG from '@/components/ui/GoogleG'
 import { BOOKING_LINK_PROPS } from '@/lib/booking'
+import { AWARD } from '@/lib/award'
 
 export default function ScrollScrubHero() {
   const heroRef = useRef<HTMLElement>(null)
@@ -119,33 +121,18 @@ export default function ScrollScrubHero() {
           <source src="/video/walkthrough-mobile.mp4" type="video/mp4" />
         </video>
         <div className="scrub-overlay" aria-hidden />
-        <Link href="/awards" className="award-stack" aria-label="View Visage Aesthetics awards and recognition">
-          <div className="award-badge" aria-label="Best Non-Surgical Aesthetics Clinic 2026, Essex">
-            <span className="award-eyebrow">Awarded</span>
-            <span className="award-laurel" aria-hidden>
-              <span className="laurel-l">❦</span>
-              <span className="award-title">
-                Best Non-Surgical
-                <br />
-                Aesthetics Clinic
-              </span>
-              <span className="laurel-r">❦</span>
-            </span>
-            <span className="award-meta">2026 &nbsp;·&nbsp; Essex</span>
-          </div>
-          <div className="award-badge award-badge-nominee" aria-label="Educator of the Year 2026 Nominee">
-            <span className="award-eyebrow">Nominated</span>
-            <span className="award-laurel" aria-hidden>
-              <span className="laurel-l">❦</span>
-              <span className="award-title">
-                Educator of
-                <br />
-                the Year
-              </span>
-              <span className="laurel-r">❦</span>
-            </span>
-            <span className="award-meta">2026 &nbsp;·&nbsp; Nominee</span>
-          </div>
+        <Link
+          href={AWARD.detailPath}
+          className="award-medallion"
+          aria-label={`Verified winner: ${AWARD.fullName} (${AWARD.awardingBody}). View detail and verification.`}
+        >
+          <Image
+            src="/images/award-badge.png"
+            alt={`Visage Aesthetics, officially awarded ${AWARD.fullName}`}
+            width={400}
+            height={400}
+            priority
+          />
         </Link>
         <div className="scrub-content" style={{ padding: '120px var(--pad-x) 130px', justifyContent: 'flex-end', gap: 32 }}>
           <div ref={panel1Ref} className="scrub-panel">

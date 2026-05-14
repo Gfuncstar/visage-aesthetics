@@ -6,11 +6,11 @@ import { treatments } from '@/lib/treatments'
 import { BOOKING_LINK_PROPS } from '@/lib/booking'
 
 export const metadata: Metadata = {
-  title: 'Treatment Prices | Award-Winning Aesthetics, Braintree',
+  title: 'Treatment Prices | Awarded Best Clinic Essex 2026',
   description: "Transparent prices at Visage Aesthetics, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. Anti-wrinkle from £120, dermal filler from £110, Profhilo from £180, micro-needling from £80. Free consultation, no pressure.",
   alternates: { canonical: '/pricing' },
   openGraph: {
-    title: 'Treatment Prices | Award-Winning Aesthetics, Braintree',
+    title: 'Treatment Prices | Awarded Best Clinic Essex 2026',
     description: 'Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. Transparent prices, free consultation, no pressure.',
     url: 'https://www.vaclinic.co.uk/pricing',
   },
@@ -116,20 +116,69 @@ const rows: Row[] = [
   },
 ]
 
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'PriceSpecification',
-  name: 'Visage Aesthetics, Treatment Prices',
-  url: 'https://www.vaclinic.co.uk/pricing',
-  priceCurrency: 'GBP',
+// Build an OfferCatalog of every treatment × option pair, with structured
+// PriceSpecification per option. Replaces the previous single PriceSpecification
+// stub so individual price points are eligible for rich-result surfacing.
+const parsePrice = (s: string) => {
+  const m = s.match(/\d+/)
+  return m ? m[0] : ''
 }
 
-const breadcrumbLd = {
+const offerCatalog = {
+  '@type': 'OfferCatalog',
+  name: 'Visage Aesthetics treatment menu',
+  url: 'https://www.vaclinic.co.uk/pricing',
+  itemListElement: rows.flatMap((row) =>
+    row.options.map((o) => {
+      const numericPrice = parsePrice(o.price)
+      const offer: Record<string, unknown> = {
+        '@type': 'Offer',
+        name: `${row.treatment} — ${o.area}`,
+        itemOffered: {
+          '@type': 'MedicalProcedure',
+          name: row.treatment,
+          url: `https://www.vaclinic.co.uk${row.href}`,
+          procedureType: 'https://schema.org/NoninvasiveProcedure',
+        },
+        url: `https://www.vaclinic.co.uk${row.href}`,
+        priceCurrency: 'GBP',
+        availability: 'https://schema.org/InStock',
+      }
+      if (numericPrice) {
+        offer.price = numericPrice
+        offer.priceSpecification = {
+          '@type': 'PriceSpecification',
+          price: o.price,
+          priceCurrency: 'GBP',
+        }
+      }
+      return offer
+    })
+  ),
+}
+
+const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'BreadcrumbList',
-  itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.vaclinic.co.uk/' },
-    { '@type': 'ListItem', position: 2, name: 'Prices', item: 'https://www.vaclinic.co.uk/pricing' },
+  '@graph': [
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.vaclinic.co.uk/' },
+        { '@type': 'ListItem', position: 2, name: 'Prices', item: 'https://www.vaclinic.co.uk/pricing' },
+      ],
+    },
+    {
+      '@type': 'CollectionPage',
+      name: 'Visage Aesthetics, Treatment Prices',
+      url: 'https://www.vaclinic.co.uk/pricing',
+      mainEntity: offerCatalog,
+      provider: {
+        '@type': 'MedicalBusiness',
+        '@id': 'https://www.vaclinic.co.uk/#org',
+        name: 'Visage Aesthetics',
+        url: 'https://www.vaclinic.co.uk/',
+      },
+    },
   ],
 }
 
@@ -137,7 +186,6 @@ export default function PricingPage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
 
       <section className="bg-cream text-charcoal pt-24 md:pt-28 pb-6 md:pb-10 relative overflow-hidden">
         <div className="arc-bg" aria-hidden />

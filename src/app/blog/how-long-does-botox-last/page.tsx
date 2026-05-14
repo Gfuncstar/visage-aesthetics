@@ -6,7 +6,7 @@ import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
 const POST = {
   slug: 'how-long-does-botox-last',
   title: "How long does Botox actually last?",
-  description: "How long does Botox actually last?, written by Bernadette Tobin RGN, MSc Advanced Practice. Award-winning nurse-led clinic in Braintree, Essex.",
+  description: "How long does Botox actually last?, written by Bernadette Tobin RGN, MSc Advanced Practice. Officially awarded nurse-led clinic in Braintree, Essex.",
   datePublished: '2026-05-01',
   dateModified: '2026-05-01',
   image: '/images/og-home.jpg',

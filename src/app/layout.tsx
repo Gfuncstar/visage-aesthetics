@@ -92,7 +92,7 @@ const jsonLd = {
     '@type': 'Person',
     name: 'Bernadette Tobin',
     jobTitle: 'Registered Nurse, MSc Advanced Practice',
-    description: 'Registered nurse (NMC PIN 05G1755E) with MSc Advanced Practice (Level 7) and 20+ years clinical experience.',
+    description: 'Registered nurse (NMC PIN 05G1755E) with MSc Advanced Practice (Level 7) and 20+ years clinical experience. Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards).',
     identifier: [
       { '@type': 'PropertyValue', propertyID: 'NMC PIN', value: '05G1755E' },
     ],
@@ -102,6 +102,10 @@ const jsonLd = {
     hasCredential: [
       { '@type': 'EducationalOccupationalCredential', credentialCategory: 'degree', name: 'MSc Advanced Practice (Level 7)' },
       { '@type': 'EducationalOccupationalCredential', credentialCategory: 'professional registration', name: 'NMC Registered Nurse', identifier: '05G1755E' },
+    ],
+    award: [
+      'Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards)',
+      'Educator of the Year 2026, Nominee (Beauty & Aesthetics Awards)',
     ],
   },
 }

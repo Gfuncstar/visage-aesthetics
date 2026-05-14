@@ -4,7 +4,7 @@ import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/treatments/dermal-filler' },
-  title: 'Dermal Filler Braintree | Award-Winning Nurse-Led | Visage Aesthetics',
+  title: 'Dermal Filler Braintree | Awarded Best Nurse-Led Clinic 2026 | Visage Aesthetics',
   description:
     'Subtle, balanced dermal filler in Braintree, Essex. Hyaluronic acid for lips, cheeks and jawline by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). From £110, fully reversible.',
 }
@@ -99,7 +99,7 @@ export default function Page() {
         {
           question: 'Do you treat clients from across Essex?',
           answer:
-            'Yes, clients travel to Friars Lane from Chelmsford, Colchester, Halstead, Witham, Maldon, Sudbury and across the county. Dedicated travel pages: /braintree-lip-filler and /chelmsford-lip-filler. Free on-site parking and a discreet entrance.',
+            'Yes, clients travel to Friars Lane from Chelmsford, Colchester, Halstead, Witham, Maldon, Sudbury and across the county. Town-specific pages are listed below with travel times and local FAQs. Free on-site parking and a discreet entrance.',
         },
       ]}
       practitionerNote="My approach to filler is conservative by default. I would rather start with 0.5ml and add at review than rush to a heavier result. Filler is reversible, but reversal still takes a session and a fee, going slowly first time round saves you both. Subtle, balanced, and reversible. That is the entire job."

@@ -2,12 +2,12 @@ import type { Metadata } from 'next'
 import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
-  title: 'Profhilo Braintree | Award-Winning Nurse-Led Clinic | Visage Aesthetics',
+  title: 'Profhilo in Braintree, from £180 | Visage Aesthetics',
   description: "Profhilo skin bio-remodelling in Braintree, Essex by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Best Non-Surgical Aesthetics Clinic 2026. From £180. Hyaluronic acid, deep hydration, no fill.",
   alternates: { canonical: '/braintree-profhilo' },
   openGraph: {
     title: 'Profhilo in Braintree | Visage Aesthetics',
-    description: 'Award-winning Profhilo treatment on Friars Lane, Braintree. From £180.',
+    description: 'Officially awarded Profhilo treatment on Friars Lane, Braintree. From £180.',
     url: 'https://www.vaclinic.co.uk/braintree-profhilo',
   },
 }
@@ -22,7 +22,7 @@ export default function BraintreeProfhilo() {
       positioningLine="Profhilo is not filler, it is a deep skin bio-remodeller. Performed in Braintree by a registered nurse with twenty years' clinical experience and an MSc in Advanced Practice."
       reasons={[
         { title: 'Hydration, not fill', body: "Profhilo deeply hydrates from within and stimulates collagen and elastin. The result is glow, bounce and texture, never volume change. Subtler and more natural than filler." },
-        { title: 'Award-winning local clinic', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. Authentic Profhilo from IBSA, never relabelled or repackaged. Two sessions, four weeks apart, included in the course price." },
+        { title: 'Officially awarded local clinic', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. Authentic Profhilo from IBSA, never relabelled or repackaged. Two sessions, four weeks apart, included in the course price." },
         { title: 'A short, calm appointment', body: "Profhilo uses the BAP injection technique, five small points on each side. Around 30 minutes. Most Braintree clients walk in on their lunch break and back out without any visible signs." },
       ]}
       priceFrom="From £180 / single session"

@@ -3,7 +3,7 @@ import Accordion, { type AccordionItem } from '@/components/ui/Accordion'
 import BookingCTA from '@/components/sections/BookingCTA'
 
 export const metadata: Metadata = {
-  title: 'FAQ | Award-Winning Aesthetics, Braintree',
+  title: 'FAQ | Awarded Best Clinic Essex 2026',
   description: 'Common questions about aesthetic treatments at Visage Aesthetics, Braintree, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. Safety, qualifications, cost, what to expect before and after.',
 }
 

@@ -6,11 +6,11 @@ import { BOOKING_LINK_PROPS } from '@/lib/booking'
 
 export const metadata: Metadata = {
   title: 'Awards & Recognition | Visage Aesthetics, Braintree',
-  description: "Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards). Educator of the Year 2026 nominee (Beauty & Aesthetics Awards). An award-winning nurse-led clinic in Braintree run by Bernadette Tobin RGN, MSc.",
+  description: "Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards). Educator of the Year 2026 nominee (Beauty & Aesthetics Awards). An officially awarded nurse-led clinic in Braintree run by Bernadette Tobin RGN, MSc.",
   alternates: { canonical: '/awards' },
   openGraph: {
     title: 'Best Non-Surgical Aesthetics Clinic 2026, Essex | Educator of the Year 2026 Nominee',
-    description: 'Award-winning nurse-led aesthetics clinic in Braintree. Best Non-Surgical Aesthetics Clinic 2026, Essex. Educator of the Year 2026 nominee.',
+    description: 'Officially awarded nurse-led aesthetics clinic in Braintree. Best Non-Surgical Aesthetics Clinic 2026, Essex. Educator of the Year 2026 nominee.',
     url: 'https://www.vaclinic.co.uk/awards',
   },
 }
@@ -116,7 +116,7 @@ export default function AwardsPage() {
           </nav>
           <div className="text-eyebrow text-gold mb-3">Recognition</div>
           <h1 className="font-display italic text-hero text-charcoal max-w-3xl">
-            An award-winning nurse-led clinic.
+            An officially awarded nurse-led clinic.
           </h1>
           <p className="mt-6 text-body-lg text-ink-soft max-w-2xl">
             Recognised across Essex for naturally subtle results, medically led care, and a refusal
@@ -254,7 +254,7 @@ export default function AwardsPage() {
       <section className="py-6 md:py-9 bg-cream-soft">
         <div className="max-w-[820px] mx-auto px-5 md:px-8 text-center">
           <span className="hairline mb-6 inline-block bg-gold" />
-          <h2 className="font-display text-h2 text-charcoal">Experience the award-winning approach.</h2>
+          <h2 className="font-display text-h2 text-charcoal">Experience the officially awarded approach.</h2>
           <p className="mt-5 text-body-lg text-ink-soft">
             Free, unhurried consultation. No pressure. No upselling. Just an honest clinical conversation
             about what&apos;s right for you.

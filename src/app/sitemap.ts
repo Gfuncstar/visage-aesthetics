@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { treatments } from '@/lib/treatments'
+import { geoPages } from '@/lib/geo-pages'
 
 const SITE = 'https://www.vaclinic.co.uk'
 
@@ -13,6 +14,11 @@ const PAGE_DATES: Record<string, string> = {
   '/': '2026-04-26',
   '/about': '2026-04-26',
   '/awards': '2026-04-26',
+  '/awards/best-non-surgical-clinic-essex-2026': '2026-05-14',
+  '/compare': '2026-05-14',
+  '/compare/botox-vs-filler': '2026-05-14',
+  '/compare/profhilo-vs-dermal-filler': '2026-05-14',
+  '/compare/botox-vs-profhilo': '2026-05-14',
   '/pricing': '2026-04-26',
   '/treatments': '2026-04-26',
   '/aftercare': '2026-04-26',
@@ -34,6 +40,15 @@ const PAGE_DATES: Record<string, string> = {
   '/great-dunmow-botox': '2026-04-26',
   '/chelmsford-profhilo': '2026-04-26',
   '/halstead-profhilo': '2026-04-26',
+  '/braintree-dermal-filler': '2026-05-14',
+  '/halstead-lip-filler': '2026-05-14',
+  '/witham-lip-filler': '2026-05-14',
+  '/colchester-lip-filler': '2026-05-14',
+  '/maldon-lip-filler': '2026-05-14',
+  '/sudbury-lip-filler': '2026-05-14',
+  '/witham-profhilo': '2026-05-14',
+  '/colchester-profhilo': '2026-05-14',
+  '/great-dunmow-profhilo': '2026-05-14',
   '/about/qualifications': '2026-04-26',
   '/author/bernadette-tobin': '2026-04-26',
   '/blog/botox-vs-filler': '2026-04-26',
@@ -77,6 +92,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE}/`,                changeFrequency: 'weekly',  priority: 1.0,  lastModified: dateOf('/') },
     { url: `${SITE}/about`,           changeFrequency: 'monthly', priority: 0.9,  lastModified: dateOf('/about') },
     { url: `${SITE}/awards`,          changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/awards') },
+    { url: `${SITE}/awards/best-non-surgical-clinic-essex-2026`, changeFrequency: 'monthly', priority: 0.9, lastModified: dateOf('/awards/best-non-surgical-clinic-essex-2026') },
+    { url: `${SITE}/compare`,                          changeFrequency: 'monthly', priority: 0.8,  lastModified: dateOf('/compare') },
+    { url: `${SITE}/compare/botox-vs-filler`,          changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/compare/botox-vs-filler') },
+    { url: `${SITE}/compare/profhilo-vs-dermal-filler`,changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/compare/profhilo-vs-dermal-filler') },
+    { url: `${SITE}/compare/botox-vs-profhilo`,        changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/compare/botox-vs-profhilo') },
     { url: `${SITE}/pricing`,         changeFrequency: 'monthly', priority: 0.9,  lastModified: dateOf('/pricing') },
     { url: `${SITE}/treatments`,      changeFrequency: 'weekly',  priority: 0.95, lastModified: dateOf('/treatments') },
     { url: `${SITE}/aftercare`,       changeFrequency: 'monthly', priority: 0.6,  lastModified: dateOf('/aftercare') },
@@ -84,20 +104,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE}/contact`,         changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/contact') },
     { url: `${SITE}/blog`,            changeFrequency: 'weekly',  priority: 0.8,  lastModified: dateOf('/blog') },
     { url: `${SITE}/privacy`,         changeFrequency: 'yearly',  priority: 0.2,  lastModified: dateOf('/privacy') },
-    // Geo landing pages
-    { url: `${SITE}/braintree-botox`,      changeFrequency: 'monthly', priority: 0.9,  lastModified: dateOf('/braintree-botox') },
-    { url: `${SITE}/braintree-lip-filler`, changeFrequency: 'monthly', priority: 0.9,  lastModified: dateOf('/braintree-lip-filler') },
-    { url: `${SITE}/braintree-profhilo`,   changeFrequency: 'monthly', priority: 0.9,  lastModified: dateOf('/braintree-profhilo') },
-    { url: `${SITE}/chelmsford-botox`,     changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/chelmsford-botox') },
-    { url: `${SITE}/chelmsford-lip-filler`,changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/chelmsford-lip-filler') },
-    { url: `${SITE}/halstead-botox`,       changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/halstead-botox') },
-    { url: `${SITE}/witham-botox`,         changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/witham-botox') },
-    { url: `${SITE}/colchester-botox`,     changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/colchester-botox') },
-    { url: `${SITE}/maldon-botox`,         changeFrequency: 'monthly', priority: 0.8,  lastModified: dateOf('/maldon-botox') },
-    { url: `${SITE}/sudbury-botox`,        changeFrequency: 'monthly', priority: 0.8,  lastModified: dateOf('/sudbury-botox') },
-    { url: `${SITE}/great-dunmow-botox`,   changeFrequency: 'monthly', priority: 0.8,  lastModified: dateOf('/great-dunmow-botox') },
-    { url: `${SITE}/chelmsford-profhilo`,  changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/chelmsford-profhilo') },
-    { url: `${SITE}/halstead-profhilo`,    changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/halstead-profhilo') },
+    // Geo landing pages (auto-generated from registry)
     // Authority pages
     { url: `${SITE}/about/qualifications`, changeFrequency: 'yearly',  priority: 0.7,  lastModified: dateOf('/about/qualifications') },
     { url: `${SITE}/author/bernadette-tobin`, changeFrequency: 'monthly', priority: 0.75, lastModified: dateOf('/author/bernadette-tobin') },
@@ -112,6 +119,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: 'monthly',
     priority: 0.85,
     lastModified: dateOf(t.href),
+  }))
+
+  const geoRoutes: MetadataRoute.Sitemap = geoPages.map((g) => ({
+    url: `${SITE}${g.href}`,
+    changeFrequency: 'monthly',
+    priority: g.slug.startsWith('braintree-') ? 0.9 : 0.85,
+    lastModified: dateOf(g.href),
   }))
 
   const blogRoutes: MetadataRoute.Sitemap = [
@@ -142,5 +156,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: dateOf(`/blog/${slug}`),
   }))
 
-  return [...staticRoutes, ...treatmentRoutes, ...blogRoutes]
+  return [...staticRoutes, ...treatmentRoutes, ...geoRoutes, ...blogRoutes]
 }
