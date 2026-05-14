@@ -112,7 +112,17 @@ export default function Header() {
         aria-hidden={!mobileOpen}
       >
         <div className="pt-[80px] pb-32 px-5 h-full overflow-y-auto">
-          <nav className="flex flex-col pt-6">
+          <div className="pt-6">
+            <a
+              {...BOOKING_LINK_PROPS}
+              onClick={() => setMobileOpen(false)}
+              className="btn btn-primary btn-block"
+            >
+              <span>Book a consultation</span>
+              <span className="btn-arrow">→</span>
+            </a>
+          </div>
+          <nav className="flex flex-col pt-8">
             {primaryNav.map((item) => (
               <Link
                 key={item.href}
@@ -143,14 +153,6 @@ export default function Header() {
             </div>
           </div>
           <div className="pt-10">
-            <a
-              {...BOOKING_LINK_PROPS}
-              onClick={() => setMobileOpen(false)}
-              className="btn btn-primary btn-block"
-            >
-              <span>Book a consultation</span>
-              <span className="btn-arrow">→</span>
-            </a>
             <a
               href="mailto:info@vaclinic.co.uk"
               className="block text-center mt-5 eyebrow"
