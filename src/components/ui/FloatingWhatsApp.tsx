@@ -25,15 +25,15 @@ export default function FloatingWhatsApp() {
   // Pre-fill the WhatsApp message with context from the current page.
   const message = (() => {
     const p = path.replace(/^\//, '')
-    if (!p) return "Hi, I'd like to ask about a free consultation at Visage Aesthetics."
-    if (p.includes('botox') || p.includes('anti-wrinkle')) return "Hi, I'd like to ask about Botox / anti-wrinkle injections at Visage Aesthetics."
-    if (p.includes('lip-filler')) return "Hi, I'd like to ask about lip filler at Visage Aesthetics."
-    if (p.includes('dermal-filler')) return "Hi, I'd like to ask about dermal filler at Visage Aesthetics."
-    if (p.includes('profhilo')) return "Hi, I'd like to ask about Profhilo at Visage Aesthetics."
-    if (p.startsWith('compare/')) return "Hi, I read a comparison on your site and would like to ask which treatment is right for me."
-    if (p.startsWith('book/')) return "Hi, I'd like to book a free consultation at Visage Aesthetics."
-    if (p.startsWith('treatments/')) return "Hi, I'd like to ask about a treatment at Visage Aesthetics."
-    return "Hi, I'd like to ask about Visage Aesthetics."
+    if (!p) return "Hi, I'm interested in a free consultation at Visage Aesthetics."
+    if (p.includes('botox') || p.includes('anti-wrinkle')) return "Hi, I'm interested in Botox at Visage Aesthetics."
+    if (p.includes('lip-filler')) return "Hi, I'm interested in lip filler at Visage Aesthetics."
+    if (p.includes('dermal-filler')) return "Hi, I'm interested in dermal filler at Visage Aesthetics."
+    if (p.includes('profhilo')) return "Hi, I'm interested in Profhilo at Visage Aesthetics."
+    if (p.startsWith('compare/')) return "Hi, I'm interested in finding out which treatment is right for me."
+    if (p.startsWith('book/')) return "Hi, I'm interested in booking a free consultation at Visage Aesthetics."
+    if (p.startsWith('treatments/')) return "Hi, I'm interested in a treatment at Visage Aesthetics."
+    return "Hi, I'm interested in Visage Aesthetics."
   })()
 
   return (
