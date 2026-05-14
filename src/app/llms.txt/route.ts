@@ -36,6 +36,7 @@ export async function GET() {
   push(`- [Awards](${SITE}/awards): All recognition received by the clinic.`)
   push(`- [${AWARD.fullName}](${SITE}${AWARD.detailPath}): Verified detail of the 2026 Essex non-surgical clinic award.`)
   push(`- [Prices](${SITE}/pricing): Transparent treatment pricing.`)
+  push(`- [Locations We Serve](${SITE}/locations): Every town/treatment combination with travel times.`)
   push(`- [Contact / Visit](${SITE}/contact): Friars Lane, Braintree (CM7 9BL), strictly by appointment.`)
   push(`- [FAQ](${SITE}/faq): Common questions about treatments, safety, recovery.`)
   push(`- [Aftercare](${SITE}/aftercare): Post-treatment guidance across every service.`)

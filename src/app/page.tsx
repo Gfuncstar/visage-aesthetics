@@ -8,7 +8,6 @@ import AutoplayVideo from '@/components/ui/AutoplayVideo'
 import Accordion from '@/components/ui/Accordion'
 import { treatments } from '@/lib/treatments'
 import { getGoogleReviews } from '@/lib/google-reviews'
-import { geoPages } from '@/lib/geo-pages'
 import { BOOKING_URL } from '@/lib/booking'
 
 export const metadata: Metadata = {
@@ -336,33 +335,20 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* WHERE WE TREAT — compact directory for local SEO, intentionally quiet */}
-      <section style={{ padding: 'calc(var(--section-y) * 0.55) var(--pad-x)' }}>
+      {/* WHERE WE TREAT — single line referring to the /locations hub */}
+      <section style={{ padding: 'calc(var(--section-y) * 0.4) var(--pad-x)' }}>
         <div className="max-w-[1100px] mx-auto">
-          <div className="flex flex-wrap items-baseline justify-between gap-4 mb-6 reveal">
+          <div className="flex flex-wrap items-baseline justify-between gap-4 reveal">
             <div className="flex items-baseline gap-4">
               <span className="section-num" style={{ marginBottom: 0 }}>06 &nbsp; Where we treat</span>
             </div>
-            <p className="text-stone text-[13px] leading-relaxed max-w-sm">
-              On Friars Lane, central Braintree. Clients travel from across Essex and South Suffolk.
-            </p>
-          </div>
-
-          <div className="reveal-stagger grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-3 border-t border-line/40 pt-5">
-            {geoPages.map((g) => (
-              <Link
-                key={g.slug}
-                href={g.href}
-                className="group flex items-baseline justify-between gap-2 py-1.5 border-b border-line/25 hover:border-gold/60 transition-colors"
-              >
-                <span className="text-charcoal text-[13px] leading-tight group-hover:text-gold-deep transition-colors">
-                  {g.anchor}
-                </span>
-                <span className="text-stone text-[10px] tracking-[0.06em] whitespace-nowrap">
-                  {g.travelLine.split(' · ')[0]}
-                </span>
+            <p className="text-stone text-[13px] leading-relaxed max-w-xl">
+              On Friars Lane, central Braintree. Clients travel from Braintree, Chelmsford,
+              Halstead, Witham, Colchester, Maldon, Sudbury, Great Dunmow and across Essex.{' '}
+              <Link href="/locations" className="text-gold hover:text-gold-deep border-b border-current pb-0.5 transition-colors whitespace-nowrap">
+                See all locations →
               </Link>
-            ))}
+            </p>
           </div>
         </div>
       </section>
