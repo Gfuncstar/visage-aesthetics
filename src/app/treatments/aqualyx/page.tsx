@@ -74,6 +74,18 @@ export default function Page() {
         },
       ]}
       practitionerNote="AQUALYX works wonderfully for the right client and disappoints when it is asked to do something it cannot. I will always be honest at consultation about whether your concern is suited to it. Stable weight, localised pocket, realistic expectation: that is the recipe for a result you will be pleased with."
+      imageAfterOverview={{
+        src: '/images/aqualyx-product.jpg',
+        alt: 'AQUALYX fat-dissolving injectable — product packaging and vials at Visage Aesthetics, Braintree',
+        width: 1898,
+        height: 1070,
+      }}
+      imageAfterPricing={{
+        src: '/images/aqualyx-banner.jpg',
+        alt: 'AQUALYX treatment at Visage Aesthetics — back in clinic',
+        width: 430,
+        height: 243,
+      }}
     />
   )
 }
