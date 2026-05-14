@@ -8,6 +8,8 @@ import { BOOKING_LINK_PROPS } from '@/lib/booking'
 import { geoPages } from '@/lib/geo-pages'
 import { getGoogleReviews } from '@/lib/google-reviews'
 
+export type TreatmentImage = { src: string; alt: string; width: number; height: number }
+
 export type TreatmentPageProps = {
   treatment: Treatment
   oneLineBenefit: string
@@ -19,6 +21,10 @@ export type TreatmentPageProps = {
   pricingNote: string
   faqs: AccordionItem[]
   practitionerNote: string
+  /** Optional supporting image rendered between Overview and Benefits */
+  imageAfterOverview?: TreatmentImage
+  /** Optional supporting image rendered between Pricing and FAQ */
+  imageAfterPricing?: TreatmentImage
 }
 
 export default async function TreatmentTemplate({
@@ -32,6 +38,8 @@ export default async function TreatmentTemplate({
   pricingNote,
   faqs,
   practitionerNote,
+  imageAfterOverview,
+  imageAfterPricing,
 }: TreatmentPageProps) {
   const related = treatments.filter((t) => t.slug !== treatment.slug).slice(0, 3)
   const reviews = await getGoogleReviews()
@@ -180,6 +188,24 @@ export default async function TreatmentTemplate({
         </div>
       </section>
 
+      {/* OPTIONAL SUPPORTING IMAGE (between Overview and Benefits) */}
+      {imageAfterOverview && (
+        <section className="pt-2 pb-6 md:pb-9">
+          <div className="max-w-[1280px] mx-auto px-5 md:px-8">
+            <div className="relative w-full overflow-hidden rounded-md">
+              <Image
+                src={imageAfterOverview.src}
+                alt={imageAfterOverview.alt}
+                width={imageAfterOverview.width}
+                height={imageAfterOverview.height}
+                sizes="(min-width: 1280px) 1200px, 92vw"
+                className="w-full h-auto block"
+              />
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* BENEFITS */}
       <section className="bg-cream-soft py-6 md:py-9">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
@@ -270,6 +296,24 @@ export default async function TreatmentTemplate({
           </div>
         </div>
       </section>
+
+      {/* OPTIONAL SUPPORTING IMAGE (between Pricing and FAQ) */}
+      {imageAfterPricing && (
+        <section className="py-6 md:py-9">
+          <div className="max-w-[1280px] mx-auto px-5 md:px-8">
+            <div className="relative w-full overflow-hidden rounded-md">
+              <Image
+                src={imageAfterPricing.src}
+                alt={imageAfterPricing.alt}
+                width={imageAfterPricing.width}
+                height={imageAfterPricing.height}
+                sizes="(min-width: 1280px) 1200px, 92vw"
+                className="w-full h-auto block"
+              />
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* FAQ */}
       <section className="bg-cream-soft py-6 md:py-9">
