@@ -6,7 +6,7 @@ import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
 const POST = {
   slug: 'first-time-botox-mistakes',
   title: "Five mistakes first-time Botox clients make",
-  description: "Five mistakes first-time Botox clients make, written by Bernadette Tobin RGN, MSc Advanced Practice. Award-winning nurse-led clinic in Braintree, Essex.",
+  description: "Five mistakes first-time Botox clients make, written by Bernadette Tobin RGN, MSc Advanced Practice. Officially awarded nurse-led clinic in Braintree, Essex.",
   datePublished: '2026-04-29',
   dateModified: '2026-04-29',
   image: '/images/og-home.jpg',

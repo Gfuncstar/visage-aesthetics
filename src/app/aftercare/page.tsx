@@ -3,7 +3,7 @@ import { Check, X, Clock, AlertCircle } from 'lucide-react'
 import BookingCTA from '@/components/sections/BookingCTA'
 
 export const metadata: Metadata = {
-  title: 'Aftercare | Award-Winning Aesthetics, Braintree',
+  title: 'Aftercare | Awarded Best Clinic Essex 2026',
   description: 'Aftercare guidance for aesthetic treatments at Visage Aesthetics, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. Anti-wrinkle, dermal filler, Profhilo, micro-needling and more.',
 }
 

@@ -2,12 +2,12 @@ import type { Metadata } from 'next'
 import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
-  title: 'Botox Chelmsford | Award-Winning Nurse-Led Clinic | Visage Aesthetics',
+  title: 'Botox in Chelmsford, from £120 | Visage Aesthetics',
   description: "Anti-wrinkle (Botox) injections for Chelmsford clients at Visage Aesthetics, Braintree. Best Non-Surgical Aesthetics Clinic 2026, Essex. Bernadette Tobin RGN, MSc. From £120.",
   alternates: { canonical: '/chelmsford-botox' },
   openGraph: {
     title: 'Botox for Chelmsford Clients | Visage Aesthetics, Braintree',
-    description: 'Award-winning nurse-led Botox clinic 25 minutes from Chelmsford. From £120.',
+    description: 'Officially awarded nurse-led Botox clinic 25 minutes from Chelmsford. From £120.',
     url: 'https://www.vaclinic.co.uk/chelmsford-botox',
   },
 }
@@ -21,7 +21,7 @@ export default function ChelmsfordBotox() {
       travel="25 minutes from Chelmsford via the A131"
       positioningLine="Chelmsford has plenty of aesthetic clinics. Visage is the one Chelmsford clients drive to when they want a quieter, more medically-led approach. Best Non-Surgical Aesthetics Clinic 2026, Essex."
       reasons={[
-        { title: 'Worth the 25-minute drive', body: "A discreet private clinic with one client in the room at a time. The opposite of a busy high-street salon, and award-winning for it." },
+        { title: 'Worth the 25-minute drive', body: "A discreet private clinic with one client in the room at a time. The opposite of a busy high-street salon, and officially awarded for it." },
         { title: 'Conservative, never overdone', body: "Lots of Chelmsford clients arrive having had over-treatment elsewhere. We start small. We listen. We let the result speak." },
         { title: 'A nurse with an MSc', body: "I hold a Level 7 MSc in Advanced Practice, the highest postgraduate qualification a nurse can hold. Most Chelmsford aestheticians are Level 4-5." },
       ]}

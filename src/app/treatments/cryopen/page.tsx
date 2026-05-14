@@ -4,7 +4,7 @@ import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/treatments/cryopen' },
-  title: 'CryoPen Skin Lesion Removal | Award-Winning Clinic, Braintree',
+  title: 'CryoPen Skin Lesion Removal | Awarded Best Clinic Essex 2026',
   description:
     'CryoPen cryotherapy for skin tags, warts, milia, age spots and benign lesions. Visage Aesthetics, Braintree, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex.',
 }

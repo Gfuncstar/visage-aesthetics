@@ -4,7 +4,7 @@ import { BOOKING_URL, BOOKING_LINK_PROPS } from '@/lib/booking'
 import ContactForm from './ContactForm'
 
 export const metadata: Metadata = {
-  title: 'Book a Consultation | Award-Winning Aesthetics, Braintree',
+  title: 'Book a Consultation | Awarded Best Clinic Essex 2026',
   description: 'Book a free, no-obligation aesthetic consultation at Visage Aesthetics, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. 17A Friars Lane, Braintree CM7 9BL.',
 }
 

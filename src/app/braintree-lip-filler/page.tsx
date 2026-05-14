@@ -2,12 +2,12 @@ import type { Metadata } from 'next'
 import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
-  title: 'Lip Filler Braintree | Award-Winning Nurse-Led Clinic | Visage Aesthetics',
-  description: "Subtle, balanced lip filler in Braintree, Essex by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Best Non-Surgical Aesthetics Clinic 2026. From £110. Hyaluronic acid filler, fully reversible.",
+  title: 'Lip Filler in Braintree, from £110 | Visage Aesthetics',
+  description: "Subtle, balanced lip filler in Braintree, Essex by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. Hyaluronic acid filler, fully reversible. From £110.",
   alternates: { canonical: '/braintree-lip-filler' },
   openGraph: {
     title: 'Lip Filler in Braintree | Visage Aesthetics',
-    description: 'Award-winning nurse-led lip filler clinic on Friars Lane, Braintree. From £110.',
+    description: 'Officially awarded nurse-led lip filler clinic on Friars Lane, Braintree. From £110.',
     url: 'https://www.vaclinic.co.uk/braintree-lip-filler',
   },
 }
@@ -22,7 +22,7 @@ export default function BraintreeLipFiller() {
       positioningLine="Naturally balanced lip filler in central Braintree. Performed by a registered nurse with twenty years' clinical experience and an MSc in Advanced Practice. The opposite of the overdone look."
       reasons={[
         { title: 'Conservative, never overdone', body: "We start with 0.5ml or 1ml, never more in one sitting. Build slowly, look like yourself, no duck lips. Most Braintree clients tell us they wish they'd come here first." },
-        { title: 'Award-winning local clinic', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. Hyaluronic acid fillers from regulated, reputable manufacturers. Fully reversible at any time." },
+        { title: 'Officially awarded local clinic', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. Hyaluronic acid fillers from regulated, reputable manufacturers. Fully reversible at any time." },
         { title: 'Built-in numbing', body: "All filler products contain lidocaine for comfort. We numb the area first when you'd like extra. Most Braintree clients describe the procedure as easier than they expected." },
       ]}
       priceFrom="From £110 / 0.5ml"

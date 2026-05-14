@@ -6,7 +6,7 @@ import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
 const POST = {
   slug: 'natural-looking-aesthetics-essex',
   title: "How to find a natural-looking aesthetics clinic in Essex",
-  description: "How to find a natural-looking aesthetics clinic in Essex, written by Bernadette Tobin RGN, MSc Advanced Practice. Award-winning nurse-led clinic in Braintree, E",
+  description: "How to find a natural-looking aesthetics clinic in Essex, written by Bernadette Tobin RGN, MSc Advanced Practice. Officially awarded nurse-led clinic in Braintree, E",
   datePublished: '2026-05-05',
   dateModified: '2026-05-05',
   image: '/images/og-home.jpg',

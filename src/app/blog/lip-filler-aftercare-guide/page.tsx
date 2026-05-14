@@ -6,7 +6,7 @@ import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
 const POST = {
   slug: 'lip-filler-aftercare-guide',
   title: "Lip filler aftercare: a complete guide",
-  description: "Lip filler aftercare: a complete guide, written by Bernadette Tobin RGN, MSc Advanced Practice. Award-winning nurse-led clinic in Braintree, Essex.",
+  description: "Lip filler aftercare: a complete guide, written by Bernadette Tobin RGN, MSc Advanced Practice. Officially awarded nurse-led clinic in Braintree, Essex.",
   datePublished: '2026-04-26',
   dateModified: '2026-04-26',
   image: '/images/og-home.jpg',

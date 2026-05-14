@@ -6,7 +6,7 @@ import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
 const POST = {
   slug: 'micro-needling-results-timeline',
   title: "Micro-needling: when you'll see results, and what to expect",
-  description: "Micro-needling: when you'll see results, and what to expect, written by Bernadette Tobin RGN, MSc Advanced Practice. Award-winning nurse-led clinic in Braintree",
+  description: "Micro-needling: when you'll see results, and what to expect, written by Bernadette Tobin RGN, MSc Advanced Practice. Officially awarded nurse-led clinic in Braintree",
   datePublished: '2026-05-11',
   dateModified: '2026-05-11',
   image: '/images/og-home.jpg',

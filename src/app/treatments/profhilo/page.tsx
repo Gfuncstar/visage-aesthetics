@@ -4,7 +4,7 @@ import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/treatments/profhilo' },
-  title: 'Profhilo Braintree | Award-Winning Nurse-Led | Visage Aesthetics',
+  title: 'Profhilo Braintree | Awarded Best Nurse-Led Clinic 2026 | Visage Aesthetics',
   description:
     'Authentic Profhilo skin bio-remodelling in Braintree, Essex by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Best Non-Surgical Aesthetics Clinic 2026. Hydration, glow, no fill. From £180.',
 }
@@ -98,7 +98,7 @@ export default function Page() {
         {
           question: 'Do you treat Profhilo clients from outside Braintree?',
           answer:
-            'Yes, Profhilo clients travel to Friars Lane from Chelmsford, Colchester, Halstead, Witham and across Essex. Dedicated travel pages: /braintree-profhilo, /chelmsford-profhilo, /halstead-profhilo. Free on-site parking, discreet entrance, strictly by appointment.',
+            'Yes, Profhilo clients travel to Friars Lane from Chelmsford, Colchester, Halstead, Witham and across Essex. Each location has its own page below with travel times and local FAQs. Free on-site parking, discreet entrance, strictly by appointment.',
         },
       ]}
       practitionerNote="Profhilo is the treatment I most often recommend to clients who arrive asking about filler when what they actually need is skin quality. It is gentler, more honest, and the results compound over time. Not glamorous, but quietly transformative."

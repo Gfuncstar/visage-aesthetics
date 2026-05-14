@@ -16,7 +16,7 @@ export type SearchResult = {
 }
 
 const STATIC_PAGES: SearchResult[] = [
-  { title: 'About Bernadette Tobin RGN, MSc', url: '/about', category: 'Page', description: 'Award-winning aesthetic nurse with MSc Advanced Practice and 20+ years clinical experience.' },
+  { title: 'About Bernadette Tobin RGN, MSc', url: '/about', category: 'Page', description: 'Officially awarded aesthetic nurse with MSc Advanced Practice and 20+ years clinical experience.' },
   { title: 'Qualifications & Credentials', url: '/about/qualifications', category: 'Page', description: 'Full credential reference, NMC PIN, RCN membership, MSc Level 7, indemnity insurance.' },
   { title: 'Awards & Recognition', url: '/awards', category: 'Page', description: 'Best Non-Surgical Aesthetics Clinic 2026, Essex. Educator of the Year 2026 nominee.' },
   { title: 'Pricing', url: '/pricing', category: 'Page', description: 'Transparent prices for every treatment. Free consultation, no pressure.' },

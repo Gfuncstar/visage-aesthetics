@@ -4,7 +4,7 @@ import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/treatments/micro-needling' },
-  title: 'Micro-Needling Braintree | Award-Winning Nurse-Led | Visage Aesthetics',
+  title: 'Micro-Needling Braintree | Awarded Best Nurse-Led Clinic 2026 | Visage Aesthetics',
   description:
     'Medical-grade micro-needling in Braintree, Essex by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Best Non-Surgical Aesthetics Clinic 2026. Collagen induction therapy from £80. Exosome upgrade £150. Course of 3 from £240.',
 }

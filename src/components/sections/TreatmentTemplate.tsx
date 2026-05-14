@@ -5,6 +5,8 @@ import Accordion, { type AccordionItem } from '@/components/ui/Accordion'
 import BookingCTA from '@/components/sections/BookingCTA'
 import { treatments, type Treatment } from '@/lib/treatments'
 import { BOOKING_LINK_PROPS } from '@/lib/booking'
+import { geoPages } from '@/lib/geo-pages'
+import { getGoogleReviews } from '@/lib/google-reviews'
 
 export type TreatmentPageProps = {
   treatment: Treatment
@@ -19,7 +21,7 @@ export type TreatmentPageProps = {
   practitionerNote: string
 }
 
-export default function TreatmentTemplate({
+export default async function TreatmentTemplate({
   treatment,
   oneLineBenefit,
   overview,
@@ -32,6 +34,33 @@ export default function TreatmentTemplate({
   practitionerNote,
 }: TreatmentPageProps) {
   const related = treatments.filter((t) => t.slug !== treatment.slug).slice(0, 3)
+  const reviews = await getGoogleReviews()
+
+  // Geo pages that target this exact treatment family
+  const travellingFrom = geoPages.filter((g) => g.treatmentSlug === treatment.slug)
+
+  const provider: Record<string, unknown> = {
+    '@type': 'MedicalBusiness',
+    name: 'Visage Aesthetics',
+    url: 'https://www.vaclinic.co.uk/',
+    telephone: '+44 7931 395246',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: '17A Friars Lane',
+      addressLocality: 'Braintree',
+      postalCode: 'CM7 9BL',
+      addressCountry: 'GB',
+    },
+  }
+  if (reviews.live && reviews.total > 0) {
+    provider.aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: reviews.rating.toFixed(1),
+      reviewCount: reviews.total,
+      bestRating: '5',
+      worstRating: '1',
+    }
+  }
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -61,18 +90,28 @@ export default function TreatmentTemplate({
           availability: 'https://schema.org/InStock',
           url: `https://www.vaclinic.co.uk${treatment.href}`,
         },
-        provider: {
-          '@type': 'MedicalBusiness',
-          name: 'Visage Aesthetics',
-          url: 'https://www.vaclinic.co.uk/',
-          telephone: '+44 7931 395246',
-          address: {
-            '@type': 'PostalAddress',
-            streetAddress: '17A Friars Lane',
-            addressLocality: 'Braintree',
-            postalCode: 'CM7 9BL',
-            addressCountry: 'GB',
-          },
+        provider,
+      },
+      {
+        '@type': 'Service',
+        serviceType: treatment.name,
+        name: `${treatment.name} at Visage Aesthetics`,
+        description: oneLineBenefit,
+        url: `https://www.vaclinic.co.uk${treatment.href}`,
+        provider: provider,
+        areaServed: [
+          { '@type': 'City', name: 'Braintree' },
+          { '@type': 'City', name: 'Chelmsford' },
+          { '@type': 'City', name: 'Colchester' },
+          { '@type': 'AdministrativeArea', name: 'Essex' },
+        ],
+        offers: {
+          '@type': 'Offer',
+          price: treatment.price.replace(/[^\d]/g, ''),
+          priceCurrency: 'GBP',
+          priceSpecification: { '@type': 'PriceSpecification', price: treatment.price, priceCurrency: 'GBP' },
+          availability: 'https://schema.org/InStock',
+          url: `https://www.vaclinic.co.uk${treatment.href}`,
         },
       },
       faqs.length > 0 ? {
@@ -116,7 +155,7 @@ export default function TreatmentTemplate({
             <div className="relative aspect-[4/5] rounded-md overflow-hidden">
               <Image
                 src={treatment.image}
-                alt={treatment.name}
+                alt={`${treatment.name} at Visage Aesthetics, Braintree, performed by Bernadette Tobin RGN, MSc`}
                 fill
                 priority
                 sizes="(min-width: 1024px) 40vw, 90vw"
@@ -246,6 +285,38 @@ export default function TreatmentTemplate({
         </div>
       </section>
 
+      {/* TRAVELLING FROM — geo landing pages for this treatment */}
+      {travellingFrom.length > 0 && (
+        <section className="py-6 md:py-9">
+          <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
+            <div className="md:col-span-4">
+              <span className="hairline hairline-left mb-6" />
+              <div className="text-eyebrow text-gold mb-3">Travelling from?</div>
+              <h2 className="font-display text-h1 text-charcoal">{treatment.name} by town.</h2>
+              <p className="mt-5 text-body text-ink-soft max-w-sm">
+                Town-specific pages with travel times, postcodes, surrounding-area lists and local FAQs.
+              </p>
+            </div>
+            <div className="md:col-span-8">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-px bg-line/30 border border-line/30">
+                {travellingFrom.map((g) => (
+                  <Link
+                    key={g.slug}
+                    href={g.href}
+                    className="bg-cream hover:bg-cream-soft transition-colors p-5 md:p-6 group"
+                  >
+                    <div className="font-display text-charcoal" style={{ fontSize: 18, lineHeight: 1.25, fontWeight: 400 }}>
+                      {g.anchor}
+                    </div>
+                    <div className="mt-2 text-stone" style={{ fontSize: 12, lineHeight: 1.4 }}>{g.travelLine}</div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* BERNADETTE'S NOTE */}
       <section className="py-6 md:py-9">
         <div className="max-w-3xl mx-auto px-5 md:px-8 text-center">
@@ -275,7 +346,7 @@ export default function TreatmentTemplate({
             {related.map((r) => (
               <Link key={r.slug} href={r.href} className="group bg-cream border border-line/25 rounded-md overflow-hidden hover:border-gold/60 transition-colors">
                 <div className="relative aspect-[4/3]">
-                  <Image src={r.image} alt={r.name} fill sizes="(min-width: 768px) 30vw, 90vw" className="object-cover" />
+                  <Image src={r.image} alt={`${r.name} treatment at Visage Aesthetics, Braintree`} fill sizes="(min-width: 768px) 30vw, 90vw" className="object-cover" />
                 </div>
                 <div className="p-5 md:p-6">
                   <h3 className="font-display text-xl text-charcoal">{r.name}</h3>

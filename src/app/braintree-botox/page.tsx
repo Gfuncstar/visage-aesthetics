@@ -2,12 +2,12 @@ import type { Metadata } from 'next'
 import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
-  title: 'Botox Braintree | Award-Winning Nurse-Led Clinic | Visage Aesthetics',
-  description: "Anti-wrinkle (Botox) injections in Braintree, Essex by Bernadette Tobin RGN, MSc, NMC PIN 05G1755E. Best Non-Surgical Aesthetics Clinic 2026. Free consultation, naturally subtle results from £120.",
+  title: 'Botox in Braintree, from £120 | Visage Aesthetics',
+  description: "Anti-wrinkle (Botox) injections in Braintree, Essex by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. Free consultation, naturally subtle results from £120.",
   alternates: { canonical: '/braintree-botox' },
   openGraph: {
     title: 'Botox in Braintree, Essex | Visage Aesthetics',
-    description: 'Award-winning nurse-led Botox clinic on Friars Lane, Braintree. From £120.',
+    description: 'Officially awarded nurse-led Botox clinic on Friars Lane, Braintree. From £120.',
     url: 'https://www.vaclinic.co.uk/braintree-botox',
   },
 }

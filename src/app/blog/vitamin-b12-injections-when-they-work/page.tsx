@@ -6,7 +6,7 @@ import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
 const POST = {
   slug: 'vitamin-b12-injections-when-they-work',
   title: "Vitamin B12 injections: when they actually work",
-  description: "Vitamin B12 injections: when they actually work, written by Bernadette Tobin RGN, MSc Advanced Practice. Award-winning nurse-led clinic in Braintree, Essex.",
+  description: "Vitamin B12 injections: when they actually work, written by Bernadette Tobin RGN, MSc Advanced Practice. Officially awarded nurse-led clinic in Braintree, Essex.",
   datePublished: '2026-05-03',
   dateModified: '2026-05-03',
   image: '/images/og-home.jpg',

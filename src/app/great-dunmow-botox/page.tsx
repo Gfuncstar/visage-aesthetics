@@ -2,12 +2,12 @@ import type { Metadata } from 'next'
 import GeoLandingTemplate from '@/components/sections/GeoLandingTemplate'
 
 export const metadata: Metadata = {
-  title: 'Botox Great Dunmow | Award-Winning Nurse-Led Clinic | Visage Aesthetics',
+  title: 'Botox in Great Dunmow, from £120 | Visage Aesthetics',
   description: "Anti-wrinkle (Botox) injections for Great Dunmow clients at Visage Aesthetics, Braintree, 15 minutes via the A120. Best Non-Surgical Aesthetics Clinic 2026, Essex. Bernadette Tobin RGN, MSc. From £120.",
   alternates: { canonical: '/great-dunmow-botox' },
   openGraph: {
     title: 'Botox for Great Dunmow Clients | Visage Aesthetics, Braintree',
-    description: 'Award-winning nurse-led Botox 15 minutes from Great Dunmow. From £120.',
+    description: 'Officially awarded nurse-led Botox 15 minutes from Great Dunmow. From £120.',
     url: 'https://www.vaclinic.co.uk/great-dunmow-botox',
   },
 }
@@ -19,9 +19,9 @@ export default function GreatDunmowBotox() {
       town="Great Dunmow"
       treatment="Botox"
       travel="15 minutes from Great Dunmow via the A120 eastbound"
-      positioningLine="Great Dunmow has limited aesthetic options for clients who want medically-led care. Visage is the closest award-winning clinic, a 15-minute drive down the A120."
+      positioningLine="Great Dunmow has limited aesthetic options for clients who want medically-led care. Visage is the closest officially awarded clinic, a 15-minute drive down the A120."
       reasons={[
-        { title: 'Closest award-winning clinic', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. The closest award-recognised clinic for the Great Dunmow, Felsted and Stansted area." },
+        { title: 'Closest officially awarded clinic', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. The closest award-recognised clinic for the Great Dunmow, Felsted and Stansted area." },
         { title: 'Fifteen minutes door-to-door', body: "A120 eastbound, free parking on Friars Lane. Quicker and quieter than driving into Stansted or Bishops Stortford for treatment." },
         { title: 'A nurse with an MSc', body: "I hold a Level 7 MSc in Advanced Practice, rare in Essex aesthetics. Most local aestheticians are Level 4-5 trained or beauty-led." },
       ]}
@@ -35,7 +35,7 @@ export default function GreatDunmowBotox() {
         },
         {
           question: 'Why come to Visage from Great Dunmow?',
-          answer: "Closest award-winning aesthetics clinic. I hold an MSc Advanced Practice (Level 7), rare in Essex aesthetics, where most practitioners are Level 4-5.",
+          answer: "Closest officially awarded aesthetics clinic. I hold an MSc Advanced Practice (Level 7), rare in Essex aesthetics, where most practitioners are Level 4-5.",
         },
         {
           question: 'How much does Botox cost?',

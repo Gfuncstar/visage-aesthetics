@@ -4,7 +4,7 @@ import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/treatments/hyperhidrosis-migraines' },
-  title: 'Hyperhidrosis & Migraines | Award-Winning Clinic, Braintree',
+  title: 'Hyperhidrosis & Migraines | Awarded Best Clinic Essex 2026',
   description:
     'Botulinum toxin treatment for excessive sweating and chronic migraine prevention. Visage Aesthetics, Braintree, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex.',
 }

@@ -8,24 +8,25 @@ import AutoplayVideo from '@/components/ui/AutoplayVideo'
 import Accordion from '@/components/ui/Accordion'
 import { treatments } from '@/lib/treatments'
 import { getGoogleReviews } from '@/lib/google-reviews'
+import { BOOKING_URL } from '@/lib/booking'
 
 export const metadata: Metadata = {
-  title: 'Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex | Visage',
-  description: 'Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards). A private nurse-led clinic on Friars Lane, Braintree by Bernadette Tobin RGN, MSc. Botox, dermal filler, Profhilo. Book a free consultation.',
+  title: 'Visage Aesthetics, Awarded Best Clinic Essex 2026 | Nurse-Led, Braintree',
+  description: 'Officially awarded Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards). Private nurse-led clinic on Friars Lane, Braintree. Botox, filler and Profhilo by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Free consultation, strictly by appointment.',
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
     locale: 'en_GB',
     url: 'https://www.vaclinic.co.uk/',
     siteName: 'Visage Aesthetics',
-    title: 'Visage Aesthetics | Naturally yours.',
-    description: 'A small, considered aesthetics clinic on Friars Lane, Braintree. Led by Bernadette Tobin, RGN MSc.',
-    images: [{ url: '/images/og-home.jpg', width: 1200, height: 630, alt: 'Visage Aesthetics, Braintree' }],
+    title: 'Visage Aesthetics, Awarded Best Clinic Essex 2026 | Nurse-Led, Braintree',
+    description: 'Officially awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. Private nurse-led clinic on Friars Lane, Braintree.',
+    images: [{ url: '/images/og-home.jpg', width: 1200, height: 630, alt: 'Visage Aesthetics, Awarded Best Non-Surgical Clinic Essex 2026' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Visage Aesthetics | Naturally yours.',
-    description: 'Nurse-led aesthetics clinic, Braintree. Bernadette Tobin RGN, MSc.',
+    title: 'Visage Aesthetics, Awarded Best Clinic Essex 2026 | Nurse-Led, Braintree',
+    description: 'Officially awarded Best Non-Surgical Aesthetics Clinic 2026, Essex.',
     images: ['/images/og-home.jpg'],
   },
 }
@@ -87,6 +88,38 @@ export default async function Home() {
           description: 'Strictly by appointment',
         }],
         sameAs: ['https://www.instagram.com/visageaestheticclinic'],
+        hasMap: 'https://maps.google.com/?q=CM7+9BL',
+        contactPoint: [
+          {
+            '@type': 'ContactPoint',
+            contactType: 'Reservations',
+            url: BOOKING_URL,
+            areaServed: 'GB',
+            availableLanguage: 'en',
+          },
+          {
+            '@type': 'ContactPoint',
+            contactType: 'customer service',
+            telephone: '+44 7931 395246',
+            email: 'info@vaclinic.co.uk',
+            areaServed: 'GB',
+            availableLanguage: 'en',
+          },
+        ],
+        location: {
+          '@type': 'Place',
+          name: 'Visage Aesthetics, Friars Lane',
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: '17A Friars Lane',
+            addressLocality: 'Braintree',
+            addressRegion: 'Essex',
+            postalCode: 'CM7 9BL',
+            addressCountry: 'GB',
+          },
+          geo: { '@type': 'GeoCoordinates', latitude: 51.885914, longitude: 0.555411 },
+          hasMap: 'https://maps.google.com/?q=CM7+9BL',
+        },
         award: [
           'Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards)',
           'Educator of the Year 2026, Nominee (Beauty & Aesthetics Awards)',
@@ -101,6 +134,10 @@ export default async function Home() {
           hasCredential: [
             { '@type': 'EducationalOccupationalCredential', credentialCategory: 'professional registration', name: 'NMC Registered Nurse', identifier: '05G1755E' },
             { '@type': 'EducationalOccupationalCredential', credentialCategory: 'degree', name: 'MSc Advanced Practice (Level 7)' },
+          ],
+          award: [
+            'Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards)',
+            'Educator of the Year 2026, Nominee (Beauty & Aesthetics Awards)',
           ],
         },
         ...(reviews.live
@@ -298,10 +335,28 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* WHERE WE TREAT — single line referring to the /locations hub */}
+      <section style={{ padding: 'calc(var(--section-y) * 0.4) var(--pad-x)' }}>
+        <div className="max-w-[1100px] mx-auto">
+          <div className="flex flex-wrap items-baseline justify-between gap-4 reveal">
+            <div className="flex items-baseline gap-4">
+              <span className="section-num" style={{ marginBottom: 0 }}>06 &nbsp; Where we treat</span>
+            </div>
+            <p className="text-stone text-[13px] leading-relaxed max-w-xl">
+              On Friars Lane, central Braintree. Clients travel from Braintree, Chelmsford,
+              Halstead, Witham, Colchester, Maldon, Sudbury, Great Dunmow and across Essex.{' '}
+              <Link href="/locations" className="text-gold hover:text-gold-deep border-b border-current pb-0.5 transition-colors whitespace-nowrap">
+                See all locations →
+              </Link>
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* WHY NURSE-LED MATTERS */}
       <section style={{ background: '#EFE8E0', padding: 'var(--section-y) var(--pad-x)' }}>
         <div className="max-w-[1280px] mx-auto">
-          <div className="section-num reveal mb-12">06 &nbsp; Why nurse-led matters</div>
+          <div className="section-num reveal mb-12">07 &nbsp; Why nurse-led matters</div>
           <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
             <div className="md:col-span-5">
               <h2 className="text-h1 text-charcoal reveal">The training behind the treatment.</h2>
@@ -327,7 +382,7 @@ export default async function Home() {
       {/* YOUR FIRST CONSULTATION */}
       <section style={{ padding: 'var(--section-y) var(--pad-x)' }}>
         <div className="max-w-[1280px] mx-auto">
-          <div className="section-num reveal mb-12">07 &nbsp; Your first consultation</div>
+          <div className="section-num reveal mb-12">08 &nbsp; Your first consultation</div>
           <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
             <div className="md:col-span-5">
               <h2 className="text-h1 text-charcoal reveal">Calm, unhurried, no pressure.</h2>
@@ -356,7 +411,7 @@ export default async function Home() {
       {/* FAQ */}
       <section style={{ background: '#EFE8E0', padding: 'var(--section-y) var(--pad-x)' }}>
         <div className="max-w-[1280px] mx-auto">
-          <div className="section-num reveal mb-12">08 &nbsp; FAQ</div>
+          <div className="section-num reveal mb-12">09 &nbsp; FAQ</div>
           <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
             <div className="md:col-span-5">
               <h2 className="text-h1 text-charcoal reveal">The questions we hear most often.</h2>
@@ -397,7 +452,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <BookingCTA sectionNumber="09" />
+      <BookingCTA sectionNumber="10" />
       <StickyBookingBar />
     </>
   )

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/author/bernadette-tobin' },
   openGraph: {
     title: 'Bernadette Tobin RGN, MSc, Author Profile',
-    description: 'Award-winning aesthetic nurse, MSc Advanced Practice, NMC PIN 05G1755E. All articles by Bernadette in one place.',
+    description: 'Officially awarded aesthetic nurse, MSc Advanced Practice, NMC PIN 05G1755E. All articles by Bernadette in one place.',
     url: 'https://www.vaclinic.co.uk/author/bernadette-tobin',
   },
 }

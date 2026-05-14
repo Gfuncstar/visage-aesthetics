@@ -6,7 +6,7 @@ import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
 const POST = {
   slug: 'hyperhidrosis-botox-explained',
   title: "Botox for excessive sweating: a medical use of an aesthetic treatment",
-  description: "Botox for excessive sweating: a medical use of an aesthetic treatment, written by Bernadette Tobin RGN, MSc Advanced Practice. Award-winning nurse-led clinic in",
+  description: "Botox for excessive sweating: a medical use of an aesthetic treatment, written by Bernadette Tobin RGN, MSc Advanced Practice. Officially awarded nurse-led clinic in",
   datePublished: '2026-05-07',
   dateModified: '2026-05-07',
   image: '/images/og-home.jpg',
