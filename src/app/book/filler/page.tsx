@@ -54,7 +54,7 @@ export default function BookFillerPage() {
           answer: "Aesthetics in the UK is largely unregulated. The Health, Beauty & Wellness Awards are independently judged. Visage was named Best Non-Surgical Aesthetics Clinic 2026 for Essex — verifiable on the awarding body's public winners listing.",
         },
       ]}
-      whatsappMessage="Hi, I'm interested in booking a free filler consultation at Visage Aesthetics."
+      whatsappMessage="Hi, I'd like to ask about filler at Visage Aesthetics."
     />
   )
 }
