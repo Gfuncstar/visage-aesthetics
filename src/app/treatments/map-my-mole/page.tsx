@@ -4,7 +4,7 @@ import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/treatments/map-my-mole' },
-  title: 'Map My Mole | Awarded Best Clinic Essex 2026',
+  title: 'Map My Mole | Visage Aesthetics',
   description:
     'Have a concerning mole or skin lesion reviewed by a UK consultant dermatologist within 24 hours. Medical-grade dermoscopy at Visage Aesthetics, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. £90 per mole.',
 }

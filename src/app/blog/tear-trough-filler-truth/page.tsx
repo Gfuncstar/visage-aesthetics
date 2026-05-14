@@ -6,7 +6,7 @@ import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
 const POST = {
   slug: 'tear-trough-filler-truth',
   title: "Tear trough filler: when it works and when it really doesn't",
-  description: "Tear trough filler: when it works and when it really doesn't, written by Bernadette Tobin RGN, MSc Advanced Practice. Officially awarded nurse-led clinic in Braintr",
+  description: "Tear trough filler: when it works and when it really doesn't, written by Bernadette Tobin RGN, MSc Advanced Practice. Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Nurse-led clinic in Braintr",
   datePublished: '2026-04-29',
   dateModified: '2026-04-29',
   image: '/images/og-home.jpg',

@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/braintree-dermal-filler' },
   openGraph: {
     title: 'Dermal Filler in Braintree | Visage Aesthetics',
-    description: 'Officially awarded nurse-led dermal filler on Friars Lane, Braintree. Cheek, jaw, chin and tear-trough.',
+    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Nurse-led dermal filler on Friars Lane, Braintree. Cheek, jaw, chin and tear-trough.',
     url: 'https://www.vaclinic.co.uk/braintree-dermal-filler',
   },
 }

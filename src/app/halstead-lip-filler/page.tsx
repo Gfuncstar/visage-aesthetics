@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/halstead-lip-filler' },
   openGraph: {
     title: 'Lip Filler for Halstead Clients | Visage Aesthetics',
-    description: 'Officially awarded nurse-led lip filler clinic 12 minutes from Halstead. From £110, fully reversible.',
+    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Nurse-led lip filler clinic 12 minutes from Halstead. From £110, fully reversible.',
     url: 'https://www.vaclinic.co.uk/halstead-lip-filler',
   },
 }

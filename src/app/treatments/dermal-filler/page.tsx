@@ -4,7 +4,7 @@ import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/treatments/dermal-filler' },
-  title: 'Dermal Filler Braintree | Awarded Best Nurse-Led Clinic 2026 | Visage Aesthetics',
+  title: 'Dermal Filler Braintree | Visage Aesthetics | Visage Aesthetics',
   description:
     'Subtle, balanced dermal filler in Braintree, Essex. Hyaluronic acid for lips, cheeks and jawline by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). From £110, fully reversible.',
 }

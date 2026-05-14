@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/halstead-profhilo' },
   openGraph: {
     title: 'Profhilo for Halstead Clients | Visage Aesthetics',
-    description: 'Officially awarded Profhilo treatment 12 minutes from Halstead. From £180.',
+    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Profhilo treatment 12 minutes from Halstead. From £180.',
     url: 'https://www.vaclinic.co.uk/halstead-profhilo',
   },
 }
@@ -19,10 +19,10 @@ export default function HalsteadProfhilo() {
       town="Halstead"
       treatment="Profhilo"
       travel="12 minutes from Halstead via the A131 southbound"
-      positioningLine="Profhilo is the treatment for Halstead clients whose skin has lost its bounce, glow or smoothness, but who don't want or need volume change. The closest officially awarded clinic, 12 minutes down the A131."
+      positioningLine="Profhilo is the treatment for Halstead clients whose skin has lost its bounce, glow or smoothness, but who don't want or need volume change. The closest Best Non-Surgical Aesthetics Clinic 2026, Essex winner, 12 minutes down the A131."
       reasons={[
         { title: 'Twelve minutes from Halstead', body: "Closer than driving to Colchester or Chelmsford for the same treatment. Free on-site parking on Friars Lane." },
-        { title: 'Officially awarded local clinic', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. The closest award-recognised clinic for Halstead, Earls Colne and Sible Hedingham." },
+        { title: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. The closest award-recognised clinic for Halstead, Earls Colne and Sible Hedingham." },
         { title: 'Authentic IBSA Profhilo', body: "Sourced direct from the manufacturer. Never diluted, never substituted. The same product the clinical evidence is based on." },
       ]}
       priceFrom="From £180 / single session"

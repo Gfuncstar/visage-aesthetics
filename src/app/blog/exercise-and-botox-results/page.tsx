@@ -6,7 +6,7 @@ import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
 const POST = {
   slug: 'exercise-and-botox-results',
   title: "Exercise after Botox: how it affects your results",
-  description: "Exercise after Botox: how it affects your results, written by Bernadette Tobin RGN, MSc Advanced Practice. Officially awarded nurse-led clinic in Braintree, Essex.",
+  description: "Exercise after Botox: how it affects your results, written by Bernadette Tobin RGN, MSc Advanced Practice. Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Nurse-led clinic in Braintree, Essex.",
   datePublished: '2026-05-02',
   dateModified: '2026-05-02',
   image: '/images/og-home.jpg',

@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/sudbury-botox' },
   openGraph: {
     title: 'Botox for Sudbury Clients | Visage Aesthetics, Braintree',
-    description: 'Officially awarded nurse-led Botox 25 minutes from Sudbury. From £120.',
+    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Nurse-led Botox 25 minutes from Sudbury. From £120.',
     url: 'https://www.vaclinic.co.uk/sudbury-botox',
   },
 }
@@ -19,7 +19,7 @@ export default function SudburyBotox() {
       town="Sudbury"
       treatment="Botox"
       travel="25 minutes from Sudbury via the A131 southbound"
-      positioningLine="Sudbury sits across the Suffolk border from Essex. Most South Suffolk clients drive south for clinical-grade aesthetics, Visage is the closest officially awarded clinic, 25 minutes via the A131."
+      positioningLine="Sudbury sits across the Suffolk border from Essex. Most South Suffolk clients drive south for clinical-grade aesthetics, Visage is the closest Best Non-Surgical Aesthetics Clinic 2026, Essex winner, 25 minutes via the A131."
       reasons={[
         { title: 'Cross the border for better care', body: "South Suffolk has very few medically-led aesthetics clinics. Best Non-Surgical Aesthetics Clinic 2026, Essex. Worth the short drive across the border." },
         { title: 'Twenty years of clinical experience', body: "I am an NMC-registered nurse with an MSc in Advanced Practice. Most aesthetic options around Sudbury are beauty-led; Visage is medical." },
@@ -35,7 +35,7 @@ export default function SudburyBotox() {
         },
         {
           question: 'Why come to Visage from Sudbury?',
-          answer: "Closest officially awarded aesthetics clinic to South Suffolk. I am one of very few aesthetic practitioners in the region with an MSc in Advanced Practice (Level 7), the highest postgraduate nursing qualification.",
+          answer: "Closest Best Non-Surgical Aesthetics Clinic 2026, Essex winner servicing South Suffolk. I am one of very few aesthetic practitioners in the region with an MSc in Advanced Practice (Level 7), the highest postgraduate nursing qualification.",
         },
         {
           question: 'How much does Botox cost?',

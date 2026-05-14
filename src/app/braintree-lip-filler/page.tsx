@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/braintree-lip-filler' },
   openGraph: {
     title: 'Lip Filler in Braintree | Visage Aesthetics',
-    description: 'Officially awarded nurse-led lip filler clinic on Friars Lane, Braintree. From £110.',
+    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Nurse-led lip filler clinic on Friars Lane, Braintree. From £110.',
     url: 'https://www.vaclinic.co.uk/braintree-lip-filler',
   },
 }
@@ -22,7 +22,7 @@ export default function BraintreeLipFiller() {
       positioningLine="Naturally balanced lip filler in central Braintree. Performed by a registered nurse with twenty years' clinical experience and an MSc in Advanced Practice. The opposite of the overdone look."
       reasons={[
         { title: 'Conservative, never overdone', body: "We start with 0.5ml or 1ml, never more in one sitting. Build slowly, look like yourself, no duck lips. Most Braintree clients tell us they wish they'd come here first." },
-        { title: 'Officially awarded local clinic', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. Hyaluronic acid fillers from regulated, reputable manufacturers. Fully reversible at any time." },
+        { title: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. Hyaluronic acid fillers from regulated, reputable manufacturers. Fully reversible at any time." },
         { title: 'Built-in numbing', body: "All filler products contain lidocaine for comfort. We numb the area first when you'd like extra. Most Braintree clients describe the procedure as easier than they expected." },
       ]}
       priceFrom="From £110 / 0.5ml"

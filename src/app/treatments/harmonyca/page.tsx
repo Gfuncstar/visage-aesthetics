@@ -4,7 +4,7 @@ import { getTreatment } from '@/lib/treatments'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/treatments/harmonyca' },
-  title: 'HarmonyCa | Awarded Best Clinic Essex 2026',
+  title: 'HarmonyCa | Visage Aesthetics',
   description:
     'HarmonyCa hybrid injectable for instant lift and long-term collagen stimulation. Visage Aesthetics, Braintree, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex.',
 }

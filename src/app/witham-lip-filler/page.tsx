@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/witham-lip-filler' },
   openGraph: {
     title: 'Lip Filler for Witham Clients | Visage Aesthetics',
-    description: 'Officially awarded nurse-led lip filler 12 minutes from Witham. From £110.',
+    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Nurse-led lip filler 12 minutes from Witham. From £110.',
     url: 'https://www.vaclinic.co.uk/witham-lip-filler',
   },
 }

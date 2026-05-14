@@ -6,7 +6,7 @@ import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
 const POST = {
   slug: 'aqualyx-fat-dissolving-explained',
   title: "AQUALYX fat dissolving: what to expect",
-  description: "AQUALYX fat dissolving: what to expect, written by Bernadette Tobin RGN, MSc Advanced Practice. Officially awarded nurse-led clinic in Braintree, Essex.",
+  description: "AQUALYX fat dissolving: what to expect, written by Bernadette Tobin RGN, MSc Advanced Practice. Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Nurse-led clinic in Braintree, Essex.",
   datePublished: '2026-05-13',
   dateModified: '2026-05-13',
   image: '/images/og-home.jpg',

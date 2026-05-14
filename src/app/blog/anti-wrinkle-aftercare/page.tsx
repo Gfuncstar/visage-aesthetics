@@ -6,7 +6,7 @@ import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
 const POST = {
   slug: 'anti-wrinkle-aftercare',
   title: "Anti-wrinkle aftercare: the first 24 hours",
-  description: "Anti-wrinkle aftercare: the first 24 hours, written by Bernadette Tobin RGN, MSc Advanced Practice. Officially awarded nurse-led clinic in Braintree, Essex.",
+  description: "Anti-wrinkle aftercare: the first 24 hours, written by Bernadette Tobin RGN, MSc Advanced Practice. Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Nurse-led clinic in Braintree, Essex.",
   datePublished: '2026-04-29',
   dateModified: '2026-04-29',
   image: '/images/og-home.jpg',

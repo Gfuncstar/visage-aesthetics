@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/braintree-botox' },
   openGraph: {
     title: 'Botox in Braintree, Essex | Visage Aesthetics',
-    description: 'Officially awarded nurse-led Botox clinic on Friars Lane, Braintree. From £120.',
+    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Nurse-led Botox clinic on Friars Lane, Braintree. From £120.',
     url: 'https://www.vaclinic.co.uk/braintree-botox',
   },
 }
@@ -21,7 +21,7 @@ export default function BraintreeBotox() {
       travel="On the doorstep, Friars Lane, central Braintree (CM7 9BL)"
       positioningLine="A small, considered nurse-led clinic in the heart of Braintree. Anti-wrinkle injections by a registered nurse with 20+ years clinical experience, never overdone, never rushed, never sold to."
       reasons={[
-        { title: 'Awarded clinic in your town', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. Most Braintree clinics aren't. We're proud to be the one that is." },
+        { title: '2026 Winner — Best Non-Surgical Aesthetics Clinic, Essex', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. Most Braintree clinics aren't. We're proud to be the one that is." },
         { title: 'Medical, not beauty-counter', body: "Performed by an NMC-registered nurse with an MSc in Advanced Practice, Level 7, the highest postgraduate qualification a nurse can hold. Most local clinics are Level 4-5." },
         { title: 'Naturally subtle', body: "Conservative dosing means you still look like yourself, just refreshed. Colleagues won't notice. Mirrors will." },
       ]}

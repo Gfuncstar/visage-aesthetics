@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/chelmsford-botox' },
   openGraph: {
     title: 'Botox for Chelmsford Clients | Visage Aesthetics, Braintree',
-    description: 'Officially awarded nurse-led Botox clinic 25 minutes from Chelmsford. From £120.',
+    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Nurse-led Botox clinic 25 minutes from Chelmsford. From £120.',
     url: 'https://www.vaclinic.co.uk/chelmsford-botox',
   },
 }
@@ -21,7 +21,7 @@ export default function ChelmsfordBotox() {
       travel="25 minutes from Chelmsford via the A131"
       positioningLine="Chelmsford has plenty of aesthetic clinics. Visage is the one Chelmsford clients drive to when they want a quieter, more medically-led approach. Best Non-Surgical Aesthetics Clinic 2026, Essex."
       reasons={[
-        { title: 'Worth the 25-minute drive', body: "A discreet private clinic with one client in the room at a time. The opposite of a busy high-street salon, and officially awarded for it." },
+        { title: 'Worth the 25-minute drive', body: "A discreet private clinic with one client in the room at a time. The opposite of a busy high-street salon, and winning Best Non-Surgical Aesthetics Clinic 2026, Essex for it." },
         { title: 'Conservative, never overdone', body: "Lots of Chelmsford clients arrive having had over-treatment elsewhere. We start small. We listen. We let the result speak." },
         { title: 'A nurse with an MSc', body: "I hold a Level 7 MSc in Advanced Practice, the highest postgraduate qualification a nurse can hold. Most Chelmsford aestheticians are Level 4-5." },
       ]}

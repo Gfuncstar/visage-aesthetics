@@ -202,12 +202,12 @@ export default function AwardDetailPage() {
           <div className="md:col-span-5">
             <span className="hairline hairline-left mb-6" />
             <div className="text-eyebrow text-gold mb-3">Why it matters</div>
-            <h2 className="font-display text-h1 text-charcoal">&ldquo;Officially awarded&rdquo; isn&apos;t the same as awarded.</h2>
+            <h2 className="font-display text-h1 text-charcoal">&ldquo;Award-winning&rdquo; isn&apos;t the same as winning a named award.</h2>
           </div>
           <div className="md:col-span-7 space-y-5 text-body-lg text-ink-soft leading-relaxed">
             <p>
               Aesthetics in the UK remains an unregulated industry. Many clinics describe themselves
-              as &ldquo;officially awarded&rdquo; on the strength of a single online voting badge, a
+              as &ldquo;award-winning&rdquo; on the strength of a single online voting badge, a
               participation certificate, or a marketing programme that asks for a fee.
             </p>
             <p>

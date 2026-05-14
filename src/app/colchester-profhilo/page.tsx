@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/colchester-profhilo' },
   openGraph: {
     title: 'Profhilo for Colchester Clients | Visage Aesthetics',
-    description: 'Officially awarded Profhilo treatment 25 minutes from Colchester. From £180.',
+    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Profhilo treatment 25 minutes from Colchester. From £180.',
     url: 'https://www.vaclinic.co.uk/colchester-profhilo',
   },
 }
@@ -23,7 +23,7 @@ export default function ColchesterProfhilo() {
       reasons={[
         { title: 'Worth the 25-minute drive', body: "Free parking on Friars Lane, one client at a time, no salon vibe. Many Colchester clients prefer the quieter experience to the busier salons on their side." },
         { title: 'Authentic IBSA Profhilo', body: "Never relabelled, never repackaged. Sourced direct from the manufacturer. The same product the peer-reviewed clinical evidence is based on." },
-        { title: 'Officially awarded practitioner', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. RGN, MSc Advanced Practice (Level 7), twenty years of clinical experience. Most Colchester injectors are Level 4-5." },
+        { title: 'Winner — Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards)', body: "Best Non-Surgical Aesthetics Clinic 2026, Essex. RGN, MSc Advanced Practice (Level 7), twenty years of clinical experience. Most Colchester injectors are Level 4-5." },
       ]}
       priceFrom="From £180 / single session"
       postcode="CM7 9BL"

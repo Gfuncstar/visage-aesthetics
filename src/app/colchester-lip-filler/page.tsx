@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/colchester-lip-filler' },
   openGraph: {
     title: 'Lip Filler for Colchester Clients | Visage Aesthetics',
-    description: 'Officially awarded nurse-led lip filler 25 minutes from Colchester. From £110.',
+    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Nurse-led lip filler 25 minutes from Colchester. From £110.',
     url: 'https://www.vaclinic.co.uk/colchester-lip-filler',
   },
 }

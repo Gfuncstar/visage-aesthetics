@@ -6,7 +6,7 @@ import BookingCTA from '@/components/sections/BookingCTA'
 import { treatments } from '@/lib/treatments'
 
 export const metadata: Metadata = {
-  title: 'Treatments | Awarded Best Clinic Essex 2026',
+  title: 'Treatments | Visage Aesthetics',
   description: 'Non-surgical aesthetic treatments at Visage Aesthetics, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. Anti-wrinkle, dermal filler, Profhilo, HarmonyCa, micro-needling, AQUALYX and more.',
 }
 
