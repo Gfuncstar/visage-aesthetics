@@ -71,6 +71,7 @@ const PAGE_DATES: Record<string, string> = {
   '/blog/first-botox-appointment': '2026-04-01',
   '/blog/natural-looking-filler': '2026-04-01',
   '/blog/profhilo-vs-dermal-filler': '2026-04-01',
+  '/blog/uk-aesthetics-regulation-2026': '2026-05-15',
   '/blog/aqualyx-fat-dissolving-explained': '2026-05-13',
   '/blog/micro-needling-results-timeline': '2026-05-11',
   '/blog/men-aesthetics-guide': '2026-05-09',
@@ -140,7 +141,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'what-is-a-nurse-led-clinic',
     'consultation-questions-to-ask',
     'tear-trough-filler-truth',
-    'first-time-botox-mistakes',    'anti-wrinkle-aftercare',    'how-long-does-botox-last',    'exercise-and-botox-results',    'vitamin-b12-injections-when-they-work',    'natural-looking-aesthetics-essex',    'hyperhidrosis-botox-explained',    'men-aesthetics-guide',    'micro-needling-results-timeline',    'aqualyx-fat-dissolving-explained',
+    'first-time-botox-mistakes',    'anti-wrinkle-aftercare',    'how-long-does-botox-last',    'exercise-and-botox-results',    'vitamin-b12-injections-when-they-work',    'natural-looking-aesthetics-essex',    'hyperhidrosis-botox-explained',    'men-aesthetics-guide',    'micro-needling-results-timeline',    'aqualyx-fat-dissolving-explained',    'uk-aesthetics-regulation-2026',
+
 
 
 

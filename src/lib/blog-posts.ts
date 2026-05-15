@@ -212,6 +212,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-05-13',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'uk-aesthetics-regulation-2026',
+    category: "Clinic",
+    title: "UK aesthetics regulation in 2026: what's actually changing",
+    excerpt: "A licensing scheme for Botox and filler practitioners has been discussed for years but remains unenacted—here is what the law actually requires today.",
+    readTime: "9 min read",
+    datePublished: '2026-05-15',
+    dateModified: '2026-05-15',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
