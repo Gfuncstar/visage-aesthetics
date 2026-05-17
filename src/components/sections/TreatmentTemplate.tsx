@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowUpRight, Check, X } from 'lucide-react'
+import { ArrowUpRight, Check, X, Star } from 'lucide-react'
+import GoogleG from '@/components/ui/GoogleG'
 import Accordion, { type AccordionItem } from '@/components/ui/Accordion'
 import BookingCTA from '@/components/sections/BookingCTA'
 import VideoBandUSP from '@/components/sections/VideoBandUSP'
@@ -49,6 +50,16 @@ export default async function TreatmentTemplate({
   // Prepend the privacy FAQ so every treatment page leads with the
   // discretion USP, and the FAQPage schema below picks it up too.
   const allFaqs = [PRIVACY_FAQ, ...faqs]
+
+  // Pick a real Google review deterministically per treatment slug, so each
+  // page rotates through the verified review pool with the same review
+  // pinned to the same treatment build-to-build.
+  const reviewIndex = (() => {
+    let h = 0
+    for (let i = 0; i < treatment.slug.length; i++) h = (h * 31 + treatment.slug.charCodeAt(i)) | 0
+    return Math.abs(h) % Math.max(1, reviews.reviews.length)
+  })()
+  const pulledReview = reviews.reviews[reviewIndex]
 
   // Geo pages that target this exact treatment family
   const travellingFrom = geoPages.filter((g) => g.treatmentSlug === treatment.slug)
@@ -233,21 +244,40 @@ export default async function TreatmentTemplate({
         </div>
       </section>
 
-      {/* CLIENT VOICE — single Bernadette-vetted pull-quote.
-          Swap copy with a real testimonial when available. */}
-      <section className="py-8 md:py-12">
-        <div className="max-w-[1100px] mx-auto px-5 md:px-8">
-          <blockquote className="text-center">
-            <span className="block w-10 h-px bg-gold mx-auto mb-7" aria-hidden />
-            <p className="font-display italic text-charcoal" style={{ fontSize: 'clamp(22px, 2.6vw, 32px)', lineHeight: 1.3, fontWeight: 400, letterSpacing: '-0.005em' }}>
-              &ldquo;Bernadette talked me out of a second syringe at consultation. That&rsquo;s why I trust her.&rdquo;
-            </p>
-            <footer className="mt-6 text-eyebrow text-stone">
-              S.W. &nbsp;·&nbsp; {treatment.name} client
-            </footer>
-          </blockquote>
-        </div>
-      </section>
+      {/* CLIENT VOICE — real Google review, rotated deterministically per slug. */}
+      {pulledReview && (
+        <section className="py-8 md:py-12">
+          <div className="max-w-[1100px] mx-auto px-5 md:px-8">
+            <blockquote className="text-center">
+              <span className="block w-10 h-px bg-gold mx-auto mb-7" aria-hidden />
+              <div className="inline-flex items-center gap-1 mb-5" aria-label={`${pulledReview.rating} out of 5 stars`}>
+                {Array.from({ length: Math.round(pulledReview.rating) }).map((_, i) => (
+                  <Star key={i} size={15} strokeWidth={0} className="text-gold" fill="currentColor" />
+                ))}
+              </div>
+              <p className="font-display italic text-charcoal max-w-3xl mx-auto" style={{ fontSize: 'clamp(20px, 2.2vw, 26px)', lineHeight: 1.35, fontWeight: 400, letterSpacing: '-0.005em' }}>
+                &ldquo;{pulledReview.text}&rdquo;
+              </p>
+              <footer className="mt-7 inline-flex items-center gap-2 text-eyebrow text-stone">
+                <span className="text-charcoal" style={{ fontWeight: 500 }}>{pulledReview.author}</span>
+                {pulledReview.relativeTime && <span aria-hidden>&middot;</span>}
+                {pulledReview.relativeTime && <span>{pulledReview.relativeTime}</span>}
+                <span aria-hidden>&middot;</span>
+                <a
+                  href={reviews.mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 hover:text-gold-deep transition-colors"
+                  aria-label="Read all reviews on Google"
+                >
+                  <GoogleG size={11} />
+                  <span>Verified Google review</span>
+                </a>
+              </footer>
+            </blockquote>
+          </div>
+        </section>
+      )}
 
       {/* SUITABLE / NOT SUITABLE */}
       <section className="py-6 md:py-9">
