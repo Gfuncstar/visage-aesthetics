@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import { Award, Stethoscope, ShieldCheck, GraduationCap, BookOpen, Heart } from 'lucide-react'
 import BookingCTA from '@/components/sections/BookingCTA'
+import VideoBandUSP from '@/components/sections/VideoBandUSP'
+import AutoplayVideo from '@/components/ui/AutoplayVideo'
 
 export const metadata: Metadata = {
   title: 'About Bernadette Tobin | Visage Aesthetics',
-  description: 'Bernadette Tobin: registered nurse, MSc Advanced Practice, founder of Visage Aesthetics. Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. 20+ years clinical experience and a passion for natural, conservative results.',
+  description: 'Bernadette Tobin: registered nurse, MSc Advanced Practice, founder of Visage Aesthetics — awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. 20+ years clinical experience, natural conservative results, in a private clinic with no signage, private parking and one client at a time.',
 }
 
 const credentials = [
@@ -40,7 +41,11 @@ export default function AboutPage() {
           </div>
           <div className="lg:col-span-5">
             <div className="relative aspect-[4/5] rounded-md overflow-hidden">
-              <Image src="/images/bernadette-portrait.jpg" alt="Bernadette Tobin" fill priority sizes="(min-width: 1024px) 40vw, 90vw" className="object-cover" />
+              <AutoplayVideo
+                src="/video/usp/imagine-a3e532c9.mp4"
+                poster="/images/bernadette-portrait.jpg"
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
         </div>
@@ -84,6 +89,14 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+
+      <VideoBandUSP
+        eyebrow="Twenty years of clinical care"
+        heading="Nurse-led. NMC registered. Quietly meticulous."
+        subline="Every treatment performed by Bernadette Tobin RGN, MSc &mdash; one client at a time, behind a closed door, with the diary blocked off."
+        desktopSrc="/video/usp/imagine-84131880.mp4"
+        mobileSrc="/video/usp/imagine-84131880.mp4"
+      />
 
       <section className="py-6 md:py-9">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8">

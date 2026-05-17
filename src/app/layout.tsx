@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import RevealRoot from '@/components/ui/Reveal'
 import FloatingWhatsApp from '@/components/ui/FloatingWhatsApp'
+import StickyBookingBar from '@/components/layout/StickyBookingBar'
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -26,8 +27,8 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://www.vaclinic.co.uk'),
   title: "Visage Aesthetics | Best Non-Surgical Aesthetics Clinic in Essex 2026",
   description:
-    "Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards). A private nurse-led clinic on Friars Lane, Braintree. Naturally subtle treatments by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Strictly by appointment.",
-  keywords: ['private aesthetics clinic essex', 'aesthetics braintree', 'botox essex', 'dermal filler braintree', 'profhilo essex', 'nurse-led aesthetics', 'visage aesthetics', 'discreet clinic braintree'],
+    "Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards). A private, discreet nurse-led clinic on Friars Lane, Braintree — no signage, private parking, one client at a time. Naturally subtle treatments by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Strictly by appointment.",
+  keywords: ['private aesthetics clinic essex', 'discreet aesthetics braintree', 'aesthetics braintree', 'botox essex', 'dermal filler braintree', 'profhilo essex', 'nurse-led aesthetics', 'visage aesthetics', 'discreet clinic braintree', 'private clinic essex no signage'],
   alternates: {
     canonical: '/',
   },
@@ -39,13 +40,13 @@ export const metadata: Metadata = {
     locale: 'en_GB',
     siteName: 'Visage Aesthetics',
     title: "Visage Aesthetics | Best Non-Surgical Aesthetics Clinic in Essex 2026",
-    description: "Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. A private nurse-led clinic on Friars Lane, Braintree. Bernadette Tobin RGN, MSc, strictly by appointment.",
+    description: "Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. A private, discreet nurse-led clinic on Friars Lane, Braintree — no signage, private parking, one client at a time. Bernadette Tobin RGN, MSc, strictly by appointment.",
     url: 'https://www.vaclinic.co.uk',
   },
   twitter: {
     card: 'summary_large_image',
     title: "Visage Aesthetics | Best Non-Surgical Aesthetics Clinic in Essex 2026",
-    description: "Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. A private nurse-led clinic on Friars Lane, Braintree. Bernadette Tobin RGN, MSc, strictly by appointment.",
+    description: "Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. A private, discreet nurse-led clinic — no signage, private parking, one client at a time. Bernadette Tobin RGN, MSc, strictly by appointment.",
   },
   robots: {
     index: true,
@@ -71,7 +72,7 @@ const jsonLd = {
   '@id': 'https://www.vaclinic.co.uk/#org',
   name: 'Visage Aesthetics',
   url: 'https://www.vaclinic.co.uk',
-  description: 'Nurse-led aesthetics clinic in Braintree, Essex',
+  description: 'Private, discreet nurse-led aesthetics clinic in Braintree, Essex — no signage on the building, private parking, one client at a time. Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex.',
   address: {
     '@type': 'PostalAddress',
     streetAddress: '17A Friars Lane',
@@ -139,6 +140,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main id="main">{children}</main>
         <Footer />
         <FloatingWhatsApp />
+        <StickyBookingBar />
       </body>
     </html>
   )

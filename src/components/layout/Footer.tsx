@@ -91,6 +91,27 @@ export default function Footer() {
               <InstagramIcon size={16} />
               <span>@visageaestheticclinic</span>
             </a>
+            <div className="mt-8 pt-6 border-t" style={{ borderColor: 'rgba(245, 240, 236, 0.08)' }}>
+              <div className="eyebrow mb-2" style={{ color: 'rgba(245, 240, 236, 0.45)' }}>Already a client?</div>
+              <div className="flex flex-wrap gap-x-5 gap-y-2 text-[13px]">
+                <Link
+                  href="/aftercare"
+                  className="hover:text-cream transition-colors border-b"
+                  style={{ color: 'rgba(245, 240, 236, 0.85)', borderColor: 'rgba(168, 137, 94, 0.5)' }}
+                >
+                  Aftercare advice
+                </Link>
+                <a
+                  href="https://wa.me/447931395246?text=Hi%2C%20I%27d%20like%20to%20ask%20about%20aftercare%20advice%20following%20my%20treatment"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-cream transition-colors border-b"
+                  style={{ color: 'rgba(245, 240, 236, 0.85)', borderColor: 'rgba(168, 137, 94, 0.5)' }}
+                >
+                  WhatsApp Bernadette
+                </a>
+              </div>
+            </div>
           </div>
           <div className="md:col-span-3">
             <div className="eyebrow mb-5" style={{ color: 'rgba(245, 240, 236, 0.45)' }}>Site</div>

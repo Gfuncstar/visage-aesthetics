@@ -1,8 +1,12 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowUpRight, Check, X } from 'lucide-react'
+import { ArrowUpRight, Check, X, Star } from 'lucide-react'
+import GoogleG from '@/components/ui/GoogleG'
 import Accordion, { type AccordionItem } from '@/components/ui/Accordion'
 import BookingCTA from '@/components/sections/BookingCTA'
+import VideoBandUSP from '@/components/sections/VideoBandUSP'
+import { pickUspVideo } from '@/lib/usp-videos'
+import { PRIVACY_FAQ } from '@/lib/privacy-faq'
 import { treatments, type Treatment } from '@/lib/treatments'
 import { BOOKING_LINK_PROPS } from '@/lib/booking'
 import { geoPages } from '@/lib/geo-pages'
@@ -43,6 +47,19 @@ export default async function TreatmentTemplate({
 }: TreatmentPageProps) {
   const related = treatments.filter((t) => t.slug !== treatment.slug).slice(0, 3)
   const reviews = await getGoogleReviews()
+  // Prepend the privacy FAQ so every treatment page leads with the
+  // discretion USP, and the FAQPage schema below picks it up too.
+  const allFaqs = [PRIVACY_FAQ, ...faqs]
+
+  // Pick a real Google review deterministically per treatment slug, so each
+  // page rotates through the verified review pool with the same review
+  // pinned to the same treatment build-to-build.
+  const reviewIndex = (() => {
+    let h = 0
+    for (let i = 0; i < treatment.slug.length; i++) h = (h * 31 + treatment.slug.charCodeAt(i)) | 0
+    return Math.abs(h) % Math.max(1, reviews.reviews.length)
+  })()
+  const pulledReview = reviews.reviews[reviewIndex]
 
   // Geo pages that target this exact treatment family
   const travellingFrom = geoPages.filter((g) => g.treatmentSlug === treatment.slug)
@@ -122,9 +139,9 @@ export default async function TreatmentTemplate({
           url: `https://www.vaclinic.co.uk${treatment.href}`,
         },
       },
-      faqs.length > 0 ? {
+      allFaqs.length > 0 ? {
         '@type': 'FAQPage',
-        mainEntity: faqs.map((f) => ({
+        mainEntity: allFaqs.map((f) => ({
           '@type': 'Question',
           name: f.question,
           acceptedAnswer: { '@type': 'Answer', text: f.answer },
@@ -227,6 +244,41 @@ export default async function TreatmentTemplate({
         </div>
       </section>
 
+      {/* CLIENT VOICE — real Google review, rotated deterministically per slug. */}
+      {pulledReview && (
+        <section className="py-8 md:py-12">
+          <div className="max-w-[1100px] mx-auto px-5 md:px-8">
+            <blockquote className="text-center">
+              <span className="block w-10 h-px bg-gold mx-auto mb-7" aria-hidden />
+              <div className="inline-flex items-center gap-1 mb-5" aria-label={`${pulledReview.rating} out of 5 stars`}>
+                {Array.from({ length: Math.round(pulledReview.rating) }).map((_, i) => (
+                  <Star key={i} size={15} strokeWidth={0} className="text-gold" fill="currentColor" />
+                ))}
+              </div>
+              <p className="font-display italic text-charcoal max-w-3xl mx-auto" style={{ fontSize: 'clamp(20px, 2.2vw, 26px)', lineHeight: 1.35, fontWeight: 400, letterSpacing: '-0.005em' }}>
+                &ldquo;{pulledReview.text}&rdquo;
+              </p>
+              <footer className="mt-7 inline-flex items-center gap-2 text-eyebrow text-stone">
+                <span className="text-charcoal" style={{ fontWeight: 500 }}>{pulledReview.author}</span>
+                {pulledReview.relativeTime && <span aria-hidden>&middot;</span>}
+                {pulledReview.relativeTime && <span>{pulledReview.relativeTime}</span>}
+                <span aria-hidden>&middot;</span>
+                <a
+                  href={reviews.mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 hover:text-gold-deep transition-colors"
+                  aria-label="Read all reviews on Google"
+                >
+                  <GoogleG size={11} />
+                  <span>Verified Google review</span>
+                </a>
+              </footer>
+            </blockquote>
+          </div>
+        </section>
+      )}
+
       {/* SUITABLE / NOT SUITABLE */}
       <section className="py-6 md:py-9">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
@@ -276,6 +328,54 @@ export default async function TreatmentTemplate({
         </div>
       </section>
 
+      {/* WHAT'S DIFFERENT HERE — Visage vs typical high-street comparison */}
+      <section className="py-6 md:py-9">
+        <div className="max-w-[1100px] mx-auto px-5 md:px-8">
+          <div className="max-w-2xl mb-10 md:mb-12">
+            <span className="hairline hairline-left mb-6" />
+            <div className="text-eyebrow text-gold mb-3">What&rsquo;s different here</div>
+            <h2 className="font-display text-h1 text-charcoal">Why this isn&rsquo;t a high-street treatment.</h2>
+          </div>
+          <div className="border border-line/30 rounded-md overflow-hidden bg-cream">
+            <div className="grid grid-cols-[1fr_1fr] md:grid-cols-[1.4fr_1fr_1fr] divide-x divide-y" style={{ borderColor: '#D9CDBE' }}>
+              <div className="hidden md:block px-5 py-3 bg-cream-soft text-eyebrow text-stone">In the room</div>
+              <div className="hidden md:block px-5 py-3 bg-cream-soft text-eyebrow text-gold">Visage</div>
+              <div className="hidden md:block px-5 py-3 bg-cream-soft text-eyebrow text-stone">Typical high-street clinic</div>
+              {([
+                { label: 'Who treats you', visage: 'Registered nurse, MSc Advanced Practice', other: 'Often non-medical, lightly trained' },
+                { label: 'Consultation', visage: 'Free, 45 min, no deposit, no pressure', other: 'Charged or rushed, deposit up-front' },
+                { label: 'Privacy', visage: 'One client at a time, discreet entrance, no shopfront', other: 'Salon chair, foot traffic, walk-ins' },
+                { label: 'Plan', visage: 'Evidence-based, declined if not right for you', other: 'Product-led upsell on the day' },
+              ]).map((row) => (
+                <div key={row.label} className="contents">
+                  <div className="px-5 py-4 md:py-5 col-span-2 md:col-span-1 bg-cream-soft md:bg-cream font-display italic text-charcoal" style={{ fontSize: 17, lineHeight: 1.25, fontWeight: 400 }}>
+                    {row.label}
+                  </div>
+                  <div className="px-5 py-4 md:py-5 text-charcoal text-sm leading-relaxed" style={{ background: 'rgba(168, 137, 94, 0.06)' }}>
+                    <span className="md:hidden block text-eyebrow text-gold mb-1">Visage</span>
+                    {row.visage}
+                  </div>
+                  <div className="px-5 py-4 md:py-5 text-ink-soft text-sm leading-relaxed">
+                    <span className="md:hidden block text-eyebrow text-stone mb-1">Typical clinic</span>
+                    {row.other}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* VIDEO BAND — medical-led USP, clip varies per treatment */}
+      <VideoBandUSP
+        eyebrow={`${treatment.name} at Visage`}
+        heading="A medical decision, taken slowly."
+        subline={`Your ${treatment.name.toLowerCase()} plan is shaped in a free consultation by a registered nurse with an MSc in Advanced Practice. We only proceed when it's genuinely the right call.`}
+        cta={{ label: 'About Bernadette', href: '/about' }}
+        desktopSrc={pickUspVideo(treatment.slug)}
+        mobileSrc={pickUspVideo(treatment.slug)}
+      />
+
       {/* PRICING */}
       <section className="py-6 md:py-9">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16 items-center">
@@ -324,7 +424,7 @@ export default async function TreatmentTemplate({
             <h2 className="font-display text-h1 text-charcoal">{treatment.name} FAQs.</h2>
           </div>
           <div className="md:col-span-8">
-            <Accordion items={faqs} defaultOpen={0} />
+            <Accordion items={allFaqs} defaultOpen={0} />
           </div>
         </div>
       </section>

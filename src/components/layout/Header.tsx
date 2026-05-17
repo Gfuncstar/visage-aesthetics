@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import { treatments } from '@/lib/treatments'
 import { BOOKING_LINK_PROPS } from '@/lib/booking'
+import { AWARD } from '@/lib/award'
 
 const primaryNav = [
   { label: 'Treatments', href: '/treatments', dropdown: true },
@@ -84,6 +85,24 @@ export default function Header() {
             </nav>
 
             <div className="flex items-center gap-3">
+              <Link
+                href={AWARD.detailPath}
+                className="hidden xl:inline-flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors group"
+                style={{
+                  background: 'rgba(168, 137, 94, 0.10)',
+                  border: '1px solid rgba(168, 137, 94, 0.35)',
+                  color: '#8C6F47',
+                  fontSize: 10.5,
+                  letterSpacing: '0.14em',
+                  textTransform: 'uppercase',
+                  fontWeight: 500,
+                  lineHeight: 1,
+                }}
+                aria-label={`Verified winner: ${AWARD.fullName}`}
+              >
+                <span aria-hidden style={{ width: 6, height: 6, borderRadius: 999, background: '#A8895E' }} />
+                <span>Winner · {AWARD.fullName}</span>
+              </Link>
               <a
                 {...BOOKING_LINK_PROPS}
                 className="hidden md:inline-block text-charcoal hover:text-gold-deep transition-colors pb-1.5 border-b border-charcoal hover:border-gold-deep"
