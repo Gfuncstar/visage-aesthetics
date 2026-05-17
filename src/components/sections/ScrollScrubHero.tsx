@@ -23,8 +23,13 @@ export default function ScrollScrubHero() {
     if (!hero || !video) return
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduceMotion) {
+    // Honour Save-Data and slow-connection signals — skip the scroll-scrubbed
+    // video entirely on 2g/3g/saveData and let the poster image stand in.
+    const conn = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection
+    const slow = !!conn && (conn.saveData === true || /^(slow-2g|2g|3g)$/.test(conn.effectiveType ?? ''))
+    if (reduceMotion || slow) {
       try { video.currentTime = 0 } catch {}
+      try { video.removeAttribute('src') } catch {}
       if (panel1) panel1.style.opacity = '1'
       if (panel2) panel2.style.opacity = '1'
       return

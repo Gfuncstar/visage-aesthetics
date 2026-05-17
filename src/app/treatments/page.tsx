@@ -3,11 +3,14 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowUpRight } from 'lucide-react'
 import BookingCTA from '@/components/sections/BookingCTA'
+import VideoBandUSP from '@/components/sections/VideoBandUSP'
+import TreatmentFinder from '@/components/sections/TreatmentFinder'
 import { treatments } from '@/lib/treatments'
+import { BOOKING_URL } from '@/lib/booking'
 
 export const metadata: Metadata = {
   title: 'Treatments | Visage Aesthetics',
-  description: 'Non-surgical aesthetic treatments at Visage Aesthetics, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. Anti-wrinkle, dermal filler, Profhilo, HarmonyCa, micro-needling, AQUALYX and more.',
+  description: 'Non-surgical aesthetic treatments at Visage Aesthetics, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. Anti-wrinkle, dermal filler, Profhilo, HarmonyCa, micro-needling, AQUALYX and more — performed in a private, discreet clinic on Friars Lane, Braintree. One client at a time.',
 }
 
 export default function TreatmentsPage() {
@@ -25,6 +28,17 @@ export default function TreatmentsPage() {
           </p>
         </div>
       </section>
+
+      <TreatmentFinder />
+
+      <VideoBandUSP
+        eyebrow="How we begin"
+        heading="Every treatment starts with a free consultation."
+        subline="Forty-five unhurried minutes in the room, with the diary blocked off. You leave with a written plan and a price &mdash; never with a sale."
+        cta={{ label: 'Book a consultation', href: BOOKING_URL }}
+        desktopSrc="/video/usp/imagine-71ed1d19.mp4"
+        mobileSrc="/video/usp/imagine-71ed1d19.mp4"
+      />
 
       <section className="py-5 md:py-8">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8">

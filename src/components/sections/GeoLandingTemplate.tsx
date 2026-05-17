@@ -1,7 +1,10 @@
 import Link from 'next/link'
 import { ArrowUpRight, Check, MapPin, Award as AwardIcon } from 'lucide-react'
 import BookingCTA from '@/components/sections/BookingCTA'
-import { BOOKING_LINK_PROPS } from '@/lib/booking'
+import VideoBandUSP from '@/components/sections/VideoBandUSP'
+import { pickUspVideo } from '@/lib/usp-videos'
+import { PRIVACY_FAQ } from '@/lib/privacy-faq'
+import { BOOKING_LINK_PROPS, BOOKING_URL } from '@/lib/booking'
 import { geoPages } from '@/lib/geo-pages'
 import { getGoogleReviews } from '@/lib/google-reviews'
 import { AWARD } from '@/lib/award'
@@ -36,6 +39,8 @@ export default async function GeoLandingTemplate({
 }: GeoLandingProps) {
   const url = `https://www.vaclinic.co.uk/${slug}`
   const reviews = await getGoogleReviews()
+  // Prepend the privacy FAQ — same logic as the treatment template.
+  const allFaqs = [PRIVACY_FAQ, ...faqs]
 
   // Lateral links: same treatment family, different towns
   const currentEntry = geoPages.find((g) => g.slug === slug)
@@ -89,7 +94,7 @@ export default async function GeoLandingTemplate({
       },
       {
         '@type': 'FAQPage',
-        mainEntity: faqs.map((f) => ({
+        mainEntity: allFaqs.map((f) => ({
           '@type': 'Question',
           name: f.question,
           acceptedAnswer: { '@type': 'Answer', text: f.answer },
@@ -168,6 +173,16 @@ export default async function GeoLandingTemplate({
         </div>
       </section>
 
+      {/* VIDEO BAND — town-aware USP */}
+      <VideoBandUSP
+        eyebrow={`${travel.toLowerCase().startsWith('less') || /mile|min/i.test(travel) ? travel : `Travelling from ${town}`}`}
+        heading={`A short drive for ${town} clients.`}
+        subline={`Winner — Best Non-Surgical Aesthetics Clinic 2026, Essex. Free on-site parking, a discreet entrance and only one appointment in the clinic at a time.`}
+        cta={{ label: 'Book free consultation', href: BOOKING_URL }}
+        desktopSrc={pickUspVideo(slug)}
+        mobileSrc={pickUspVideo(slug)}
+      />
+
       {/* CREDENTIALS / EEAT BLOCK */}
       <section className="py-6 md:py-9 bg-cream-soft">
         <div className="max-w-[1100px] mx-auto px-5 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
@@ -202,7 +217,7 @@ export default async function GeoLandingTemplate({
           <div className="text-eyebrow text-gold mb-3">{town} FAQs</div>
           <h2 className="font-display text-h1 text-charcoal mb-10">Common questions.</h2>
           <div className="grid gap-px bg-line/40 border border-line/40">
-            {faqs.map((f) => (
+            {allFaqs.map((f) => (
               <details key={f.question} className="group bg-cream open:bg-cream-soft transition-colors">
                 <summary className="cursor-pointer flex items-start justify-between gap-4 p-5 md:p-7 list-none [&::-webkit-details-marker]:hidden">
                   <span className="font-display italic text-charcoal" style={{ fontSize: 20, lineHeight: 1.3, fontWeight: 500 }}>{f.question}</span>

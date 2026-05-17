@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Award as AwardIcon } from 'lucide-react'
+import { Award as AwardIcon, CalendarClock } from 'lucide-react'
 import { BOOKING_LINK_PROPS } from '@/lib/booking'
 import { AWARD } from '@/lib/award'
 
@@ -36,6 +36,13 @@ export default function BookingCTA({ sectionNumber = '06' }: { sectionNumber?: s
             <span className="btn-arrow">→</span>
           </a>
         </div>
+        <p
+          className="mt-5 inline-flex items-center gap-2"
+          style={{ color: 'rgba(245, 240, 236, 0.6)', fontSize: 12, letterSpacing: '0.04em' }}
+        >
+          <CalendarClock size={13} strokeWidth={1.5} style={{ color: '#C09F6E' }} />
+          <span>Most weeks book a few days out &middot; strictly by appointment, one client in the clinic at a time</span>
+        </p>
         <Link
           href={AWARD.detailPath}
           className="mt-8 inline-flex items-center gap-2 group"

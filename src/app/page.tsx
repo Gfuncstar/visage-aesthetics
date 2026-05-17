@@ -3,8 +3,7 @@ import Link from 'next/link'
 import ScrollScrubHero from '@/components/sections/ScrollScrubHero'
 import BookingCTA from '@/components/sections/BookingCTA'
 import GoogleReviews from '@/components/sections/GoogleReviews'
-import StickyBookingBar from '@/components/layout/StickyBookingBar'
-import AutoplayVideo from '@/components/ui/AutoplayVideo'
+import VideoBandUSP from '@/components/sections/VideoBandUSP'
 import Accordion from '@/components/ui/Accordion'
 import { treatments } from '@/lib/treatments'
 import { getGoogleReviews } from '@/lib/google-reviews'
@@ -12,7 +11,7 @@ import { BOOKING_URL } from '@/lib/booking'
 
 export const metadata: Metadata = {
   title: 'Visage Aesthetics | Winner — Best Non-Surgical Clinic 2026, Essex',
-  description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards). Private nurse-led clinic on Friars Lane, Braintree. Botox, filler and Profhilo by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Free consultation, strictly by appointment.',
+  description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards). Private, discreet nurse-led clinic on Friars Lane, Braintree — no signage, private parking, one client at a time. Botox, filler and Profhilo by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Free consultation, strictly by appointment.',
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
@@ -20,13 +19,13 @@ export const metadata: Metadata = {
     url: 'https://www.vaclinic.co.uk/',
     siteName: 'Visage Aesthetics',
     title: 'Visage Aesthetics | Winner — Best Non-Surgical Clinic 2026, Essex',
-    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Private nurse-led clinic on Friars Lane, Braintree.',
+    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Private, discreet nurse-led clinic on Friars Lane, Braintree — no signage, private parking, one client at a time.',
     images: [{ url: '/images/og-home.jpg', width: 1200, height: 630, alt: 'Visage Aesthetics, Awarded Best Non-Surgical Clinic Essex 2026' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Visage Aesthetics | Winner — Best Non-Surgical Clinic 2026, Essex',
-    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex.',
+    description: 'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Private, discreet nurse-led clinic — no signage, one client at a time.',
     images: ['/images/og-home.jpg'],
   },
 }
@@ -197,71 +196,51 @@ export default async function Home() {
       <GoogleReviews />
 
       {/* APPROACH */}
+      <div style={{ paddingTop: 'var(--section-y)' }}>
+        <div className="max-w-[1280px] mx-auto" style={{ paddingLeft: 'var(--pad-x)', paddingRight: 'var(--pad-x)' }}>
+          <div className="section-num reveal mb-10">02 &nbsp; Approach</div>
+        </div>
+      </div>
+
+      <VideoBandUSP
+        eyebrow="Founder · RGN, MSc"
+        heading="Bernadette Tobin."
+        subline="MSc Advanced Practice. NMC registered, 20+ years clinical. Accredited aesthetic practitioner."
+        cta={{ label: 'About Bernadette', href: '/about' }}
+        desktopSrc="/video/approach.mp4"
+        mobileSrc="/video/approach.mp4"
+      />
+
       <section style={{ padding: 'var(--section-y) var(--pad-x)' }}>
         <div className="max-w-[1280px] mx-auto">
-          <div className="section-num reveal mb-12">02 &nbsp; Approach</div>
-          <div className="grid grid-cols-1 md:grid-cols-[1.05fr_1fr] gap-12 md:gap-20 items-start">
-            <div className="reveal-image relative aspect-[4/5] md:aspect-[4/5.4] overflow-hidden">
-              <AutoplayVideo
-                src="/video/approach.mp4"
-                poster="/images/clinic-portrait.jpg"
-                className="w-full h-full object-cover"
-                style={{ objectPosition: 'center' }}
-              />
-              <div
-                aria-hidden
-                className="absolute inset-x-0 bottom-0 pointer-events-none"
-                style={{
-                  height: '55%',
-                  background: 'linear-gradient(to top, rgba(245, 240, 236, 0.92) 0%, rgba(245, 240, 236, 0.7) 35%, rgba(245, 240, 236, 0.35) 70%, rgba(245, 240, 236, 0) 100%)',
-                }}
-              />
-              <figcaption
-                className="absolute left-5 bottom-6 md:left-7 md:bottom-8 max-w-[320px] md:max-w-[380px]"
-                style={{ color: '#1F1B1A', textShadow: '0 1px 2px rgba(245, 240, 236, 0.6)' }}
-              >
-                <span
-                  className="font-display italic block"
-                  style={{ fontSize: 'clamp(30px, 3.6vw, 42px)', lineHeight: 1.05, fontWeight: 400, letterSpacing: '-0.015em' }}
-                >
-                  Bernadette Tobin
-                </span>
-                <span className="block mt-2" style={{ fontSize: 13, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#A8895E', fontWeight: 500 }}>
-                  Founder &nbsp;·&nbsp; RGN, MSc
-                </span>
-                <span className="block w-10 h-px bg-gold mt-4 mb-4" aria-hidden />
-                <span className="block" style={{ fontSize: 15, lineHeight: 1.55, color: '#1F1B1A' }}>
-                  MSc Advanced Practice
-                  <br />
-                  NMC registered, 20+ years clinical
-                  <br />
-                  Accredited aesthetic practitioner
-                </span>
-              </figcaption>
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
+            <div className="md:col-span-5">
+              <h2 className="text-h1 text-charcoal reveal">A different kind of clinic.</h2>
             </div>
-            <div>
-              <div className="reveal">
-                <h2 className="text-h1 text-charcoal">A different kind of clinic.</h2>
-                <p className="text-body-lg mt-8 max-w-[540px]">
-                  A small, private clinic on Friars Lane, quiet by design, with a single appointment in the room at a time. No conveyor belt, no hard sell. Every treatment plan begins with a proper consultation, and only goes ahead if it&apos;s genuinely right for you.
-                </p>
-              </div>
-              <ul className="brand-bullets reveal-stagger mt-20">
+            <div className="md:col-span-7 reveal">
+              <p className="text-body-lg">
+                A small, private clinic on Friars Lane, quiet by design, with a single appointment in the room at a time. No conveyor belt, no hard sell. Every treatment plan begins with a proper consultation, and only goes ahead if it&apos;s genuinely right for you.
+              </p>
+              <ul className="brand-bullets reveal-stagger mt-10">
                 <li>Medically led, ethically delivered</li>
                 <li>Bespoke treatment planning</li>
                 <li>Premium product partners</li>
                 <li>Strictly private , one client at a time</li>
               </ul>
-              <div className="mt-10">
-                <Link href="/about" className="btn btn-secondary">
-                  <span>About Bernadette</span>
-                  <span className="btn-arrow">→</span>
-                </Link>
-              </div>
             </div>
           </div>
         </div>
       </section>
+
+      {/* AWARD VIDEO BAND */}
+      <VideoBandUSP
+        eyebrow="Officially recognised"
+        heading="Best Non-Surgical Aesthetics Clinic 2026, Essex."
+        subline="Awarded by the Health, Beauty &amp; Wellness Awards. A private, nurse-led clinic on Friars Lane, Braintree, strictly by appointment."
+        cta={{ label: 'See the award', href: '/awards/best-non-surgical-clinic-essex-2026' }}
+        desktopSrc="/video/usp/imagine-f16e4fcd.mp4"
+        mobileSrc="/video/usp/imagine-f16e4fcd.mp4"
+      />
 
       {/* TREATMENTS */}
       <section style={{ background: '#EFE8E0', padding: 'var(--section-y) var(--pad-x)' }}>
@@ -293,10 +272,23 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* VISIT */}
+      {/* VISIT — privacy band leads, map + address follow */}
+      <div style={{ paddingTop: 'var(--section-y)' }}>
+        <div className="max-w-[1280px] mx-auto" style={{ paddingLeft: 'var(--pad-x)', paddingRight: 'var(--pad-x)' }}>
+          <div className="section-num reveal mb-10">05 &nbsp; Visit</div>
+        </div>
+      </div>
+
+      <VideoBandUSP
+        eyebrow="Privacy by design"
+        heading="Off-street. Off-camera. Out of sight."
+        subline="No signage on the building. Behind electric gates, with private parking set back from Friars Lane and out of view. You walk in through a discreet entrance &mdash; and there&rsquo;s never another client in the clinic at the same time."
+        desktopSrc="/video/usp/imagine-f8fd119c.mp4"
+        mobileSrc="/video/usp/imagine-f8fd119c.mp4"
+      />
+
       <section style={{ padding: 'var(--section-y) var(--pad-x)' }}>
         <div className="max-w-[1280px] mx-auto">
-          <div className="section-num reveal mb-6">05 &nbsp; Visit</div>
           <h2 className="text-h1 text-charcoal reveal mb-14">Find us.</h2>
           <div className="reveal-image aspect-[16/9] overflow-hidden mb-14 relative">
             <iframe
@@ -422,29 +414,34 @@ export default async function Home() {
                 defaultOpen={0}
                 items={[
                   {
+                    question: 'Will anyone see me arriving?',
+                    answer:
+                      "No. I deliberately designed the clinic this way. We sit back from Friars Lane, behind electric gates, with private parking entirely out of view from the road — your car can't be seen from the street. There is no signage on the building, no shopfront, no waiting room window. You walk straight through a discreet entrance, the door closes behind you, and you are the only client in the clinic. Many of my clients tell me Visage is the most private clinic they have ever used. That is by design, not by accident.",
+                  },
+                  {
                     question: 'How much does treatment cost?',
                     answer:
-                      'Prices start at £80 for micro-needling and £110 for dermal filler. A full price list is on the Prices page, and you will always be quoted in writing before anything is booked. The consultation itself is free.',
+                      "Prices start at £80 for micro-needling and £110 for dermal filler, and you can see the full list on the Prices page. The consultation is always free. I will never pressure you to book on the day, and you will always be quoted in writing before anything is decided. If something is not worth the money for you, I will tell you.",
                   },
                   {
                     question: 'Does it hurt?',
                     answer:
-                      'Most clients describe it as a small, brief pinch. Topical numbing cream is used for filler work, and the products themselves contain a local anaesthetic. Anti-wrinkle injections use a very fine needle and are usually over in a few minutes.',
+                      "Most of my clients describe it as a small, brief pinch. I use topical numbing cream for filler work, and the products themselves contain a local anaesthetic. Anti-wrinkle injections use a very fine needle and are usually finished in a few minutes. If you are particularly anxious about needles, tell me at consultation and we will plan around it.",
                   },
                   {
                     question: 'What is the recovery like?',
                     answer:
-                      'Plan for a quiet evening. Tiny pinpricks, mild swelling, and the occasional bruise are normal for twenty-four to forty-eight hours. Most clients return to work the next day, with light makeup if they prefer.',
+                      "Plan for a quiet evening. Tiny pinpricks, mild swelling and the occasional bruise are normal for twenty-four to forty-eight hours. Most of my clients are back at work the next day, with light makeup if they prefer. I send you home with proper written aftercare, and you can WhatsApp me directly if anything is worrying you.",
                   },
                   {
                     question: 'When will I see results?',
                     answer:
-                      'Filler results are visible immediately and settle over two weeks. Anti-wrinkle injections take three to fourteen days to take full effect. Profhilo and skin treatments build gradually over four to eight weeks.',
+                      "Filler is visible immediately and settles fully over about two weeks. Anti-wrinkle injections take three to fourteen days to reach their full effect. Profhilo and skin treatments build gradually over four to eight weeks. I prefer slow, conservative results that no one else can quite put their finger on.",
                   },
                   {
                     question: 'Who is not suitable?',
                     answer:
-                      'We do not treat anyone under eighteen, anyone pregnant or breastfeeding, or anyone with certain active skin or autoimmune conditions. If a treatment is not right for you, we will tell you honestly at consultation.',
+                      "If you are under 18, I will not treat you. If you are pregnant or breastfeeding, I will not treat you. There is no negotiation on that, and I would rather you knew it now than after a deposit. I also decline to treat clients with certain active skin or autoimmune conditions. If a treatment is not right for you on the day, I will say so at consultation. That is the whole point of the consultation.",
                   },
                 ]}
               />
@@ -454,7 +451,6 @@ export default async function Home() {
       </section>
 
       <BookingCTA sectionNumber="10" />
-      <StickyBookingBar />
     </>
   )
 }

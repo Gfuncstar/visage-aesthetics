@@ -5,7 +5,7 @@ import ContactForm from './ContactForm'
 
 export const metadata: Metadata = {
   title: 'Book a Consultation | Visage Aesthetics',
-  description: 'Book a free, no-obligation aesthetic consultation at Visage Aesthetics, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. 17A Friars Lane, Braintree CM7 9BL.',
+  description: 'Book a free, no-obligation aesthetic consultation at Visage Aesthetics, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. A private, discreet clinic — no signage, private parking, one client at a time. 17A Friars Lane, Braintree CM7 9BL.',
 }
 
 export default function ContactPage() {
@@ -44,6 +44,21 @@ export default function ContactPage() {
       <section className="pb-6 md:pb-10">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16" id="book">
           <div className="lg:col-span-7 order-2 lg:order-1">
+            <ol className="mb-5 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+              {[
+                { n: '01', title: 'Pick a time', body: 'Choose any slot below. No deposit required.' },
+                { n: '02', title: 'I confirm by hand', body: 'I personally check every booking the same day.' },
+                { n: '03', title: 'You arrive privately', body: 'Discreet entrance, on-site parking, one client at a time.' },
+              ].map((s) => (
+                <li key={s.n} className="border border-line/30 rounded-sm p-4 bg-cream">
+                  <div className="eyebrow text-gold">{s.n}</div>
+                  <div className="font-display italic text-charcoal mt-1.5" style={{ fontSize: 17, lineHeight: 1.25, fontWeight: 500 }}>
+                    {s.title}
+                  </div>
+                  <p className="text-stone mt-2" style={{ fontSize: 12.5, lineHeight: 1.5 }}>{s.body}</p>
+                </li>
+              ))}
+            </ol>
             <div className="bg-cream-soft border border-line/25 rounded-md overflow-hidden">
               <div className="px-6 md:px-8 py-5 border-b border-line/40 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
