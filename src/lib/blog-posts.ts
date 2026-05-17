@@ -222,6 +222,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-05-15',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'profhilo-treatment-guide',
+    category: "Skin quality",
+    title: "Profhilo: a no-nonsense treatment guide",
+    excerpt: "A clear explanation of how Profhilo works, what it can realistically achieve, and why results require two treatment sessions.",
+    readTime: "9 min read",
+    datePublished: '2026-05-17',
+    dateModified: '2026-05-17',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
