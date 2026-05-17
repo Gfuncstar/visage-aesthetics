@@ -18,13 +18,13 @@ const concernOptions: { value: NonNullable<Answers['concern']>; label: string; h
   { value: 'unsure', label: 'Not sure yet', hint: 'Help me decide at consultation' },
 ]
 
-const needleOptions: { value: NonNullable<Answers['needle']>; label: string; hint: string }[] = [
+const needleOptions: { value: NonNullable<Answers['needle']>; label: string; hint?: string }[] = [
   { value: 'fine', label: "I'm fine with injections" },
   { value: 'cautious', label: 'A bit cautious, but open' },
   { value: 'avoid', label: 'I’d prefer to avoid injections', hint: 'Where possible' },
 ]
 
-const budgetOptions: { value: NonNullable<Answers['budget']>; label: string; hint: string }[] = [
+const budgetOptions: { value: NonNullable<Answers['budget']>; label: string; hint?: string }[] = [
   { value: 'under-150', label: 'Under £150' },
   { value: '150-300', label: '£150 – £300' },
   { value: '300-plus', label: '£300+' },
