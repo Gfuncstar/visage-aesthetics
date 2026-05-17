@@ -54,21 +54,38 @@ export default async function GoogleReviews() {
               relativeTime={r.relativeTime}
               rating={r.rating}
               text={r.text}
+              href={data.mapsUrl}
             />
           ))}
         </div>
 
-        <p className="mt-8 text-stone text-[11px] tracking-[0.18em] uppercase">
-          {data.live ? (
-            <>Live from Google &nbsp;·&nbsp; Synced {new Date(data.lastSynced).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</>
-          ) : (
-            <>From verified Google reviews &nbsp;·&nbsp;
-              <a href={data.mapsUrl} target="_blank" rel="noopener noreferrer" className="underline decoration-gold/40 hover:decoration-gold-deep">
-                Read all on Google
-              </a>
-            </>
-          )}
-        </p>
+        <div className="mt-10 md:mt-12 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+          <a
+            href={data.mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-3 self-start group"
+          >
+            <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-cream border border-line/40 group-hover:border-gold transition-colors">
+              <GoogleG size={16} />
+            </span>
+            <span className="flex flex-col leading-tight">
+              <span className="text-charcoal" style={{ fontSize: 14, fontWeight: 500 }}>
+                Read all {data.total}+ reviews on Google
+              </span>
+              <span className="text-stone group-hover:text-gold-deep transition-colors mt-1" style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 500 }}>
+                Live link &nbsp;↗
+              </span>
+            </span>
+          </a>
+          <p className="text-stone text-[11px] tracking-[0.18em] uppercase">
+            {data.live ? (
+              <>Live from Google &nbsp;·&nbsp; Synced {new Date(data.lastSynced).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</>
+            ) : (
+              <>From verified Google reviews</>
+            )}
+          </p>
+        </div>
       </div>
     </section>
   )

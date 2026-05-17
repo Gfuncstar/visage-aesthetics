@@ -10,17 +10,19 @@ export type GoogleReviewCardProps = {
   relativeTime: string
   rating: number
   text: string
+  /** When set, the card adds a live "View on Google" link out to this URL. */
+  href?: string
 }
 
 const COLLAPSED_LINE_CLAMP = 3
 
-export default function GoogleReviewCard({ author, profilePhoto, relativeTime, rating, text }: GoogleReviewCardProps) {
+export default function GoogleReviewCard({ author, profilePhoto, relativeTime, rating, text, href }: GoogleReviewCardProps) {
   const [expanded, setExpanded] = useState(false)
   // Heuristic: only show "Read more" when text is long enough that 3 lines wouldn't fit it.
   const isLong = text.length > 160
 
   return (
-    <article className="bg-cream-soft p-7 md:p-8 flex flex-col">
+    <article className="bg-cream-soft p-7 md:p-8 flex flex-col transition-colors hover:bg-cream">
       <div className="flex items-center gap-3 mb-5">
         {profilePhoto ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -40,7 +42,19 @@ export default function GoogleReviewCard({ author, profilePhoto, relativeTime, r
           <span className="text-stone text-[11px] mt-0.5">{relativeTime}</span>
         </div>
         <div className="ml-auto">
-          <GoogleG size={14} />
+          {href ? (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`View ${author}'s review on Google`}
+              className="inline-flex items-center justify-center w-7 h-7 rounded-full -m-1.5 hover:bg-gold/10 transition-colors"
+            >
+              <GoogleG size={14} />
+            </a>
+          ) : (
+            <GoogleG size={14} />
+          )}
         </div>
       </div>
       <div className="flex gap-0.5 mb-4">
@@ -62,17 +76,33 @@ export default function GoogleReviewCard({ author, profilePhoto, relativeTime, r
       >
         &ldquo;{text}&rdquo;
       </p>
-      {isLong && (
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          className="mt-4 self-start text-stone hover:text-gold-deep transition-colors"
-          style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 500 }}
-          aria-expanded={expanded}
-        >
-          {expanded ? 'Read less' : 'Read more'} &nbsp;→
-        </button>
-      )}
+      <div className="mt-4 flex items-center justify-between gap-3">
+        {isLong ? (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="text-stone hover:text-gold-deep transition-colors"
+            style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 500 }}
+            aria-expanded={expanded}
+          >
+            {expanded ? 'Read less' : 'Read more'} &nbsp;→
+          </button>
+        ) : (
+          <span aria-hidden />
+        )}
+        {href && (
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-stone hover:text-gold-deep transition-colors"
+            style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 500 }}
+          >
+            <span>View on Google</span>
+            <span aria-hidden>↗</span>
+          </a>
+        )}
+      </div>
     </article>
   )
 }
