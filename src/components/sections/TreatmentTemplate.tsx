@@ -191,6 +191,18 @@ export default async function TreatmentTemplate({
         </div>
       </section>
 
+      {/* VIDEO BAND — medical-led USP, clip varies per treatment.
+          Placed immediately after the hero so the cinematic CTA sits
+          high above the fold on every treatment page. */}
+      <VideoBandUSP
+        eyebrow={`${treatment.name} at Visage`}
+        heading="A medical decision, taken slowly."
+        subline={`Your ${treatment.name.toLowerCase()} plan is shaped in a free consultation by a registered nurse with an MSc in Advanced Practice. We only proceed when it's genuinely the right call.`}
+        cta={{ label: 'About Bernadette', href: '/about' }}
+        desktopSrc={pickUspVideo(treatment.slug)}
+        mobileSrc={pickUspVideo(treatment.slug)}
+      />
+
       {/* OVERVIEW */}
       <section className="py-6 md:py-9">
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
@@ -365,16 +377,6 @@ export default async function TreatmentTemplate({
           </div>
         </div>
       </section>
-
-      {/* VIDEO BAND — medical-led USP, clip varies per treatment */}
-      <VideoBandUSP
-        eyebrow={`${treatment.name} at Visage`}
-        heading="A medical decision, taken slowly."
-        subline={`Your ${treatment.name.toLowerCase()} plan is shaped in a free consultation by a registered nurse with an MSc in Advanced Practice. We only proceed when it's genuinely the right call.`}
-        cta={{ label: 'About Bernadette', href: '/about' }}
-        desktopSrc={pickUspVideo(treatment.slug)}
-        mobileSrc={pickUspVideo(treatment.slug)}
-      />
 
       {/* PRICING */}
       <section className="py-6 md:py-9">
