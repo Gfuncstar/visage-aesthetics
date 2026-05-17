@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 type CTA = { label: string; href: string }
 
@@ -32,8 +32,10 @@ type VideoBandUSPProps = {
 
 /**
  * Edge-to-edge full-bleed video band used to break up long pages and
- * carry a single, clinic-level USP. Autoplay is muted + looped and
- * respects `prefers-reduced-motion`.
+ * carry a single, clinic-level USP. Autoplay is muted + looped, respects
+ * `prefers-reduced-motion`, and the video itself is lazy-loaded via
+ * IntersectionObserver — sources aren't attached until the band is
+ * within ~400px of the viewport, so off-screen bands cost zero network.
  */
 export default function VideoBandUSP({
   eyebrow,
@@ -46,20 +48,51 @@ export default function VideoBandUSP({
   tint = 'dark',
   className = '',
 }: VideoBandUSPProps) {
+  const sectionRef = useRef<HTMLElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const [loaded, setLoaded] = useState(false)
 
+  // Watch the band, attach <source> elements only when it's about to
+  // scroll into view. Once attached, we never unload — keeps repeat
+  // scroll-back instant.
   useEffect(() => {
-    const v = videoRef.current
-    if (!v) return
+    if (loaded) return
+    const section = sectionRef.current
+    if (!section) return
+
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduceMotion) {
-      v.pause()
-      try { v.currentTime = 0 } catch {}
+    if (reduceMotion) return // never fetch the video if motion is disabled
+
+    if (typeof IntersectionObserver === 'undefined') {
+      setLoaded(true)
       return
     }
+
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setLoaded(true)
+            obs.disconnect()
+            break
+          }
+        }
+      },
+      { rootMargin: '400px 0px' },
+    )
+    obs.observe(section)
+    return () => obs.disconnect()
+  }, [loaded])
+
+  // Once sources are attached, kick the video into playing.
+  useEffect(() => {
+    if (!loaded) return
+    const v = videoRef.current
+    if (!v) return
     v.muted = true
+    try { v.load() } catch { /* ignore */ }
     v.play().catch(() => { /* autoplay blocked, falls back to poster */ })
-  }, [])
+  }, [loaded])
 
   const isExternal = !!cta && /^https?:\/\//.test(cta.href)
 
@@ -72,6 +105,7 @@ export default function VideoBandUSP({
 
   return (
     <section
+      ref={sectionRef}
       aria-label={heading}
       className={`relative w-full overflow-hidden ${className}`}
       style={{ height: 'clamp(340px, 60svh, 620px)' }}
@@ -86,8 +120,12 @@ export default function VideoBandUSP({
         poster={poster}
         className="absolute inset-0 w-full h-full object-cover"
       >
-        <source src={desktopSrc} type="video/mp4" media="(min-width: 720px)" />
-        <source src={mobileSrc} type="video/mp4" />
+        {loaded && (
+          <>
+            <source src={desktopSrc} type="video/mp4" media="(min-width: 720px)" />
+            <source src={mobileSrc} type="video/mp4" />
+          </>
+        )}
       </video>
 
       <div
