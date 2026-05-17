@@ -116,8 +116,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${cormorant.variable} ${inter.variable}`}>
       <head>
-        <link rel="preload" as="image" href="/images/hero-poster.jpg" fetchPriority="high" />
-        <link rel="preload" as="image" href="/images/award-badge.png" fetchPriority="high" />
+        {/* next/image handles the LCP image preload via the `priority` prop on the
+            hero poster + award badge. Manual preload tags here were duplicating that
+            and pulling the unoptimised 630 KB PNG on every mobile visit. */}
         <link rel="dns-prefetch" href="https://www.openstreetmap.org" />
         <link rel="dns-prefetch" href="https://visage-aesthetics.book.app" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
