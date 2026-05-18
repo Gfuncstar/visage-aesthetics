@@ -8,6 +8,7 @@ import VideoBandUSP from '@/components/sections/VideoBandUSP'
 import { pickUspVideo } from '@/lib/usp-videos'
 import { PRIVACY_FAQ } from '@/lib/privacy-faq'
 import { beforeAfterByTreatment } from '@/lib/before-after'
+import Watermark from '@/components/ui/Watermark'
 import { treatments, type Treatment } from '@/lib/treatments'
 import { BOOKING_LINK_PROPS } from '@/lib/booking'
 import { geoPages } from '@/lib/geo-pages'
@@ -300,6 +301,7 @@ export default async function TreatmentTemplate({
                       >
                         Before / After
                       </span>
+                      <Watermark />
                     </div>
                     <figcaption className="p-5">
                       <p className="text-sm text-charcoal leading-snug">{b.caption}</p>
