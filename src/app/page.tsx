@@ -37,6 +37,10 @@ export const metadata: Metadata = {
 // swap ids here when fresh photos land — the catalogue lives in
 // src/lib/before-after.ts.
 const HOMEPAGE_RESULTS_IDS = ['profhilo-01-jawline', 'anti-wrinkle-01', 'lip-filler-02'] as const
+// IDs that should only appear on mobile (hidden at md+). Keep desktop
+// layout balanced — currently the lip filler quality isn't quite the
+// standard the bigger desktop frames deserve.
+const MOBILE_ONLY_RESULT_IDS: ReadonlySet<string> = new Set(['lip-filler-02'])
 
 export default async function Home() {
   const reviews = await getGoogleReviews()
@@ -301,13 +305,14 @@ export default async function Home() {
                 Full gallery &nbsp;→
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 reveal-stagger">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5 md:gap-6 reveal-stagger">
               {homeResults.map((b) => {
                 const aspect =
                   b.aspect === '4/5' ? 'aspect-[4/5]' :
                   b.aspect === '4/3' ? 'aspect-[4/3]' :
                   b.aspect === '1/1' ? 'aspect-square' : 'aspect-[3/4]'
                 const treatmentHref = treatments.find((t) => t.slug === b.treatmentSlug)?.href
+                const mobileOnly = MOBILE_ONLY_RESULT_IDS.has(b.id)
                 const tile = (
                   <figure className="bg-cream-soft border border-line/25 rounded-md overflow-hidden h-full flex flex-col group-hover:border-gold/60 transition-colors">
                     <div className={`relative w-full ${aspect}`}>
@@ -349,17 +354,18 @@ export default async function Home() {
                     </figcaption>
                   </figure>
                 )
+                const visibilityClass = mobileOnly ? 'md:hidden' : ''
                 return treatmentHref ? (
                   <Link
                     key={b.id}
                     href={treatmentHref}
                     aria-label={`${b.alt} Read about ${b.treatmentLabel}.`}
-                    className="block group focus:outline-none focus:ring-2 focus:ring-gold rounded-md"
+                    className={`block group focus:outline-none focus:ring-2 focus:ring-gold rounded-md ${visibilityClass}`}
                   >
                     {tile}
                   </Link>
                 ) : (
-                  <div key={b.id} className="group">{tile}</div>
+                  <div key={b.id} className={`group ${visibilityClass}`}>{tile}</div>
                 )
               })}
             </div>
