@@ -212,16 +212,6 @@ export const beforeAfter: BeforeAfter[] = [
 
   // ── Micro-Needling ───────────────────────────────────────────────────
   {
-    id: 'micro-needling-01-clarity',
-    src: '/images/before-after/micro-needling-01-clarity.png',
-    treatmentSlug: 'micro-needling',
-    treatmentLabel: 'Micro-Needling',
-    caption: 'Skin clarity and tone evened.',
-    alt: 'Micro-needling before and after — skin clarity and tone evened, by Bernadette Tobin RGN, MSc at Visage Aesthetics, Braintree, Essex.',
-    layout: 'side-by-side',
-    aspect: '4/3',
-  },
-  {
     id: 'micro-needling-02-texture',
     src: '/images/before-after/micro-needling-02-texture.png',
     treatmentSlug: 'micro-needling',
@@ -230,16 +220,6 @@ export const beforeAfter: BeforeAfter[] = [
     alt: 'Micro-needling before and after — skin texture refinement over a three-session course, by Bernadette Tobin RGN, MSc at Visage Aesthetics, Braintree, Essex.',
     layout: 'side-by-side',
     aspect: '4/3',
-  },
-  {
-    id: 'micro-needling-03-pigmentation',
-    src: '/images/before-after/micro-needling-03-pigmentation.png',
-    treatmentSlug: 'micro-needling',
-    treatmentLabel: 'Micro-Needling',
-    caption: 'Pigmentation fading over a three-session course.',
-    alt: 'Micro-needling before and after — pigmentation fading and skin clarity improved over a three-session course, by Bernadette Tobin RGN, MSc at Visage Aesthetics, Braintree, Essex.',
-    layout: 'top-bottom',
-    aspect: '3/4',
   },
 
   // ── CryoPen ──────────────────────────────────────────────────────────
@@ -252,6 +232,26 @@ export const beforeAfter: BeforeAfter[] = [
     alt: 'CryoPen before and after — benign skin lesion removed in a single cryotherapy session, by Bernadette Tobin RGN, MSc at Visage Aesthetics, Braintree, Essex.',
     layout: 'side-by-side',
     aspect: '4/3',
+  },
+  {
+    id: 'cryopen-02-clarity',
+    src: '/images/before-after/cryopen-02-clarity.png',
+    treatmentSlug: 'cryopen',
+    treatmentLabel: 'CryoPen',
+    caption: 'Skin clarity and tone improved after targeted cryotherapy.',
+    alt: 'CryoPen before and after — skin clarity and tone improved on the cheek after targeted cryotherapy, by Bernadette Tobin RGN, MSc at Visage Aesthetics, Braintree, Essex.',
+    layout: 'side-by-side',
+    aspect: '4/3',
+  },
+  {
+    id: 'cryopen-03-pigmentation',
+    src: '/images/before-after/cryopen-03-pigmentation.png',
+    treatmentSlug: 'cryopen',
+    treatmentLabel: 'CryoPen',
+    caption: 'Pigmentation fading over a three-session cryotherapy course.',
+    alt: 'CryoPen before and after — pigmentation fading and skin clarity improved over a three-session cryotherapy course, by Bernadette Tobin RGN, MSc at Visage Aesthetics, Braintree, Essex.',
+    layout: 'top-bottom',
+    aspect: '3/4',
   },
 ]
 
