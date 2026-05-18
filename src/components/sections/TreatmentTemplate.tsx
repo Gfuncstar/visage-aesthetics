@@ -7,6 +7,7 @@ import BookingCTA from '@/components/sections/BookingCTA'
 import VideoBandUSP from '@/components/sections/VideoBandUSP'
 import { pickUspVideo } from '@/lib/usp-videos'
 import { PRIVACY_FAQ } from '@/lib/privacy-faq'
+import { beforeAfterByTreatment } from '@/lib/before-after'
 import { treatments, type Treatment } from '@/lib/treatments'
 import { BOOKING_LINK_PROPS } from '@/lib/booking'
 import { geoPages } from '@/lib/geo-pages'
@@ -50,6 +51,11 @@ export default async function TreatmentTemplate({
   // Prepend the privacy FAQ so every treatment page leads with the
   // discretion USP, and the FAQPage schema below picks it up too.
   const allFaqs = [PRIVACY_FAQ, ...faqs]
+
+  // Real before/after pairs for this exact treatment, if we have any.
+  // Trimmed to 3 for the treatment page so it doesn't dominate the layout —
+  // the /results gallery shows the full pool.
+  const treatmentResults = beforeAfterByTreatment(treatment.slug).slice(0, 3)
 
   // Pick a real Google review deterministically per treatment slug, so each
   // page rotates through the verified review pool with the same review
@@ -255,6 +261,62 @@ export default async function TreatmentTemplate({
           </div>
         </div>
       </section>
+
+      {/* RECENT RESULTS — real before/after photos for this treatment.
+          Modest 2-3 tile strip; full pool sits on /results. */}
+      {treatmentResults.length > 0 && (
+        <section className="py-6 md:py-9">
+          <div className="max-w-[1280px] mx-auto px-5 md:px-8">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8 md:mb-10">
+              <div>
+                <span className="hairline hairline-left mb-6" />
+                <div className="text-eyebrow text-gold mb-3">Recent results</div>
+                <h2 className="font-display text-h1 text-charcoal">A look at our work.</h2>
+              </div>
+              <Link href="/results" className="text-gold hover:text-gold-deep transition-colors self-start md:self-end" style={{ fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 500 }}>
+                Full gallery &nbsp;→
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+              {treatmentResults.map((b) => {
+                const aspect =
+                  b.aspect === '4/5' ? 'aspect-[4/5]' :
+                  b.aspect === '4/3' ? 'aspect-[4/3]' :
+                  b.aspect === '1/1' ? 'aspect-square' : 'aspect-[3/4]'
+                return (
+                  <figure key={b.src} className="bg-cream-soft border border-line/25 rounded-md overflow-hidden">
+                    <div className={`relative w-full ${aspect}`}>
+                      <Image
+                        src={b.src}
+                        alt={`${b.treatmentLabel} before and after at Visage Aesthetics`}
+                        fill
+                        sizes="(min-width: 1024px) 30vw, (min-width: 640px) 48vw, 90vw"
+                        className="object-cover"
+                      />
+                      <span
+                        aria-hidden
+                        className="absolute top-3 right-3 bg-cream/85 text-charcoal px-2 py-1 rounded-sm"
+                        style={{ fontSize: 9.5, letterSpacing: '0.18em', fontWeight: 500, textTransform: 'uppercase' }}
+                      >
+                        Before / After
+                      </span>
+                    </div>
+                    <figcaption className="p-5">
+                      <p className="text-sm text-charcoal leading-snug">{b.caption}</p>
+                      <p className="mt-2 text-stone" style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 500 }}>
+                        {b.treatmentLabel} &nbsp;·&nbsp; Consented
+                      </p>
+                    </figcaption>
+                  </figure>
+                )
+              })}
+            </div>
+            <p className="mt-7 text-stone" style={{ fontSize: 11.5, lineHeight: 1.5 }}>
+              All photographs taken at Visage Aesthetics with full client consent. Results vary between individuals.
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* CLIENT VOICE — real Google review, rotated deterministically per slug. */}
       {pulledReview && (
