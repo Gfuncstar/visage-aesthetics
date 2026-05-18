@@ -1,92 +1,131 @@
-'use client'
-
-import { useState } from 'react'
-import Image from 'next/image'
+import type { Metadata } from 'next'
 import BookingCTA from '@/components/sections/BookingCTA'
-import Watermark from '@/components/ui/Watermark'
-import { beforeAfter, availableTreatmentLabels } from '@/lib/before-after'
+import ResultsGallery from './ResultsGallery'
+import { beforeAfter } from '@/lib/before-after'
+import { treatments } from '@/lib/treatments'
 
-const FILTER_ALL = 'All'
+const SITE = 'https://www.vaclinic.co.uk'
+const PAGE_URL = `${SITE}/results`
+const OG_IMAGE = `${SITE}${beforeAfter[0]?.src ?? '/images/og-home.jpg'}`
 
-const aspectClass: Record<string, string> = {
-  '4/5': 'aspect-[4/5]',
-  '4/3': 'aspect-[4/3]',
-  '1/1': 'aspect-square',
-  '3/4': 'aspect-[3/4]',
+export const metadata: Metadata = {
+  title: 'Before & After Results | Visage Aesthetics, Braintree',
+  description:
+    'Real before-and-after photographs of treatments performed at Visage Aesthetics, Braintree — anti-wrinkle, dermal filler, lip filler, tear-trough, Profhilo, micro-needling and CryoPen. All photographs taken with full client consent by Bernadette Tobin RGN, MSc. Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex.',
+  alternates: { canonical: '/results' },
+  keywords: [
+    'before and after aesthetics essex',
+    'lip filler before and after braintree',
+    'profhilo before and after essex',
+    'tear trough filler before and after',
+    'anti-wrinkle before and after braintree',
+    'micro-needling before and after essex',
+    'cryopen mole removal before and after',
+    'visage aesthetics results',
+    'nurse-led aesthetics before and after',
+  ],
+  openGraph: {
+    type: 'website',
+    locale: 'en_GB',
+    siteName: 'Visage Aesthetics',
+    title: 'Before & After Results | Visage Aesthetics, Braintree',
+    description:
+      'Real consented before-and-after photographs of treatments performed at Visage Aesthetics, Braintree, by Bernadette Tobin RGN, MSc.',
+    url: PAGE_URL,
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: 'Before and after results at Visage Aesthetics, Braintree' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Before & After Results | Visage Aesthetics, Braintree',
+    description: 'Consented before-and-after photographs from a nurse-led clinic in Braintree, Essex.',
+    images: [OG_IMAGE],
+  },
 }
 
 export default function ResultsPage() {
-  const labels = [FILTER_ALL, ...availableTreatmentLabels()]
-  const [filter, setFilter] = useState<string>(FILTER_ALL)
-  const visible = filter === FILTER_ALL ? beforeAfter : beforeAfter.filter((b) => b.treatmentLabel === filter)
+  // ── JSON-LD: ImageGallery wraps each image as ImageObject, with the
+  //    creator + provider so Google attributes the images to the clinic.
+  //    Each ImageObject points back to the relevant treatment page via
+  //    `subjectOf`, which strengthens the topical link sitewide.
+  const treatmentHrefBySlug = Object.fromEntries(treatments.map((t) => [t.slug, t.href]))
+
+  const galleryJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` },
+          { '@type': 'ListItem', position: 2, name: 'Results', item: PAGE_URL },
+        ],
+      },
+      {
+        '@type': 'ImageGallery',
+        '@id': `${PAGE_URL}#gallery`,
+        name: 'Before and After Results — Visage Aesthetics, Braintree',
+        description:
+          'Real consented before-and-after photographs of non-surgical aesthetic treatments at Visage Aesthetics, performed by Bernadette Tobin RGN, MSc.',
+        url: PAGE_URL,
+        isPartOf: { '@id': `${SITE}/#website` },
+        author: { '@type': 'Person', name: 'Bernadette Tobin', '@id': `${SITE}/#bernadette` },
+        publisher: { '@id': `${SITE}/#org` },
+        numberOfItems: beforeAfter.length,
+        about: Array.from(new Set(beforeAfter.map((b) => b.treatmentSlug))).map((slug) => ({
+          '@type': 'MedicalProcedure',
+          name: treatments.find((t) => t.slug === slug)?.name ?? slug,
+          url: `${SITE}${treatmentHrefBySlug[slug] ?? ''}`,
+        })),
+        image: beforeAfter.map((b) => ({
+          '@type': 'ImageObject',
+          '@id': `${PAGE_URL}#${b.id}`,
+          contentUrl: `${SITE}${b.src}`,
+          url: `${SITE}${b.src}`,
+          name: `${b.treatmentLabel} before and after — ${b.caption.replace(/[.!?]$/, '')}`,
+          description: b.alt,
+          caption: b.caption,
+          representativeOfPage: false,
+          creditText: 'Visage Aesthetics',
+          copyrightNotice: '© Visage Aesthetics. All rights reserved.',
+          creator: { '@type': 'Person', name: 'Bernadette Tobin', '@id': `${SITE}/#bernadette` },
+          copyrightHolder: { '@id': `${SITE}/#org` },
+          acquireLicensePage: PAGE_URL,
+          contentLocation: { '@type': 'Place', name: 'Visage Aesthetics, Friars Lane, Braintree' },
+          locationCreated: { '@id': `${SITE}/#org` },
+          license: PAGE_URL,
+          subjectOf: treatmentHrefBySlug[b.treatmentSlug]
+            ? { '@type': 'MedicalProcedure', url: `${SITE}${treatmentHrefBySlug[b.treatmentSlug]}` }
+            : undefined,
+        })),
+      },
+    ],
+  }
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(galleryJsonLd) }} />
+
       <section className="bg-cream text-charcoal pt-24 md:pt-28 pb-6 md:pb-10 relative overflow-hidden">
         <div className="arc-bg" aria-hidden />
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 relative">
-          <div className="text-eyebrow text-stone mb-5">Results</div>
+          <nav aria-label="Breadcrumb" className="text-eyebrow text-stone mb-5">
+            <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <li><a href="/" className="hover:text-gold">Home</a></li>
+              <li aria-hidden className="opacity-40">/</li>
+              <li aria-current="page" className="text-charcoal/80">Results</li>
+            </ol>
+          </nav>
+          <div className="text-eyebrow text-stone mb-3">Before &amp; After</div>
           <h1 className="font-display italic text-hero text-charcoal max-w-3xl">Real results. Real clients.</h1>
           <p className="mt-6 text-body-lg text-ink-soft max-w-2xl">
-            Every photograph here is from a treatment carried out at Visage Aesthetics, shared with full client consent. Conservative and natural by intention — and results vary between individuals.
+            Every photograph here is from a treatment carried out at Visage Aesthetics, Braintree, shared with full client consent. Treatments are performed by Bernadette Tobin RGN, MSc — awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. Conservative and natural by intention. Results vary between individuals.
           </p>
         </div>
       </section>
 
-      <section className="py-7 md:py-10">
+      <section className="py-7 md:py-10" aria-labelledby="results-heading">
+        <h2 id="results-heading" className="sr-only">Filterable before and after gallery</h2>
         <div className="max-w-[1280px] mx-auto px-5 md:px-8">
-          <div className="flex flex-wrap gap-2 mb-10 md:mb-12">
-            {labels.map((f) => (
-              <button
-                key={f}
-                type="button"
-                onClick={() => setFilter(f)}
-                className={`text-eyebrow px-4 py-2 rounded-sm border transition-colors ${
-                  filter === f
-                    ? 'bg-gold text-charcoal border-gold'
-                    : 'bg-transparent text-charcoal border-line/30 hover:border-gold hover:text-gold'
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-            {visible.map((b) => (
-              <figure key={b.src} className="bg-cream-soft border border-line/25 rounded-md overflow-hidden">
-                <div className={`relative w-full ${aspectClass[b.aspect] ?? 'aspect-[4/3]'}`}>
-                  <Image
-                    src={b.src}
-                    alt={`${b.treatmentLabel} before and after at Visage Aesthetics, Braintree`}
-                    fill
-                    sizes="(min-width: 1024px) 30vw, (min-width: 640px) 48vw, 90vw"
-                    className="object-cover"
-                  />
-                  <span
-                    className="absolute top-3 left-3 bg-charcoal/85 text-cream text-eyebrow px-2.5 py-1 rounded-sm"
-                    style={{ fontSize: 10, letterSpacing: '0.18em', fontWeight: 500 }}
-                  >
-                    {b.treatmentLabel}
-                  </span>
-                  <span
-                    aria-hidden
-                    className="absolute top-3 right-3 bg-cream/85 text-charcoal px-2 py-1 rounded-sm"
-                    style={{ fontSize: 9.5, letterSpacing: '0.18em', fontWeight: 500, textTransform: 'uppercase' }}
-                  >
-                    Before / After
-                  </span>
-                  <Watermark />
-                </div>
-                <figcaption className="p-5">
-                  <p className="text-sm text-charcoal leading-snug">{b.caption}</p>
-                  <p className="mt-2 text-stone" style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 500 }}>
-                    Photographed at Visage · Consented
-                  </p>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
+          <ResultsGallery />
 
           <div className="mt-10 bg-cream-soft border border-gold/30 rounded-md p-5 md:p-6">
             <p className="text-sm text-ink-soft leading-relaxed">
