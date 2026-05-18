@@ -307,8 +307,9 @@ export default async function Home() {
                   b.aspect === '4/5' ? 'aspect-[4/5]' :
                   b.aspect === '4/3' ? 'aspect-[4/3]' :
                   b.aspect === '1/1' ? 'aspect-square' : 'aspect-[3/4]'
-                return (
-                  <figure key={b.id} className="bg-cream-soft border border-line/25 rounded-md overflow-hidden">
+                const treatmentHref = treatments.find((t) => t.slug === b.treatmentSlug)?.href
+                const tile = (
+                  <figure className="bg-cream-soft border border-line/25 rounded-md overflow-hidden h-full flex flex-col group-hover:border-gold/60 transition-colors">
                     <div className={`relative w-full ${aspect}`}>
                       <Image
                         src={b.src}
@@ -332,13 +333,33 @@ export default async function Home() {
                       </span>
                       <Watermark />
                     </div>
-                    <figcaption className="p-5">
+                    <figcaption className="p-5 flex-1 flex flex-col">
                       <p className="text-sm text-charcoal leading-snug">{b.caption}</p>
                       <p className="mt-2 text-stone" style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 500 }}>
                         Photographed at Visage &nbsp;·&nbsp; Consented
                       </p>
+                      {treatmentHref && (
+                        <span
+                          className="mt-3 inline-flex items-center gap-1.5 text-gold group-hover:text-gold-deep transition-colors"
+                          style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 500 }}
+                        >
+                          Read about {b.treatmentLabel.toLowerCase()} <span aria-hidden>→</span>
+                        </span>
+                      )}
                     </figcaption>
                   </figure>
+                )
+                return treatmentHref ? (
+                  <Link
+                    key={b.id}
+                    href={treatmentHref}
+                    aria-label={`${b.alt} Read about ${b.treatmentLabel}.`}
+                    className="block group focus:outline-none focus:ring-2 focus:ring-gold rounded-md"
+                  >
+                    {tile}
+                  </Link>
+                ) : (
+                  <div key={b.id} className="group">{tile}</div>
                 )
               })}
             </div>
