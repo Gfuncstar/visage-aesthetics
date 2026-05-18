@@ -115,10 +115,20 @@ export default function Footer() {
           </div>
           <div className="md:col-span-3">
             <div className="eyebrow mb-5" style={{ color: 'rgba(245, 240, 236, 0.45)' }}>Site</div>
-            <ul className="space-y-2.5">
+            <ul className="grid grid-cols-3 md:grid-cols-2 gap-2">
               {links.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="text-[14px] hover:text-cream transition-colors" style={{ color: 'rgba(245, 240, 236, 0.65)' }}>
+                  <Link
+                    href={l.href}
+                    className="block text-center py-2.5 px-3 rounded-sm transition-colors hover:bg-[rgba(245,240,236,0.08)] hover:border-[rgba(168,137,94,0.5)] hover:text-cream"
+                    style={{
+                      fontSize: 12,
+                      letterSpacing: '0.06em',
+                      color: 'rgba(245, 240, 236, 0.78)',
+                      background: 'rgba(245, 240, 236, 0.04)',
+                      border: '1px solid rgba(245, 240, 236, 0.12)',
+                    }}
+                  >
                     {l.label}
                   </Link>
                 </li>
