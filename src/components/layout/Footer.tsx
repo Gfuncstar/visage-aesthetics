@@ -63,34 +63,66 @@ export default function Footer() {
                 <span className="eyebrow" style={{ color: 'rgba(245, 240, 236, 0.45)', marginTop: 2 }}>Aesthetics &nbsp;·&nbsp; Braintree</span>
               </div>
             </div>
-            <p className="mt-7 max-w-xs text-[14px] leading-relaxed" style={{ color: 'rgba(245, 240, 236, 0.55)' }}>
+            <p className="mt-7 text-[14px] leading-relaxed" style={{ color: 'rgba(245, 240, 236, 0.55)' }}>
               A small, considered aesthetics clinic on Friars Lane. Beautifully balanced, naturally subtle results.
             </p>
-            <a href="https://maps.google.com/?q=CM7+9BL" className="mt-7 block text-[14px] leading-relaxed" style={{ color: 'rgba(245, 240, 236, 0.7)' }}>
-              17A Friars Lane<br/>Braintree, Essex<br/>CM7 9BL
-            </a>
-            <a href="mailto:info@vaclinic.co.uk" className="mt-5 inline-block border-b text-[14px]" style={{ color: '#F5F0EC', borderColor: 'rgba(245, 240, 236, 0.3)' }}>
-              info@vaclinic.co.uk
-            </a>
-            <a
-              href="tel:+447931395246"
-              className="mt-3 block text-[14px] hover:text-cream transition-colors"
-              style={{ color: 'rgba(245, 240, 236, 0.7)' }}
-              aria-label="Call Visage Aesthetics"
-            >
-              +44 7931 395246
-            </a>
-            <a
-              href="https://www.instagram.com/visageaestheticclinic"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Visage Aesthetics on Instagram"
-              className="mt-5 inline-flex items-center gap-2 text-[13px] hover:text-cream transition-colors"
-              style={{ color: 'rgba(245, 240, 236, 0.7)' }}
-            >
-              <InstagramIcon size={16} />
-              <span>@visageaestheticclinic</span>
-            </a>
+            <div className="mt-7 grid grid-cols-2 gap-x-5 gap-y-6">
+              <div>
+                <div className="eyebrow mb-2" style={{ color: 'rgba(245, 240, 236, 0.45)' }}>Visit</div>
+                <a href="https://maps.google.com/?q=CM7+9BL" className="block text-[13.5px] leading-relaxed" style={{ color: 'rgba(245, 240, 236, 0.78)' }}>
+                  17A Friars Lane<br/>Braintree, Essex<br/>CM7 9BL
+                </a>
+              </div>
+              <div>
+                <div className="eyebrow mb-2" style={{ color: 'rgba(245, 240, 236, 0.45)' }}>Contact</div>
+                <div className="flex flex-col gap-2">
+                  <a
+                    href="mailto:info@vaclinic.co.uk"
+                    className="text-center py-2 px-3 rounded-sm transition-colors hover:bg-[rgba(245,240,236,0.08)] hover:border-[rgba(168,137,94,0.5)] hover:text-cream"
+                    style={{
+                      fontSize: 12,
+                      letterSpacing: '0.04em',
+                      color: 'rgba(245, 240, 236, 0.85)',
+                      background: 'rgba(245, 240, 236, 0.04)',
+                      border: '1px solid rgba(245, 240, 236, 0.12)',
+                    }}
+                  >
+                    Email
+                  </a>
+                  <a
+                    href="tel:+447931395246"
+                    aria-label="Call Visage Aesthetics"
+                    className="text-center py-2 px-3 rounded-sm transition-colors hover:bg-[rgba(245,240,236,0.08)] hover:border-[rgba(168,137,94,0.5)] hover:text-cream"
+                    style={{
+                      fontSize: 12,
+                      letterSpacing: '0.04em',
+                      color: 'rgba(245, 240, 236, 0.85)',
+                      background: 'rgba(245, 240, 236, 0.04)',
+                      border: '1px solid rgba(245, 240, 236, 0.12)',
+                    }}
+                  >
+                    Call
+                  </a>
+                  <a
+                    href="https://www.instagram.com/visageaestheticclinic"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Visage Aesthetics on Instagram"
+                    className="inline-flex items-center justify-center gap-2 py-2 px-3 rounded-sm transition-colors hover:bg-[rgba(245,240,236,0.08)] hover:border-[rgba(168,137,94,0.5)] hover:text-cream"
+                    style={{
+                      fontSize: 12,
+                      letterSpacing: '0.04em',
+                      color: 'rgba(245, 240, 236, 0.85)',
+                      background: 'rgba(245, 240, 236, 0.04)',
+                      border: '1px solid rgba(245, 240, 236, 0.12)',
+                    }}
+                  >
+                    <InstagramIcon size={13} />
+                    <span>Instagram</span>
+                  </a>
+                </div>
+              </div>
+            </div>
             <div className="mt-8 pt-6 border-t" style={{ borderColor: 'rgba(245, 240, 236, 0.08)' }}>
               <div className="eyebrow mb-2" style={{ color: 'rgba(245, 240, 236, 0.45)' }}>Already a client?</div>
               <div className="flex flex-wrap gap-x-5 gap-y-2 text-[13px]">
