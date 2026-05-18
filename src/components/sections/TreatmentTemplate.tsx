@@ -113,7 +113,12 @@ export default async function TreatmentTemplate({
         bodyLocation: 'Face',
         procedureType: 'https://schema.org/NoninvasiveProcedure',
         url: `https://www.vaclinic.co.uk${treatment.href}`,
-        image: `https://www.vaclinic.co.uk${treatment.image}`,
+        image: [
+          `https://www.vaclinic.co.uk${treatment.image}`,
+          // Cite the real before/after photos for this exact treatment so
+          // Google can attribute them and surface them in Image Search.
+          ...treatmentResults.map((b) => `https://www.vaclinic.co.uk${b.src}`),
+        ],
         offers: {
           '@type': 'Offer',
           price: treatment.price.replace(/[^\d]/g, ''),
@@ -289,7 +294,7 @@ export default async function TreatmentTemplate({
                     <div className={`relative w-full ${aspect}`}>
                       <Image
                         src={b.src}
-                        alt={`${b.treatmentLabel} before and after at Visage Aesthetics`}
+                        alt={b.alt}
                         fill
                         sizes="(min-width: 1024px) 30vw, (min-width: 640px) 48vw, 90vw"
                         className="object-cover"
