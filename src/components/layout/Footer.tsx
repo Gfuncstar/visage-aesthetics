@@ -90,20 +90,6 @@ export default function Footer() {
                     Email
                   </a>
                   <a
-                    href="tel:+447931395246"
-                    aria-label="Call Visage Aesthetics"
-                    className="text-center py-2 px-3 rounded-sm transition-colors hover:bg-[rgba(245,240,236,0.08)] hover:border-[rgba(168,137,94,0.5)] hover:text-cream"
-                    style={{
-                      fontSize: 12,
-                      letterSpacing: '0.04em',
-                      color: 'rgba(245, 240, 236, 0.85)',
-                      background: 'rgba(245, 240, 236, 0.04)',
-                      border: '1px solid rgba(245, 240, 236, 0.12)',
-                    }}
-                  >
-                    Call
-                  </a>
-                  <a
                     href="https://www.instagram.com/visageaestheticclinic"
                     target="_blank"
                     rel="noopener noreferrer"
