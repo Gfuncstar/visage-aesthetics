@@ -260,6 +260,16 @@ export function beforeAfterByTreatment(slug: string): BeforeAfter[] {
   return beforeAfter.filter((b) => b.treatmentSlug === slug)
 }
 
+/**
+ * Pick a specific set of entries by id, preserving the order of the
+ * input. Useful for hand-curated sections (e.g. the homepage Results
+ * strip). Missing ids are silently skipped.
+ */
+export function beforeAfterByIds(ids: readonly string[]): BeforeAfter[] {
+  const map = new Map(beforeAfter.map((b) => [b.id, b]))
+  return ids.map((id) => map.get(id)).filter((b): b is BeforeAfter => !!b)
+}
+
 /** Unique treatment labels present in the gallery, in the order they appear. */
 export function availableTreatmentLabels(): string[] {
   const seen = new Set<string>()
