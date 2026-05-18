@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import BookingCTA from '@/components/sections/BookingCTA'
+import Watermark from '@/components/ui/Watermark'
 import { beforeAfter, availableTreatmentLabels } from '@/lib/before-after'
 
 const FILTER_ALL = 'All'
@@ -75,6 +76,7 @@ export default function ResultsPage() {
                   >
                     Before / After
                   </span>
+                  <Watermark />
                 </div>
                 <figcaption className="p-5">
                   <p className="text-sm text-charcoal leading-snug">{b.caption}</p>
