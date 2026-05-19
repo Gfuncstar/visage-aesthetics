@@ -232,6 +232,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-05-17',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'harmonyca-vs-traditional-filler',
+    category: "Hybrid filler",
+    title: "HarmonyCa vs traditional dermal filler: when to choose which",
+    excerpt: "A look at how hybrid injectables differ from standard hyaluronic acid fillers, and which clinical outcomes suit each approach.",
+    readTime: "9 min read",
+    datePublished: '2026-05-19',
+    dateModified: '2026-05-19',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
