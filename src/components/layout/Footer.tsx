@@ -27,6 +27,7 @@ const links = [
   { label: 'Prices', href: '/pricing' },
   { label: 'About', href: '/about' },
   { label: 'Awards', href: '/awards' },
+  { label: 'Press', href: '/press' },
   { label: 'Blog', href: '/blog' },
   { label: 'Aftercare', href: '/aftercare' },
   { label: 'FAQ', href: '/faq' },

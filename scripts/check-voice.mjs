@@ -32,6 +32,7 @@ const ROOT = cwd()
 const EXEMPT_FILES = new Set([
   'scripts/check-voice.mjs',
   'src/app/author/bernadette-tobin/page.tsx',
+  'src/app/press/page.tsx',
   'src/lib/reviews.ts',
   'src/lib/blog-jsonld.ts',
   'src/lib/blog-posts.ts',

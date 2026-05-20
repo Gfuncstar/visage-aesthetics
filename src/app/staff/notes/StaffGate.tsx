@@ -3,7 +3,13 @@
 import { useState } from 'react'
 import { Lock } from 'lucide-react'
 
-export default function StaffGate() {
+export default function StaffGate({
+  title = 'Patient notes',
+  subtitle = 'Enter the staff passcode to record a treatment.',
+}: {
+  title?: string
+  subtitle?: string
+} = {}) {
   const [pin, setPin] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -39,9 +45,9 @@ export default function StaffGate() {
             <Lock size={18} strokeWidth={1.75} />
           </div>
           <div className="eyebrow text-gold mb-2">Clinic staff</div>
-          <h1 className="font-display italic text-charcoal text-3xl md:text-4xl leading-tight">Patient notes</h1>
+          <h1 className="font-display italic text-charcoal text-3xl md:text-4xl leading-tight">{title}</h1>
           <p className="text-ink-soft mt-3 leading-relaxed">
-            Enter the staff passcode to record a treatment.
+            {subtitle}
           </p>
 
           <form onSubmit={onSubmit} className="mt-8 space-y-4" noValidate>
