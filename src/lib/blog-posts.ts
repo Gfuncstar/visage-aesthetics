@@ -242,6 +242,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-05-19',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'preventative-botox-late-twenties',
+    category: "Anti-wrinkle",
+    title: "Preventative Botox in your late twenties: yes or no",
+    excerpt: "A measured look at when early intervention is worth considering—and when your skin does not yet need it.",
+    readTime: "9 min read",
+    datePublished: '2026-05-21',
+    dateModified: '2026-05-21',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
