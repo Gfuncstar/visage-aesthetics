@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { Menu, X } from 'lucide-react'
+import { Lock, Menu, X } from 'lucide-react'
 import { treatments } from '@/lib/treatments'
 import { BOOKING_LINK_PROPS } from '@/lib/booking'
 import { AWARD } from '@/lib/award'
@@ -15,6 +15,8 @@ const primaryNav = [
   { label: 'Blog', href: '/blog' },
   { label: 'Visit', href: '/contact' },
 ]
+
+const STAFF_LINK = { label: 'Staff', href: '/staff' }
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false)
@@ -85,6 +87,14 @@ export default function Header() {
             </nav>
 
             <div className="flex items-center gap-3">
+              <Link
+                href={STAFF_LINK.href}
+                className="hidden lg:inline-flex items-center justify-center w-9 h-9 rounded-full text-stone hover:text-gold-deep hover:bg-cream-soft transition-colors"
+                aria-label="Staff sign in"
+                title="Staff"
+              >
+                <Lock size={14} strokeWidth={1.75} />
+              </Link>
               <Link
                 href={AWARD.detailPath}
                 className="hidden xl:inline-flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors group"
@@ -178,6 +188,15 @@ export default function Header() {
             >
               info@vaclinic.co.uk
             </a>
+            <Link
+              href={STAFF_LINK.href}
+              onClick={() => setMobileOpen(false)}
+              className="mt-6 inline-flex items-center gap-2 eyebrow text-stone hover:text-gold-deep mx-auto"
+              style={{ display: 'flex', justifyContent: 'center' }}
+            >
+              <Lock size={12} strokeWidth={1.75} />
+              {STAFF_LINK.label}
+            </Link>
           </div>
         </div>
       </div>
