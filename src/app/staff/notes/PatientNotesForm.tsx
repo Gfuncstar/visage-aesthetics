@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useForm } from 'react-hook-form'
-import { Check, LogOut } from 'lucide-react'
+import { ArrowLeft, Check, LogOut } from 'lucide-react'
 import { treatments } from '@/lib/treatments'
 
 type YesNo = 'Yes' | 'No'
@@ -104,6 +105,13 @@ export default function PatientNotesForm() {
       <div className="max-w-3xl mx-auto px-5 md:px-8 pt-20 md:pt-24 pb-20">
         <div className="flex items-start justify-between gap-4 mb-10">
           <div>
+            <Link
+              href="/staff"
+              className="eyebrow text-stone hover:text-gold-deep transition-colors inline-flex items-center gap-2 mb-4"
+            >
+              <ArrowLeft size={14} strokeWidth={1.75} />
+              Staff
+            </Link>
             <div className="eyebrow text-gold mb-2">Clinic staff &nbsp;·&nbsp; Patient notes</div>
             <h1 className="font-display italic text-charcoal text-4xl md:text-5xl leading-tight">
               Record a treatment.
