@@ -262,6 +262,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-05-27',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'masseter-botox-jawline-slimming',
+    category: "Anti-wrinkle",
+    title: "Masseter Botox: jawline slimming, bruxism and TMJ relief",
+    excerpt: "Masseter botox can slim a wide jawline and ease bruxism or TMJ discomfort, but results depend on whether the muscle is truly enlarged.",
+    readTime: "8 min read",
+    datePublished: '2026-05-27',
+    dateModified: '2026-05-27',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
