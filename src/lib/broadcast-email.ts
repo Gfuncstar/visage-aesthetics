@@ -6,7 +6,7 @@ const CLINIC_EMAIL = 'info@vaclinic.co.uk'
 const SIGNOFF_IMAGE_URL = 'https://vaclinic.co.uk/email/bernadette-signoff.png'
 
 const COLOR_CREAM = '#F5F0EC'
-const COLOR_CREAM_SOFT = '#EFE8E0'
+const COLOR_CREAM_SOFT = '#F3EEE9'
 const COLOR_CHARCOAL = '#1F1B1A'
 const COLOR_INK_SOFT = '#5C4F44'
 const COLOR_STONE = '#8A807D'
