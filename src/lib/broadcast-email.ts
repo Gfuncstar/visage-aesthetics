@@ -3,7 +3,7 @@ const CLINIC_NAME = 'Visage Aesthetics'
 const CLINIC_TAGLINE = 'Best Non-Surgical Aesthetics Clinic 2026, Essex'
 const CLINIC_ADDRESS = 'Braintree, Essex'
 const CLINIC_EMAIL = 'info@vaclinic.co.uk'
-const SIGNOFF_IMAGE_URL = `${SITE_URL}/email/bernadette-signoff.png`
+const SIGNOFF_IMAGE_URL = 'https://vaclinic.co.uk/email/bernadette-signoff.png'
 
 const COLOR_CREAM = '#F5F0EC'
 const COLOR_CREAM_SOFT = '#EFE8E0'
