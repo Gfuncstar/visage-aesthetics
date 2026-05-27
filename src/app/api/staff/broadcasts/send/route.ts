@@ -179,13 +179,31 @@ export async function POST(req: Request) {
     try {
       const { data, error } = await resend.batch.send(payload)
       if (error) {
+        console.error('[broadcasts] Resend error', {
+          mode,
+          batchSize: batch.length,
+          firstRecipient: batch[0],
+          error,
+        })
         failures.push({ error: error.message || 'Batch send failed' })
         continue
       }
-      const created = data?.data?.length ?? batch.length
-      sent += created
+      const ids = data?.data?.map((e) => e.id) ?? []
+      console.log('[broadcasts] Resend accepted', {
+        mode,
+        batchSize: batch.length,
+        firstRecipient: batch[0],
+        ids,
+      })
+      sent += ids.length || batch.length
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Unknown send error'
+      console.error('[broadcasts] send threw', {
+        mode,
+        batchSize: batch.length,
+        firstRecipient: batch[0],
+        error: msg,
+      })
       failures.push({ error: msg })
     }
   }

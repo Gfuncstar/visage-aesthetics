@@ -215,6 +215,12 @@ export default function BroadcastComposer() {
         setResult({ kind: 'error', message: data.error || 'Could not send test.' })
         return
       }
+      const firstFailure = Array.isArray(data.failures) ? data.failures[0] : null
+      if (data.ok === false || firstFailure) {
+        const reason = firstFailure?.error || 'Resend rejected the send.'
+        setResult({ kind: 'error', message: `Test not delivered: ${reason}` })
+        return
+      }
       setResult({ kind: 'ok', message: `Test sent to ${testEmail}.` })
     } catch {
       setResult({ kind: 'error', message: 'Network error while sending test.' })
