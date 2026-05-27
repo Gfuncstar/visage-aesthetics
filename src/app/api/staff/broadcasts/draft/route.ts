@@ -30,7 +30,7 @@ Format:
   - body (string, 80 to 170 words): the body text. Plain paragraphs separated by blank lines. May use **bold**, *italic*, [text](url), > pullquote, --- divider. Open with a warm, specific line, then earn the read.
   - imageQuery (string, 2 to 4 words): a short photo search term for Unsplash that captures the mood of the email. Avoid clinical photos of patients receiving treatment. Prefer atmospheric or lifestyle imagery (e.g. "linen morning light", "spring english garden", "warm bathroom mirror").
 
-Always end the body with one short closing line and Bernadette's name on its own line. Never include a literal CTA button or link in the body — that's added separately by the system.`
+Do not write a sign-off, closing line, or Bernadette's name at the end of the body. A standard signature image (a note from Bernadette and her handwritten signature) is appended automatically by the email template, so the body should end on its last substantive sentence. Never include a literal CTA button or link in the body — that's added separately by the system.`
 
 type DraftResult = {
   subject: string

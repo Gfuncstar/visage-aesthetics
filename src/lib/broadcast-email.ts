@@ -3,6 +3,7 @@ const CLINIC_NAME = 'Visage Aesthetics'
 const CLINIC_TAGLINE = 'Best Non-Surgical Aesthetics Clinic 2026, Essex'
 const CLINIC_ADDRESS = 'Braintree, Essex'
 const CLINIC_EMAIL = 'info@vaclinic.co.uk'
+const SIGNOFF_IMAGE_URL = `${SITE_URL}/email/bernadette-signoff.png`
 
 const COLOR_CREAM = '#F5F0EC'
 const COLOR_CREAM_SOFT = '#EFE8E0'
@@ -184,6 +185,9 @@ ${preheaderHtml}
           ${ctaBlock}
         </table>
       </td></tr>
+      <tr><td style="padding:8px 0 32px;">
+        <img src="${SIGNOFF_IMAGE_URL}" alt="A note from Bernadette. Looking forward to seeing you in clinic. Bernadette, Founder, RGN, MSc." width="560" style="display:block;width:100%;max-width:560px;height:auto;border:0;outline:none;text-decoration:none;" />
+      </td></tr>
       <tr><td class="px-pad" style="padding:24px 40px 32px;border-top:1px solid ${COLOR_LINE};">
         <p style="margin:0 0 6px;font-family:${FONT_BODY};font-size:12px;color:${COLOR_STONE};line-height:1.6;text-align:center;">
           ${escapeHtml(CLINIC_NAME)} &middot; ${escapeHtml(CLINIC_ADDRESS)}
@@ -221,6 +225,10 @@ export function buildBroadcastText({
   if (ctaInfo) lines.push('', `${ctaInfo.label}: ${ctaInfo.url}`)
   if (imageUrl) lines.push('', `(Image: ${imageUrl})`)
   lines.push(
+    '',
+    'Looking forward to seeing you in clinic.',
+    'Bernadette',
+    'Founder · RGN, MSc',
     '',
     '---',
     '',
