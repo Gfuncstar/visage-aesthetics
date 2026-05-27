@@ -137,6 +137,230 @@
       "targetKeywords": ["exercise after botox", "gym after botox", "running after botox", "workout after anti-wrinkle"],
       "angle": "The 24-48 hour rule and why it exists (raised heart rate, blood flow at the injection site, theoretical migration of toxin). Specific guidance on when to resume light walking, weights, HIIT, hot yoga and swimming. Whether high-frequency cardio shortens Botox duration over time, with the actual evidence. Practical timeline rather than vague reassurance.",
       "treatment": "/treatments/anti-wrinkle-injections"
+    },
+    {
+      "slug": "masseter-botox-jawline-slimming",
+      "title": "Masseter Botox: jawline slimming, bruxism and TMJ relief",
+      "intent": "informational/commercial",
+      "targetKeywords": ["masseter botox", "jaw botox", "botox for grinding teeth", "tmj botox uk"],
+      "angle": "What it does (relaxes the chewing muscle), what changes over a course (visible slimming around month 3, bruxism relief within weeks), who's a candidate, who isn't (already slim lower face). Honest on cost, course length, and the fact that some clients see no slimming because their masseter was never hypertrophied.",
+      "treatment": "/treatments/anti-wrinkle-injections"
+    },
+    {
+      "slug": "lip-flip-vs-lip-filler",
+      "title": "Lip flip vs lip filler: when each one is actually right",
+      "intent": "informational/commercial",
+      "targetKeywords": ["lip flip", "lip flip vs filler", "botox lip flip uk"],
+      "angle": "A lip flip is 2-4 units of Botox into the upper lip border, lasting 6-8 weeks, giving the illusion of a fuller upper lip without volume. Filler adds actual volume for 6-12 months. When a flip is the right answer (mild gummy smile, thin vermillion border, wanting a softer first step), when filler genuinely is.",
+      "treatment": "/treatments/anti-wrinkle-injections"
+    },
+    {
+      "slug": "brow-lift-with-botox",
+      "title": "A chemical brow lift with Botox: what it can and can't do",
+      "intent": "informational/commercial",
+      "targetKeywords": ["botox brow lift", "chemical brow lift", "non surgical brow lift"],
+      "angle": "Strategic injection of the depressor muscles (orbicularis, procerus, corrugators) lifts the tail of the brow by 2-3mm. Why this works for early hooding, why it does nothing for severe ptosis. Where the limit is and when a surgical referral is the honest answer.",
+      "treatment": "/treatments/anti-wrinkle-injections"
+    },
+    {
+      "slug": "gummy-smile-botox",
+      "title": "Gummy smile: how a small dose of Botox changes it",
+      "intent": "informational/commercial",
+      "targetKeywords": ["gummy smile treatment", "botox gummy smile", "show too much gum smiling"],
+      "angle": "1-2 units into the levator labii on each side relaxes the upper lip lift. Result: gum show reduces from 4mm to 1-2mm. Why dose precision matters (over-treatment flattens the smile), what 'too much' looks like, why this is a poor choice for first-time Botox clients.",
+      "treatment": "/treatments/anti-wrinkle-injections"
+    },
+    {
+      "slug": "platysmal-bands-neck-botox",
+      "title": "Neck bands and Botox: what works on the platysma",
+      "intent": "informational/commercial",
+      "targetKeywords": ["neck botox", "platysmal bands treatment", "turkey neck botox"],
+      "angle": "Vertical neck cords (platysmal bands) respond to small doses along the band itself; horizontal neck lines respond less reliably. Where Botox is the right tool, where skin laxity means it isn't, and when the honest answer is Profhilo, micro-needling, or a referral.",
+      "treatment": "/treatments/anti-wrinkle-injections"
+    },
+    {
+      "slug": "chin-filler-for-jawline-projection",
+      "title": "Chin filler for jawline projection: a small change with big effect",
+      "intent": "informational/commercial",
+      "targetKeywords": ["chin filler", "jawline filler", "chin augmentation non surgical"],
+      "angle": "How 1-2ml in the chin can rebalance a face by improving lower-third projection and side-profile harmony. Why this often makes a nose look smaller without touching the nose. Candidate selection, longevity (12-18 months), and the trap of chasing a 'snatched' jawline.",
+      "treatment": "/treatments/dermal-filler"
+    },
+    {
+      "slug": "nasolabial-fold-treatment-options",
+      "title": "Nasolabial folds: filler is rarely the right first step",
+      "intent": "informational/commercial",
+      "targetKeywords": ["nasolabial folds treatment", "smile lines filler", "nasolabial folds botox"],
+      "angle": "The fold itself is rarely the problem. Mid-face volume loss is. Why direct filler into the fold often looks worse, what supporting the cheek does instead, when a skin booster like Profhilo is the right answer, and when nothing should be done at all.",
+      "treatment": "/treatments/dermal-filler"
+    },
+    {
+      "slug": "marionette-lines-treatment",
+      "title": "Marionette lines: what helps and what doesn't",
+      "intent": "informational/commercial",
+      "targetKeywords": ["marionette lines", "downturned mouth corners", "puppet lines filler"],
+      "angle": "DAO Botox to lift the mouth corners, small amounts of filler to support the line itself, biostimulators for skin quality. Why direct filler often deepens the shadow rather than softens it. Combined approach is usually right.",
+      "treatment": "/treatments/dermal-filler"
+    },
+    {
+      "slug": "filler-dissolving-hyaluronidase",
+      "title": "Dissolving filler: when it's the right call",
+      "intent": "informational/commercial",
+      "targetKeywords": ["filler dissolving", "hyaluronidase", "dissolve lip filler", "filler removal"],
+      "angle": "Hyaluronidase enzyme dissolves HA filler within hours. When it's medically essential (vascular occlusion, infection), when it's elective (migration, over-treatment, wanting a reset), why it should only be done by a clinician who carries reversal stock on site, the test patch rule, and what happens to your natural tissue afterwards.",
+      "treatment": "/treatments/dermal-filler"
+    },
+    {
+      "slug": "migrated-filler-signs",
+      "title": "Migrated lip filler: what it looks like and why it happens",
+      "intent": "informational/commercial",
+      "targetKeywords": ["migrated filler", "filler migration lips", "duck lips filler"],
+      "angle": "Visible signs (a defined ridge above the lip border, swelling that never goes down, lips losing their natural shape), why it happens (technique, product choice, over-volumising), why MRI imaging shows long-term migration in some cases. What to do (dissolve, wait, restart with a fresh approach).",
+      "treatment": "/treatments/dermal-filler"
+    },
+    {
+      "slug": "ozempic-face-volume-loss",
+      "title": "Ozempic face: aesthetic options for rapid weight-loss volume loss",
+      "intent": "informational/commercial",
+      "targetKeywords": ["ozempic face", "weight loss face", "glp1 face", "mounjaro face"],
+      "angle": "Why fast weight loss hollows the face (fat is structural, not just storage). Sensible sequencing: stabilise weight first, then assess. What restores volume responsibly (mid-face filler, skin boosters for laxity, biostimulators for collagen) versus what overcorrects. The trap of treating during active weight loss.",
+      "treatment": "/treatments/dermal-filler"
+    },
+    {
+      "slug": "polynucleotides-vs-profhilo",
+      "title": "Polynucleotides vs Profhilo: two skin boosters, different jobs",
+      "intent": "informational/commercial",
+      "targetKeywords": ["polynucleotides vs profhilo", "philart vs profhilo", "skin booster comparison"],
+      "angle": "Profhilo (high-low MW hyaluronic acid) hydrates and biostimulates broadly. Polynucleotides (purified salmon DNA fragments) target tissue repair, including thin under-eye skin and acne scars. When each is the right tool, when neither is, and the honest state of polynucleotide regulation in the UK in 2026.",
+      "treatment": "/treatments/profhilo"
+    },
+    {
+      "slug": "profhilo-neck-decolletage",
+      "title": "Profhilo for the neck and décolletage: realistic expectations",
+      "intent": "informational/commercial",
+      "targetKeywords": ["profhilo neck", "profhilo decolletage", "neck hydration treatment"],
+      "angle": "The neck shows ageing faster than the face. How Profhilo's injection points on the neck differ from the face, why two sessions four weeks apart is non-negotiable, what it improves (crepiness, hydration, mild laxity), what it doesn't (deep horizontal lines, established platysmal bands, surgical-grade laxity).",
+      "treatment": "/treatments/profhilo"
+    },
+    {
+      "slug": "skin-quality-vs-volume",
+      "title": "Skin quality vs volume: how aesthetics has changed",
+      "intent": "informational",
+      "targetKeywords": ["skin quality aesthetics", "skin not stuff", "natural aesthetics philosophy"],
+      "angle": "The shift away from volumising everything towards treating skin as a tissue. Why a face with great skin and no filler often looks younger than a filled face with neglected skin. How treatment plans now lead with boosters, biostimulators and micro-needling, with filler used last and sparingly.",
+      "treatment": "/about"
+    },
+    {
+      "slug": "combining-botox-and-skin-boosters",
+      "title": "Combining Botox and skin boosters: sequencing and spacing",
+      "intent": "informational/commercial",
+      "targetKeywords": ["botox and profhilo together", "combining aesthetic treatments", "treatment plan sequencing"],
+      "angle": "Why these two pair well (different mechanisms, different timelines), how to sequence in a single session safely, when to space across two visits, what to expect from a 12-month treatment plan that uses both rather than chasing one.",
+      "treatment": "/treatments/anti-wrinkle-injections"
+    },
+    {
+      "slug": "micro-needling-for-acne-scarring",
+      "title": "Micro-needling for acne scarring: what's realistic",
+      "intent": "informational/commercial",
+      "targetKeywords": ["micro needling acne scars", "acne scar treatment", "rolling scars treatment"],
+      "angle": "Which acne scar types respond (rolling, shallow boxcar) and which don't (deep ice-pick). Why a course of 4-6 sessions over 4-6 months is the realistic timeline. Honest percentage-improvement expectations. Why combining with polynucleotides or topical retinoids amplifies results.",
+      "treatment": "/treatments/micro-needling"
+    },
+    {
+      "slug": "micro-needling-vs-laser",
+      "title": "Micro-needling vs laser resurfacing: who chooses what",
+      "intent": "informational/commercial",
+      "targetKeywords": ["micro needling vs laser", "skin resurfacing options", "fractional laser alternative"],
+      "angle": "Mechanism differences (mechanical wound vs thermal injury), downtime (1-2 days vs 5-10), suitability by skin tone (laser is harder on darker skin), cost per course, and the specific cases where one is clearly the better answer.",
+      "treatment": "/treatments/micro-needling"
+    },
+    {
+      "slug": "harmonyca-jawline-restoration",
+      "title": "HarmonyCa for jawline restoration: hybrid filler with collagen build",
+      "intent": "informational/commercial",
+      "targetKeywords": ["harmonyca jawline", "calcium hydroxyapatite jawline", "biostimulator jawline"],
+      "angle": "How the hyaluronic acid lifts immediately while the calcium hydroxyapatite microspheres stimulate collagen over 3-6 months. Why this suits mid-life jawline laxity better than HA filler alone. Course planning (often a single session, sometimes two), longevity (12-18 months with skin-quality dividend beyond).",
+      "treatment": "/treatments/harmonyca"
+    },
+    {
+      "slug": "biostimulators-explained",
+      "title": "Biostimulators explained: HarmonyCa, Sculptra, Radiesse",
+      "intent": "informational",
+      "targetKeywords": ["biostimulator", "collagen stimulating injection", "harmonyca vs sculptra"],
+      "angle": "The category as a whole. How calcium hydroxyapatite and poly-L-lactic acid trigger collagen production over months rather than adding volume on the day. Who they suit (mid-30s upwards with laxity), who they don't (anyone wanting a same-day result), and how Visage uses HarmonyCa specifically.",
+      "treatment": "/treatments/harmonyca"
+    },
+    {
+      "slug": "cryopen-skin-tag-removal",
+      "title": "CryoPen for skin tags: what to expect on the day",
+      "intent": "informational/commercial",
+      "targetKeywords": ["cryopen", "skin tag removal", "cryotherapy skin", "freezing skin tags"],
+      "angle": "How precision freezing destroys the lesion without damaging surrounding tissue. What the treatment feels like (a brief sting), what the area looks like over 7-14 days (small scab, then nothing), when one session is enough, when a second is needed. Why this beats home freezing kits and string-tying.",
+      "treatment": "/treatments/cryopen"
+    },
+    {
+      "slug": "cryopen-age-spots-pigmentation",
+      "title": "Removing age spots and pigmentation with CryoPen",
+      "intent": "informational/commercial",
+      "targetKeywords": ["age spot removal", "sun spot treatment", "cryopen pigmentation"],
+      "angle": "Solar lentigines on hands, décolletage and face respond well to short cryo bursts. The healing timeline (pink for a week, then settled), why suncare for the next 4-6 weeks is non-negotiable, what doesn't respond (melasma, post-inflammatory hyperpigmentation), and the right referral when it isn't a candidate lesion.",
+      "treatment": "/treatments/cryopen"
+    },
+    {
+      "slug": "milia-treatment-options",
+      "title": "Milia: why they appear and how to remove them properly",
+      "intent": "informational/commercial",
+      "targetKeywords": ["milia removal", "white bumps under eyes", "milia treatment"],
+      "angle": "Tiny keratin cysts, usually around the eyes, that don't respond to squeezing or exfoliation. Why CryoPen or sterile lance-and-extract is the proper removal. What causes recurrence (heavy occlusive skincare around the eyes), how to break the cycle.",
+      "treatment": "/treatments/cryopen"
+    },
+    {
+      "slug": "abcde-mole-check-guide",
+      "title": "When to worry about a mole: the ABCDE check",
+      "intent": "informational",
+      "targetKeywords": ["mole check", "abcde mole", "is my mole cancerous", "when to see dermatologist mole"],
+      "angle": "The standard ABCDE criteria (Asymmetry, Border, Colour, Diameter, Evolution) explained with the kind of detail patients actually need. What a normal mole looks like over time, what changes mean a clinical opinion is needed, why monthly self-checks plus annual mapping is the standard of care.",
+      "treatment": "/treatments/map-my-mole"
+    },
+    {
+      "slug": "mole-mapping-how-often",
+      "title": "Mole mapping: who needs it, how often, and what the appointment involves",
+      "intent": "informational/commercial",
+      "targetKeywords": ["mole mapping", "skin cancer screening uk", "private mole check essex"],
+      "angle": "Photographic baseline of every mole, then comparison at follow-up. Who genuinely benefits (50+ moles, family history of melanoma, fair skin with significant sun exposure, immunosuppressed), how often (annually is the baseline, six-monthly for higher-risk profiles), what the appointment actually looks like.",
+      "treatment": "/treatments/map-my-mole"
+    },
+    {
+      "slug": "wedding-aesthetics-timeline",
+      "title": "Aesthetics before your wedding: a sensible 12-month timeline",
+      "intent": "informational/commercial",
+      "targetKeywords": ["pre wedding aesthetics", "wedding botox timeline", "bridal skin prep"],
+      "angle": "12 months out: start skin quality work (micro-needling, Profhilo). 6 months: any biostimulators. 3 months: confirm filler placement. 4 weeks before: final Botox top-up, no new treatments after. 2 weeks: no facials, no peels, no new product trials. The rule of 'no firsts close to the day'.",
+      "treatment": "/about"
+    },
+    {
+      "slug": "pregnancy-and-aesthetics",
+      "title": "Pregnancy, breastfeeding and aesthetic treatments",
+      "intent": "informational",
+      "targetKeywords": ["botox pregnancy", "filler breastfeeding", "aesthetic treatments pregnancy"],
+      "angle": "The honest answer on Botox (not advised, no safety data), filler (not advised), Profhilo (not advised), micro-needling (paused), skincare (retinoids out, vitamin C and SPF in). When to stop before trying to conceive, when to resume after birth and breastfeeding. Not a moral position, a safety one.",
+      "treatment": "/about/qualifications"
+    },
+    {
+      "slug": "vascular-occlusion-filler-safety",
+      "title": "Vascular occlusion: the rare but serious filler complication",
+      "intent": "informational",
+      "targetKeywords": ["vascular occlusion", "filler safety", "filler complications"],
+      "angle": "What it is (filler blocking a blood vessel), why it's the reason hyaluronidase must be on the premises before any filler is injected, the early signs (immediate blanching, disproportionate pain, mottled skin), what a clinician should do in the first 60 minutes, why this is the question to ask in any consultation.",
+      "treatment": "/about/qualifications"
+    },
+    {
+      "slug": "when-to-walk-out-consultation",
+      "title": "When to walk out of an aesthetics consultation",
+      "intent": "informational",
+      "targetKeywords": ["aesthetics consultation red flags", "bad aesthetic clinic signs", "choosing safe aesthetic practitioner"],
+      "angle": "Specific red flags: no NMC or GMC number visible, no medical history form, pressure to book same-day, no reversal protocols, dosage decisions before the consultation is over, a price-list-first conversation. The walking-out conversation itself, said politely.",
+      "treatment": "/about/qualifications"
     }
   ],
   "newsAngles": [
