@@ -188,15 +188,36 @@ ${preheaderHtml}
       <tr><td style="padding:8px 0 32px;">
         <img src="${SIGNOFF_IMAGE_URL}" alt="A note from Bernadette. Looking forward to seeing you in clinic. Bernadette, Founder, RGN, MSc." width="560" style="display:block;width:100%;max-width:560px;height:auto;border:0;outline:none;text-decoration:none;" />
       </td></tr>
-      <tr><td class="px-pad" style="padding:24px 40px 32px;border-top:1px solid ${COLOR_LINE};">
-        <p style="margin:0 0 6px;font-family:${FONT_BODY};font-size:12px;color:${COLOR_STONE};line-height:1.6;text-align:center;">
-          ${escapeHtml(CLINIC_NAME)} &middot; ${escapeHtml(CLINIC_ADDRESS)}
-        </p>
-        <p style="margin:0;font-family:${FONT_BODY};font-size:11px;color:${COLOR_STONE};line-height:1.6;text-align:center;">
-          <a href="${SITE_URL}" style="color:${COLOR_STONE};text-decoration:underline;">vaclinic.co.uk</a>
-          &nbsp;&middot;&nbsp;
-          <a href="${escapeAttr(unsubscribeHref)}" style="color:${COLOR_STONE};text-decoration:underline;">Unsubscribe</a>
-        </p>
+      <tr><td style="padding:0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#1A1816;">
+          <tr><td class="px-pad" align="center" style="padding:48px 32px 40px;text-align:center;">
+            <div style="font-family:${FONT_DISPLAY};font-style:italic;font-weight:400;color:#F4EFEA;font-size:30px;line-height:1.1;margin-bottom:14px;">
+              ${escapeHtml(CLINIC_NAME)}
+            </div>
+            <div style="font-family:${FONT_BODY};font-size:10px;letter-spacing:0.26em;text-transform:uppercase;color:${COLOR_GOLD};margin-bottom:26px;">
+              Private nurse-led clinic &nbsp;&middot;&nbsp; By appointment
+            </div>
+            <div style="font-family:${FONT_DISPLAY};font-style:italic;font-size:15px;color:#F4EFEA;margin-bottom:14px;line-height:1.5;">
+              17A Friars Lane, Braintree, Essex CM7 9BL
+            </div>
+            <div style="font-family:${FONT_BODY};font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:#F4EFEA;margin-bottom:30px;line-height:1.8;">
+              <a href="${SITE_URL}" style="color:#F4EFEA;text-decoration:none;">vaclinic.co.uk</a>
+              &nbsp;&middot;&nbsp;
+              5.0&nbsp;<span style="color:${COLOR_GOLD};letter-spacing:0.05em;">&#9733;&#9733;&#9733;&#9733;&#9733;</span>&nbsp;on Google
+              &nbsp;&middot;&nbsp;
+              NMC 05G1755E
+            </div>
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 24px;">
+              <tr><td height="1" width="40" style="background:${COLOR_GOLD};font-size:1px;line-height:1px;">&nbsp;</td></tr>
+            </table>
+            <div style="font-family:${FONT_DISPLAY};font-style:italic;font-size:16px;color:${COLOR_GOLD};line-height:1.4;">
+              Enhancing what&rsquo;s naturally yours.
+            </div>
+            <div style="margin-top:36px;font-family:${FONT_BODY};font-size:10px;color:#807368;letter-spacing:0.04em;">
+              <a href="${escapeAttr(unsubscribeHref)}" style="color:#807368;text-decoration:underline;">Unsubscribe</a>
+            </div>
+          </td></tr>
+        </table>
       </td></tr>
     </table>
   </td></tr>
