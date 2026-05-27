@@ -173,9 +173,9 @@ ${preheaderHtml}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${COLOR_CREAM};">
   <tr><td align="center" style="padding:40px 16px;">
     <table role="presentation" class="container" width="560" cellpadding="0" cellspacing="0" border="0" style="width:560px;max-width:560px;background:${COLOR_CREAM_SOFT};">
-      <tr><td class="px-pad" style="padding:32px 40px 24px;text-align:center;border-bottom:1px solid ${COLOR_LINE};">
-        <div style="font-family:${FONT_BODY};font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:${COLOR_STONE};margin-bottom:6px;">${escapeHtml(CLINIC_NAME)}</div>
-        <div style="font-family:${FONT_DISPLAY};font-style:italic;font-size:13px;color:${COLOR_GOLD};letter-spacing:0.02em;">${escapeHtml(CLINIC_TAGLINE)}</div>
+      <tr><td class="px-pad" style="padding:44px 40px 36px;text-align:center;border-bottom:1px solid ${COLOR_LINE};">
+        <div style="font-family:${FONT_BODY};font-size:14px;letter-spacing:0.32em;text-transform:uppercase;color:${COLOR_STONE};margin-bottom:14px;">${escapeHtml(CLINIC_NAME)}</div>
+        <div class="hl-tag" style="font-family:${FONT_DISPLAY};font-style:italic;font-size:22px;line-height:1.25;color:${COLOR_GOLD};letter-spacing:0.005em;">${escapeHtml(CLINIC_TAGLINE)}</div>
       </td></tr>
       ${heroImage}
       <tr><td class="px-pad" style="padding:${imageUrl ? '36px' : '32px'} 40px 36px;">
