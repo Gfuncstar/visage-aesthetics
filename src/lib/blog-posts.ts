@@ -252,6 +252,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-05-21',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'ozempic-face-volume-loss',
+    category: "Dermal filler",
+    title: "Ozempic face: aesthetic options for rapid weight-loss volume loss",
+    excerpt: "Rapid weight loss can leave the face looking hollow and aged; here's what actually helps, and why timing matters more than most people realise.",
+    readTime: "9 min read",
+    datePublished: '2026-05-27',
+    dateModified: '2026-05-27',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
