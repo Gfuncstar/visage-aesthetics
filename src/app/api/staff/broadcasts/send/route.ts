@@ -14,8 +14,7 @@ export const maxDuration = 60
 
 const FROM_EMAIL =
   process.env.BROADCAST_FROM_EMAIL ??
-  process.env.CONTACT_FROM_EMAIL ??
-  'Visage Aesthetics <enquiries@vaclinic.co.uk>'
+  'Bernadette | Visage Aesthetics <enquiries@vaclinic.co.uk>'
 
 const REPLY_TO = process.env.BROADCAST_REPLY_TO ?? 'info@vaclinic.co.uk'
 const BATCH_SIZE = 100
