@@ -272,6 +272,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-05-27',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'brow-lift-with-botox',
+    category: "Anti-wrinkle",
+    title: "A chemical brow lift with Botox: what it can and can't do",
+    excerpt: "A chemical brow lift can raise the outer brow by a few millimetres, but it won't correct significant skin laxity or true eyelid ptosis.",
+    readTime: "9 min read",
+    datePublished: '2026-05-29',
+    dateModified: '2026-05-29',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
