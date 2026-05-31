@@ -7,6 +7,7 @@ import { assistantConfigured } from '@/lib/assistant/db'
 import { stockReview } from '@/lib/assistant/stock'
 import { ukDate } from '@/lib/assistant/format'
 import MarkOrdered from './MarkOrdered'
+import ClientChip from './ClientChip'
 
 export const metadata: Metadata = {
   title: 'What to order',
@@ -20,6 +21,7 @@ export default async function StockPage() {
   if (!authed) return <StaffGate />
   const configured = assistantConfigured()
   const review = configured ? await stockReview() : null
+  const todayISO = new Date().toISOString().slice(0, 10)
 
   return (
     <section className="bg-cream text-charcoal min-h-screen">
@@ -86,11 +88,16 @@ export default async function StockPage() {
                 <div className="text-sm text-stone mt-2">{l.stockNote}</div>
 
                 <div className="mt-2.5 flex flex-wrap gap-1.5">
-                  {l.clients.map((c, i) => (
-                    <span key={`${c.name}-${i}`} className="text-xs bg-cream border border-line/40 rounded-full px-2.5 py-1 text-ink-soft">
-                      {c.name} · {ukDate(c.date)}
-                    </span>
-                  ))}
+                  {[...l.clients]
+                    .sort((a, b) => a.date.localeCompare(b.date))
+                    .map((c, i) => {
+                      const days = Math.round(
+                        (new Date(`${c.date}T00:00:00`).getTime() - new Date(`${todayISO}T00:00:00`).getTime()) / 86400000,
+                      )
+                      return (
+                        <ClientChip key={`${c.name}-${c.date}-${i}`} itemKey={l.key} name={c.name} date={c.date} ordered={c.ordered} days={days} />
+                      )
+                    })}
                 </div>
 
                 {(l.needOrder || l.ordered) && (
