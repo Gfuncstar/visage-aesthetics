@@ -282,6 +282,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-05-29',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'abcde-mole-check-guide',
+    category: "Treatment guide",
+    title: "When to worry about a mole: the ABCDE check",
+    excerpt: "Learn the five warning signs that distinguish a harmless mole from one that needs a doctor's opinion, and when to seek help.",
+    readTime: "10 min read",
+    datePublished: '2026-05-31',
+    dateModified: '2026-05-31',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
