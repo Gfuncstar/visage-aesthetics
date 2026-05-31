@@ -92,7 +92,14 @@ export default function TreatmentTool() {
   useEffect(() => {
     fetch('/api/staff/assistant/appointments?scope=recent')
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => d?.appointments && setAppts(d.appointments))
+      .then((d) => {
+        if (!d?.appointments) return
+        // Newest first.
+        const sorted = [...d.appointments].sort((a: RecentAppt, b: RecentAppt) =>
+          b.date.localeCompare(a.date),
+        )
+        setAppts(sorted)
+      })
       .catch(() => {})
   }, [])
 
@@ -319,20 +326,21 @@ export default function TreatmentTool() {
               <span className="text-eyebrow text-ink-soft mb-2 block">
                 Pick an appointment <span className="text-stone normal-case tracking-normal">(fills client, treatment and date)</span>
               </span>
-              <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+              <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
                 {appts.map((a) => (
                   <button
                     key={a.id}
                     type="button"
                     onClick={() => pickAppt(a)}
-                    className={`shrink-0 text-left rounded-sm border px-3 py-2 transition-colors max-w-[220px] ${
+                    className={`shrink-0 text-left rounded-sm border px-4 py-3 transition-colors min-w-[190px] max-w-[260px] ${
                       pickedApptId === a.id
                         ? 'border-gold bg-gold/10'
                         : 'border-line/40 bg-cream-soft hover:border-gold/60'
                     }`}
                   >
-                    <div className="text-sm text-charcoal truncate">{a.client_name || 'Unnamed'}</div>
-                    <div className="text-xs text-stone truncate">{ukDate(a.date)} · {a.service_name || 'Appointment'}</div>
+                    <div className="text-base font-medium text-charcoal truncate">{a.client_name || 'Unnamed'}</div>
+                    <div className="text-sm text-stone truncate mt-0.5">{ukDate(a.date)}</div>
+                    <div className="text-sm text-ink-soft truncate">{a.service_name || 'Appointment'}</div>
                   </button>
                 ))}
               </div>
