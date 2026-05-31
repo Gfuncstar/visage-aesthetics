@@ -74,15 +74,18 @@ export async function GET(req: Request) {
       order: 'date.desc',
       limit: 400,
     })
-    const map = new Map<string, { name: string; visits: number; lastVisit: string }>()
+    const map = new Map<string, { name: string; visits: number; spend: number; lastVisit: string }>()
     for (const a of rows) {
       const key = a.client_name.trim()
       if (!key) continue
+      const done = a.status === 'completed'
+      const price = done ? Number(a.price) || 0 : 0
       const cur = map.get(key.toLowerCase())
       if (cur) {
-        cur.visits += a.status === 'completed' ? 1 : 0
+        cur.visits += done ? 1 : 0
+        cur.spend += price
       } else {
-        map.set(key.toLowerCase(), { name: key, visits: a.status === 'completed' ? 1 : 0, lastVisit: a.date })
+        map.set(key.toLowerCase(), { name: key, visits: done ? 1 : 0, spend: price, lastVisit: a.date })
       }
     }
     const clients = Array.from(map.values())
