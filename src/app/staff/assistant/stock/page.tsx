@@ -6,6 +6,7 @@ import StaffGate from '../../notes/StaffGate'
 import { assistantConfigured } from '@/lib/assistant/db'
 import { stockReview } from '@/lib/assistant/stock'
 import { ukDate } from '@/lib/assistant/format'
+import MarkOrdered from './MarkOrdered'
 
 export const metadata: Metadata = {
   title: 'What to order',
@@ -75,6 +76,8 @@ export default async function StockPage() {
                   </div>
                   {l.needOrder ? (
                     <span className="text-xs eyebrow text-clay border border-clay/40 bg-clay/10 rounded-sm px-2 py-1 shrink-0">Order</span>
+                  ) : l.ordered ? (
+                    <span className="text-xs eyebrow text-sage border border-sage/40 bg-sage/10 rounded-sm px-2 py-1 shrink-0 inline-flex items-center gap-1"><Check size={11} strokeWidth={2.5} /> Ordered</span>
                   ) : (
                     <span className="text-xs eyebrow text-sage border border-sage/40 bg-sage/10 rounded-sm px-2 py-1 shrink-0 inline-flex items-center gap-1"><Check size={11} strokeWidth={2.5} /> In stock</span>
                   )}
@@ -89,6 +92,12 @@ export default async function StockPage() {
                     </span>
                   ))}
                 </div>
+
+                {(l.needOrder || l.ordered) && (
+                  <div className="mt-3 flex items-center justify-end">
+                    <MarkOrdered itemKey={l.key} ordered={l.ordered} />
+                  </div>
+                )}
               </div>
             ))
           )}
