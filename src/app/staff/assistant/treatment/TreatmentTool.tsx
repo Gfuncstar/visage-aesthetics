@@ -13,7 +13,8 @@ import {
   Sparkles,
   X,
 } from 'lucide-react'
-import { TREATMENT_TYPES, getTreatmentType } from '@/lib/assistant/treatment-types'
+import { TREATMENT_TYPES, getTreatmentType, matchTreatmentType } from '@/lib/assistant/treatment-types'
+import { ukDate } from '@/lib/assistant/format'
 import {
   buildClinicalNote,
   buildAftercareEmail,
@@ -28,6 +29,26 @@ const textareaClass =
 
 type Suggestion = { id: string | null; name: string; email: string | null; source: string }
 type AreaRow = { area: string; dose: number }
+type RecentAppt = { id: string; client_name: string; date: string; service_name: string; status: string }
+
+// Carry-forward memory: remember the product / batch / expiry / technique per
+// treatment type so the same batch auto-fills for the rest of the day. Stored
+// locally on this device only (no patient data).
+type Memory = { product?: string; batchNumber?: string; expiry?: string; technique?: string }
+function loadMemory(typeId: string): Memory {
+  try {
+    return JSON.parse(localStorage.getItem(`va_tx_mem_${typeId}`) || '{}') as Memory
+  } catch {
+    return {}
+  }
+}
+function saveMemory(typeId: string, mem: Memory) {
+  try {
+    localStorage.setItem(`va_tx_mem_${typeId}`, JSON.stringify(mem))
+  } catch {
+    /* ignore */
+  }
+}
 
 export default function TreatmentTool() {
   const today = new Date().toISOString().slice(0, 10)
@@ -38,6 +59,8 @@ export default function TreatmentTool() {
   const [clientEmail, setClientEmail] = useState<string | null>(null)
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [showSug, setShowSug] = useState(false)
+  const [appts, setAppts] = useState<RecentAppt[]>([])
+  const [pickedApptId, setPickedApptId] = useState<string | null>(null)
 
   // Treatment
   const [typeId, setTypeId] = useState(TREATMENT_TYPES[0].id)
@@ -65,13 +88,60 @@ export default function TreatmentTool() {
 
   const sugTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Reset areas when treatment type changes.
+  // Pull recent appointments once, so the clinician can pick instead of type.
+  useEffect(() => {
+    fetch('/api/staff/assistant/appointments?scope=recent')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => d?.appointments && setAppts(d.appointments))
+      .catch(() => {})
+  }, [])
+
+  // On treatment-type change: reset areas and pull product/batch/expiry/
+  // technique from carry-forward memory so repeat write-ups need almost no typing.
   useEffect(() => {
     setAreas([])
-    setProduct(type.products[0] ?? '')
+    const mem = loadMemory(type.id)
+    setProduct(mem.product || type.products[0] || '')
+    setBatchNumber(mem.batchNumber || '')
+    setExpiry(mem.expiry || '')
+    setTechnique(mem.technique || '')
     setGenerated(false)
     setSaveResult(null)
   }, [type])
+
+  // When the product changes, pull the latest stock batch for it (sourced from
+  // supplier order emails). A real batch takes precedence over carry-forward.
+  useEffect(() => {
+    if (type.unit === 'none' || !product.trim()) return
+    let cancelled = false
+    fetch(`/api/staff/assistant/batches?product=${encodeURIComponent(product)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (cancelled || !d?.latest) return
+        setBatchNumber(d.latest.batch_number || '')
+        if (d.latest.expiry) {
+          // Show expiry as MM/YY to match how it is recorded by hand.
+          const dt = new Date(d.latest.expiry)
+          if (!Number.isNaN(dt.getTime())) {
+            setExpiry(`${String(dt.getMonth() + 1).padStart(2, '0')}/${String(dt.getFullYear()).slice(2)}`)
+          }
+        }
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [product, type])
+
+  function pickAppt(a: RecentAppt) {
+    setPickedApptId(a.id)
+    setClientName(a.client_name)
+    setClientId(null)
+    setClientEmail(null)
+    setDate(a.date)
+    const matched = matchTreatmentType(a.service_name)
+    if (matched) setTypeId(matched)
+  }
 
   // Default the review date when a treatment type with a follow-up gap is chosen.
   useEffect(() => {
@@ -143,6 +213,7 @@ export default function TreatmentTool() {
   }
 
   function generate() {
+    saveMemory(type.id, { product, batchNumber, expiry, technique })
     const input = currentInput()
     setClinicalNote(buildClinicalNote(input))
     const email = buildAftercareEmail(input)
@@ -242,6 +313,37 @@ export default function TreatmentTool() {
         </div>
 
         <div className="space-y-7">
+          {/* Appointment quick-pick */}
+          {appts.length > 0 ? (
+            <div>
+              <span className="text-eyebrow text-ink-soft mb-2 block">
+                Pick an appointment <span className="text-stone normal-case tracking-normal">(fills client, treatment and date)</span>
+              </span>
+              <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+                {appts.map((a) => (
+                  <button
+                    key={a.id}
+                    type="button"
+                    onClick={() => pickAppt(a)}
+                    className={`shrink-0 text-left rounded-sm border px-3 py-2 transition-colors max-w-[220px] ${
+                      pickedApptId === a.id
+                        ? 'border-gold bg-gold/10'
+                        : 'border-line/40 bg-cream-soft hover:border-gold/60'
+                    }`}
+                  >
+                    <div className="text-sm text-charcoal truncate">{a.client_name || 'Unnamed'}</div>
+                    <div className="text-xs text-stone truncate">{ukDate(a.date)} · {a.service_name || 'Appointment'}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="border border-line/40 bg-cream-soft rounded-sm px-4 py-3 text-sm text-ink-soft leading-relaxed">
+              Tip: connect Ovatu (or import a CSV on the Profit page) and your appointments appear here
+              for one-tap fill. The batch and product you use also auto-fill after the first write-up of the day.
+            </div>
+          )}
+
           {/* Client */}
           <div className="relative">
             <label htmlFor="client" className="text-eyebrow text-ink-soft mb-2 block">Client</label>

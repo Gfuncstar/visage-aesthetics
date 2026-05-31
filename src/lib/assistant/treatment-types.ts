@@ -142,3 +142,17 @@ export const TREATMENT_TYPES: TreatmentType[] = [
 export function getTreatmentType(id: string): TreatmentType | undefined {
   return TREATMENT_TYPES.find((t) => t.id === id)
 }
+
+/** Best-effort map from an Ovatu service name to one of our treatment types. */
+export function matchTreatmentType(serviceName: string): string | null {
+  const s = (serviceName || '').toLowerCase()
+  if (!s) return null
+  if (/botox|anti.?wrinkle|toxin|azzalure|bocouture|wrinkle|line|hyperhidrosis|sweat|masseter|jaw/.test(s)) return 'anti-wrinkle'
+  if (/profhilo|booster|bio.?remodel/.test(s)) return 'skin-booster'
+  if (/polynucleotide|pn|plinest|nucleofill/.test(s)) return 'polynucleotides'
+  if (/filler|lip|cheek|tear.?trough|jawline|chin|nasolabial|harmonyca|juvederm|restylane/.test(s)) return 'dermal-filler'
+  if (/needling|microneedl|skin.?pen|dermapen|collagen induction/.test(s)) return 'microneedling'
+  if (/peel|chemical/.test(s)) return 'chemical-peel'
+  if (/consult|review|chat/.test(s)) return 'consultation'
+  return null
+}
