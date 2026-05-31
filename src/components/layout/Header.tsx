@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Lock, Menu, X } from 'lucide-react'
 import { treatments } from '@/lib/treatments'
@@ -19,6 +20,7 @@ const primaryNav = [
 const STAFF_LINK = { label: 'Staff', href: '/staff' }
 
 export default function Header() {
+  const pathname = usePathname()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [treatmentsOpen, setTreatmentsOpen] = useState(false)
@@ -34,6 +36,9 @@ export default function Header() {
     document.body.style.overflow = mobileOpen ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [mobileOpen])
+
+  // The staff back end / Assistant has its own chrome — no marketing header.
+  if (pathname?.startsWith('/staff')) return null
 
   return (
     <>
