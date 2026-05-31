@@ -93,6 +93,32 @@ export default function BroadcastComposer() {
       .catch(() => {})
   }, [])
 
+  // Pick up an aftercare draft handed over from the Assistant treatment tool.
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('va_broadcast_prefill')
+      if (!raw) return
+      sessionStorage.removeItem('va_broadcast_prefill')
+      const p = JSON.parse(raw) as Partial<{
+        subject: string
+        headline: string
+        body: string
+        cta: Cta
+        recipients: string
+      }>
+      if (p.subject) setSubject(p.subject)
+      if (p.headline) setHeadline(p.headline)
+      if (p.body) setBody(p.body)
+      if (p.cta) setCta(p.cta)
+      if (p.recipients) {
+        setRecipients(p.recipients)
+        setAudience('manual')
+      }
+    } catch {
+      /* ignore malformed prefill */
+    }
+  }, [])
+
   const manualCounts = useMemo(() => countRecipients(recipients), [recipients])
 
   const audienceCount =
@@ -447,7 +473,7 @@ export default function BroadcastComposer() {
                 value={headline}
                 onChange={(e) => setHeadline(e.target.value)}
                 className={inputClass}
-                placeholder="A short, beautiful sentence — e.g. A spring treat for our patients"
+                placeholder="A short, beautiful sentence, e.g. A spring treat for our patients"
                 maxLength={200}
               />
             </div>
@@ -521,7 +547,7 @@ export default function BroadcastComposer() {
                 value={preheader}
                 onChange={(e) => setPreheader(e.target.value)}
                 className={`${inputClass} mt-2`}
-                placeholder="Inbox preview text (optional) — shown after the subject line"
+                placeholder="Inbox preview text (optional), shown after the subject line"
                 maxLength={200}
               />
             </div>
