@@ -17,37 +17,37 @@ const tools = [
   {
     href: '/staff/assistant/treatment',
     title: 'Treatment write-up',
-    description: 'Turn an appointment into a clinical note and a client aftercare email.',
+    description: 'Clinical note + aftercare email from an appointment.',
     Icon: ClipboardPen,
   },
   {
     href: '/staff/assistant/clients',
     title: 'Client records',
-    description: 'Search any client: full history, treatment notes, photos and spend.',
+    description: "Any client's history, notes, photos and spend.",
     Icon: Users,
   },
   {
     href: '/staff/assistant/squeeze-in',
     title: 'Squeeze-in',
-    description: 'Say who wants fitting in; it finds the best gap and holds a to-book list.',
+    description: 'Fit someone in: best gap + to-book list.',
     Icon: CalendarClock,
   },
   {
     href: '/staff/assistant/stock',
     title: 'What to order',
-    description: "Who's booked in, what each needs, and what to order before the 3pm cutoff.",
+    description: "What's booked and what to order by 3pm.",
     Icon: Boxes,
   },
   {
     href: '/staff/assistant/orders',
     title: 'Orders & expenses',
-    description: 'Log supplier orders and costs, with a review queue for unconfirmed parses.',
+    description: 'Log supplier orders, costs and stock.',
     Icon: ReceiptText,
   },
   {
     href: '/staff/assistant/money',
     title: 'Profit & accountant pack',
-    description: 'Revenue, costs, margin and a copyable month-end pack with a CSV export.',
+    description: 'Revenue, margin and a month-end pack.',
     Icon: TrendingUp,
   },
 ]
@@ -109,22 +109,18 @@ export default async function AssistantIndex() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-10">
+        <div className="grid grid-cols-2 gap-3 mt-8">
           {tools.map(({ href, title, description, Icon }) => (
             <Link
               key={href}
               href={href}
-              className="group bg-cream-soft border border-line/40 rounded-sm p-7 hover:border-gold transition-colors"
+              className="group bg-cream-soft border border-line/40 rounded-sm p-4 hover:border-gold transition-colors flex flex-col"
             >
-              <div className="inline-flex w-11 h-11 rounded-full bg-charcoal text-cream items-center justify-center mb-5 group-hover:bg-gold-deep transition-colors">
-                <Icon size={18} strokeWidth={1.75} />
+              <div className="inline-flex w-10 h-10 rounded-full bg-charcoal text-cream items-center justify-center mb-3 group-hover:bg-gold-deep transition-colors">
+                <Icon size={16} strokeWidth={1.75} />
               </div>
-              <h2 className="font-display italic text-2xl text-charcoal leading-tight">{title}</h2>
-              <p className="text-sm text-ink-soft mt-2 leading-relaxed">{description}</p>
-              <div className="mt-5 eyebrow text-gold inline-flex items-center gap-2">
-                Open
-                <span className="transition-transform group-hover:translate-x-1">→</span>
-              </div>
+              <h2 className="font-display italic text-lg text-charcoal leading-tight">{title}</h2>
+              <p className="text-xs text-ink-soft mt-1 leading-snug">{description}</p>
             </Link>
           ))}
         </div>
