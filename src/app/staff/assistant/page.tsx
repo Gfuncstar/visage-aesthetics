@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowLeft, CalendarClock, ClipboardPen, ReceiptText, TrendingUp, Users } from 'lucide-react'
+import { ArrowLeft, CalendarClock, ClipboardPen, ClipboardCheck, ReceiptText, TrendingUp, Users } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from '../notes/StaffGate'
 import { assistantConfigured } from '@/lib/assistant/db'
+import { endOfDaySummary } from '@/lib/assistant/end-of-day'
 
 export const metadata: Metadata = {
   title: 'Assistant',
@@ -49,6 +50,7 @@ export default async function AssistantIndex() {
   const authed = await isStaffAuthed()
   if (!authed) return <StaffGate />
   const configured = assistantConfigured()
+  const today = configured ? await endOfDaySummary() : null
 
   return (
     <section className="bg-cream text-charcoal min-h-screen">
@@ -74,6 +76,33 @@ export default async function AssistantIndex() {
             to the patient-notes sheet and drafts the aftercare email). Orders and profit need the
             database. Add <code>SUPABASE_URL</code> and <code>SUPABASE_SERVICE_ROLE_KEY</code> in
             Vercel to switch them on.
+          </div>
+        )}
+
+        {today && today.seen > 0 && (
+          <div className={`mt-8 border rounded-sm px-5 py-4 ${today.toWrite.length > 0 ? 'border-gold/50 bg-gold/10' : 'border-sage/40 bg-sage/10'}`}>
+            <div className="flex items-center gap-2 mb-1.5">
+              <ClipboardCheck size={16} strokeWidth={1.75} className="text-gold-deep" />
+              <span className="text-eyebrow text-gold-deep">End of day</span>
+            </div>
+            {today.toWrite.length === 0 ? (
+              <p className="text-sm text-charcoal leading-relaxed">
+                All {today.seen} of today&apos;s clients are written up. Nice work.
+                {today.squeezeIns > 0 && <> You&apos;ve {today.squeezeIns} squeeze-in{today.squeezeIns === 1 ? '' : 's'} waiting.</>}
+              </p>
+            ) : (
+              <>
+                <p className="text-sm text-charcoal leading-relaxed">
+                  You saw <span className="font-medium">{today.seen}</span> today.{' '}
+                  <span className="font-medium">{today.toWrite.length}</span> still to write up:{' '}
+                  <span className="text-ink-soft">{today.toWrite.map((c) => c.name).join(', ')}</span>.
+                  {today.squeezeIns > 0 && <> And {today.squeezeIns} squeeze-in{today.squeezeIns === 1 ? '' : 's'} to action.</>}
+                </p>
+                <Link href="/staff/assistant/treatment" className="mt-3 btn btn-primary inline-flex" style={{ minHeight: 40 }}>
+                  <span className="inline-flex items-center gap-2"><ClipboardPen size={15} strokeWidth={1.75} /> Write them up</span>
+                </Link>
+              </>
+            )}
           </div>
         )}
 
