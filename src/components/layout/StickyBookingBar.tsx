@@ -16,8 +16,8 @@ const WHATSAPP_PREFILL = "Hi, I'd like to ask about "
  */
 export default function StickyBookingBar() {
   const pathname = usePathname()
-  // Opt out on the Visit / booking page itself.
-  if (pathname === '/contact') return null
+  // Opt out on the Visit / booking page itself, and across the staff area.
+  if (pathname === '/contact' || pathname?.startsWith('/staff')) return null
 
   return (
     <div

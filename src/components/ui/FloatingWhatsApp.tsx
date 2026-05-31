@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { whatsappLink } from '@/lib/booking'
 
 /**
@@ -11,6 +12,7 @@ import { whatsappLink } from '@/lib/booking'
  * is uncluttered on landing.
  */
 export default function FloatingWhatsApp() {
+  const pathname = usePathname()
   const [visible, setVisible] = useState(false)
   const [path, setPath] = useState('')
 
@@ -36,6 +38,9 @@ export default function FloatingWhatsApp() {
     if (p.startsWith('treatments/')) return "Hi, I'd like to ask about a treatment at Visage Aesthetics."
     return "Hi, I'd like to ask about Visage Aesthetics."
   })()
+
+  // Staff area has no client-facing WhatsApp button.
+  if (pathname?.startsWith('/staff')) return null
 
   return (
     <a

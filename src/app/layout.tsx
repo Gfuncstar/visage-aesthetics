@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Inter } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import HideOnStaff from '@/components/layout/HideOnStaff'
 import RevealRoot from '@/components/ui/Reveal'
 import FloatingWhatsApp from '@/components/ui/FloatingWhatsApp'
 import StickyBookingBar from '@/components/layout/StickyBookingBar'
@@ -139,7 +140,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <RevealRoot />
         <Header />
         <main id="main">{children}</main>
-        <Footer />
+        <HideOnStaff>
+          <Footer />
+        </HideOnStaff>
         <FloatingWhatsApp />
         <StickyBookingBar />
       </body>
