@@ -5,6 +5,7 @@ import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from '../notes/StaffGate'
 import { assistantConfigured } from '@/lib/assistant/db'
 import { endOfDaySummary } from '@/lib/assistant/end-of-day'
+import NotificationToggle from './NotificationToggle'
 
 export const metadata: Metadata = {
   title: 'Assistant',
@@ -75,6 +76,9 @@ export default async function AssistantIndex() {
         <p className="text-ink-soft mt-4 max-w-xl leading-relaxed">
           Write up a treatment, keep the order book tidy, and see where the month stands.
         </p>
+        <div className="mt-4">
+          <NotificationToggle />
+        </div>
 
         {!configured && (
           <div className="mt-8 border border-gold/40 bg-gold/10 text-charcoal text-sm rounded-sm px-4 py-3 leading-relaxed">
