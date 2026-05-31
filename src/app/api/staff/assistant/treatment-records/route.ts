@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { isStaffAuthed } from '@/lib/staff-auth'
-import { assistantConfigured, select, insert, audit } from '@/lib/assistant/db'
+import { assistantConfigured, select, insert, update, audit } from '@/lib/assistant/db'
 import { buildClinicalNote, totalDose, type WriteUpInput } from '@/lib/assistant/notes'
 import { pushNoteToSheet } from '@/lib/assistant/notes-sheet'
 import { getTreatmentType, type UnitType } from '@/lib/assistant/treatment-types'
@@ -118,6 +118,25 @@ export async function POST(req: Request) {
       })
       savedId = rec.id
       await audit('create', 'treatment_record', rec.id, { treatment: input.treatmentTypeId })
+
+      // Run the matching batch's stock down by what was used, so stock levels
+      // stay accurate for the "what to order" view. Best-effort.
+      if (input.batchNumber && input.unit !== 'none') {
+        const used = totalDose(input.areas)
+        if (used > 0) {
+          try {
+            const b = await select<{ id: string; quantity_used: number }>('batches', {
+              batch_number: `ilike.${input.batchNumber}`,
+              select: 'id,quantity_used',
+              order: 'created_at.desc',
+              limit: 1,
+            })
+            if (b[0]) await update('batches', { id: b[0].id }, { quantity_used: Number(b[0].quantity_used) + used })
+          } catch (err) {
+            console.error('[assistant/treatment-records] batch decrement failed', err)
+          }
+        }
+      }
     } catch (err) {
       dbError = err instanceof Error ? err.message : 'Database save failed'
       console.error('[assistant/treatment-records] db save failed', err)
