@@ -12,7 +12,13 @@
 
 import type { OrderCategory } from './types'
 
-export type ParsedLine = { description: string; quantity: number; unitPrice: number }
+export type ParsedLine = {
+  description: string
+  quantity: number
+  unitPrice: number
+  batchNumber?: string | null
+  expiry?: string | null
+}
 
 export type ParsedOrder = {
   supplierName: string
@@ -152,8 +158,8 @@ function guessSupplierFromDomain(from: string): string | null {
 
 // ---- LLM fallback (Anthropic) for unknown / low-confidence senders ----
 const LLM_SYSTEM = `You extract structured data from a UK aesthetics-clinic supplier order or invoice email. Return ONLY a JSON object, no prose, with this exact shape:
-{"supplierName": string, "date": "YYYY-MM-DD", "orderNumber": string|null, "net": number, "vat": number, "total": number, "currency": "GBP", "category": "stock"|"equipment"|"insurance"|"marketing"|"premises"|"training"|"other", "lines": [{"description": string, "quantity": number, "unitPrice": number}]}
-Rules: amounts are plain numbers (no symbols). If a value is not present, use 0 (numbers) or null (orderNumber). Currency is GBP. Pick the single best category. Do not invent line items you cannot see.`
+{"supplierName": string, "date": "YYYY-MM-DD", "orderNumber": string|null, "net": number, "vat": number, "total": number, "currency": "GBP", "category": "stock"|"equipment"|"insurance"|"marketing"|"premises"|"training"|"other", "lines": [{"description": string, "quantity": number, "unitPrice": number, "batchNumber": string|null, "expiry": string|null}]}
+Rules: amounts are plain numbers (no symbols). If a value is not present, use 0 (numbers) or null (text). Currency is GBP. Pick the single best category. Include batchNumber and expiry per line ONLY if they are explicitly stated in the email (some dispatch notes include lot/batch numbers); otherwise use null. Expiry as YYYY-MM or YYYY-MM-DD if shown. Do not invent line items, batch numbers or expiries you cannot see.`
 
 export async function parseWithLlm(email: EmailInput): Promise<ParsedOrder | null> {
   const apiKey = process.env.ANTHROPIC_API_KEY
@@ -196,6 +202,8 @@ export async function parseWithLlm(email: EmailInput): Promise<ParsedOrder | nul
             description: String(l.description ?? '').slice(0, 300),
             quantity: num(l.quantity) || 1,
             unitPrice: num(l.unitPrice),
+            batchNumber: l.batchNumber ? String(l.batchNumber).slice(0, 80) : null,
+            expiry: l.expiry ? String(l.expiry).slice(0, 20) : null,
           }))
         : [],
       confidence: 0.7,

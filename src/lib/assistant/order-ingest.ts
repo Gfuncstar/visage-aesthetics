@@ -29,6 +29,14 @@ export function htmlToText(html: string): string {
     .trim()
 }
 
+/** Coerce a parsed expiry ("YYYY-MM" or "YYYY-MM-DD") to a date, or null. */
+function normaliseExpiry(raw: string | null | undefined): string | null {
+  if (!raw) return null
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw
+  if (/^\d{4}-\d{2}$/.test(raw)) return `${raw}-01`
+  return null
+}
+
 export async function ingestOrderEmail(
   email: EmailInput,
   messageId: string | null,
@@ -80,6 +88,26 @@ export async function ingestOrderEmail(
         quantity: l.quantity,
         unit_price: l.unitPrice,
       })))
+
+      // When a supplier states batch numbers on the line, record them as stock
+      // batches linked to this order. These then auto-fill in the write-up tool
+      // and power batch recall / traceability.
+      const batchRows = parsed.lines
+        .filter((l) => l.batchNumber)
+        .map((l) => ({
+          product_name: l.description,
+          batch_number: l.batchNumber as string,
+          expiry: normaliseExpiry(l.expiry),
+          source_order_id: order.id,
+          quantity_in: l.quantity,
+        }))
+      if (batchRows.length > 0) {
+        try {
+          await insertMany('batches', batchRows)
+        } catch (err) {
+          console.error('[order-ingest] batch insert failed', err)
+        }
+      }
     }
 
     await audit('ingest', 'order', order.id, {
