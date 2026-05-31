@@ -3,7 +3,7 @@
 // forwarding endpoint and the scheduled inbox poller.
 
 import { select, insert, insertMany, audit } from './db'
-import { parseOrderEmail, type EmailInput } from './order-parsers'
+import { parseOrderEmail, type EmailInput, type ParsedOrder } from './order-parsers'
 import type { Order } from './types'
 
 export type IngestOutcome =
@@ -37,24 +37,22 @@ function normaliseExpiry(raw: string | null | undefined): string | null {
   return null
 }
 
-export async function ingestOrderEmail(
-  email: EmailInput,
-  messageId: string | null,
+/**
+ * Persist an already-parsed order into the review queue (status 'pending') and
+ * record any stated batch numbers as stock batches. Shared by the email and
+ * photo ingest paths. Deduplicates by source id and by supplier+order number.
+ */
+export async function persistParsedOrder(
+  parsed: ParsedOrder,
+  opts: { sourceId?: string | null; rawSource?: string } = {},
 ): Promise<IngestOutcome> {
   try {
-    // 1. Dedupe by message id.
-    if (messageId) {
-      const existing = await select<Order>('orders', {
-        source_email_id: `eq.${messageId}`,
-        limit: 1,
-      })
-      if (existing.length > 0) return { status: 'duplicate', reason: 'message already ingested' }
+    const sourceId = opts.sourceId ?? null
+
+    if (sourceId) {
+      const existing = await select<Order>('orders', { source_email_id: `eq.${sourceId}`, limit: 1 })
+      if (existing.length > 0) return { status: 'duplicate', reason: 'already ingested' }
     }
-
-    // 2. Parse.
-    const parsed = await parseOrderEmail(email)
-
-    // 3. Dedupe by supplier + order number.
     if (parsed.orderNumber) {
       const dup = await select<Order>('orders', {
         supplier_name: `ilike.${parsed.supplierName}`,
@@ -64,11 +62,10 @@ export async function ingestOrderEmail(
       if (dup.length > 0) return { status: 'duplicate', reason: 'order number already logged' }
     }
 
-    // 4. Insert as a pending (review-queue) order. Never auto-confirmed.
     const order = await insert<Order>('orders', {
       supplier_name: parsed.supplierName,
       date: parsed.date,
-      source_email_id: messageId,
+      source_email_id: sourceId,
       order_number: parsed.orderNumber,
       category: parsed.category,
       net: parsed.net,
@@ -78,7 +75,7 @@ export async function ingestOrderEmail(
       paid: false,
       status: 'pending',
       parse_confidence: parsed.confidence,
-      raw_source: `${email.subject}\n${email.text}`.slice(0, 8000),
+      raw_source: (opts.rawSource ?? '').slice(0, 8000) || null,
     })
 
     if (parsed.lines.length > 0) {
@@ -89,9 +86,8 @@ export async function ingestOrderEmail(
         unit_price: l.unitPrice,
       })))
 
-      // When a supplier states batch numbers on the line, record them as stock
-      // batches linked to this order. These then auto-fill in the write-up tool
-      // and power batch recall / traceability.
+      // Stated batch numbers become stock batches — these auto-fill in the
+      // write-up tool and power batch recall / traceability.
       const batchRows = parsed.lines
         .filter((l) => l.batchNumber)
         .map((l) => ({
@@ -115,13 +111,22 @@ export async function ingestOrderEmail(
       method: parsed.method,
       confidence: parsed.confidence,
     })
-
     return { status: 'created', order, confidence: parsed.confidence, method: parsed.method }
   } catch (err) {
-    // A duplicate order_number trips the DB unique index — treat as duplicate.
     const msg = err instanceof Error ? err.message : 'ingest failed'
     if (/duplicate key|unique/i.test(msg)) return { status: 'duplicate', reason: 'unique constraint' }
-    console.error('[order-ingest] failed', err)
+    console.error('[order-ingest] persist failed', err)
     return { status: 'error', error: msg }
   }
+}
+
+export async function ingestOrderEmail(
+  email: EmailInput,
+  messageId: string | null,
+): Promise<IngestOutcome> {
+  const parsed = await parseOrderEmail(email)
+  return persistParsedOrder(parsed, {
+    sourceId: messageId,
+    rawSource: `${email.subject}\n${email.text}`,
+  })
 }

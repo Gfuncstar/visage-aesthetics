@@ -1,8 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Check, Inbox, Link2, LogOut, Plus, RefreshCw, Trash2 } from 'lucide-react'
+import { ArrowLeft, Camera, Check, Inbox, Link2, LogOut, Plus, RefreshCw, Trash2 } from 'lucide-react'
 import { ORDER_CATEGORIES, type Order, type OrderCategory } from '@/lib/assistant/types'
 import { gbp, ukDate, currentMonthKey, monthLabel, recentMonthKeys } from '@/lib/assistant/format'
 
@@ -172,8 +172,11 @@ export default function OrdersLog() {
           </div>
         )}
 
-        {/* Manual add */}
-        <ManualAdd month={month} disabled={!configured} onAdded={load} />
+        {/* Add an order: photograph it, or enter by hand */}
+        <div className="flex flex-wrap gap-2">
+          <ScanOrder disabled={!configured} onAdded={load} />
+          <ManualAdd month={month} disabled={!configured} onAdded={load} />
+        </div>
 
         {/* Confirmed */}
         <div className="mt-10">
@@ -242,6 +245,62 @@ function OrderRow({
         )}
       </div>
     </div>
+  )
+}
+
+function ScanOrder({ disabled, onAdded }: { disabled: boolean; onAdded: () => void }) {
+  const [busy, setBusy] = useState(false)
+  const [msg, setMsg] = useState<string | null>(null)
+  const fileRef = useRef<HTMLInputElement | null>(null)
+
+  async function scan(file: File) {
+    setBusy(true)
+    setMsg(null)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch('/api/staff/assistant/orders/scan', { method: 'POST', body: fd })
+      const d = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setMsg(d.error || 'Could not read that photo.')
+        return
+      }
+      const batchPart = Array.isArray(d.batches) && d.batches.length ? ` · batch ${d.batches.join(', ')}` : ''
+      setMsg(
+        d.status === 'duplicate'
+          ? 'Already logged — skipped.'
+          : `Read ${d.supplier}${d.orderNumber ? ` (${d.orderNumber})` : ''}${batchPart}. Added to the review queue.`,
+      )
+      onAdded()
+    } catch {
+      setMsg('Network error while reading the photo.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        capture="environment"
+        className="sr-only"
+        onChange={(e) => {
+          const f = e.target.files?.[0]
+          if (f) void scan(f)
+          e.target.value = ''
+        }}
+      />
+      <button onClick={() => fileRef.current?.click()} disabled={disabled || busy} className="btn btn-primary disabled:opacity-50">
+        <span className="inline-flex items-center gap-2">
+          <Camera size={15} strokeWidth={1.75} />
+          {busy ? 'Reading…' : 'Photograph an order'}
+        </span>
+      </button>
+      {msg && <span className="text-xs text-ink-soft self-center basis-full">{msg}</span>}
+    </>
   )
 }
 
