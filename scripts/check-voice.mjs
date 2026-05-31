@@ -36,6 +36,9 @@ const EXEMPT_FILES = new Set([
   'src/lib/blog-jsonld.ts',
   'src/lib/blog-posts.ts',
   'src/lib/search-index.ts',
+  // Factual clinic profile + opportunity data passed to the scouting model
+  // (deliberate third-person brief, not user-facing site copy).
+  'src/lib/assistant/opportunities.ts',
   'src/components/layout/Footer.tsx',
   'src/app/blog/rss.xml/route.ts',
   'src/app/layout.tsx',
