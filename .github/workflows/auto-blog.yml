@@ -1,11 +1,11 @@
 name: Auto-blog (Visage Aesthetics)
 
-# Runs every 2 days at 09:00 UTC. Picks an unwritten topic from
+# Runs daily at 09:00 UTC. Picks an unwritten topic from
 # scripts/blog-topics.json, drafts a 1,500-word post in Bernadette's
 # voice (using the Anthropic API + web search), adds an FAQ block and
 # FAQPage schema, then commits and publishes. Once every topic has been
 # written, it instead refreshes the oldest post (bumping dateModified +
-# sitemap lastmod) so the cron always keeps the site fresh.
+# sitemap lastmod) so the daily run always keeps the site fresh.
 #
 # To enable:
 #   1. In GitHub repo Settings → Secrets and variables → Actions →
@@ -18,9 +18,9 @@ name: Auto-blog (Visage Aesthetics)
 
 on:
   schedule:
-    # Every 2 days at 09:00 UTC. Cron has no native "every 2 days" —
-    # this is approximated by triggering on odd days of the month.
-    - cron: '0 9 1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31 * *'
+    # Daily at 09:00 UTC (10:00 BST). A new post when topics remain,
+    # otherwise a freshness refresh of the oldest post.
+    - cron: '0 9 * * *'
   workflow_dispatch:
     inputs:
       force_topic:
