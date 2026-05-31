@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowLeft, ClipboardPen, ReceiptText, TrendingUp } from 'lucide-react'
+import { ArrowLeft, ClipboardPen, ReceiptText, TrendingUp, Users } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from '../notes/StaffGate'
 import { assistantConfigured } from '@/lib/assistant/db'
@@ -18,6 +18,12 @@ const tools = [
     title: 'Treatment write-up',
     description: 'Turn an appointment into a clinical note and a client aftercare email.',
     Icon: ClipboardPen,
+  },
+  {
+    href: '/staff/assistant/clients',
+    title: 'Client records',
+    description: 'Search any client: full history, treatment notes, photos and spend.',
+    Icon: Users,
   },
   {
     href: '/staff/assistant/orders',
