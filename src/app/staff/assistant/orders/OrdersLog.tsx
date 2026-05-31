@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Check, Inbox, LogOut, Plus, RefreshCw, Trash2 } from 'lucide-react'
+import { ArrowLeft, Check, Inbox, Link2, LogOut, Plus, RefreshCw, Trash2 } from 'lucide-react'
 import { ORDER_CATEGORIES, type Order, type OrderCategory } from '@/lib/assistant/types'
 import { gbp, ukDate, currentMonthKey, monthLabel, recentMonthKeys } from '@/lib/assistant/format'
 
@@ -17,7 +17,19 @@ export default function OrdersLog() {
   const [error, setError] = useState<string | null>(null)
   const [polling, setPolling] = useState(false)
   const [pollMsg, setPollMsg] = useState<string | null>(null)
+  const [inbox, setInbox] = useState<{ configurable: boolean; connected: boolean; account: string | null } | null>(null)
   const months = recentMonthKeys(12)
+
+  useEffect(() => {
+    fetch('/api/staff/assistant/inbox/status')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => d && setInbox(d))
+      .catch(() => {})
+    // Surface the result of returning from the Microsoft consent screen.
+    const p = new URLSearchParams(window.location.search).get('inbox')
+    if (p === 'connected') setPollMsg('Inbox connected. Use “Check inbox now” to read recent orders.')
+    else if (p === 'error') setPollMsg('Could not connect the inbox. Please try again.')
+  }, [])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -116,12 +128,27 @@ export default function OrdersLog() {
           <select value={month} onChange={(e) => setMonth(e.target.value)} className={`${inputClass} w-auto`}>
             {months.map((m) => <option key={m} value={m}>{monthLabel(m)}</option>)}
           </select>
-          <button onClick={checkInbox} disabled={polling || !configured} className="btn btn-secondary disabled:opacity-50" style={{ minHeight: 42 }}>
-            <span className="inline-flex items-center gap-2">
-              <RefreshCw size={14} strokeWidth={1.75} className={polling ? 'animate-spin' : ''} />
-              {polling ? 'Checking inbox…' : 'Check inbox now'}
+          {inbox?.configurable && !inbox.connected && (
+            <a href="/api/staff/assistant/inbox/connect" className="btn btn-secondary" style={{ minHeight: 42 }}>
+              <span className="inline-flex items-center gap-2">
+                <Link2 size={14} strokeWidth={1.75} />
+                Connect inbox
+              </span>
+            </a>
+          )}
+          {inbox?.connected && (
+            <button onClick={checkInbox} disabled={polling || !configured} className="btn btn-secondary disabled:opacity-50" style={{ minHeight: 42 }}>
+              <span className="inline-flex items-center gap-2">
+                <RefreshCw size={14} strokeWidth={1.75} className={polling ? 'animate-spin' : ''} />
+                {polling ? 'Checking inbox…' : 'Check inbox now'}
+              </span>
+            </button>
+          )}
+          {inbox?.connected && inbox.account && (
+            <span className="text-xs text-sage inline-flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-sage" /> {inbox.account}
             </span>
-          </button>
+          )}
           {pollMsg && <span className="text-xs text-ink-soft">{pollMsg}</span>}
         </div>
 

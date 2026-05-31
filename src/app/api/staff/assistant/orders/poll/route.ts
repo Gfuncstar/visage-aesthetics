@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured } from '@/lib/assistant/db'
-import { graphConfigured, fetchRecentMessages, looksLikeOrder } from '@/lib/assistant/graph-inbox'
+import { graphConfigured, inboxConnection, fetchRecentMessages, looksLikeOrder } from '@/lib/assistant/graph-inbox'
 import { ingestOrderEmail, htmlToText } from '@/lib/assistant/order-ingest'
 
 export const runtime = 'nodejs'
@@ -29,8 +29,15 @@ async function run() {
   }
   if (!graphConfigured()) {
     return NextResponse.json(
-      { error: 'Inbox monitoring is not configured (Microsoft Graph env vars missing).' },
+      { error: 'Inbox monitoring is not configured (MS_GRAPH_CLIENT_ID / MS_GRAPH_CLIENT_SECRET missing).' },
       { status: 503 },
+    )
+  }
+  const conn = await inboxConnection()
+  if (!conn.connected) {
+    return NextResponse.json(
+      { error: 'The order inbox is not connected yet. Use "Connect inbox" on the Orders page.' },
+      { status: 409 },
     )
   }
 
