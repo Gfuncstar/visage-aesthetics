@@ -215,6 +215,70 @@ export async function parseWithLlm(email: EmailInput): Promise<ParsedOrder | nul
   }
 }
 
+/** Vision extraction from a photo of a delivery note / invoice / order confirmation. */
+export async function parseOrderImage(base64: string, mediaType: string): Promise<ParsedOrder | null> {
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  if (!apiKey) return null
+  const { default: Anthropic } = await import('@anthropic-ai/sdk')
+  const client = new Anthropic({ apiKey })
+  try {
+    const res = await client.messages.create({
+      model: 'claude-opus-4-7',
+      max_tokens: 1500,
+      system: LLM_SYSTEM,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: { type: 'base64', media_type: mediaType as 'image/jpeg', data: base64 },
+            },
+            {
+              type: 'text',
+              text: 'This is a photo of a supplier delivery note, invoice or order confirmation for a UK aesthetics clinic. Extract it as the JSON object. Read batch/lot numbers and use-by/expiry dates carefully from each line. Delivery notes often have no prices — use 0 where a price is not shown.',
+            },
+          ],
+        },
+      ],
+    })
+    const text = res.content
+      .filter((b) => b.type === 'text')
+      .map((b) => (b as { text: string }).text)
+      .join('\n')
+    const match = text.match(/\{[\s\S]*\}/)
+    if (!match) return null
+    const j = JSON.parse(match[0]) as Record<string, unknown>
+    const num = (v: unknown) => (Number.isFinite(Number(v)) ? Number(v) : 0)
+    const cats: OrderCategory[] = ['stock', 'equipment', 'insurance', 'marketing', 'premises', 'training', 'other']
+    const category = cats.includes(j.category as OrderCategory) ? (j.category as OrderCategory) : 'stock'
+    return {
+      supplierName: String(j.supplierName ?? 'Unknown supplier').slice(0, 200),
+      date: toIsoDate(String(j.date ?? '')) ?? new Date().toISOString().slice(0, 10),
+      orderNumber: j.orderNumber ? String(j.orderNumber).slice(0, 60) : null,
+      currency: 'GBP',
+      net: num(j.net),
+      vat: num(j.vat),
+      total: num(j.total) || num(j.net) + num(j.vat),
+      category,
+      lines: Array.isArray(j.lines)
+        ? (j.lines as Record<string, unknown>[]).slice(0, 50).map((l) => ({
+            description: String(l.description ?? '').slice(0, 300),
+            quantity: num(l.quantity) || 1,
+            unitPrice: num(l.unitPrice),
+            batchNumber: l.batchNumber ? String(l.batchNumber).slice(0, 80) : null,
+            expiry: l.expiry ? String(l.expiry).slice(0, 20) : null,
+          }))
+        : [],
+      confidence: 0.75,
+      method: 'photo',
+    }
+  } catch (err) {
+    console.error('[order-parsers] image extraction failed', err)
+    return null
+  }
+}
+
 /**
  * Full parse: try the deterministic parser; if it's a known supplier with a
  * solid total, keep it; otherwise (unknown sender or weak result) try the LLM.
