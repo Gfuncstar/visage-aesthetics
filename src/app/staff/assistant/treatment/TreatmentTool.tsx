@@ -8,7 +8,6 @@ import {
   Check,
   ChevronRight,
   LogOut,
-  Mail,
   Plus,
   Save,
   Sparkles,
@@ -19,7 +18,6 @@ import { ukDate } from '@/lib/assistant/format'
 import DictateButton from '@/components/ui/DictateButton'
 import {
   buildClinicalNote,
-  buildAftercareEmail,
   totalDose,
   type WriteUpInput,
 } from '@/lib/assistant/notes'
@@ -82,9 +80,6 @@ export default function TreatmentTool() {
   // Outputs
   const [generated, setGenerated] = useState(false)
   const [clinicalNote, setClinicalNote] = useState('')
-  const [emailSubject, setEmailSubject] = useState('')
-  const [emailHeadline, setEmailHeadline] = useState('')
-  const [emailBody, setEmailBody] = useState('')
 
   const [saving, setSaving] = useState(false)
   const [saveResult, setSaveResult] = useState<{ ok: boolean; message: string } | null>(null)
@@ -257,10 +252,6 @@ export default function TreatmentTool() {
     saveMemory(type.id, { product, batchNumber, expiry, technique })
     const input = currentInput()
     setClinicalNote(buildClinicalNote(input))
-    const email = buildAftercareEmail(input)
-    setEmailSubject(email.subject)
-    setEmailHeadline(email.headline)
-    setEmailBody(email.body)
     setGenerated(true)
     setSaveResult(null)
     setTimeout(() => {
@@ -296,24 +287,6 @@ export default function TreatmentTool() {
     }
   }
 
-  function sendAftercare() {
-    // Hand the draft to the Broadcasts composer via sessionStorage, addressed
-    // to this client. Editable there before anything is sent.
-    const prefill = {
-      subject: emailSubject,
-      headline: emailHeadline,
-      body: emailBody,
-      cta: 'none' as const,
-      recipients: clientEmail ?? '',
-    }
-    try {
-      sessionStorage.setItem('va_broadcast_prefill', JSON.stringify(prefill))
-    } catch {
-      /* ignore */
-    }
-    window.location.href = '/staff/broadcasts'
-  }
-
   async function signOut() {
     await fetch('/api/staff/logout', { method: 'POST' })
     window.location.reload()
@@ -339,8 +312,7 @@ export default function TreatmentTool() {
               Write up a treatment.
             </h1>
             <p className="text-ink-soft mt-4 max-w-xl leading-relaxed">
-              Tap the areas, add the doses, and generate the clinical note and the aftercare email.
-              Both are yours to edit before anything is saved or sent.
+              Tap the areas, add the doses, and generate the clinical note, yours to edit before it&apos;s saved.
             </p>
           </div>
           <button
@@ -642,7 +614,7 @@ export default function TreatmentTool() {
           >
             <span className="inline-flex items-center gap-3">
               <Sparkles size={15} strokeWidth={1.75} />
-              Generate note &amp; aftercare email
+              Generate clinical note
             </span>
             <span className="btn-arrow">→</span>
           </button>
@@ -676,33 +648,6 @@ export default function TreatmentTool() {
                   <span>{saveResult.message}</span>
                 </div>
               )}
-            </div>
-
-            <div className="border-t border-line/40 pt-8">
-              <div className="flex items-center gap-2 mb-3">
-                <Mail size={16} className="text-gold-deep" />
-                <span className="text-eyebrow text-gold-deep">Aftercare email</span>
-              </div>
-              <label className="text-eyebrow text-ink-soft mb-2 block">Subject</label>
-              <input className={`${inputClass} mb-3`} value={emailSubject} onChange={(e) => setEmailSubject(e.target.value)} />
-              <label className="text-eyebrow text-ink-soft mb-2 block">Headline</label>
-              <input className={`${inputClass} mb-3`} value={emailHeadline} onChange={(e) => setEmailHeadline(e.target.value)} />
-              <label className="text-eyebrow text-ink-soft mb-2 block">Body</label>
-              <textarea rows={12} className={textareaClass} value={emailBody} onChange={(e) => setEmailBody(e.target.value)} />
-              <p className="text-xs text-ink-soft mt-2">
-                {clientEmail
-                  ? `This opens in Broadcasts, addressed to ${clientEmail}. Nothing sends until you press send there.`
-                  : 'This opens in Broadcasts. Add the client’s email there before sending. Nothing sends automatically.'}
-              </p>
-              <div className="mt-3">
-                <button type="button" onClick={sendAftercare} className="btn btn-secondary">
-                  <span className="inline-flex items-center gap-2">
-                    <Mail size={15} strokeWidth={1.75} />
-                    Open in Broadcasts
-                  </span>
-                  <span className="btn-arrow">→</span>
-                </button>
-              </div>
             </div>
           </div>
         )}
