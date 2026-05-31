@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Calendar, Check, LogOut, Mic, Sparkles, X } from 'lucide-react'
 import { BOOKING_URL } from '@/lib/booking'
@@ -23,7 +23,43 @@ export default function SqueezeIn() {
   const [text, setText] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [result, setResult] = useState<string | null>(null)
   const [requests, setRequests] = useState<Request[]>([])
+  const [listening, setListening] = useState(false)
+  const [micSupported, setMicSupported] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recRef = useRef<any>(null)
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    setMicSupported(Boolean(SR))
+  }, [])
+
+  function toggleMic() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (!SR) return
+    if (listening) {
+      recRef.current?.stop()
+      return
+    }
+    const rec = new SR()
+    rec.lang = 'en-GB'
+    rec.continuous = true
+    rec.interimResults = false
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rec.onresult = (e: any) => {
+      let said = ''
+      for (let i = e.resultIndex; i < e.results.length; i++) said += e.results[i][0].transcript
+      setText((prev) => (prev ? `${prev} ${said}` : said).trim())
+    }
+    rec.onend = () => setListening(false)
+    rec.onerror = () => setListening(false)
+    recRef.current = rec
+    rec.start()
+    setListening(true)
+  }
 
   const load = useCallback(async () => {
     const res = await fetch('/api/staff/assistant/squeeze-in')
@@ -37,8 +73,10 @@ export default function SqueezeIn() {
 
   async function read() {
     if (!text.trim()) return
+    if (listening) recRef.current?.stop()
     setBusy(true)
     setError(null)
+    setResult(null)
     try {
       const res = await fetch('/api/staff/assistant/squeeze-in', {
         method: 'POST',
@@ -47,7 +85,9 @@ export default function SqueezeIn() {
       })
       const d = await res.json().catch(() => ({}))
       if (!res.ok) { setError(d.error || 'Could not read that.'); return }
+      const n = Array.isArray(d.requests) ? d.requests.length : 0
       setText('')
+      setResult(`Added ${n} to your to-book list below${n ? ' — with the best free gap for each.' : '.'}`)
       void load()
     } catch {
       setError('Network error.')
@@ -91,9 +131,20 @@ export default function SqueezeIn() {
         </div>
 
         <div className="border border-gold/40 bg-gold/5 rounded-sm p-5 mb-8">
-          <div className="flex items-center gap-2 mb-2">
-            <Mic size={16} strokeWidth={1.75} className="text-gold-deep" />
+          <div className="flex items-center justify-between gap-3 mb-2">
             <span className="text-eyebrow text-gold-deep">Say it or type it</span>
+            {micSupported && (
+              <button
+                type="button"
+                onClick={toggleMic}
+                className={`inline-flex items-center gap-2 text-sm rounded-full border px-3 py-1.5 transition-colors ${
+                  listening ? 'border-clay bg-clay/10 text-clay' : 'border-gold/50 text-gold-deep hover:bg-gold/10'
+                }`}
+              >
+                <Mic size={15} strokeWidth={1.75} className={listening ? 'animate-pulse' : ''} />
+                {listening ? 'Listening… tap to stop' : 'Tap to talk'}
+              </button>
+            )}
           </div>
           <textarea
             value={text}
@@ -102,12 +153,17 @@ export default function SqueezeIn() {
             className={textareaClass}
             placeholder="e.g. Sarah Grantham messaged asking for Botox, hoping for Thursday afternoon next week, contact 07700 900123. Also Amy would like lip filler any morning this week."
           />
-          <p className="text-xs text-ink-soft mt-2">Tip: on your phone, tap the microphone on the keyboard and just talk.</p>
+          <p className="text-xs text-ink-soft mt-2">
+            {micSupported
+              ? 'Tap “Tap to talk” and speak, or just type. On a phone the keyboard microphone works too.'
+              : 'Type it, or on a phone tap the microphone on the keyboard and talk.'}
+          </p>
           {error && <p className="text-xs text-clay mt-2">{error}</p>}
-          <div className="mt-3">
+          <div className="mt-3 flex items-center gap-3 flex-wrap">
             <button onClick={read} disabled={busy || !text.trim()} className="btn btn-primary disabled:opacity-50">
               <span className="inline-flex items-center gap-2"><Sparkles size={15} strokeWidth={1.75} /> {busy ? 'Working it out…' : 'Sort it out'}</span>
             </button>
+            {result && <span className="text-sm text-sage inline-flex items-center gap-1.5"><Check size={14} strokeWidth={2} /> {result}</span>}
           </div>
         </div>
 
