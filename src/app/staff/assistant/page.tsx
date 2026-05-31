@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowLeft, CalendarClock, ClipboardPen, ClipboardCheck, ReceiptText, TrendingUp, Users } from 'lucide-react'
+import { ArrowLeft, Boxes, CalendarClock, ClipboardPen, ClipboardCheck, ReceiptText, TrendingUp, Users } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from '../notes/StaffGate'
 import { assistantConfigured } from '@/lib/assistant/db'
@@ -31,6 +31,12 @@ const tools = [
     title: 'Squeeze-in',
     description: 'Say who wants fitting in; it finds the best gap and holds a to-book list.',
     Icon: CalendarClock,
+  },
+  {
+    href: '/staff/assistant/stock',
+    title: 'What to order',
+    description: "Who's booked in, what each needs, and what to order before the 3pm cutoff.",
+    Icon: Boxes,
   },
   {
     href: '/staff/assistant/orders',
@@ -80,28 +86,25 @@ export default async function AssistantIndex() {
         )}
 
         {today && today.seen > 0 && (
-          <div className={`mt-8 border rounded-sm px-5 py-4 ${today.toWrite.length > 0 ? 'border-gold/50 bg-gold/10' : 'border-sage/40 bg-sage/10'}`}>
-            <div className="flex items-center gap-2 mb-1.5">
+          <div className={`mt-8 border rounded-sm p-5 ${today.toWrite.length > 0 ? 'border-gold/50 bg-gold/10' : 'border-sage/40 bg-sage/10'}`}>
+            <div className="flex items-center gap-2 mb-3">
               <ClipboardCheck size={16} strokeWidth={1.75} className="text-gold-deep" />
               <span className="text-eyebrow text-gold-deep">End of day</span>
             </div>
-            {today.toWrite.length === 0 ? (
-              <p className="text-sm text-charcoal leading-relaxed">
-                All {today.seen} of today&apos;s clients are written up. Nice work.
-                {today.squeezeIns > 0 && <> You&apos;ve {today.squeezeIns} squeeze-in{today.squeezeIns === 1 ? '' : 's'} waiting.</>}
-              </p>
-            ) : (
+            <div className="grid grid-cols-3 gap-3">
+              <Tile n={today.seen} label="Seen today" />
+              <Tile n={today.toWrite.length} label="To write up" tone={today.toWrite.length > 0 ? 'gold' : 'sage'} />
+              <Tile n={today.squeezeIns} label="Squeeze-ins" tone={today.squeezeIns > 0 ? 'gold' : 'mute'} />
+            </div>
+            {today.toWrite.length > 0 ? (
               <>
-                <p className="text-sm text-charcoal leading-relaxed">
-                  You saw <span className="font-medium">{today.seen}</span> today.{' '}
-                  <span className="font-medium">{today.toWrite.length}</span> still to write up:{' '}
-                  <span className="text-ink-soft">{today.toWrite.map((c) => c.name).join(', ')}</span>.
-                  {today.squeezeIns > 0 && <> And {today.squeezeIns} squeeze-in{today.squeezeIns === 1 ? '' : 's'} to action.</>}
-                </p>
+                <p className="text-sm text-ink-soft mt-3">Still to write up: <span className="text-charcoal">{today.toWrite.map((c) => c.name).join(', ')}</span></p>
                 <Link href="/staff/assistant/treatment" className="mt-3 btn btn-primary inline-flex" style={{ minHeight: 40 }}>
                   <span className="inline-flex items-center gap-2"><ClipboardPen size={15} strokeWidth={1.75} /> Write them up</span>
                 </Link>
               </>
+            ) : (
+              <p className="text-sm text-sage mt-3">All caught up. Nice work.</p>
             )}
           </div>
         )}
@@ -127,5 +130,16 @@ export default async function AssistantIndex() {
         </div>
       </div>
     </section>
+  )
+}
+
+function Tile({ n, label, tone = 'ink' }: { n: number; label: string; tone?: 'gold' | 'sage' | 'mute' | 'ink' }) {
+  const color =
+    tone === 'gold' ? 'text-gold-deep' : tone === 'sage' ? 'text-sage' : tone === 'mute' ? 'text-stone' : 'text-charcoal'
+  return (
+    <div className="bg-cream border border-line/40 rounded-sm px-3 py-3 text-center">
+      <div className={`font-display italic text-3xl leading-none ${color}`}>{n}</div>
+      <div className="text-eyebrow text-ink-soft mt-1.5">{label}</div>
+    </div>
   )
 }
