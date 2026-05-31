@@ -25,6 +25,7 @@ export type StockLine = {
   daysUntil: number
   clients: { name: string; date: string }[]
   inStock: boolean
+  ordered: boolean // marked ordered, awaiting delivery
   stockNote: string
   needOrder: boolean
   urgent: boolean // booked within the next-day window — order by 3pm today
@@ -47,7 +48,9 @@ export async function stockReview(horizonDays = 14): Promise<StockReview | null>
   const todayISO = now.toISOString().slice(0, 10)
 
   try {
-    const [appts, batches] = await Promise.all([
+    // Items marked ordered in the last 4 days count as handled until delivery.
+    const since = new Date(now.getTime() - 4 * 86400000).toISOString()
+    const [appts, batches, marks] = await Promise.all([
       select<ApptRow>('appointments', {
         status: 'eq.booked',
         and: `(date.gte.${tomorrowISO},date.lte.${horizonISO})`,
@@ -59,7 +62,9 @@ export async function stockReview(horizonDays = 14): Promise<StockReview | null>
         select: 'product_name,batch_number,expiry,quantity_in,quantity_used',
         limit: 500,
       }),
+      select<{ item_key: string }>('reorder_marks', { ordered_at: `gte.${since}`, select: 'item_key', limit: 100 }),
     ])
+    const orderedKeys = new Set(marks.map((m) => m.item_key))
 
     // Demand per stock item from upcoming booked treatments (with who's booked).
     const demand = new Map<string, ApptRow[]>()
@@ -85,12 +90,16 @@ export async function stockReview(horizonDays = 14): Promise<StockReview | null>
           (!b.expiry || b.expiry >= soonest),
       )
       const inStock = usable.length > 0
+      const ordered = !inStock && orderedKeys.has(key)
       const stockNote = inStock
         ? `Have ${usable.map((b) => b.batch_number).join(', ')}`
-        : 'No stock logged'
+        : ordered
+          ? 'Ordered, awaiting delivery'
+          : 'No stock logged'
 
       const daysUntil = Math.max(0, Math.round((new Date(soonest).getTime() - new Date(todayISO).getTime()) / 86400000))
-      const urgent = !inStock && daysUntil <= 1
+      const needOrder = !inStock && !ordered
+      const urgent = needOrder && daysUntil <= 1
 
       if (urgent) urgentItems.push(def.item)
       lines.push({
@@ -101,8 +110,9 @@ export async function stockReview(horizonDays = 14): Promise<StockReview | null>
         daysUntil,
         clients: rows.map((r) => ({ name: r.client_name, date: r.date })),
         inStock,
+        ordered,
         stockNote,
-        needOrder: !inStock,
+        needOrder,
         urgent,
       })
     }
