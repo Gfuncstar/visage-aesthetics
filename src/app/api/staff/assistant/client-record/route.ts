@@ -1,0 +1,96 @@
+import { NextResponse } from 'next/server'
+import { isStaffAuthed } from '@/lib/staff-auth'
+import { assistantConfigured, select } from '@/lib/assistant/db'
+import { getTreatmentType } from '@/lib/assistant/treatment-types'
+import type { Appointment, TreatmentRecord } from '@/lib/assistant/types'
+
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
+type Photo = {
+  id: string
+  client_name: string
+  date: string
+  type: string
+  treatment_type: string | null
+  url: string
+  consent: boolean
+  notes: string | null
+}
+
+// GET ?q=...      -> matching clients with a quick summary (search list)
+// GET ?name=...   -> one client's full record (visits, notes, photos, summary)
+export async function GET(req: Request) {
+  if (!(await isStaffAuthed())) {
+    return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+  }
+  if (!assistantConfigured()) {
+    return NextResponse.json({ configured: false, clients: [] })
+  }
+  const params = new URL(req.url).searchParams
+  const name = params.get('name')?.trim()
+  const q = params.get('q')?.trim() ?? ''
+
+  try {
+    if (name) {
+      // PostgREST equality is case-sensitive; match case-insensitively.
+      const enc = name.replace(/[%,()]/g, ' ')
+      const [appts, treatments, photos] = await Promise.all([
+        select<Appointment>('appointments', { client_name: `ilike.${enc}`, order: 'date.desc', limit: 500 }),
+        select<TreatmentRecord>('treatment_records', { client_name: `ilike.${enc}`, order: 'date.desc', limit: 500 }),
+        select<Photo>('photos', { client_name: `ilike.${enc}`, order: 'date.desc', limit: 200 }),
+      ])
+
+      const completed = appts.filter((a) => a.status === 'completed')
+      const totalSpend = completed.reduce((s, a) => s + (Number(a.price) || 0), 0)
+      const byTreatment = new Map<string, number>()
+      for (const a of completed) byTreatment.set(a.service_name, (byTreatment.get(a.service_name) ?? 0) + 1)
+
+      return NextResponse.json({
+        configured: true,
+        client: {
+          name,
+          visits: completed.length,
+          totalSpend,
+          firstVisit: completed.length ? completed[completed.length - 1].date : null,
+          lastVisit: completed.length ? completed[0].date : null,
+          treatments: Array.from(byTreatment.entries())
+            .map(([service, count]) => ({ service, count }))
+            .sort((a, b) => b.count - a.count),
+        },
+        appointments: appts,
+        treatmentRecords: treatments.map((t) => ({
+          ...t,
+          treatment_label: getTreatmentType(t.treatment_type)?.name ?? t.treatment_type,
+        })),
+        photos,
+      })
+    }
+
+    // Search: distinct client names from appointments, ranked by recency.
+    const enc = q.replace(/[%,()]/g, ' ')
+    const rows = await select<Appointment>('appointments', {
+      ...(q ? { client_name: `ilike.*${enc}*` } : {}),
+      order: 'date.desc',
+      limit: 400,
+    })
+    const map = new Map<string, { name: string; visits: number; lastVisit: string }>()
+    for (const a of rows) {
+      const key = a.client_name.trim()
+      if (!key) continue
+      const cur = map.get(key.toLowerCase())
+      if (cur) {
+        cur.visits += a.status === 'completed' ? 1 : 0
+      } else {
+        map.set(key.toLowerCase(), { name: key, visits: a.status === 'completed' ? 1 : 0, lastVisit: a.date })
+      }
+    }
+    const clients = Array.from(map.values())
+      .sort((a, b) => b.lastVisit.localeCompare(a.lastVisit))
+      .slice(0, 40)
+    return NextResponse.json({ configured: true, clients })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Could not load record'
+    return NextResponse.json({ error: msg }, { status: 502 })
+  }
+}
