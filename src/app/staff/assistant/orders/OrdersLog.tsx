@@ -172,9 +172,10 @@ export default function OrdersLog() {
           </div>
         )}
 
-        {/* Add an order: photograph it, or enter by hand */}
+        {/* Add an order: photograph it, paste the email, or enter by hand */}
         <div className="flex flex-wrap gap-2">
           <ScanOrder disabled={!configured} onAdded={load} />
+          <PasteOrder disabled={!configured} onAdded={load} />
           <ManualAdd month={month} disabled={!configured} onAdded={load} />
         </div>
 
@@ -301,6 +302,76 @@ function ScanOrder({ disabled, onAdded }: { disabled: boolean; onAdded: () => vo
       </button>
       {msg && <span className="text-xs text-ink-soft self-center basis-full">{msg}</span>}
     </>
+  )
+}
+
+function PasteOrder({ disabled, onAdded }: { disabled: boolean; onAdded: () => void }) {
+  const [open, setOpen] = useState(false)
+  const [text, setText] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [msg, setMsg] = useState<string | null>(null)
+
+  async function read() {
+    if (!text.trim()) return
+    setBusy(true)
+    setMsg(null)
+    try {
+      const res = await fetch('/api/staff/assistant/orders/ingest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from: '', subject: 'Pasted order', text }),
+      })
+      const d = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setMsg(d.error || 'Could not read that.')
+        return
+      }
+      if (d.status === 'ignored') {
+        setMsg("That didn't look like an order. Paste the full confirmation including totals.")
+        return
+      }
+      if (d.status === 'duplicate') {
+        setMsg('Already logged — skipped.')
+      } else {
+        const o = d.order ?? {}
+        setMsg(`Read ${o.supplier_name || 'order'}${o.order_number ? ` (${o.order_number})` : ''}${o.total ? ` · ${gbp(Number(o.total))}` : ''}. Added to the review queue.`)
+        setText('')
+        setOpen(false)
+      }
+      onAdded()
+    } catch {
+      setMsg('Network error.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  if (!open) {
+    return (
+      <button onClick={() => setOpen(true)} disabled={disabled} className="btn btn-secondary disabled:opacity-50">
+        <span className="inline-flex items-center gap-2"><Plus size={15} strokeWidth={1.75} /> Paste an order email</span>
+      </button>
+    )
+  }
+
+  return (
+    <div className="basis-full border border-line/40 bg-cream-soft rounded-sm p-4">
+      <label className="text-eyebrow text-ink-soft mb-2 block">Paste the order confirmation email (text and totals)</label>
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        rows={7}
+        className="w-full bg-cream border border-line/40 rounded-sm px-3 py-2.5 text-sm text-charcoal focus:outline-none focus:border-gold leading-relaxed"
+        placeholder="Copy the whole order confirmation from the supplier and paste it here…"
+      />
+      <div className="flex items-center justify-between mt-3 gap-2 flex-wrap">
+        {msg && <span className="text-xs text-ink-soft">{msg}</span>}
+        <div className="flex items-center gap-2 ml-auto">
+          <button onClick={() => { setOpen(false); setMsg(null) }} className="btn">Cancel</button>
+          <button onClick={read} disabled={busy || !text.trim()} className="btn btn-primary disabled:opacity-50">{busy ? 'Reading…' : 'Read it'}</button>
+        </div>
+      </div>
+    </div>
   )
 }
 
