@@ -46,6 +46,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Nothing to parse.' }, { status: 400 })
   }
 
+  // Safety net: only order-like emails ever become entries, even if the
+  // upstream filter (e.g. a Zapier rule) is loose or absent. Anything else is
+  // acknowledged and ignored — it is never parsed, stored, or queued.
+  const hay = `${subject} ${from} ${text.slice(0, 600)}`.toLowerCase()
+  if (!/order|invoice|dispatch|despatch|receipt|purchase|shipment|payment received|statement|remittance/.test(hay)) {
+    return NextResponse.json({ ok: true, status: 'ignored', reason: 'not order-like' })
+  }
+
   const outcome = await ingestOrderEmail({ from, subject, text, date }, messageId)
   if (outcome.status === 'error') {
     return NextResponse.json({ error: outcome.error }, { status: 502 })
