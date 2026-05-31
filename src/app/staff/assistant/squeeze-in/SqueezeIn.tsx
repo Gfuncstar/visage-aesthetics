@@ -2,11 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Calendar, Check, Copy, LogOut, Mic, Sparkles, X } from 'lucide-react'
-import { ukDate } from '@/lib/assistant/format'
-
-// The Ovatu admin (where staff add bookings), not the public client page.
-const OVATU_ADMIN = 'https://visage-aesthetics.ovatu.app'
+import { ArrowLeft, Calendar, Check, Copy, LogOut, Mic, Send, Sparkles, X } from 'lucide-react'
 
 const textareaClass =
   'w-full bg-cream border border-line/40 rounded-sm px-4 py-3 text-base text-charcoal placeholder:text-ink-soft/60 focus:outline-none focus:border-gold leading-relaxed'
@@ -19,6 +15,14 @@ type Request = {
   preferred_date: string | null
   preferred_note: string | null
   suggested: string | null
+  draft_reply: string | null
+}
+
+function waLink(contact: string | null, message: string): string | null {
+  const digits = (contact ?? '').replace(/\D/g, '')
+  if (digits.length < 7) return null
+  const intl = digits.startsWith('0') ? `44${digits.slice(1)}` : digits
+  return `https://wa.me/${intl}?text=${encodeURIComponent(message)}`
 }
 
 export default function SqueezeIn() {
@@ -96,34 +100,6 @@ export default function SqueezeIn() {
     } finally {
       setBusy(false)
     }
-  }
-
-  const [copiedId, setCopiedId] = useState<string | null>(null)
-
-  function detailsLine(r: Request): string {
-    return [
-      r.client_name,
-      r.treatment || undefined,
-      r.preferred_date ? ukDate(r.preferred_date) : r.preferred_note || undefined,
-      r.contact || undefined,
-    ]
-      .filter(Boolean)
-      .join('  ·  ')
-  }
-
-  async function copyDetails(r: Request): Promise<void> {
-    try {
-      await navigator.clipboard.writeText(detailsLine(r))
-      setCopiedId(r.id)
-      setTimeout(() => setCopiedId((c) => (c === r.id ? null : c)), 2500)
-    } catch {
-      /* clipboard may be blocked */
-    }
-  }
-
-  async function openInOvatu(r: Request): Promise<void> {
-    await copyDetails(r)
-    window.open(OVATU_ADMIN, '_blank', 'noopener,noreferrer')
   }
 
   async function setStatus(id: string, status: 'booked' | 'dismissed') {
@@ -205,38 +181,69 @@ export default function SqueezeIn() {
         ) : (
           <div className="space-y-3">
             {requests.map((r) => (
-              <div key={r.id} className="border border-line/40 bg-cream-soft rounded-sm p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="text-base font-medium text-charcoal">{r.client_name}{r.treatment ? <span className="text-ink-soft font-normal"> · {r.treatment}</span> : null}</div>
-                    {r.preferred_note && <div className="text-sm text-stone mt-0.5">Wants: {r.preferred_note}</div>}
-                    {r.contact && <div className="text-sm text-stone">{r.contact}</div>}
-                  </div>
-                  <button onClick={() => setStatus(r.id, 'dismissed')} className="text-stone hover:text-clay shrink-0" aria-label="Dismiss"><X size={16} strokeWidth={1.75} /></button>
-                </div>
-                {r.suggested && (
-                  <div className="mt-3 flex items-start gap-2 text-sm text-charcoal bg-cream border border-line/30 rounded-sm px-3 py-2">
-                    <Calendar size={15} strokeWidth={1.75} className="text-gold-deep mt-0.5 shrink-0" />
-                    <span>{r.suggested}</span>
-                  </div>
-                )}
-                <div className="mt-3 flex items-center gap-2 flex-wrap">
-                  <button onClick={() => openInOvatu(r)} className="btn btn-secondary" style={{ minHeight: 38 }}>
-                    <span className="inline-flex items-center gap-2"><Calendar size={14} strokeWidth={1.75} /> Copy &amp; open Ovatu</span>
-                  </button>
-                  <button onClick={() => copyDetails(r)} className="btn" style={{ minHeight: 38 }}>
-                    <span className="inline-flex items-center gap-2"><Copy size={14} strokeWidth={1.75} /> Copy</span>
-                  </button>
-                  <button onClick={() => setStatus(r.id, 'booked')} className="btn btn-primary" style={{ minHeight: 38 }}>
-                    <span className="inline-flex items-center gap-2"><Check size={14} strokeWidth={2} /> Booked it</span>
-                  </button>
-                  {copiedId === r.id && <span className="text-xs text-sage inline-flex items-center gap-1"><Check size={12} strokeWidth={2} /> Copied, paste into Ovatu</span>}
-                </div>
-              </div>
+              <RequestCard key={r.id} r={r} onStatus={setStatus} />
             ))}
           </div>
         )}
       </div>
     </section>
+  )
+}
+
+function RequestCard({ r, onStatus }: { r: Request; onStatus: (id: string, s: 'booked' | 'dismissed') => void }) {
+  const [reply, setReply] = useState(r.draft_reply ?? '')
+  const [copied, setCopied] = useState(false)
+  const wa = waLink(r.contact, reply)
+
+  async function copyReply() {
+    try {
+      await navigator.clipboard.writeText(reply)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2500)
+    } catch {
+      /* clipboard blocked */
+    }
+  }
+
+  return (
+    <div className="border border-line/40 bg-cream-soft rounded-sm p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="text-base font-medium text-charcoal">{r.client_name}{r.treatment ? <span className="text-ink-soft font-normal"> · {r.treatment}</span> : null}</div>
+          {r.preferred_note && <div className="text-sm text-stone mt-0.5">Wants: {r.preferred_note}</div>}
+          {r.contact && <div className="text-sm text-stone">{r.contact}</div>}
+        </div>
+        <button onClick={() => onStatus(r.id, 'dismissed')} className="text-stone hover:text-clay shrink-0" aria-label="Dismiss"><X size={16} strokeWidth={1.75} /></button>
+      </div>
+
+      {r.suggested && (
+        <div className="mt-3 flex items-start gap-2 text-sm text-charcoal bg-cream border border-line/30 rounded-sm px-3 py-2">
+          <Calendar size={15} strokeWidth={1.75} className="text-gold-deep mt-0.5 shrink-0" />
+          <span>{r.suggested}</span>
+        </div>
+      )}
+
+      <label className="text-eyebrow text-ink-soft mt-3 mb-1.5 block">Reply to send them (edit if you like)</label>
+      <textarea
+        value={reply}
+        onChange={(e) => setReply(e.target.value)}
+        rows={3}
+        className="w-full bg-cream border border-line/40 rounded-sm px-3 py-2.5 text-sm text-charcoal focus:outline-none focus:border-gold leading-relaxed"
+      />
+
+      <div className="mt-3 flex items-center gap-2 flex-wrap">
+        {wa && (
+          <a href={wa} target="_blank" rel="noopener noreferrer" className="btn btn-primary" style={{ minHeight: 38 }}>
+            <span className="inline-flex items-center gap-2"><Send size={14} strokeWidth={1.75} /> Send on WhatsApp</span>
+          </a>
+        )}
+        <button onClick={copyReply} className="btn btn-secondary" style={{ minHeight: 38 }}>
+          <span className="inline-flex items-center gap-2"><Copy size={14} strokeWidth={1.75} /> {copied ? 'Copied' : 'Copy reply'}</span>
+        </button>
+        <button onClick={() => onStatus(r.id, 'booked')} className="btn ml-auto" style={{ minHeight: 38 }}>
+          <span className="inline-flex items-center gap-2"><Check size={14} strokeWidth={2} /> Done</span>
+        </button>
+      </div>
+    </div>
   )
 }

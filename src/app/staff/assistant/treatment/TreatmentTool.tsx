@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { TREATMENT_TYPES, getTreatmentType, matchTreatmentType } from '@/lib/assistant/treatment-types'
 import { ukDate } from '@/lib/assistant/format'
+import DictateButton from '@/components/ui/DictateButton'
 import {
   buildClinicalNote,
   buildAftercareEmail,
@@ -554,8 +555,11 @@ export default function TreatmentTool() {
           </div>
 
           <div>
-            <label htmlFor="notes" className="text-eyebrow text-ink-soft mb-2 block">Notes (optional)</label>
-            <textarea id="notes" rows={3} className={textareaClass} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Consultation, contraindications checked, anything noted…" />
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <label htmlFor="notes" className="text-eyebrow text-ink-soft">Notes (optional)</label>
+              <DictateButton onText={(t) => setNotes((prev) => (prev ? `${prev} ${t}` : t).trim())} />
+            </div>
+            <textarea id="notes" rows={3} className={textareaClass} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Consultation, contraindications checked, anything noted… or tap Dictate and talk." />
           </div>
 
           <label className="flex items-center gap-3 cursor-pointer select-none">

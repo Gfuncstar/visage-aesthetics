@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, select, insertMany, audit } from '@/lib/assistant/db'
-import { describeAvailability, type DayAppt } from '@/lib/assistant/slots'
+import { describeAvailability, firstFreeStart, friendlyTime, type DayAppt } from '@/lib/assistant/slots'
 import { ukDate } from '@/lib/assistant/format'
+import { BOOKING_URL } from '@/lib/booking'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -16,8 +17,28 @@ type BookingRequest = {
   preferred_date: string | null
   preferred_note: string | null
   suggested: string | null
+  draft_reply: string | null
   status: string
   created_at: string
+}
+
+// A warm, ready-to-send reply offering the client a time + the self-booking
+// link, so they book it themselves in Ovatu (no entry needed from the clinic).
+function buildReply(p: Parsed, proposedStart: number | null): string {
+  const first = p.clientName.split(/\s+/)[0] || 'there'
+  if (p.preferredDate && proposedStart != null) {
+    const day = new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }).format(
+      new Date(`${p.preferredDate}T12:00:00`),
+    )
+    return `Hi ${first}, I can fit you in on ${day} at ${friendlyTime(proposedStart)}. Book it here to confirm: ${BOOKING_URL}`
+  }
+  if (p.preferredDate) {
+    const day = new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }).format(
+      new Date(`${p.preferredDate}T12:00:00`),
+    )
+    return `Hi ${first}, ${day} is full I'm afraid, but you can grab another time that suits here: ${BOOKING_URL}`
+  }
+  return `Hi ${first}, I'd love to fit you in. Pick a time that suits you here: ${BOOKING_URL}`
 }
 
 // GET — the current to-book list.
@@ -67,9 +88,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Could not pick out a booking request. Try again with a name and rough time.' }, { status: 422 })
   }
 
-  // Suggest a slot for each from that day's diary.
+  // For each request: check the diary, propose a slot, and draft a client reply.
   const enriched = await Promise.all(parsed.map(async (p) => {
     let suggested: string | null = null
+    let proposedStart: number | null = null
     if (p.preferredDate) {
       try {
         const day = await select<DayAppt>('appointments', {
@@ -79,11 +101,12 @@ export async function POST(req: Request) {
           limit: 100,
         })
         suggested = `${ukDate(p.preferredDate)}: ${describeAvailability(day)}`
+        proposedStart = firstFreeStart(day)
       } catch {
         /* ignore */
       }
     }
-    return { ...p, suggested }
+    return { ...p, suggested, draftReply: buildReply(p, proposedStart) }
   }))
 
   try {
@@ -94,6 +117,7 @@ export async function POST(req: Request) {
       preferred_date: p.preferredDate,
       preferred_note: p.preferredNote,
       suggested: p.suggested,
+      draft_reply: p.draftReply,
       raw_text: text,
       status: 'to_book',
     })))

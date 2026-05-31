@@ -57,4 +57,19 @@ export function describeAvailability(appts: DayAppt[], minDuration = 30): string
   return `Free: ${parts.join(', ')}`
 }
 
+/** The first free gap's start time on a day, in local minutes — the slot to offer. */
+export function firstFreeStart(appts: DayAppt[], minDuration = 30): number | null {
+  const gaps = freeGaps(appts, minDuration)
+  return gaps.length ? gaps[0].start : null
+}
+
+/** A friendly clock time from local minutes, e.g. "1:00pm". */
+export function friendlyTime(min: number): string {
+  const h = Math.floor(min / 60)
+  const m = min % 60
+  const ampm = h >= 12 ? 'pm' : 'am'
+  const h12 = h % 12 === 0 ? 12 : h % 12
+  return `${h12}:${String(m).padStart(2, '0')}${ampm}`
+}
+
 export { fmt as formatMinutes }
