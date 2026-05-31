@@ -2,9 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Calendar, Check, LogOut, Mic, Sparkles, X } from 'lucide-react'
-import { BOOKING_URL } from '@/lib/booking'
+import { ArrowLeft, Calendar, Check, Copy, LogOut, Mic, Sparkles, X } from 'lucide-react'
 import { ukDate } from '@/lib/assistant/format'
+
+// The Ovatu admin (where staff add bookings), not the public client page.
+const OVATU_ADMIN = 'https://visage-aesthetics.ovatu.app'
 
 const textareaClass =
   'w-full bg-cream border border-line/40 rounded-sm px-4 py-3 text-base text-charcoal placeholder:text-ink-soft/60 focus:outline-none focus:border-gold leading-relaxed'
@@ -94,6 +96,34 @@ export default function SqueezeIn() {
     } finally {
       setBusy(false)
     }
+  }
+
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+
+  function detailsLine(r: Request): string {
+    return [
+      r.client_name,
+      r.treatment || undefined,
+      r.preferred_date ? ukDate(r.preferred_date) : r.preferred_note || undefined,
+      r.contact || undefined,
+    ]
+      .filter(Boolean)
+      .join('  ·  ')
+  }
+
+  async function copyDetails(r: Request): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(detailsLine(r))
+      setCopiedId(r.id)
+      setTimeout(() => setCopiedId((c) => (c === r.id ? null : c)), 2500)
+    } catch {
+      /* clipboard may be blocked */
+    }
+  }
+
+  async function openInOvatu(r: Request): Promise<void> {
+    await copyDetails(r)
+    window.open(OVATU_ADMIN, '_blank', 'noopener,noreferrer')
   }
 
   async function setStatus(id: string, status: 'booked' | 'dismissed') {
@@ -191,12 +221,16 @@ export default function SqueezeIn() {
                   </div>
                 )}
                 <div className="mt-3 flex items-center gap-2 flex-wrap">
-                  <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ minHeight: 38 }}>
-                    <span className="inline-flex items-center gap-2"><Calendar size={14} strokeWidth={1.75} /> Open Ovatu</span>
-                  </a>
+                  <button onClick={() => openInOvatu(r)} className="btn btn-secondary" style={{ minHeight: 38 }}>
+                    <span className="inline-flex items-center gap-2"><Calendar size={14} strokeWidth={1.75} /> Copy &amp; open Ovatu</span>
+                  </button>
+                  <button onClick={() => copyDetails(r)} className="btn" style={{ minHeight: 38 }}>
+                    <span className="inline-flex items-center gap-2"><Copy size={14} strokeWidth={1.75} /> Copy</span>
+                  </button>
                   <button onClick={() => setStatus(r.id, 'booked')} className="btn btn-primary" style={{ minHeight: 38 }}>
                     <span className="inline-flex items-center gap-2"><Check size={14} strokeWidth={2} /> Booked it</span>
                   </button>
+                  {copiedId === r.id && <span className="text-xs text-sage inline-flex items-center gap-1"><Check size={12} strokeWidth={2} /> Copied, paste into Ovatu</span>}
                 </div>
               </div>
             ))}
