@@ -60,6 +60,7 @@ export default function TreatmentTool() {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [showSug, setShowSug] = useState(false)
   const [appts, setAppts] = useState<RecentAppt[]>([])
+  const [pickDate, setPickDate] = useState(today)
   const [pickedApptId, setPickedApptId] = useState<string | null>(null)
 
   // Treatment
@@ -88,20 +89,21 @@ export default function TreatmentTool() {
 
   const sugTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Pull recent appointments once, so the clinician can pick instead of type.
+  // Pull the chosen day's appointments (today by default) so the clinician can
+  // pick who came at the end of clinic instead of typing.
   useEffect(() => {
-    fetch('/api/staff/assistant/appointments?scope=recent')
+    let cancelled = false
+    fetch(`/api/staff/assistant/appointments?date=${pickDate}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
-        if (!d?.appointments) return
-        // Newest first.
-        const sorted = [...d.appointments].sort((a: RecentAppt, b: RecentAppt) =>
-          b.date.localeCompare(a.date),
-        )
-        setAppts(sorted)
+        if (cancelled) return
+        setAppts(d?.appointments ?? [])
       })
       .catch(() => {})
-  }, [])
+    return () => {
+      cancelled = true
+    }
+  }, [pickDate])
 
   // On treatment-type change: reset areas and pull product/batch/expiry/
   // technique from carry-forward memory so repeat write-ups need almost no typing.
@@ -320,12 +322,32 @@ export default function TreatmentTool() {
         </div>
 
         <div className="space-y-7">
-          {/* Appointment quick-pick */}
-          {appts.length > 0 ? (
-            <div>
-              <span className="text-eyebrow text-ink-soft mb-2 block">
-                Pick an appointment <span className="text-stone normal-case tracking-normal">(fills client, treatment and date)</span>
+          {/* Appointment quick-pick — pick the day (today by default), tap who came */}
+          <div>
+            <div className="flex items-center justify-between gap-3 mb-2 flex-wrap">
+              <span className="text-eyebrow text-ink-soft">
+                Who came in <span className="text-stone normal-case tracking-normal">(tap to fill client &amp; treatment)</span>
               </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPickDate(today)}
+                  className={`text-xs rounded-sm border px-2.5 py-1.5 transition-colors ${
+                    pickDate === today ? 'border-gold bg-gold/10 text-charcoal' : 'border-line/40 text-ink-soft hover:border-gold/60'
+                  }`}
+                >
+                  Today
+                </button>
+                <input
+                  type="date"
+                  value={pickDate}
+                  max={today}
+                  onChange={(e) => setPickDate(e.target.value)}
+                  className="bg-cream border border-line/40 rounded-sm px-2.5 py-1.5 text-sm text-charcoal focus:outline-none focus:border-gold"
+                />
+              </div>
+            </div>
+            {appts.length > 0 ? (
               <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
                 {appts.map((a) => (
                   <button
@@ -339,18 +361,16 @@ export default function TreatmentTool() {
                     }`}
                   >
                     <div className="text-base font-medium text-charcoal truncate">{a.client_name || 'Unnamed'}</div>
-                    <div className="text-sm text-stone truncate mt-0.5">{ukDate(a.date)}</div>
-                    <div className="text-sm text-ink-soft truncate">{a.service_name || 'Appointment'}</div>
+                    <div className="text-sm text-ink-soft truncate mt-0.5">{a.service_name || 'Appointment'}</div>
                   </button>
                 ))}
               </div>
-            </div>
-          ) : (
-            <div className="border border-line/40 bg-cream-soft rounded-sm px-4 py-3 text-sm text-ink-soft leading-relaxed">
-              Tip: connect Ovatu (or import a CSV on the Profit page) and your appointments appear here
-              for one-tap fill. The batch and product you use also auto-fill after the first write-up of the day.
-            </div>
-          )}
+            ) : (
+              <p className="border border-line/40 bg-cream-soft rounded-sm px-4 py-3 text-sm text-ink-soft leading-relaxed">
+                No appointments on {ukDate(pickDate)}. Pick another day, or just type the client name below.
+              </p>
+            )}
+          </div>
 
           {/* Client */}
           <div className="relative">
