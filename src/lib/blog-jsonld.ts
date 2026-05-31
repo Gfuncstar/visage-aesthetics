@@ -54,3 +54,16 @@ export function breadcrumbJsonLd(slug: string, title: string) {
     ],
   }
 }
+
+/** FAQPage schema — eligible for the FAQ rich result and "People also ask". */
+export function faqJsonLd(faqs: { q: string; a: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  }
+}

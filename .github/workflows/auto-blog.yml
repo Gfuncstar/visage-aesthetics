@@ -2,8 +2,10 @@ name: Auto-blog (Visage Aesthetics)
 
 # Runs every 2 days at 09:00 UTC. Picks an unwritten topic from
 # scripts/blog-topics.json, drafts a 1,500-word post in Bernadette's
-# voice (using the Anthropic API + web search), commits to a new
-# branch and opens a PR.
+# voice (using the Anthropic API + web search), adds an FAQ block and
+# FAQPage schema, then commits and publishes. Once every topic has been
+# written, it instead refreshes the oldest post (bumping dateModified +
+# sitemap lastmod) so the cron always keeps the site fresh.
 #
 # To enable:
 #   1. In GitHub repo Settings → Secrets and variables → Actions →
@@ -75,6 +77,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git pull --rebase --autostash origin main
+          # New post adds a blog page; a refresh only modifies existing files.
+          if git status --porcelain | grep -qE '^\?\? src/app/blog/'; then
+            MSG="chore(blog): auto-generated post"
+          else
+            MSG="chore(blog): refresh oldest post for freshness"
+          fi
           git add -A
-          git commit -m "chore(blog): auto-generated post"
+          git commit -m "$MSG"
           git push origin main

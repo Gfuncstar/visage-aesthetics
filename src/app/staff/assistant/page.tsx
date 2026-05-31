@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowLeft, Boxes, CalendarClock, ClipboardPen, ClipboardCheck, ReceiptText, TrendingUp, Users } from 'lucide-react'
+import { ArrowLeft, Award, Boxes, CalendarClock, ClipboardPen, ClipboardCheck, ReceiptText, TrendingUp, Users } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from '../notes/StaffGate'
 import { assistantConfigured } from '@/lib/assistant/db'
@@ -50,6 +50,12 @@ const tools = [
     title: 'Profit & accountant pack',
     description: 'Revenue, margin and a month-end pack.',
     Icon: TrendingUp,
+  },
+  {
+    href: '/staff/assistant/visibility',
+    title: 'Awards & press',
+    description: 'Free awards to enter and press to reply to.',
+    Icon: Award,
   },
 ]
 
