@@ -13,6 +13,11 @@
  * Optional env vars:
  *   AUTO_PUBLISH=true: push direct to main instead of opening a PR
  *   FORCE_TOPIC=slug:  pick a specific topic from blog-topics.json
+ *
+ * Behaviour when the topic list is exhausted:
+ *   Rather than exiting, the generator refreshes the oldest published post,
+ *   bumping its dateModified and sitemap lastmod so the site keeps signalling
+ *   freshness on its regular cron. Set NO_REFRESH=true to disable this.
  */
 import Anthropic from '@anthropic-ai/sdk'
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs'
@@ -37,7 +42,7 @@ type TopicsFile = {
   voiceRules: string[]
 }
 
-const MODEL = 'claude-opus-4-5'
+const MODEL = 'claude-opus-4-7'
 
 async function main() {
   const apiKey = process.env.ANTHROPIC_API_KEY
@@ -57,36 +62,52 @@ async function main() {
     ? topicsFile.evergreenTopics.filter((t) => t.slug === forced)
     : topicsFile.evergreenTopics.filter((t) => !existing.has(t.slug))
   if (candidates.length === 0) {
-    console.log('No remaining topics. Exiting cleanly.')
+    // Topic list exhausted. Keep the site fresh by refreshing the oldest post
+    // instead of exiting, so the regular cron always does useful work.
+    if (process.env.NO_REFRESH === 'true') {
+      console.log('No remaining topics and NO_REFRESH set. Exiting cleanly.')
+      return
+    }
+    await refreshOldestPost()
     return
   }
   // Random pick to avoid always taking the first one
   const topic = candidates[Math.floor(Math.random() * candidates.length)]
   console.log(`Selected topic: ${topic.slug}`)
 
+  // Build the internal-link menu from posts already on the site, so each new
+  // post can link out to relevant existing articles (topic-cluster SEO).
+  const internalLinks = topicsFile.evergreenTopics
+    .filter((t) => existing.has(t.slug))
+    .map((t) => ({ slug: t.slug, title: t.title }))
+
   // Phase 1: ground the post in fresh news with a web search call
   const newsContext = await researchNews(client, topic, topicsFile.newsAngles)
   console.log(`News context: ${newsContext.length} chars`)
 
   // Phase 2: draft the post
-  const rawDraft = await draftPost(client, topic, voiceGuide, newsContext)
+  const rawDraft = await draftPost(client, topic, voiceGuide, newsContext, internalLinks)
   const draft = scrubDashes(rawDraft)
   const dashesRemoved = (rawDraft.match(/[—–]/g) ?? []).length
   console.log(`Draft: ${draft.length} chars (scrubbed ${dashesRemoved} em/en-dashes)`)
 
-  // Phase 3: write the file
+  // Phase 3: generate FAQs (FAQPage schema + "People also ask" eligibility)
+  const faqs = await generateFaqs(client, topic, draft)
+  console.log(`FAQs: ${faqs.length} questions`)
+
+  // Phase 4: write the file
   const today = new Date().toISOString().slice(0, 10)
   const wordCount = draft.split(/\s+/).length
   const filePath = join(blogDir, topic.slug, 'page.tsx')
   mkdirSync(dirname(filePath), { recursive: true })
-  writeFileSync(filePath, renderPageFile(topic, draft, today, wordCount))
+  writeFileSync(filePath, renderPageFile(topic, draft, today, wordCount, faqs))
   console.log(`Wrote ${filePath}`)
 
-  // Phase 4: update sitemap
+  // Phase 5: update sitemap
   updateSitemap(topic.slug, today)
   console.log('Sitemap updated')
 
-  // Phase 5: register the post in the blog manifest so it appears on /blog
+  // Phase 6: register the post in the blog manifest so it appears on /blog
   updateBlogManifest({
     slug: topic.slug,
     title: topic.title,
@@ -154,7 +175,11 @@ async function draftPost(
   topic: Topic,
   voiceGuide: string,
   newsContext: string,
+  internalLinks: { slug: string; title: string }[],
 ): Promise<string> {
+  const linkMenu = internalLinks.length
+    ? internalLinks.map((l) => `- "${l.title}" -> /blog/${l.slug}`).join('\n')
+    : '(no other posts published yet, skip internal blog links)'
   const prompt = `You are drafting a long-form blog post for Visage Aesthetics, signed by Bernadette Tobin RGN, MSc.
 
 Topic: ${topic.title}
@@ -172,6 +197,10 @@ Fact discipline (non-negotiable):
 - Every regulatory or product-specific claim (MHRA status, licensing, JCCP rules, brand-specific facts) must come from the verified facts. If unverified, omit.
 - For any item in "Disputed / uncertain", either reflect the disagreement honestly or skip the topic.
 - Use the topical news angle only if it genuinely strengthens the post. Never force.
+
+Internal linking (helps readers and topic-cluster SEO):
+Where it reads naturally, link to 1-3 of these existing articles using a <Link href="/blog/...">. Never force a link, and never invent a slug that is not in this list.
+${linkMenu}
 
 Voice & style guide (follow strictly):
 ${voiceGuide}
@@ -199,11 +228,39 @@ Output ONLY the JSX. No prose explanation, no markdown fence, no JavaScript impo
     .trim()
 }
 
-function renderPageFile(topic: Topic, body: string, today: string, wordCount: number): string {
+function renderPageFile(
+  topic: Topic,
+  body: string,
+  today: string,
+  wordCount: number,
+  faqs: { q: string; a: string }[],
+): string {
+  const hasFaqs = faqs.length > 0
+  const faqConst = hasFaqs ? `\nconst FAQS = ${JSON.stringify(faqs, null, 2)}\n` : ''
+  const faqImport = hasFaqs ? ', faqJsonLd' : ''
+  const faqSchemaScript = hasFaqs
+    ? `      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd(FAQS)) }} />\n`
+    : ''
+  const faqSection = hasFaqs
+    ? `      <section className="pb-12 md:pb-16">
+        <div className="max-w-3xl mx-auto px-5 md:px-0">
+          <h2 className="font-display italic text-h2 text-charcoal mt-4 mb-6">Common questions</h2>
+          <div className="divide-y divide-line border-t border-line">
+            {FAQS.map((f) => (
+              <div key={f.q} className="py-5">
+                <h3 className="text-charcoal font-medium mb-2">{f.q}</h3>
+                <p className="text-body-lg text-ink-soft leading-relaxed">{f.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+`
+    : ''
   return `import type { Metadata } from 'next'
 import Link from 'next/link'
 import BookingCTA from '@/components/sections/BookingCTA'
-import { articleJsonLd, breadcrumbJsonLd } from '@/lib/blog-jsonld'
+import { articleJsonLd, breadcrumbJsonLd${faqImport} } from '@/lib/blog-jsonld'
 
 const POST = {
   slug: '${topic.slug}',
@@ -214,6 +271,7 @@ const POST = {
   image: '/images/og-home.jpg',
   wordCount: ${wordCount},
 }
+${faqConst}
 
 export const metadata: Metadata = {
   title: \`\${POST.title} | Visage Aesthetics\`,
@@ -235,8 +293,8 @@ export default function Post() {
     <article className="bg-cream">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd(POST)) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(POST.slug, POST.title)) }} />
-${body}
-      <BookingCTA />
+${faqSchemaScript}${body}
+${faqSection}      <BookingCTA />
     </article>
   )
 }
@@ -281,6 +339,111 @@ ${draft.slice(0, 4000)}
   } catch {
     return `${topic.angle.slice(0, 160)}`
   }
+}
+
+/**
+ * Generate 4-6 frequently-asked questions for the post. These power the
+ * on-page "Common questions" block and the FAQPage schema. Answers stay
+ * tight (2-3 sentences), British English, and obey the same fact discipline
+ * and dash rules as the body.
+ */
+async function generateFaqs(
+  client: Anthropic,
+  topic: Topic,
+  draft: string,
+): Promise<{ q: string; a: string }[]> {
+  const prompt = `Below is the body of a blog post titled "${topic.title}" for a UK nurse-led aesthetics clinic.
+
+Write 4 to 6 frequently-asked questions a prospective patient would type into Google about this topic, each with a concise answer (2 to 3 sentences, British English, calm and clinical).
+
+Rules:
+- Only state facts that are supported by the post body below. Do not introduce new numbers, doses or claims.
+- No em-dashes or en-dashes. No marketing fluff. Never refer to Bernadette in the third person.
+- Questions should be genuinely distinct from each other and suited to the "People also ask" box.
+
+Return ONLY a JSON array, no prose, no markdown fence, in this exact shape:
+[{"q":"...","a":"..."}]
+
+---
+${draft.slice(0, 6000)}
+---`
+  try {
+    const res = await client.messages.create({
+      model: MODEL,
+      max_tokens: 1500,
+      messages: [{ role: 'user', content: prompt }],
+    })
+    const text = res.content
+      .filter((b: { type: string }) => b.type === 'text')
+      .map((b: { type: string; text?: string }) => b.text ?? '')
+      .join('')
+      .trim()
+    const jsonStart = text.indexOf('[')
+    const jsonEnd = text.lastIndexOf(']')
+    if (jsonStart === -1 || jsonEnd === -1) return []
+    const parsed = JSON.parse(text.slice(jsonStart, jsonEnd + 1)) as { q: string; a: string }[]
+    return parsed
+      .filter((f) => f && typeof f.q === 'string' && typeof f.a === 'string')
+      .map((f) => ({ q: scrubDashes(f.q.trim()), a: scrubDashes(f.a.trim()) }))
+      .slice(0, 6)
+  } catch (err) {
+    console.warn('FAQ generation failed, shipping without FAQs:', err)
+    return []
+  }
+}
+
+/**
+ * When every topic has been published, keep the regular cron useful by
+ * refreshing the oldest post: bump its dateModified (in the page and the
+ * manifest) and its sitemap lastmod. This signals freshness to search
+ * engines without fabricating new pages.
+ */
+async function refreshOldestPost(): Promise<void> {
+  const today = new Date().toISOString().slice(0, 10)
+  const manifestPath = join(ROOT, 'src/lib/blog-posts.ts')
+  const manifest = readFileSync(manifestPath, 'utf-8')
+
+  // Collect every auto-managed post (slug + dateModified) from the manifest.
+  const entryRe = /slug:\s*'([^']+)'[\s\S]*?dateModified:\s*'([\d-]+)'/g
+  const posts: { slug: string; dateModified: string }[] = []
+  let m: RegExpExecArray | null
+  while ((m = entryRe.exec(manifest)) !== null) {
+    posts.push({ slug: m[1], dateModified: m[2] })
+  }
+  if (posts.length === 0) {
+    console.log('No posts found to refresh. Exiting cleanly.')
+    return
+  }
+
+  // Oldest by dateModified, but never refresh one already touched today.
+  const stale = posts
+    .filter((p) => p.dateModified !== today)
+    .sort((a, b) => a.dateModified.localeCompare(b.dateModified))
+  if (stale.length === 0) {
+    console.log('Every post already refreshed today. Exiting cleanly.')
+    return
+  }
+  const target = stale[0]
+  console.log(`Refreshing oldest post: ${target.slug} (was ${target.dateModified})`)
+
+  // 1. Bump dateModified in the post page.tsx
+  const pagePath = join(ROOT, 'src/app/blog', target.slug, 'page.tsx')
+  if (existsSync(pagePath)) {
+    let page = readFileSync(pagePath, 'utf-8')
+    page = page.replace(/(dateModified:\s*')[\d-]+(')/, `$1${today}$2`)
+    writeFileSync(pagePath, page)
+  }
+
+  // 2. Bump dateModified in the manifest for that slug only
+  const updatedManifest = manifest.replace(
+    new RegExp(`(slug:\\s*'${target.slug}'[\\s\\S]*?dateModified:\\s*')[\\d-]+(')`),
+    `$1${today}$2`,
+  )
+  writeFileSync(manifestPath, updatedManifest)
+
+  // 3. Bump sitemap lastmod
+  updateSitemap(target.slug, today)
+  console.log(`Refreshed ${target.slug} to ${today}`)
 }
 
 function deriveCategory(treatmentHref: string): string {
