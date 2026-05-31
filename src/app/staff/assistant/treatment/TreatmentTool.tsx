@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import {
   ArrowLeft,
+  Camera,
   Check,
   ChevronRight,
   LogOut,
@@ -88,7 +89,37 @@ export default function TreatmentTool() {
   const [saving, setSaving] = useState(false)
   const [saveResult, setSaveResult] = useState<{ ok: boolean; message: string } | null>(null)
 
+  const [txPhotos, setTxPhotos] = useState<{ url: string; type: string }[]>([])
+  const [photoType, setPhotoType] = useState<'before' | 'after'>('before')
+  const [photoBusy, setPhotoBusy] = useState(false)
+  const [photoErr, setPhotoErr] = useState<string | null>(null)
+  const photoRef = useRef<HTMLInputElement | null>(null)
+
   const sugTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  async function uploadPhoto(file: File) {
+    if (!clientName.trim()) { setPhotoErr('Add the client first.'); return }
+    if (!consent) { setPhotoErr('Tick consent before adding a photo.'); return }
+    setPhotoBusy(true)
+    setPhotoErr(null)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('client_name', clientName)
+      fd.append('type', photoType)
+      fd.append('date', date)
+      fd.append('consent', 'true')
+      fd.append('treatment_type', type.name)
+      const res = await fetch('/api/staff/assistant/photos', { method: 'POST', body: fd })
+      const d = await res.json().catch(() => ({}))
+      if (!res.ok) { setPhotoErr(d.error || 'Upload failed.'); return }
+      setTxPhotos((prev) => [...prev, { url: d.url, type: photoType }])
+    } catch {
+      setPhotoErr('Network error.')
+    } finally {
+      setPhotoBusy(false)
+    }
+  }
 
   // Pull the chosen day's appointments (today by default) so the clinician can
   // pick who came at the end of clinic instead of typing.
@@ -298,7 +329,7 @@ export default function TreatmentTool() {
           <div>
             <Link
               href="/staff/assistant"
-              className="eyebrow text-stone hover:text-gold-deep transition-colors inline-flex items-center gap-2 mb-4"
+              className="inline-flex items-center gap-2 mb-5 bg-charcoal text-cream rounded-sm px-4 py-3 text-sm font-medium hover:bg-gold-deep transition-colors"
             >
               <ArrowLeft size={14} strokeWidth={1.75} />
               Assistant
@@ -573,6 +604,35 @@ export default function TreatmentTool() {
             <input type="checkbox" className="sr-only" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
             <span className="text-sm text-charcoal">Consent obtained and recorded</span>
           </label>
+
+          {/* Photos */}
+          <div>
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <span className="text-eyebrow text-ink-soft inline-flex items-center gap-2"><Camera size={14} strokeWidth={1.75} /> Photos (optional)</span>
+              <div className="grid grid-cols-2 gap-1">
+                {(['before', 'after'] as const).map((t) => (
+                  <button key={t} type="button" onClick={() => setPhotoType(t)} className={`text-xs rounded-sm border px-2.5 py-1 capitalize transition-colors ${photoType === t ? 'border-gold bg-gold/10 text-charcoal' : 'border-line/40 text-ink-soft'}`}>{t}</button>
+                ))}
+              </div>
+            </div>
+            <input ref={photoRef} type="file" accept="image/jpeg,image/png,image/webp,image/heic" capture="environment" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; if (f) void uploadPhoto(f); e.target.value = '' }} />
+            {txPhotos.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {txPhotos.map((p, i) => (
+                  <div key={i} className="relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={p.url} alt={p.type} className="w-16 h-16 object-cover rounded-sm border border-line/40" />
+                    <span className="absolute bottom-0 left-0 text-[9px] uppercase tracking-wide bg-charcoal/70 text-cream px-1 rounded-sm">{p.type}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            <button type="button" onClick={() => photoRef.current?.click()} disabled={photoBusy} className="btn btn-secondary disabled:opacity-50">
+              <span className="inline-flex items-center gap-2"><Camera size={15} strokeWidth={1.75} /> {photoBusy ? 'Uploading…' : `Add ${photoType} photo`}</span>
+            </button>
+            {photoErr && <p className="text-xs text-clay mt-2">{photoErr}</p>}
+            <p className="text-xs text-ink-soft mt-2">Saved to this client&apos;s photo vault, with consent recorded.</p>
+          </div>
 
           <button
             type="button"

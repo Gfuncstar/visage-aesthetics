@@ -8,7 +8,7 @@ import { gbp, ukDate } from '@/lib/assistant/format'
 const inputClass =
   'w-full bg-cream border border-line/40 rounded-sm px-4 py-3 text-base text-charcoal placeholder:text-ink-soft/60 focus:outline-none focus:border-gold min-h-[48px]'
 
-type ClientHit = { name: string; visits: number; lastVisit: string }
+type ClientHit = { name: string; visits: number; spend: number; lastVisit: string }
 type Appt = { id: string; date: string; service_name: string; price: number; status: string }
 type TRecord = {
   id: string; date: string; treatment_type: string; treatment_label: string
@@ -87,7 +87,7 @@ export default function ClientRecord() {
       <div className="max-w-3xl mx-auto px-5 md:px-8 pt-12 md:pt-20 pb-24">
         <div className="flex items-start justify-between gap-4 mb-8">
           <div>
-            <Link href="/staff/assistant" className="eyebrow text-stone hover:text-gold-deep transition-colors inline-flex items-center gap-2 mb-4">
+            <Link href="/staff/assistant" className="inline-flex items-center gap-2 mb-5 bg-charcoal text-cream rounded-sm px-4 py-3 text-sm font-medium hover:bg-gold-deep transition-colors">
               <ArrowLeft size={14} strokeWidth={1.75} /> Assistant
             </Link>
             <div className="eyebrow text-gold mb-2">Assistant &nbsp;·&nbsp; Client records</div>
@@ -114,11 +114,17 @@ export default function ClientRecord() {
             <p className="text-sm text-ink-soft p-6 text-center">No clients found.</p>
           ) : hits.map((h) => (
             <button key={h.name} onClick={() => openClient(h.name)} className="w-full text-left px-5 py-3.5 hover:bg-cream-deep transition-colors flex items-center justify-between gap-3">
-              <div>
-                <div className="text-base text-charcoal">{h.name}</div>
-                <div className="text-xs text-stone">{h.visits} visit{h.visits === 1 ? '' : 's'} · last {ukDate(h.lastVisit)}</div>
+              <div className="min-w-0">
+                <div className="text-base text-charcoal truncate">{h.name}</div>
+                <div className="text-xs text-stone">last seen {ukDate(h.lastVisit)}</div>
               </div>
-              <ChevronRight size={18} className="text-stone shrink-0" />
+              <div className="flex items-center gap-3 shrink-0">
+                <div className="text-right">
+                  <div className="text-lg font-medium text-charcoal leading-none">{gbp(h.spend)}</div>
+                  <div className="text-sm text-ink-soft mt-0.5">{h.visits} visit{h.visits === 1 ? '' : 's'}</div>
+                </div>
+                <ChevronRight size={18} className="text-stone" />
+              </div>
             </button>
           ))}
         </div>
