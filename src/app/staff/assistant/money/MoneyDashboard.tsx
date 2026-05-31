@@ -73,7 +73,7 @@ export default function MoneyDashboard() {
 
   return (
     <section className="bg-cream text-charcoal min-h-screen">
-      <div className="max-w-5xl mx-auto px-5 md:px-8 pt-16 md:pt-20 pb-24">
+      <div className="max-w-5xl mx-auto px-5 md:px-8 pt-12 md:pt-20 pb-24">
         <div className="flex items-start justify-between gap-4 mb-8">
           <div>
             <Link href="/staff/assistant" className="eyebrow text-stone hover:text-gold-deep transition-colors inline-flex items-center gap-2 mb-4">
@@ -81,7 +81,7 @@ export default function MoneyDashboard() {
               Assistant
             </Link>
             <div className="eyebrow text-gold mb-2">Assistant &nbsp;·&nbsp; Profit &amp; accountant pack</div>
-            <h1 className="font-display italic text-charcoal text-4xl md:text-5xl leading-tight">Where the month stands.</h1>
+            <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight">Where the month stands.</h1>
           </div>
           <button onClick={signOut} className="eyebrow text-stone hover:text-gold-deep transition-colors flex items-center gap-2 shrink-0 mt-2" aria-label="Sign out">
             <LogOut size={14} strokeWidth={1.75} />

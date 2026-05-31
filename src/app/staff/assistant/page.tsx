@@ -61,7 +61,7 @@ export default async function AssistantIndex() {
 
   return (
     <section className="bg-cream text-charcoal min-h-screen">
-      <div className="max-w-3xl mx-auto px-5 md:px-8 pt-20 md:pt-24 pb-24">
+      <div className="max-w-3xl mx-auto px-5 md:px-8 pt-14 md:pt-24 pb-24">
         <Link
           href="/staff"
           className="eyebrow text-stone hover:text-gold-deep transition-colors inline-flex items-center gap-2 mb-4"
@@ -70,7 +70,7 @@ export default async function AssistantIndex() {
           Staff
         </Link>
         <div className="eyebrow text-gold mb-2">Clinic staff &nbsp;·&nbsp; Assistant</div>
-        <h1 className="font-display italic text-charcoal text-4xl md:text-5xl leading-tight">
+        <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight">
           Less admin, between clients.
         </h1>
         <p className="text-ink-soft mt-4 max-w-xl leading-relaxed">

@@ -293,7 +293,7 @@ export default function TreatmentTool() {
 
   return (
     <section className="bg-cream text-charcoal min-h-screen">
-      <div className="max-w-3xl mx-auto px-5 md:px-8 pt-16 md:pt-20 pb-24">
+      <div className="max-w-3xl mx-auto px-5 md:px-8 pt-12 md:pt-20 pb-24">
         <div className="flex items-start justify-between gap-4 mb-10">
           <div>
             <Link
@@ -304,7 +304,7 @@ export default function TreatmentTool() {
               Assistant
             </Link>
             <div className="eyebrow text-gold mb-2">Assistant &nbsp;·&nbsp; Treatment write-up</div>
-            <h1 className="font-display italic text-charcoal text-4xl md:text-5xl leading-tight">
+            <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight">
               Write up a treatment.
             </h1>
             <p className="text-ink-soft mt-4 max-w-xl leading-relaxed">
