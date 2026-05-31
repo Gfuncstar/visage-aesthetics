@@ -20,6 +20,7 @@ type Summary = { name: string; visits: number; totalSpend: number; firstVisit: s
 
 export default function ClientRecord() {
   const [q, setQ] = useState('')
+  const [sortBy, setSortBy] = useState<'recent' | 'spend' | 'visits'>('recent')
   const [hits, setHits] = useState<ClientHit[]>([])
   const [selected, setSelected] = useState<string | null>(null)
   const [summary, setSummary] = useState<Summary | null>(null)
@@ -30,10 +31,10 @@ export default function ClientRecord() {
   const [lightbox, setLightbox] = useState<string | null>(null)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const search = useCallback((term: string) => {
+  const search = useCallback((term: string, sort: string) => {
     if (timer.current) clearTimeout(timer.current)
     timer.current = setTimeout(async () => {
-      const res = await fetch(`/api/staff/assistant/client-record?q=${encodeURIComponent(term)}`)
+      const res = await fetch(`/api/staff/assistant/client-record?q=${encodeURIComponent(term)}&sort=${sort}`)
       if (res.ok) {
         const d = await res.json()
         setHits(d.clients ?? [])
@@ -41,7 +42,12 @@ export default function ClientRecord() {
     }, 180)
   }, [])
 
-  useEffect(() => { search('') }, [search])
+  useEffect(() => { search('', 'recent') }, [search])
+
+  function changeSort(s: 'recent' | 'spend' | 'visits') {
+    setSortBy(s)
+    search(q, s)
+  }
 
   const openClient = useCallback(async (name: string) => {
     setSelected(name)
@@ -98,6 +104,21 @@ export default function ClientRecord() {
           </button>
         </div>
 
+        <div className="flex gap-2 mb-3">
+          {([['recent', 'Recent'], ['spend', 'Top spenders'], ['visits', 'Top visitors']] as const).map(([val, label]) => (
+            <button
+              key={val}
+              type="button"
+              onClick={() => changeSort(val)}
+              className={`text-sm rounded-full border px-3.5 py-2 transition-colors ${
+                sortBy === val ? 'border-gold bg-gold text-charcoal' : 'border-line/50 bg-cream-soft text-ink-soft hover:border-gold/60'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         <div className="relative mb-6">
           <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-stone" />
           <input
@@ -105,7 +126,7 @@ export default function ClientRecord() {
             className={`${inputClass} pl-11`}
             placeholder="Search a client by name…"
             value={q}
-            onChange={(e) => { setQ(e.target.value); search(e.target.value) }}
+            onChange={(e) => { setQ(e.target.value); search(e.target.value, sortBy) }}
           />
         </div>
 
