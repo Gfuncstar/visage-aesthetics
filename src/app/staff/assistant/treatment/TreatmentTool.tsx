@@ -326,7 +326,8 @@ export default function TreatmentTool() {
           <div>
             <div className="flex items-center justify-between gap-3 mb-2 flex-wrap">
               <span className="text-eyebrow text-ink-soft">
-                Who came in <span className="text-stone normal-case tracking-normal">(tap to fill client &amp; treatment)</span>
+                {pickDate === today ? "Today's clinic" : 'Clinic'} &nbsp;·&nbsp; {ukDate(pickDate)}{' '}
+                <span className="text-stone normal-case tracking-normal">(tap who came)</span>
               </span>
               <div className="flex items-center gap-2">
                 <button
