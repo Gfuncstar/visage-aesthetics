@@ -67,12 +67,13 @@ export async function GET(req: Request) {
       })
     }
 
-    // Search: distinct client names from appointments, ranked by recency.
+    // Search / browse: distinct clients from appointments, sortable.
+    const sort = params.get('sort') // 'spend' | 'visits' | default recent
     const enc = q.replace(/[%,()]/g, ' ')
     const rows = await select<Appointment>('appointments', {
       ...(q ? { client_name: `ilike.*${enc}*` } : {}),
       order: 'date.desc',
-      limit: 400,
+      limit: 3000,
     })
     const map = new Map<string, { name: string; visits: number; spend: number; lastVisit: string }>()
     for (const a of rows) {
@@ -88,9 +89,13 @@ export async function GET(req: Request) {
         map.set(key.toLowerCase(), { name: key, visits: done ? 1 : 0, spend: price, lastVisit: a.date })
       }
     }
-    const clients = Array.from(map.values())
-      .sort((a, b) => b.lastVisit.localeCompare(a.lastVisit))
-      .slice(0, 40)
+    const cmp =
+      sort === 'spend'
+        ? (a: { spend: number }, b: { spend: number }) => b.spend - a.spend
+        : sort === 'visits'
+          ? (a: { visits: number }, b: { visits: number }) => b.visits - a.visits
+          : (a: { lastVisit: string }, b: { lastVisit: string }) => b.lastVisit.localeCompare(a.lastVisit)
+    const clients = Array.from(map.values()).sort(cmp).slice(0, 40)
     return NextResponse.json({ configured: true, clients })
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Could not load record'
