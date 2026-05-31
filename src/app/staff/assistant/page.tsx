@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowLeft, ClipboardPen, ReceiptText, TrendingUp, Users } from 'lucide-react'
+import { ArrowLeft, CalendarClock, ClipboardPen, ReceiptText, TrendingUp, Users } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from '../notes/StaffGate'
 import { assistantConfigured } from '@/lib/assistant/db'
@@ -24,6 +24,12 @@ const tools = [
     title: 'Client records',
     description: 'Search any client: full history, treatment notes, photos and spend.',
     Icon: Users,
+  },
+  {
+    href: '/staff/assistant/squeeze-in',
+    title: 'Squeeze-in',
+    description: 'Say who wants fitting in; it finds the best gap and holds a to-book list.',
+    Icon: CalendarClock,
   },
   {
     href: '/staff/assistant/orders',
