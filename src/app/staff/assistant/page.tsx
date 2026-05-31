@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowLeft, Award, Boxes, CalendarClock, ClipboardPen, ClipboardCheck, ReceiptText, TrendingUp, Users } from 'lucide-react'
+import { ArrowLeft, Award, Boxes, CalendarClock, ClipboardPen, ClipboardCheck, ReceiptText, RotateCcw, TrendingUp, Users } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from '../notes/StaffGate'
 import { assistantConfigured } from '@/lib/assistant/db'
@@ -32,6 +32,12 @@ const tools = [
     title: 'Squeeze-in',
     description: 'Fit someone in: best gap + to-book list.',
     Icon: CalendarClock,
+  },
+  {
+    href: '/staff/assistant/rebook',
+    title: "Who's due back",
+    description: 'Clients due a top-up, with a message ready.',
+    Icon: RotateCcw,
   },
   {
     href: '/staff/assistant/stock',
