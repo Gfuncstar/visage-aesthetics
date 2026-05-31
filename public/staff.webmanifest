@@ -1,0 +1,16 @@
+{
+  "name": "Visage Assistant",
+  "short_name": "Assistant",
+  "description": "Visage Aesthetics clinic assistant — write-ups, orders and figures.",
+  "start_url": "/staff/assistant",
+  "scope": "/staff",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F5F0EC",
+  "theme_color": "#1F1B1A",
+  "icons": [
+    { "src": "/apple-icon", "sizes": "180x180", "type": "image/png" },
+    { "src": "/staff-app-icon.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/staff-app-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
