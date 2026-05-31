@@ -7,11 +7,14 @@ import { matchTreatmentType } from './treatment-types'
 
 // The injectable items that come from the supplier and need reordering.
 // `match` is matched (case-insensitively) against logged batch product names.
-const STOCK_ITEMS: Record<string, { item: string; match: RegExp }> = {
-  'anti-wrinkle': { item: 'Anti-wrinkle toxin', match: /botox|azzalure|bocouture|toxin/i },
-  'dermal-filler': { item: 'Dermal filler', match: /filler|juvederm|restylane|harmonyca/i },
-  'skin-booster': { item: 'Profhilo / skin booster', match: /profhilo|booster/i },
-  'polynucleotides': { item: 'Polynucleotides', match: /polynucleotide|plinest|nucleofill/i },
+// `perTreatment` is a rough amount used per treatment, in the same unit the
+// stock is logged in (toxin in units; the rest counted per syringe/vial), used
+// to judge whether the logged stock will cover the upcoming bookings.
+const STOCK_ITEMS: Record<string, { item: string; match: RegExp; perTreatment: number; unit: string }> = {
+  'anti-wrinkle': { item: 'Anti-wrinkle toxin', match: /botox|azzalure|bocouture|toxin/i, perTreatment: 40, unit: 'units' },
+  'dermal-filler': { item: 'Dermal filler', match: /filler|juvederm|restylane|harmonyca/i, perTreatment: 1, unit: 'syringes' },
+  'skin-booster': { item: 'Profhilo / skin booster', match: /profhilo|booster/i, perTreatment: 1, unit: 'syringes' },
+  'polynucleotides': { item: 'Polynucleotides', match: /polynucleotide|plinest|nucleofill/i, perTreatment: 1, unit: 'vials' },
 }
 
 type ApptRow = { client_name: string; service_name: string; date: string }
@@ -89,16 +92,22 @@ export async function stockReview(horizonDays = 14): Promise<StockReview | null>
           (Number(b.quantity_in) - Number(b.quantity_used)) > 0 &&
           (!b.expiry || b.expiry >= soonest),
       )
-      const inStock = usable.length > 0
-      const ordered = !inStock && orderedKeys.has(key)
-      const stockNote = inStock
-        ? `Have ${usable.map((b) => b.batch_number).join(', ')}`
+      const onHand = usable.reduce((s, b) => s + (Number(b.quantity_in) - Number(b.quantity_used)), 0)
+      const need = rows.length * def.perTreatment
+      // "In stock" only if what's logged actually covers the upcoming bookings.
+      const covers = onHand >= need
+      const ordered = !covers && orderedKeys.has(key)
+      const stockNote = covers
+        ? `~${onHand} ${def.unit} in stock, enough for the ${rows.length} booked`
         : ordered
           ? 'Ordered, awaiting delivery'
-          : 'No stock logged'
+          : onHand > 0
+            ? `Only ~${onHand} ${def.unit} logged; ${rows.length} booked need about ${need}`
+            : 'No stock logged'
 
       const daysUntil = Math.max(0, Math.round((new Date(soonest).getTime() - new Date(todayISO).getTime()) / 86400000))
-      const needOrder = !inStock && !ordered
+      const inStock = covers
+      const needOrder = !covers && !ordered
       const urgent = needOrder && daysUntil <= 1
 
       if (urgent) urgentItems.push(def.item)
