@@ -26,7 +26,7 @@ export type StockLine = {
   upcoming: number
   soonestDate: string
   daysUntil: number
-  clients: { name: string; date: string }[]
+  clients: { name: string; date: string; ordered: boolean }[]
   inStock: boolean
   ordered: boolean // marked ordered, awaiting delivery
   stockNote: string
@@ -51,8 +51,8 @@ export async function stockReview(horizonDays = 14): Promise<StockReview | null>
   const todayISO = now.toISOString().slice(0, 10)
 
   try {
-    // Items marked ordered in the last 4 days count as handled until delivery.
-    const since = new Date(now.getTime() - 4 * 86400000).toISOString()
+    // Ordered marks (whole-item or per-client) within the booking horizon.
+    const since = new Date(now.getTime() - 16 * 86400000).toISOString()
     const [appts, batches, marks] = await Promise.all([
       select<ApptRow>('appointments', {
         status: 'eq.booked',
@@ -96,7 +96,15 @@ export async function stockReview(horizonDays = 14): Promise<StockReview | null>
       const need = rows.length * def.perTreatment
       // "In stock" only if what's logged actually covers the upcoming bookings.
       const covers = onHand >= need
-      const ordered = !covers && orderedKeys.has(key)
+
+      // Per-client "ordered" marks (composite key item|name|date) + whole-item mark.
+      const clients = rows.map((r) => ({
+        name: r.client_name,
+        date: r.date,
+        ordered: orderedKeys.has(`${key}|${r.client_name}|${r.date}`),
+      }))
+      const allClientsOrdered = clients.length > 0 && clients.every((c) => c.ordered)
+      const ordered = !covers && (orderedKeys.has(key) || allClientsOrdered)
       const stockNote = covers
         ? `~${onHand} ${def.unit} in stock, enough for the ${rows.length} booked`
         : ordered
@@ -117,7 +125,7 @@ export async function stockReview(horizonDays = 14): Promise<StockReview | null>
         upcoming: rows.length,
         soonestDate: soonest,
         daysUntil,
-        clients: rows.map((r) => ({ name: r.client_name, date: r.date })),
+        clients,
         inStock,
         ordered,
         stockNote,
