@@ -23,10 +23,15 @@ export const dynamic = 'force-dynamic'
 // the current section is clearly highlighted.
 export default async function StaffLayout({ children }: { children: React.ReactNode }) {
   const authed = await isStaffAuthed()
+  if (!authed) return <>{children}</>
   return (
     <>
-      {children}
-      {authed && <StaffNav />}
+      {/* Clear the fixed bottom nav: pages already pad the bottom, so this just
+          adds the device safe area plus a small margin so nothing tucks under. */}
+      <div className="bg-cream" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}>
+        {children}
+      </div>
+      <StaffNav />
     </>
   )
 }
