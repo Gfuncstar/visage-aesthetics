@@ -7,8 +7,11 @@ import { bookingConfirmationEmail } from '@/lib/booking-email'
 import { isSuppressed } from '@/lib/assistant/suppression'
 import { lookupClientFlags } from '@/lib/booking-engine/client-flags'
 import { stripeConfigured, depositPence, createDepositCheckout } from '@/lib/booking-engine/stripe'
+import { sendSms, smsConfigured } from '@/lib/assistant/sms'
 import { sendPush } from '@/lib/assistant/push'
 import type { Booking } from '@/lib/booking-engine/types'
+
+const SITE = 'https://www.vaclinic.co.uk'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -134,6 +137,15 @@ export async function POST(req: Request) {
           console.error('[book] confirmation email failed', err)
         }
       }
+    }
+
+    // Text confirmation too, when we have a mobile and SMS is switched on.
+    if (phone && smsConfigured() && !(await isSuppressed(name, email))) {
+      const cp = londonParts(startDate)
+      await sendSms(
+        phone,
+        `Hi ${name.split(/\s+/)[0] || 'there'}, your ${service.name} at Visage Aesthetics on ${dayLabel(cp.dateStr)} at ${clockLabel(cp.minutes)} is confirmed. Manage: ${SITE}/book/manage/${booking.manage_token}`,
+      )
     }
 
     return NextResponse.json({ ok: true, manageToken: booking.manage_token })
