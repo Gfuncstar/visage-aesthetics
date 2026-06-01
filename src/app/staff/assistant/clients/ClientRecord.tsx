@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Camera, Check, ChevronRight, ImagePlus, LogOut, Search, Trash2, X } from 'lucide-react'
+import { ArrowLeft, BellOff, Camera, Check, ChevronRight, ImagePlus, LogOut, Search, Trash2, X } from 'lucide-react'
 import { gbp, ukDate } from '@/lib/assistant/format'
 
 const inputClass =
@@ -27,6 +27,7 @@ export default function ClientRecord() {
   const [appts, setAppts] = useState<Appt[]>([])
   const [records, setRecords] = useState<TRecord[]>([])
   const [photos, setPhotos] = useState<Photo[]>([])
+  const [doNotContact, setDoNotContact] = useState(false)
   const [loading, setLoading] = useState(false)
   const [lightbox, setLightbox] = useState<string | null>(null)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -59,10 +60,25 @@ export default function ClientRecord() {
       setAppts(d.appointments ?? [])
       setRecords(d.treatmentRecords ?? [])
       setPhotos(d.photos ?? [])
+      setDoNotContact(Boolean(d.doNotContact))
     } finally {
       setLoading(false)
     }
   }, [])
+
+  async function toggleDnc(next: boolean) {
+    setDoNotContact(next) // optimistic
+    try {
+      const res = await fetch('/api/staff/assistant/do-not-contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: selected, suppress: next }),
+      })
+      if (!res.ok) setDoNotContact(!next) // revert on failure
+    } catch {
+      setDoNotContact(!next)
+    }
+  }
 
   async function signOut() {
     await fetch('/api/staff/logout', { method: 'POST' })
@@ -78,6 +94,8 @@ export default function ClientRecord() {
         records={records}
         photos={photos}
         loading={loading}
+        doNotContact={doNotContact}
+        onToggleDnc={toggleDnc}
         onBack={() => { setSelected(null); setSummary(null) }}
         onRefresh={() => openClient(selected)}
         onLightbox={setLightbox}
@@ -155,9 +173,10 @@ export default function ClientRecord() {
 }
 
 function Detail({
-  name, summary, appts, records, photos, loading, onBack, onRefresh, onLightbox, lightbox, onCloseLightbox, onSignOut,
+  name, summary, appts, records, photos, loading, doNotContact, onToggleDnc, onBack, onRefresh, onLightbox, lightbox, onCloseLightbox, onSignOut,
 }: {
   name: string; summary: Summary | null; appts: Appt[]; records: TRecord[]; photos: Photo[]; loading: boolean
+  doNotContact: boolean; onToggleDnc: (next: boolean) => void
   onBack: () => void; onRefresh: () => void; onLightbox: (url: string) => void; lightbox: string | null; onCloseLightbox: () => void; onSignOut: () => void
 }) {
   return (
@@ -172,7 +191,9 @@ function Detail({
           </button>
         </div>
 
-        <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight mb-5">{name}</h1>
+        <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight mb-4">{name}</h1>
+
+        <DoNotContactToggle on={doNotContact} onToggle={onToggleDnc} />
 
         {summary && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
@@ -250,6 +271,32 @@ function Detail({
         </div>
       )}
     </section>
+  )
+}
+
+function DoNotContactToggle({ on, onToggle }: { on: boolean; onToggle: (next: boolean) => void }) {
+  return (
+    <div className={`flex items-center justify-between gap-3 rounded-sm border px-4 py-3 mb-6 ${on ? 'border-clay/40 bg-clay/5' : 'border-line/40 bg-cream-soft'}`}>
+      <div className="flex items-start gap-2.5">
+        <BellOff size={16} strokeWidth={1.75} className={`mt-0.5 shrink-0 ${on ? 'text-clay' : 'text-stone'}`} />
+        <div>
+          <div className={`text-sm font-medium ${on ? 'text-clay' : 'text-charcoal'}`}>Do not contact</div>
+          <div className="text-xs text-stone mt-0.5">
+            {on ? 'No emails, WhatsApp or broadcasts will be sent to this client.' : 'Outreach is allowed for this client.'}
+          </div>
+        </div>
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={on}
+        onClick={() => onToggle(!on)}
+        className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${on ? 'bg-clay' : 'bg-line'}`}
+        aria-label="Toggle do not contact"
+      >
+        <span className={`inline-block h-5 w-5 transform rounded-full bg-cream transition-transform ${on ? 'translate-x-5' : 'translate-x-0.5'}`} />
+      </button>
+    </div>
   )
 }
 
