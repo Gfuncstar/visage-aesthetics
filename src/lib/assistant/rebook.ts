@@ -12,6 +12,7 @@
 import { select } from './db'
 import { matchTreatmentType, getTreatmentType } from './treatment-types'
 import { BOOKING_URL } from '../booking'
+import { customers } from '../customers'
 import type { Appointment, Client } from './types'
 
 // Recall interval per treatment type, in days. Conservative: this is "about
@@ -52,7 +53,40 @@ export type RebookItem = {
   monthsSince: number
   overdueDays: number
   phone: string | null
+  email: string | null
   draft: string
+}
+
+// Email lookup by "first last" from the mailing list (built once at load).
+const emailByName = new Map<string, string>()
+for (const c of customers) {
+  const key = `${c.firstName ?? ''} ${c.lastName ?? ''}`.trim().toLowerCase().replace(/\s+/g, ' ')
+  if (key && c.email) emailByName.set(key, c.email)
+}
+
+function normaliseName(name: string): string {
+  return name.trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
+/**
+ * Build the branded email content for a rebooking nudge. The body uses the
+ * same markdown the Broadcasts tool accepts, so it renders through the shared
+ * buildBroadcastHtml template (the booking link is the template's CTA button).
+ */
+export function rebookEmail(item: RebookItem): {
+  subject: string
+  preheader: string
+  headline: string
+  body: string
+} {
+  const phrase = PHRASE[item.treatmentGroup] ?? 'treatment'
+  const when = item.monthsSince <= 1 ? 'about a month ago' : `around ${item.monthsSince} months ago`
+  return {
+    subject: `Your ${phrase} is about due`,
+    preheader: 'A little reminder from Visage Aesthetics.',
+    headline: 'Time for your next visit',
+    body: `Hi ${item.firstName},\n\nYour ${phrase} with us was ${when}, so you are about due if you would like it kept up.\n\nWhenever suits you, you can book a time below. If you have any questions before then, just reply to this email and it will come straight back to the clinic.`,
+  }
 }
 
 function daysBetween(a: Date, b: Date): number {
@@ -154,6 +188,7 @@ export async function dueRebookings(): Promise<RebookItem[]> {
       monthsSince,
       overdueDays,
       phone: phoneByName.get(last.clientName.toLowerCase()) ?? null,
+      email: emailByName.get(normaliseName(last.clientName)) ?? null,
       draft: buildDraft(firstName, group, monthsSince),
     })
   }

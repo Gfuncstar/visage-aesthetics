@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Check, Copy, LogOut, RotateCcw, Send, X } from 'lucide-react'
+import { ArrowLeft, Check, Copy, LogOut, Mail, RotateCcw, Send, X } from 'lucide-react'
 
 type Item = {
   markKey: string
@@ -16,6 +16,7 @@ type Item = {
   monthsSince: number
   overdueDays: number
   phone: string | null
+  email: string | null
   draft: string
 }
 
@@ -60,6 +61,10 @@ export default function Rebook() {
     })
   }
 
+  function removeLocal(markKey: string) {
+    setItems((prev) => prev.filter((i) => i.markKey !== markKey))
+  }
+
   async function signOut() {
     await fetch('/api/staff/logout', { method: 'POST' })
     window.location.reload()
@@ -100,7 +105,7 @@ export default function Rebook() {
         ) : (
           <div className="space-y-3">
             {items.map((i) => (
-              <RebookCard key={i.markKey} i={i} onMark={mark} />
+              <RebookCard key={i.markKey} i={i} onMark={mark} onSent={removeLocal} />
             ))}
           </div>
         )}
@@ -109,9 +114,19 @@ export default function Rebook() {
   )
 }
 
-function RebookCard({ i, onMark }: { i: Item; onMark: (k: string, a: 'contacted' | 'dismissed') => void }) {
+function RebookCard({
+  i,
+  onMark,
+  onSent,
+}: {
+  i: Item
+  onMark: (k: string, a: 'contacted' | 'dismissed') => void
+  onSent: (k: string) => void
+}) {
   const [msg, setMsg] = useState(i.draft)
   const [copied, setCopied] = useState(false)
+  const [emailing, setEmailing] = useState(false)
+  const [emailErr, setEmailErr] = useState<string | null>(null)
   const wa = waLink(i.phone, msg)
   const due = dueLabel(i.overdueDays)
 
@@ -122,6 +137,28 @@ function RebookCard({ i, onMark }: { i: Item; onMark: (k: string, a: 'contacted'
       setTimeout(() => setCopied(false), 2500)
     } catch {
       /* clipboard blocked */
+    }
+  }
+
+  async function sendEmail() {
+    setEmailing(true)
+    setEmailErr(null)
+    try {
+      const res = await fetch('/api/staff/assistant/rebook/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ markKey: i.markKey }),
+      })
+      const d = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setEmailErr(d.error || 'Could not send.')
+        setEmailing(false)
+        return
+      }
+      onSent(i.markKey)
+    } catch {
+      setEmailErr('Network error.')
+      setEmailing(false)
     }
   }
 
@@ -155,12 +192,25 @@ function RebookCard({ i, onMark }: { i: Item; onMark: (k: string, a: 'contacted'
             <span className="inline-flex items-center gap-2"><Send size={14} strokeWidth={1.75} /> Send on WhatsApp</span>
           </a>
         )}
+        {i.email && (
+          <button onClick={sendEmail} disabled={emailing} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 38 }}>
+            <span className="inline-flex items-center gap-2"><Mail size={14} strokeWidth={1.75} /> {emailing ? 'Sending…' : 'Send email'}</span>
+          </button>
+        )}
         <button onClick={copyMsg} className="btn btn-secondary" style={{ minHeight: 38 }}>
           <span className="inline-flex items-center gap-2"><Copy size={14} strokeWidth={1.75} /> {copied ? 'Copied' : 'Copy message'}</span>
         </button>
         <button onClick={() => onMark(i.markKey, 'contacted')} className="btn ml-auto" style={{ minHeight: 38 }}>
           <span className="inline-flex items-center gap-2"><Check size={14} strokeWidth={2} /> Contacted</span>
         </button>
+      </div>
+      <div className="mt-2 min-h-[16px]">
+        {i.email ? (
+          <span className="text-xs text-stone">Branded email goes to {i.email}</span>
+        ) : (
+          <span className="text-xs text-stone">No email on file, use WhatsApp or copy</span>
+        )}
+        {emailErr && <span className="text-xs text-clay ml-2">{emailErr}</span>}
       </div>
     </div>
   )

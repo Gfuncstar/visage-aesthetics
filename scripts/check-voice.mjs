@@ -105,6 +105,8 @@ const ALLOWED_LINE_PATTERNS = [
   /Bernadette Tobin\s+R(?:GN|N),\s*MSc/,
   /Bernadette Tobin\s*(?:·|&middot;)\s*R(?:GN|N),\s*MSc/,
   /Bernadette Tobin, Founder/,
+  // Email "From" sender display name (Broadcasts + Rebooker)
+  /Bernadette \| Visage Aesthetics/,
   /[Bb]y Bernadette Tobin/,
   /from Bernadette Tobin/,
   /run by Bernadette Tobin/,
