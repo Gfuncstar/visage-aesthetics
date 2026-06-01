@@ -8,6 +8,7 @@ import { isSuppressed } from '@/lib/assistant/suppression'
 import { lookupClientFlags } from '@/lib/booking-engine/client-flags'
 import { stripeConfigured, depositPence, createDepositCheckout } from '@/lib/booking-engine/stripe'
 import { sendSms, smsConfigured } from '@/lib/assistant/sms'
+import { recordMessage } from '@/lib/assistant/messages'
 import { sendPush } from '@/lib/assistant/push'
 import type { Booking } from '@/lib/booking-engine/types'
 
@@ -133,6 +134,7 @@ export async function POST(req: Request) {
             html: mail.html,
             text: mail.text,
           })
+          await recordMessage({ clientName: name, email, channel: 'email', kind: 'confirmation', subject: mail.subject, body: mail.text, bookingId: booking.id })
         } catch (err) {
           console.error('[book] confirmation email failed', err)
         }
@@ -142,10 +144,10 @@ export async function POST(req: Request) {
     // Text confirmation too, when we have a mobile and SMS is switched on.
     if (phone && smsConfigured() && !(await isSuppressed(name, email))) {
       const cp = londonParts(startDate)
-      await sendSms(
-        phone,
-        `Hi ${name.split(/\s+/)[0] || 'there'}, your ${service.name} at Visage Aesthetics on ${dayLabel(cp.dateStr)} at ${clockLabel(cp.minutes)} is confirmed. Manage: ${SITE}/book/manage/${booking.manage_token}`,
-      )
+      const sms = `Hi ${name.split(/\s+/)[0] || 'there'}, your ${service.name} at Visage Aesthetics on ${dayLabel(cp.dateStr)} at ${clockLabel(cp.minutes)} is confirmed. Manage: ${SITE}/book/manage/${booking.manage_token}`
+      if (await sendSms(phone, sms)) {
+        await recordMessage({ clientName: name, phone, channel: 'sms', kind: 'confirmation', body: sms, bookingId: booking.id })
+      }
     }
 
     return NextResponse.json({ ok: true, manageToken: booking.manage_token })

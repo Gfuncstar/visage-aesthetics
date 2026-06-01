@@ -3,6 +3,7 @@ import { Resend } from 'resend'
 import { assistantConfigured, select, update, audit } from '@/lib/assistant/db'
 import { bookingCancellationEmail, bookingConfirmationEmail } from '@/lib/booking-email'
 import { isSuppressed } from '@/lib/assistant/suppression'
+import { recordMessage } from '@/lib/assistant/messages'
 import { notifyWaitlistForService } from '@/lib/booking-engine/notify'
 import { getService, computeDay } from '@/lib/booking-engine/availability'
 import { londonParts } from '@/lib/booking-engine/time'
@@ -45,6 +46,7 @@ async function sendConfirmation(booking: Booking, startsAtIso: string) {
       html: mail.html,
       text: mail.text,
     })
+    await recordMessage({ clientName: booking.client_name, email: booking.client_email, channel: 'email', kind: 'reschedule', subject: mail.subject, body: mail.text, bookingId: booking.id })
   } catch (err) {
     console.error('[book] reschedule email failed', err)
   }
@@ -133,6 +135,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
             html: mail.html,
             text: mail.text,
           })
+          await recordMessage({ clientName: booking.client_name, email: booking.client_email, channel: 'email', kind: 'cancellation', subject: mail.subject, body: mail.text, bookingId: booking.id })
         } catch (err) {
           console.error('[book] cancellation email failed', err)
         }

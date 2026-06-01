@@ -4,6 +4,7 @@ import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, insertMany, audit } from '@/lib/assistant/db'
 import { dueRebookings, rebookEmail, recallDays } from '@/lib/assistant/rebook'
 import { isSuppressed } from '@/lib/assistant/suppression'
+import { recordMessage } from '@/lib/assistant/messages'
 import { buildBroadcastHtml, buildBroadcastText } from '@/lib/broadcast-email'
 
 export const runtime = 'nodejs'
@@ -60,6 +61,7 @@ export async function POST(req: Request) {
       },
     })
     if (error) return NextResponse.json({ error: error.message || 'Send failed' }, { status: 502 })
+    await recordMessage({ clientName: item.clientName, email: item.email, channel: 'email', kind: 'rebook', subject, body })
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : 'Send failed' }, { status: 502 })
   }
