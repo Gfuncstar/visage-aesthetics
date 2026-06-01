@@ -6,7 +6,7 @@
 import { select, insert, update, audit } from './db'
 import { getService } from '../booking-engine/availability'
 import { londonWallToUtc, dayLabel, clockLabel, londonToday } from '../booking-engine/time'
-import { notifyWaitlistForService } from '../booking-engine/notify'
+import { fillGap } from '../booking-engine/notify'
 import type { Booking } from '../booking-engine/types'
 
 export type Action =
@@ -96,7 +96,7 @@ export async function executeAction(a: Action): Promise<{ ok: boolean; message: 
       if (!booking) return { ok: false, message: `I could not find a booking for ${a.clientName}.` }
       await update('bookings', { id: booking.id }, { status: 'cancelled' })
       await audit('cancel', 'booking', booking.id, { via: 'command' })
-      await notifyWaitlistForService(booking.service_slug)
+      await fillGap(booking)
       return { ok: true, message: `Cancelled ${booking.client_name}'s ${booking.service_name} on ${dayLabel(booking.starts_at.slice(0, 10))}.` }
     }
 

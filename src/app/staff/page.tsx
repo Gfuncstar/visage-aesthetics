@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ClipboardList, Send, Sparkles } from 'lucide-react'
+import { ClipboardList, ConciergeBell, Send, Sparkles } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from './notes/StaffGate'
 
@@ -30,6 +30,13 @@ const tools = [
     description: 'Write up treatments, log orders, and see profit and an accountant pack.',
     Icon: Sparkles,
   },
+  {
+    href: '/staff/assistant/reception',
+    title: 'Receptionist',
+    description: 'Online booking, diary, reminders, waitlist and a voice command desk. Mirrors Ovatu, ready to take over.',
+    Icon: ConciergeBell,
+    badge: 'PAUSED',
+  },
 ]
 
 export default async function StaffIndex() {
@@ -48,19 +55,24 @@ export default async function StaffIndex() {
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-10">
-          {tools.map(({ href, title, description, Icon }) => (
+          {tools.map(({ href, title, description, Icon, badge }) => (
             <Link
               key={href}
               href={href}
-              className="group bg-cream-soft border border-line/40 rounded-sm p-7 hover:border-gold transition-colors"
+              className="group relative bg-cream-soft border border-line/40 rounded-sm p-7 hover:border-gold transition-colors"
             >
+              {badge && (
+                <span className="absolute top-4 right-4 text-[10px] font-medium tracking-[0.18em] uppercase rounded-full px-2.5 py-1 bg-gold/15 text-gold-deep border border-gold/40">
+                  {badge}
+                </span>
+              )}
               <div className="inline-flex w-11 h-11 rounded-full bg-charcoal text-cream items-center justify-center mb-5 group-hover:bg-gold-deep transition-colors">
                 <Icon size={18} strokeWidth={1.75} />
               </div>
               <h2 className="font-display italic text-2xl text-charcoal leading-tight">{title}</h2>
               <p className="text-sm text-ink-soft mt-2 leading-relaxed">{description}</p>
               <div className="mt-5 eyebrow text-gold inline-flex items-center gap-2">
-                Open
+                {badge === 'PAUSED' ? 'Preview' : 'Open'}
                 <span className="transition-transform group-hover:translate-x-1">→</span>
               </div>
             </Link>

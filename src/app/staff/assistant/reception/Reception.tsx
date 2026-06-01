@@ -61,16 +61,23 @@ export default function Reception() {
       <div className="max-w-3xl mx-auto px-5 md:px-8 pt-12 md:pt-20 pb-24">
         <div className="flex items-start justify-between gap-4 mb-8">
           <div>
-            <Link href="/staff/assistant" className="inline-flex items-center gap-2 mb-5 bg-charcoal text-cream rounded-sm px-4 py-3 text-sm font-medium hover:bg-gold-deep transition-colors">
-              <ArrowLeft size={14} strokeWidth={1.75} /> Assistant
+            <Link href="/staff" className="inline-flex items-center gap-2 mb-5 bg-charcoal text-cream rounded-sm px-4 py-3 text-sm font-medium hover:bg-gold-deep transition-colors">
+              <ArrowLeft size={14} strokeWidth={1.75} /> Staff
             </Link>
-            <div className="eyebrow text-gold mb-2">Assistant &nbsp;·&nbsp; Reception</div>
+            <div className="eyebrow text-gold mb-2 inline-flex items-center gap-2">
+              Receptionist
+              <span className="text-[10px] tracking-[0.18em] uppercase rounded-full px-2 py-0.5 bg-gold/15 text-gold-deep border border-gold/40">Paused</span>
+            </div>
             <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight">The front desk.</h1>
             <p className="text-ink-soft mt-3 max-w-xl leading-relaxed">Everything happening around the chair, in one place. The clinical side stays with you.</p>
           </div>
           <button onClick={signOut} className="eyebrow text-stone hover:text-gold-deep transition-colors flex items-center gap-2 shrink-0 mt-2">
             <LogOut size={14} strokeWidth={1.75} /><span className="hidden sm:inline">Sign out</span>
           </button>
+        </div>
+
+        <div className="border border-gold/40 bg-gold/5 rounded-sm px-4 py-3 mb-6 text-sm text-charcoal leading-relaxed">
+          <span className="font-medium text-gold-deep">Paused, in standby.</span> This mirrors the live Ovatu diary so you can see it working. It is not taking real bookings yet, and nothing is sent to clients. It goes live only on your say-so.
         </div>
 
         <CommandBar onActioned={load} />
@@ -146,6 +153,7 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
   const [busy, setBusy] = useState(false)
   const [proposal, setProposal] = useState<{ action: ParsedAction; summary: string } | null>(null)
   const [done, setDone] = useState<string | null>(null)
+  const [answer, setAnswer] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recRef = useRef<any>(null)
@@ -178,10 +186,24 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
     setListening(true)
   }
 
+  async function ask() {
+    if (!text.trim()) return
+    if (listening) recRef.current?.stop()
+    setBusy(true); setError(null); setDone(null); setProposal(null); setAnswer(null)
+    try {
+      const res = await fetch('/api/staff/assistant/ask', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }),
+      })
+      const d = await res.json().catch(() => ({}))
+      if (!res.ok) { setError(d.error || 'Could not answer that.'); return }
+      setAnswer(d.answer || 'No answer.')
+    } catch { setError('Network error.') } finally { setBusy(false) }
+  }
+
   async function interpret() {
     if (!text.trim()) return
     if (listening) recRef.current?.stop()
-    setBusy(true); setError(null); setDone(null); setProposal(null)
+    setBusy(true); setError(null); setDone(null); setProposal(null); setAnswer(null)
     try {
       const res = await fetch('/api/staff/assistant/command', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }),
@@ -228,6 +250,7 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
       />
       {error && <p className="text-sm text-clay mt-2">{error}</p>}
       {done && <p className="text-sm text-sage mt-2 inline-flex items-center gap-1.5"><Check size={14} strokeWidth={2} /> {done}</p>}
+      {answer && <div className="text-sm text-charcoal mt-3 border border-line/40 bg-cream rounded-sm px-3 py-2.5">{answer}</div>}
 
       {proposal ? (
         <div className="mt-3 border border-gold/40 bg-cream rounded-sm p-3">
@@ -242,12 +265,16 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
           </div>
         </div>
       ) : (
-        <div className="mt-3">
+        <div className="mt-3 flex items-center gap-2">
           <button onClick={interpret} disabled={busy || !text.trim()} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 40 }}>
-            <span className="inline-flex items-center gap-2"><Sparkles size={15} strokeWidth={1.75} /> {busy ? 'Reading…' : 'Action this'}</span>
+            <span className="inline-flex items-center gap-2"><Sparkles size={15} strokeWidth={1.75} /> {busy ? 'Working…' : 'Action this'}</span>
+          </button>
+          <button onClick={ask} disabled={busy || !text.trim()} className="btn btn-secondary disabled:opacity-50" style={{ minHeight: 40 }}>
+            <span className="inline-flex items-center gap-2">Ask a question</span>
           </button>
         </div>
       )}
+      <p className="text-xs text-ink-soft mt-2">Tell me to do something (book, cancel, block time), or ask about the clinic (how many Botox last month, quietest day, top spenders).</p>
     </div>
   )
 }

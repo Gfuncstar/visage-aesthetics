@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, select, update, audit } from '@/lib/assistant/db'
-import { sendReviewRequest, notifyWaitlistForService, applyNoShowDeposit } from '@/lib/booking-engine/notify'
+import { sendReviewRequest, fillGap, applyNoShowDeposit } from '@/lib/booking-engine/notify'
 import type { Booking } from '@/lib/booking-engine/types'
 
 export const runtime = 'nodejs'
@@ -36,7 +36,7 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
       try {
         if (status === 'completed') await sendReviewRequest(booking)
         else if (status === 'no_show') await applyNoShowDeposit(booking)
-        else if (status === 'cancelled') await notifyWaitlistForService(booking.service_slug)
+        else if (status === 'cancelled') await fillGap(booking)
       } catch (err) {
         console.error('[diary] follow-up failed', err)
       }

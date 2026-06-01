@@ -4,7 +4,7 @@ import { assistantConfigured, select, update, audit } from '@/lib/assistant/db'
 import { bookingCancellationEmail, bookingConfirmationEmail } from '@/lib/booking-email'
 import { isSuppressed } from '@/lib/assistant/suppression'
 import { recordMessage } from '@/lib/assistant/messages'
-import { notifyWaitlistForService } from '@/lib/booking-engine/notify'
+import { fillGap } from '@/lib/booking-engine/notify'
 import { getService, computeDay } from '@/lib/booking-engine/availability'
 import { londonParts } from '@/lib/booking-engine/time'
 import type { Booking } from '@/lib/booking-engine/types'
@@ -101,6 +101,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
       const slot = slots.find((s) => s.startsAtIso === startDate.toISOString())
       if (!slot) return NextResponse.json({ error: 'Sorry, that time is no longer free. Please pick another.' }, { status: 409 })
 
+      const vacated = booking.starts_at // the old slot, now free
       await update('bookings', { id: booking.id }, {
         starts_at: slot.startsAtIso,
         ends_at: slot.endsAtIso,
@@ -108,8 +109,8 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
       })
       await audit('reschedule', 'booking', booking.id, { to: slot.startsAtIso })
       await sendConfirmation(booking, slot.startsAtIso)
-      // The vacated slot may suit a waitlisted client.
-      await notifyWaitlistForService(booking.service_slug)
+      // Offer the vacated slot to the waitlist and clients due that treatment.
+      await fillGap({ service_slug: booking.service_slug, service_name: booking.service_name, starts_at: vacated, client_name: booking.client_name })
       return NextResponse.json({ ok: true, status: booking.status, startsAt: slot.startsAtIso })
     }
 
@@ -141,8 +142,8 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
         }
       }
     }
-    // Alert anyone waiting for this service that a slot just opened.
-    await notifyWaitlistForService(booking.service_slug)
+    // Offer the freed slot to the waitlist and clients due that treatment.
+    await fillGap(booking)
     return NextResponse.json({ ok: true, status: 'cancelled' })
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : 'Update failed' }, { status: 502 })
