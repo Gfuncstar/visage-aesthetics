@@ -1,0 +1,150 @@
+// Availability engine: turn opening hours, existing bookings and blocked time
+// into the list of bookable slots for a given service on a given London day.
+
+import { select } from '../assistant/db'
+import { londonWallToUtc, londonParts, clockLabel, londonToday, TZ } from './time'
+import type { BusinessHours, Booking, Service, Slot, TimeOff } from './types'
+
+const STEP_MIN = 15 // slot granularity
+const LEAD_MIN = 120 // earliest bookable lead time from now (2 hours)
+const MAX_ADVANCE_DAYS = 90
+
+type Interval = { start: number; end: number } // minutes from midnight (London)
+
+/** Load a single active service by slug. */
+export async function getService(slug: string): Promise<Service | null> {
+  const rows = await select<Service>('services', { slug: `eq.${slug}`, active: 'eq.true', limit: 1 })
+  return rows[0] ?? null
+}
+
+/** All active, online-bookable services in display order. */
+export async function listBookableServices(): Promise<Service[]> {
+  return select<Service>('services', {
+    active: 'eq.true',
+    online_bookable: 'eq.true',
+    order: 'display_order.asc',
+    limit: 100,
+  })
+}
+
+function busyFromBookings(bookings: Booking[], dateStr: string): Interval[] {
+  const out: Interval[] = []
+  for (const b of bookings) {
+    if (b.status === 'cancelled') continue
+    const s = londonParts(new Date(b.starts_at))
+    const e = londonParts(new Date(b.ends_at))
+    // Only the portion that falls on this day matters.
+    const start = s.dateStr === dateStr ? s.minutes : 0
+    const end = e.dateStr === dateStr ? e.minutes : 24 * 60
+    if (s.dateStr === dateStr || e.dateStr === dateStr) out.push({ start, end })
+  }
+  return out
+}
+
+function busyFromTimeOff(timeOff: TimeOff[], dateStr: string): Interval[] {
+  const out: Interval[] = []
+  for (const t of timeOff) {
+    const s = londonParts(new Date(t.starts_at))
+    const e = londonParts(new Date(t.ends_at))
+    if (s.dateStr === dateStr || e.dateStr === dateStr || (s.dateStr < dateStr && e.dateStr > dateStr)) {
+      const start = s.dateStr === dateStr ? s.minutes : 0
+      const end = e.dateStr === dateStr ? e.minutes : 24 * 60
+      out.push({ start, end })
+    }
+  }
+  return out
+}
+
+function overlaps(aStart: number, aEnd: number, busy: Interval[]): boolean {
+  return busy.some((b) => aStart < b.end && aEnd > b.start)
+}
+
+/**
+ * Compute bookable slots for a service on a London date (YYYY-MM-DD).
+ * Needs the day's hours, existing bookings and time-off (loaded by the caller
+ * or by computeDay below).
+ */
+export function slotsForDay(
+  service: Service,
+  dateStr: string,
+  hours: BusinessHours | undefined,
+  bookings: Booking[],
+  timeOff: TimeOff[],
+  now: Date,
+): Slot[] {
+  if (!hours || !hours.is_open) return []
+  const total = service.duration_min + service.buffer_min
+  const busy = [...busyFromBookings(bookings, dateStr), ...busyFromTimeOff(timeOff, dateStr)]
+
+  // Earliest allowed start (lead time), in London minutes for this date.
+  const nowParts = londonParts(now)
+  const isToday = nowParts.dateStr === dateStr
+  const earliest = isToday ? nowParts.minutes + LEAD_MIN : 0
+
+  const slots: Slot[] = []
+  for (let start = hours.open_min; start + total <= hours.close_min; start += STEP_MIN) {
+    if (start < earliest) continue
+    const end = start + total
+    if (overlaps(start, end, busy)) continue
+    const startsAt = londonWallToUtc(dateStr, start)
+    const endsAt = londonWallToUtc(dateStr, start + service.duration_min)
+    slots.push({
+      startMinutes: start,
+      startsAtIso: startsAt.toISOString(),
+      endsAtIso: endsAt.toISOString(),
+      label: clockLabel(start),
+    })
+  }
+  return slots
+}
+
+/** Load everything needed and compute slots for one service + date. */
+export async function computeDay(service: Service, dateStr: string): Promise<Slot[]> {
+  const now = new Date()
+  if (dateStr < londonToday()) return []
+  const [hoursRows, bookings, timeOff] = await Promise.all([
+    select<BusinessHours>('business_hours', { weekday: `eq.${weekdayOf(dateStr)}`, limit: 1 }),
+    select<Booking>('bookings', {
+      and: `(starts_at.gte.${dayStartIso(dateStr)},starts_at.lt.${dayEndIso(dateStr)})`,
+      status: 'neq.cancelled',
+      limit: 200,
+    }),
+    select<TimeOff>('time_off', {
+      and: `(starts_at.lt.${dayEndIso(dateStr)},ends_at.gt.${dayStartIso(dateStr)})`,
+      limit: 100,
+    }),
+  ])
+  return slotsForDay(service, dateStr, hoursRows[0], bookings, timeOff, now)
+}
+
+/** Which London weekday a date falls on. */
+function weekdayOf(dateStr: string): number {
+  return londonParts(new Date(`${dateStr}T12:00:00Z`)).weekday
+}
+
+// Generous UTC bounds for a London day (covers the +/- 1h DST offset).
+function dayStartIso(dateStr: string): string {
+  return new Date(`${dateStr}T00:00:00Z`).toISOString()
+}
+function dayEndIso(dateStr: string): string {
+  return new Date(`${dateStr}T23:59:59Z`).toISOString()
+}
+
+/**
+ * Day-by-day availability summary for a date range, used by the date picker to
+ * grey out full / closed days. Returns a map of dateStr -> count of free slots.
+ */
+export async function availabilityCalendar(service: Service, fromStr: string, days: number): Promise<Record<string, number>> {
+  const out: Record<string, number> = {}
+  const tasks: Promise<void>[] = []
+  for (let i = 0; i < Math.min(days, MAX_ADVANCE_DAYS); i++) {
+    const d = new Date(`${fromStr}T12:00:00Z`)
+    d.setUTCDate(d.getUTCDate() + i)
+    const ds = d.toISOString().slice(0, 10)
+    tasks.push(computeDay(service, ds).then((slots) => { out[ds] = slots.length }))
+  }
+  await Promise.all(tasks)
+  return out
+}
+
+export { MAX_ADVANCE_DAYS, TZ }

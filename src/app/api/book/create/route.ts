@@ -1,0 +1,143 @@
+import { NextResponse } from 'next/server'
+import { Resend } from 'resend'
+import { assistantConfigured, insert, audit } from '@/lib/assistant/db'
+import { getService, computeDay } from '@/lib/booking-engine/availability'
+import { londonParts, dayLabel, clockLabel } from '@/lib/booking-engine/time'
+import { bookingConfirmationEmail } from '@/lib/booking-email'
+import { isSuppressed } from '@/lib/assistant/suppression'
+import { lookupClientFlags } from '@/lib/booking-engine/client-flags'
+import { stripeConfigured, depositPence, createDepositCheckout } from '@/lib/booking-engine/stripe'
+import { sendPush } from '@/lib/assistant/push'
+import type { Booking } from '@/lib/booking-engine/types'
+
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+export const maxDuration = 60
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const FROM_EMAIL = process.env.BOOKING_FROM_EMAIL ?? 'Visage Aesthetics <enquiries@vaclinic.co.uk>'
+const REPLY_TO = process.env.BROADCAST_REPLY_TO ?? 'info@vaclinic.co.uk'
+
+// Public: create a booking. The chosen slot is re-validated against live
+// availability so a stale page cannot double-book or pick an arbitrary time.
+export async function POST(req: Request) {
+  if (!assistantConfigured()) return NextResponse.json({ error: 'Booking is not available right now.' }, { status: 503 })
+
+  let b: { service?: unknown; startsAt?: unknown; name?: unknown; email?: unknown; phone?: unknown; notes?: unknown }
+  try {
+    b = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
+  }
+
+  const slug = typeof b.service === 'string' ? b.service.trim().slice(0, 80) : ''
+  const startsAt = typeof b.startsAt === 'string' ? b.startsAt : ''
+  const name = typeof b.name === 'string' ? b.name.trim().slice(0, 120) : ''
+  const email = typeof b.email === 'string' ? b.email.trim().slice(0, 160) : ''
+  const phone = typeof b.phone === 'string' ? b.phone.trim().slice(0, 40) : ''
+  const notes = typeof b.notes === 'string' ? b.notes.trim().slice(0, 600) : ''
+
+  if (!slug || !startsAt || !name) return NextResponse.json({ error: 'Please fill in your name and a time.' }, { status: 400 })
+  if (!email && !phone) return NextResponse.json({ error: 'Please leave an email or phone number.' }, { status: 400 })
+  if (email && !EMAIL_RE.test(email)) return NextResponse.json({ error: 'That email does not look right.' }, { status: 400 })
+
+  const startDate = new Date(startsAt)
+  if (Number.isNaN(startDate.getTime())) return NextResponse.json({ error: 'Bad time' }, { status: 400 })
+
+  try {
+    const service = await getService(slug)
+    if (!service) return NextResponse.json({ error: 'Unknown service' }, { status: 404 })
+
+    // Per-client flags. A blocked client is turned away discreetly, exactly as
+    // if the diary were full, with no hint they are blocked.
+    const flags = await lookupClientFlags({ name, email, phone })
+    if (flags.blocked) {
+      return NextResponse.json({ error: 'Sorry, there is no availability to book online right now.' }, { status: 409 })
+    }
+
+    // Re-validate: the chosen instant must still be a free slot today.
+    const dateStr = londonParts(startDate).dateStr
+    const slots = await computeDay(service, dateStr)
+    const slot = slots.find((s) => s.startsAtIso === startDate.toISOString())
+    if (!slot) {
+      return NextResponse.json({ error: 'Sorry, that time has just been taken. Please pick another.' }, { status: 409 })
+    }
+
+    // A deposit-required client books as pending until the deposit is paid.
+    const needsDeposit = flags.requiresDeposit
+    const booking = await insert<Booking>('bookings', {
+      service_id: service.id,
+      service_name: service.name,
+      service_slug: service.slug,
+      client_name: name,
+      client_email: email || null,
+      client_phone: phone || null,
+      starts_at: slot.startsAtIso,
+      ends_at: slot.endsAtIso,
+      status: needsDeposit ? 'pending' : 'confirmed',
+      notes: notes || null,
+      source: 'online',
+    })
+    await audit('create', 'booking', booking.id, { service: service.slug, source: 'online', needsDeposit })
+
+    // Tell the clinic a booking just came in (before any payment redirect).
+    const np = londonParts(startDate)
+    try {
+      await sendPush({
+        title: needsDeposit ? 'Booking (deposit pending)' : 'New booking',
+        body: `${name}, ${service.name}, ${dayLabel(np.dateStr)} at ${clockLabel(np.minutes)}`,
+        url: '/staff/assistant/diary',
+      })
+    } catch {
+      /* push is best effort */
+    }
+
+    if (needsDeposit) {
+      // Hand off to Stripe Checkout when configured; otherwise hold as pending
+      // and let the clinic request the deposit manually.
+      if (stripeConfigured()) {
+        try {
+          const url = await createDepositCheckout({
+            amountPence: depositPence(service.deposit),
+            serviceName: service.name,
+            manageToken: booking.manage_token,
+            email: email || null,
+          })
+          if (url) return NextResponse.json({ ok: true, deposit: true, checkoutUrl: url, manageToken: booking.manage_token })
+        } catch (err) {
+          console.error('[book] deposit checkout failed', err)
+        }
+      }
+      return NextResponse.json({ ok: true, deposit: true, depositPending: true, manageToken: booking.manage_token })
+    }
+
+    // Confirmation email, unless the client is on the do-not-contact list.
+    if (email && !(await isSuppressed(name, email))) {
+      const apiKey = process.env.RESEND_API_KEY
+      if (apiKey) {
+        const mail = bookingConfirmationEmail({
+          name,
+          serviceName: service.name,
+          startsAtIso: slot.startsAtIso,
+          manageToken: booking.manage_token,
+        })
+        try {
+          await new Resend(apiKey).emails.send({
+            from: FROM_EMAIL,
+            to: [email],
+            replyTo: REPLY_TO,
+            subject: mail.subject,
+            html: mail.html,
+            text: mail.text,
+          })
+        } catch (err) {
+          console.error('[book] confirmation email failed', err)
+        }
+      }
+    }
+
+    return NextResponse.json({ ok: true, manageToken: booking.manage_token })
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'Could not book' }, { status: 502 })
+  }
+}

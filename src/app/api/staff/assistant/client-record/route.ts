@@ -36,11 +36,12 @@ export async function GET(req: Request) {
       // PostgREST equality is case-sensitive; match case-insensitively.
       const enc = name.replace(/[%,()]/g, ' ')
       const norm = name.trim().toLowerCase().replace(/\s+/g, ' ')
-      const [appts, treatments, photos, dnc] = await Promise.all([
+      const [appts, treatments, photos, dnc, flags] = await Promise.all([
         select<Appointment>('appointments', { client_name: `ilike.${enc}`, order: 'date.desc', limit: 500 }),
         select<TreatmentRecord>('treatment_records', { client_name: `ilike.${enc}`, order: 'date.desc', limit: 500 }),
         select<Photo>('photos', { client_name: `ilike.${enc}`, order: 'date.desc', limit: 200 }),
         select<{ id: string }>('do_not_contact', { name_normalised: `eq.${norm}`, limit: 1 }).catch(() => []),
+        select<{ blocked: boolean; requires_deposit: boolean }>('client_flags', { name_normalised: `eq.${norm}`, limit: 1 }).catch(() => []),
       ])
 
       const completed = appts.filter((a) => a.status === 'completed')
@@ -67,6 +68,8 @@ export async function GET(req: Request) {
         })),
         photos,
         doNotContact: dnc.length > 0,
+        blocked: flags[0]?.blocked ?? false,
+        requiresDeposit: flags[0]?.requires_deposit ?? false,
       })
     }
 

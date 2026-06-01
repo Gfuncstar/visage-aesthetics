@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowLeft, Award, Boxes, CalendarClock, ClipboardPen, ClipboardCheck, ReceiptText, RotateCcw, TrendingUp, Users } from 'lucide-react'
+import { ArrowLeft, Award, Boxes, CalendarClock, CalendarDays, ClipboardPen, ClipboardCheck, ReceiptText, RotateCcw, TrendingUp, Users } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from '../notes/StaffGate'
 import { assistantConfigured } from '@/lib/assistant/db'
@@ -15,6 +15,12 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 const tools = [
+  {
+    href: '/staff/assistant/diary',
+    title: 'Diary',
+    description: 'The book: appointments, statuses, block time.',
+    Icon: CalendarDays,
+  },
   {
     href: '/staff/assistant/treatment',
     title: 'Treatment write-up',
