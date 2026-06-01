@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight, LogOut, Plus, Ban } from 'lucide-react'
+import MicButton, { appendText } from '@/components/ui/MicButton'
 
 type Booking = {
   id: string
@@ -326,9 +327,15 @@ function AddBooking({ date, services, onDone }: { date: string; services: Servic
       </select>
       <div className="flex gap-2">
         <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
-        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Client name" className="flex-1 bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
+        <div className="relative flex-1">
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Client name" className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 pr-10 text-sm" />
+          <MicButton onText={(t) => setName((v) => appendText(v, t))} className="absolute right-2.5 top-1/2 -translate-y-1/2" />
+        </div>
       </div>
-      <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Mobile (optional)" className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
+      <div className="relative">
+        <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Mobile (optional)" className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 pr-10 text-sm" />
+        <MicButton onText={(t) => setPhone((v) => appendText(v, t))} className="absolute right-2.5 top-1/2 -translate-y-1/2" />
+      </div>
       {err && <p className="text-xs text-clay">{err}</p>}
       <button onClick={save} disabled={busy} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 38 }}>{busy ? 'Saving…' : 'Add to diary'}</button>
     </div>
@@ -360,7 +367,10 @@ function BlockTime({ date, onDone }: { date: string; onDone: () => void }) {
         <span>to</span>
         <input type="time" value={end} onChange={(e) => setEnd(e.target.value)} className="bg-cream border border-line rounded-sm px-3 py-2.5" />
       </div>
-      <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Reason (optional), e.g. lunch" className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
+      <div className="relative">
+        <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Reason (optional), e.g. lunch" className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 pr-10 text-sm" />
+        <MicButton onText={(t) => setReason((v) => appendText(v, t))} className="absolute right-2.5 top-1/2 -translate-y-1/2" />
+      </div>
       {err && <p className="text-xs text-clay">{err}</p>}
       <button onClick={save} disabled={busy} className="btn btn-secondary disabled:opacity-50" style={{ minHeight: 38 }}>{busy ? 'Saving…' : 'Block this time'}</button>
     </div>

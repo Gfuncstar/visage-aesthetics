@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { Award, Calendar, Check, Copy, ExternalLink, LogOut, Newspaper, X } from 'lucide-react'
+import MicButton, { appendText } from '@/components/ui/MicButton'
 
 type Kind = 'award' | 'press'
 type Status = 'new' | 'shortlisted' | 'submitted' | 'dismissed'
@@ -194,13 +195,16 @@ function OppCard({
       {o.fit_reason && <p className="text-sm text-charcoal mt-2 leading-relaxed"><span className="text-gold-deep">Why it fits: </span>{o.fit_reason}</p>}
 
       <label className="text-eyebrow text-ink-soft mt-4 mb-1.5 block">{o.kind === 'award' ? 'Draft entry (edit before you submit)' : 'Draft pitch (edit before you send)'}</label>
-      <textarea
-        value={draft}
-        onChange={(e) => setDraft(e.target.value)}
-        rows={6}
-        className="w-full bg-cream border border-line/40 rounded-sm px-3 py-2.5 text-sm text-charcoal focus:outline-none focus:border-gold leading-relaxed"
-        placeholder="No draft yet."
-      />
+      <div className="relative">
+        <textarea
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          rows={6}
+          className="w-full bg-cream border border-line/40 rounded-sm px-3 py-2.5 pr-10 text-sm text-charcoal focus:outline-none focus:border-gold leading-relaxed"
+          placeholder="No draft yet."
+        />
+        <MicButton onText={(t) => setDraft((v) => appendText(v, t))} className="absolute right-2.5 top-2.5" />
+      </div>
 
       <div className="mt-3 flex items-center gap-2 flex-wrap">
         {o.url && (
