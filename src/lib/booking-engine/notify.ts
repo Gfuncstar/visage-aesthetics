@@ -7,6 +7,9 @@ import { select, update, insertMany, audit } from '../assistant/db'
 import { sendSms, smsConfigured } from '../assistant/sms'
 import { isSuppressed } from '../assistant/suppression'
 import { recordMessage, type MessageKind } from '../assistant/messages'
+import { matchTreatmentType } from '../assistant/treatment-types'
+import { dueRebookings } from '../assistant/rebook'
+import { londonParts, dayLabel, clockLabel } from './time'
 import { normName } from './client-flags'
 import type { Booking } from './types'
 
@@ -62,32 +65,59 @@ export async function sendReviewRequest(booking: Booking): Promise<void> {
   await update('bookings', { id: booking.id }, { review_requested_at: new Date().toISOString() })
 }
 
-/**
- * When an appointment is cancelled, alert clients waiting for that service that
- * a time has opened. Notifies up to a handful of the longest-waiting, once each.
- */
-export async function notifyWaitlistForService(serviceSlug: string | null): Promise<number> {
-  if (!serviceSlug) return 0
-  const waiting = await select<{
-    id: string
-    client_name: string
-    client_email: string | null
-    client_phone: string | null
-  }>('waitlist', { service_slug: `eq.${serviceSlug}`, status: 'eq.waiting', order: 'created_at.asc', limit: 5 })
-  if (waiting.length === 0) return 0
+const GAP_FILL_LIMIT = 6
 
-  const text = `Good news from Visage Aesthetics: a time has just opened for your treatment. First to book keeps it: ${SITE}/book-online`
+/**
+ * When an appointment is freed (cancellation or reschedule), fill the gap:
+ * text the specific opening to the best-matched clients. That means the people
+ * waitlisted for this treatment first, then clients who are due back for the
+ * same treatment, longest-waiting / most-overdue first, once each.
+ */
+export async function fillGap(slot: {
+  service_slug: string | null
+  service_name: string
+  starts_at: string
+  client_name: string
+}): Promise<number> {
+  const p = londonParts(new Date(slot.starts_at))
+  const when = `${dayLabel(p.dateStr)} at ${clockLabel(p.minutes)}`
+  const text = `Good news from Visage Aesthetics: ${slot.service_name} on ${when} has just come free. First to book keeps it: ${SITE}/book-online`
+  const subject = `A ${slot.service_name} appointment has opened`
+
+  const skip = new Set<string>([normName(slot.client_name)])
+  const seen = new Set<string>()
   let sent = 0
-  for (const w of waiting) {
-    const ok = await reach(
-      { client_name: w.client_name, client_email: w.client_email, client_phone: w.client_phone },
-      text,
-      'A time has opened at Visage Aesthetics',
+
+  // 1) Waitlist for this exact service (and mark them notified).
+  if (slot.service_slug) {
+    const waiting = await select<{ id: string; client_name: string; client_email: string | null; client_phone: string | null }>(
       'waitlist',
+      { service_slug: `eq.${slot.service_slug}`, status: 'eq.waiting', order: 'created_at.asc', limit: GAP_FILL_LIMIT },
     )
-    await update('waitlist', { id: w.id }, { status: 'notified', notified_at: new Date().toISOString() })
-    if (ok) sent++
+    for (const w of waiting) {
+      const key = normName(w.client_name)
+      if (skip.has(key) || seen.has(key)) continue
+      seen.add(key)
+      const ok = await reach({ client_name: w.client_name, client_email: w.client_email, client_phone: w.client_phone }, text, subject, 'waitlist')
+      await update('waitlist', { id: w.id }, { status: 'notified', notified_at: new Date().toISOString() })
+      if (ok) sent++
+    }
   }
+
+  // 2) Clients due back for the same treatment, to top up the offer.
+  const group = matchTreatmentType(slot.service_name)
+  if (group && sent < GAP_FILL_LIMIT) {
+    const due = (await dueRebookings().catch(() => [])).filter((d) => d.treatmentGroup === group)
+    for (const d of due) {
+      if (seen.size >= GAP_FILL_LIMIT) break
+      const key = normName(d.clientName)
+      if (skip.has(key) || seen.has(key)) continue
+      seen.add(key)
+      const ok = await reach({ client_name: d.clientName, client_email: d.email, client_phone: d.phone }, text, subject, 'waitlist')
+      if (ok) sent++
+    }
+  }
+
   return sent
 }
 
