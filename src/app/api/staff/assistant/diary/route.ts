@@ -14,13 +14,17 @@ function dayBounds(dateStr: string): { start: string; end: string } {
   return { start: `${dateStr}T00:00:00Z`, end: `${dateStr}T23:59:59Z` }
 }
 
-// GET ?date=YYYY-MM-DD — the day's bookings and blocked time.
+// GET ?date=YYYY-MM-DD (single day) or ?from=&to= (range, e.g. a week) — the
+// bookings and blocked time in that window.
 export async function GET(req: Request) {
   if (!(await isStaffAuthed())) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
   if (!assistantConfigured()) return NextResponse.json({ bookings: [], timeOff: [], configured: false })
-  const date = new URL(req.url).searchParams.get('date') ?? londonToday()
-  if (!DATE_RE.test(date)) return NextResponse.json({ error: 'Bad date' }, { status: 400 })
-  const { start, end } = dayBounds(date)
+  const params = new URL(req.url).searchParams
+  const from = params.get('from') ?? params.get('date') ?? londonToday()
+  const to = params.get('to') ?? params.get('date') ?? from
+  if (!DATE_RE.test(from) || !DATE_RE.test(to)) return NextResponse.json({ error: 'Bad date' }, { status: 400 })
+  const start = dayBounds(from).start
+  const end = dayBounds(to).end
   try {
     const [bookings, timeOff, waitlist] = await Promise.all([
       select<Booking>('bookings', { and: `(starts_at.gte.${start},starts_at.lte.${end})`, order: 'starts_at.asc', limit: 200 }),

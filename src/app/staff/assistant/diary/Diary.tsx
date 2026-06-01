@@ -39,6 +39,28 @@ function timeToMinutes(t: string): number {
   const [h, m] = t.split(':').map(Number)
   return h * 60 + m
 }
+function weekStart(ds: string): string {
+  const d = new Date(`${ds}T12:00:00Z`)
+  const offset = (d.getUTCDay() + 6) % 7 // days since Monday
+  d.setUTCDate(d.getUTCDate() - offset)
+  return d.toISOString().slice(0, 10)
+}
+function weekDays(ds: string): string[] {
+  const s = weekStart(ds)
+  return Array.from({ length: 7 }, (_, i) => addDays(s, i))
+}
+function localDate(iso: string): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date(iso))
+}
+function shortDay(ds: string): string {
+  return new Intl.DateTimeFormat('en-GB', { timeZone: TZ, weekday: 'long', day: 'numeric', month: 'short' }).format(new Date(`${ds}T12:00:00Z`))
+}
+function weekHeading(ds: string): string {
+  const s = weekStart(ds)
+  const e = addDays(s, 6)
+  const f = (x: string) => new Intl.DateTimeFormat('en-GB', { timeZone: TZ, day: 'numeric', month: 'short' }).format(new Date(`${x}T12:00:00Z`))
+  return `${f(s)} to ${f(e)}`
+}
 
 const statusTone: Record<string, string> = {
   confirmed: 'text-sage',
@@ -50,6 +72,7 @@ const statusTone: Record<string, string> = {
 
 export default function Diary() {
   const [date, setDate] = useState(todayStr())
+  const [view, setView] = useState<'day' | 'week'>('week')
   const [bookings, setBookings] = useState<Booking[]>([])
   const [timeOff, setTimeOff] = useState<TimeOff[]>([])
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([])
@@ -57,9 +80,9 @@ export default function Diary() {
   const [loading, setLoading] = useState(true)
   const [adding, setAdding] = useState<'booking' | 'time_off' | null>(null)
 
-  const load = useCallback(async (ds: string) => {
+  const load = useCallback(async (from: string, to: string) => {
     setLoading(true)
-    const res = await fetch(`/api/staff/assistant/diary?date=${ds}`)
+    const res = await fetch(`/api/staff/assistant/diary?from=${from}&to=${to}`)
     if (res.ok) {
       const d = await res.json()
       setBookings(d.bookings ?? [])
@@ -69,7 +92,12 @@ export default function Diary() {
     setLoading(false)
   }, [])
 
-  useEffect(() => { void load(date) }, [date, load])
+  const reload = useCallback(() => {
+    if (view === 'week') { const s = weekStart(date); void load(s, addDays(s, 6)) }
+    else void load(date, date)
+  }, [view, date, load])
+
+  useEffect(() => { reload() }, [reload])
   useEffect(() => {
     void (async () => {
       const res = await fetch('/api/book/services')
@@ -106,13 +134,21 @@ export default function Diary() {
           </button>
         </div>
 
+        <div className="flex justify-center mb-3">
+          <div className="inline-flex rounded-full border border-line/50 bg-cream-soft p-0.5">
+            {(['week', 'day'] as const).map((v) => (
+              <button key={v} onClick={() => setView(v)} className={`text-sm rounded-full px-5 py-1.5 capitalize transition-colors ${view === v ? 'bg-gold text-charcoal' : 'text-ink-soft'}`}>{v}</button>
+            ))}
+          </div>
+        </div>
+
         <div className="flex items-center justify-between gap-3 mb-5">
-          <button onClick={() => setDate(addDays(date, -1))} className="w-10 h-10 inline-flex items-center justify-center rounded-sm border border-line/50 bg-cream-soft hover:border-gold/60"><ChevronLeft size={18} /></button>
+          <button onClick={() => setDate(addDays(date, view === 'week' ? -7 : -1))} className="w-10 h-10 inline-flex items-center justify-center rounded-sm border border-line/50 bg-cream-soft hover:border-gold/60"><ChevronLeft size={18} /></button>
           <div className="text-center">
-            <div className="font-display italic text-xl text-charcoal">{dayHeading(date)}</div>
+            <div className="font-display italic text-xl text-charcoal">{view === 'week' ? weekHeading(date) : dayHeading(date)}</div>
             <button onClick={() => setDate(todayStr())} className="text-xs text-gold-deep">Jump to today</button>
           </div>
-          <button onClick={() => setDate(addDays(date, 1))} className="w-10 h-10 inline-flex items-center justify-center rounded-sm border border-line/50 bg-cream-soft hover:border-gold/60"><ChevronRight size={18} /></button>
+          <button onClick={() => setDate(addDays(date, view === 'week' ? 7 : 1))} className="w-10 h-10 inline-flex items-center justify-center rounded-sm border border-line/50 bg-cream-soft hover:border-gold/60"><ChevronRight size={18} /></button>
         </div>
 
         <div className="flex gap-2 mb-5">
@@ -124,11 +160,42 @@ export default function Diary() {
           </button>
         </div>
 
-        {adding === 'booking' && <AddBooking date={date} services={services} onDone={() => { setAdding(null); void load(date) }} />}
-        {adding === 'time_off' && <BlockTime date={date} onDone={() => { setAdding(null); void load(date) }} />}
+        {adding === 'booking' && <AddBooking date={date} services={services} onDone={() => { setAdding(null); reload() }} />}
+        {adding === 'time_off' && <BlockTime date={date} onDone={() => { setAdding(null); reload() }} />}
 
         {loading ? (
           <p className="text-sm text-ink-soft">Loading…</p>
+        ) : view === 'week' ? (
+          <div className="space-y-4">
+            {weekDays(date).map((day) => {
+              const dayB = live.filter((b) => localDate(b.starts_at) === day).sort((a, b) => a.starts_at.localeCompare(b.starts_at))
+              const dayT = timeOff.filter((t) => localDate(t.starts_at) === day)
+              const isToday = day === todayStr()
+              return (
+                <div key={day}>
+                  <button onClick={() => { setDate(day); setView('day') }} className="w-full flex items-center justify-between mb-1.5 text-left">
+                    <span className={`text-sm font-medium ${isToday ? 'text-gold-deep' : 'text-charcoal'}`}>{shortDay(day)}{isToday ? ' · today' : ''}</span>
+                    <span className="text-xs text-stone">{dayB.length ? `${dayB.length} in` : ''}</span>
+                  </button>
+                  {dayB.length || dayT.length ? (
+                    <div className="border border-line/40 bg-cream-soft rounded-sm divide-y divide-line/30">
+                      {dayT.map((t) => (
+                        <div key={t.id} className="px-3.5 py-2 text-xs text-stone flex items-center gap-2"><Ban size={12} strokeWidth={1.75} /> {timeLabel(t.starts_at)} to {timeLabel(t.ends_at)} &nbsp;·&nbsp; {t.reason || 'Blocked'}</div>
+                      ))}
+                      {dayB.map((b) => (
+                        <div key={b.id} className="px-3.5 py-2.5 flex items-center justify-between gap-2">
+                          <span className="text-sm text-charcoal truncate min-w-0"><span className="text-stone">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>
+                          <span className="text-xs text-stone truncate shrink-0 ml-2">{b.service_name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-xs text-stone/60 pb-0.5">Nothing booked</div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
         ) : live.length === 0 && timeOff.length === 0 ? (
           <p className="text-sm text-ink-soft border border-line/40 rounded-sm bg-cream-soft px-4 py-5 text-center">Nothing booked this day.</p>
         ) : (
