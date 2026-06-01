@@ -55,6 +55,10 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           FORCE_TOPIC: ${{ inputs.force_topic }}
+          # Optional: lets the bot drop a native social caption into Marketing
+          # drafts for review. Skipped gracefully if these are not set.
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npx tsx scripts/generate-blog-post.ts
 
       - name: Verify build
