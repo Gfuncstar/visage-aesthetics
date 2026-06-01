@@ -32,10 +32,10 @@ export default function Hub({
         <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight">{title}</h1>
         {intro && <p className="text-ink-soft mt-3 max-w-xl leading-relaxed">{intro}</p>}
         {banner && <div className="mt-6">{banner}</div>}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-8">
+        <div className="grid grid-cols-2 gap-3 mt-8">
           {cards.map(({ href, title: t, description, Icon, badge }) => (
-            <Link key={href} href={href} className="group relative bg-cream-soft border border-line/40 rounded-sm p-5 hover:border-gold transition-colors flex flex-col">
-              {badge && <span className="absolute top-3 right-3 text-[10px] tracking-[0.16em] uppercase rounded-full px-2 py-0.5 bg-gold/15 text-gold-deep border border-gold/40">{badge}</span>}
+            <Link key={href} href={href} className="group relative bg-cream-soft border border-line/40 rounded-sm p-4 sm:p-5 hover:border-gold transition-colors flex flex-col">
+              {badge && <span className="absolute top-2.5 right-2.5 text-[9px] tracking-[0.14em] uppercase rounded-full px-2 py-0.5 bg-gold/15 text-gold-deep border border-gold/40">{badge}</span>}
               <div className="inline-flex w-10 h-10 rounded-full bg-charcoal text-cream items-center justify-center mb-3 group-hover:bg-gold-deep transition-colors">
                 <Icon size={16} strokeWidth={1.75} />
               </div>
