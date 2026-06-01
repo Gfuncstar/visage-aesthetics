@@ -292,6 +292,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-05-31',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'wedding-aesthetics-timeline',
+    category: "Clinic",
+    title: "Aesthetics before your wedding: a sensible 12-month timeline",
+    excerpt: "Most pre-wedding mistakes happen in the final fortnight; the work that actually shows in photographs is decided twelve months earlier, and here is the timeline I use in clinic.",
+    readTime: "8 min read",
+    datePublished: '2026-06-01',
+    dateModified: '2026-06-01',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
