@@ -61,6 +61,22 @@ function weekHeading(ds: string): string {
   const f = (x: string) => new Intl.DateTimeFormat('en-GB', { timeZone: TZ, day: 'numeric', month: 'short' }).format(new Date(`${x}T12:00:00Z`))
   return `${f(s)} to ${f(e)}`
 }
+function monthStart(ds: string): string {
+  return `${ds.slice(0, 7)}-01`
+}
+function monthEnd(ds: string): string {
+  const [y, m] = ds.split('-').map(Number)
+  return new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10)
+}
+function addMonths(ds: string, n: number): string {
+  const d = new Date(`${ds}T12:00:00Z`)
+  d.setUTCDate(1)
+  d.setUTCMonth(d.getUTCMonth() + n)
+  return d.toISOString().slice(0, 10)
+}
+function monthHeading(ds: string): string {
+  return new Intl.DateTimeFormat('en-GB', { timeZone: TZ, month: 'long', year: 'numeric' }).format(new Date(`${ds}T12:00:00Z`))
+}
 
 const statusTone: Record<string, string> = {
   confirmed: 'text-sage',
@@ -72,7 +88,7 @@ const statusTone: Record<string, string> = {
 
 export default function Diary() {
   const [date, setDate] = useState(todayStr())
-  const [view, setView] = useState<'day' | 'week'>('week')
+  const [view, setView] = useState<'day' | 'week' | 'month'>('week')
   const [bookings, setBookings] = useState<Booking[]>([])
   const [timeOff, setTimeOff] = useState<TimeOff[]>([])
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([])
@@ -94,6 +110,7 @@ export default function Diary() {
 
   const reload = useCallback(() => {
     if (view === 'week') { const s = weekStart(date); void load(s, addDays(s, 6)) }
+    else if (view === 'month') void load(monthStart(date), monthEnd(date))
     else void load(date, date)
   }, [view, date, load])
 
@@ -136,19 +153,19 @@ export default function Diary() {
 
         <div className="flex justify-center mb-3">
           <div className="inline-flex rounded-full border border-line/50 bg-cream-soft p-0.5">
-            {(['week', 'day'] as const).map((v) => (
+            {(['day', 'week', 'month'] as const).map((v) => (
               <button key={v} onClick={() => setView(v)} className={`text-sm rounded-full px-5 py-1.5 capitalize transition-colors ${view === v ? 'bg-gold text-charcoal' : 'text-ink-soft'}`}>{v}</button>
             ))}
           </div>
         </div>
 
         <div className="flex items-center justify-between gap-3 mb-5">
-          <button onClick={() => setDate(addDays(date, view === 'week' ? -7 : -1))} className="w-10 h-10 inline-flex items-center justify-center rounded-sm border border-line/50 bg-cream-soft hover:border-gold/60"><ChevronLeft size={18} /></button>
+          <button onClick={() => setDate(view === 'month' ? addMonths(date, -1) : addDays(date, view === 'week' ? -7 : -1))} className="w-10 h-10 inline-flex items-center justify-center rounded-sm border border-line/50 bg-cream-soft hover:border-gold/60"><ChevronLeft size={18} /></button>
           <div className="text-center">
-            <div className="font-display italic text-xl text-charcoal">{view === 'week' ? weekHeading(date) : dayHeading(date)}</div>
+            <div className="font-display italic text-xl text-charcoal">{view === 'month' ? monthHeading(date) : view === 'week' ? weekHeading(date) : dayHeading(date)}</div>
             <button onClick={() => setDate(todayStr())} className="text-xs text-gold-deep">Jump to today</button>
           </div>
-          <button onClick={() => setDate(addDays(date, view === 'week' ? 7 : 1))} className="w-10 h-10 inline-flex items-center justify-center rounded-sm border border-line/50 bg-cream-soft hover:border-gold/60"><ChevronRight size={18} /></button>
+          <button onClick={() => setDate(view === 'month' ? addMonths(date, 1) : addDays(date, view === 'week' ? 7 : 1))} className="w-10 h-10 inline-flex items-center justify-center rounded-sm border border-line/50 bg-cream-soft hover:border-gold/60"><ChevronRight size={18} /></button>
         </div>
 
         <div className="flex gap-2 mb-5">
@@ -165,6 +182,40 @@ export default function Diary() {
 
         {loading ? (
           <p className="text-sm text-ink-soft">Loading…</p>
+        ) : view === 'month' ? (
+          (() => {
+            const keys = Array.from(new Set([...live.map((b) => localDate(b.starts_at)), ...timeOff.map((t) => localDate(t.starts_at))])).sort()
+            if (keys.length === 0) return <p className="text-sm text-ink-soft border border-line/40 rounded-sm bg-cream-soft px-4 py-5 text-center">Nothing booked this month.</p>
+            return (
+              <div className="space-y-4">
+                <div className="eyebrow text-gold">{live.length} booked this month</div>
+                {keys.map((day) => {
+                  const dayB = live.filter((b) => localDate(b.starts_at) === day).sort((a, b) => a.starts_at.localeCompare(b.starts_at))
+                  const dayT = timeOff.filter((t) => localDate(t.starts_at) === day)
+                  const isToday = day === todayStr()
+                  return (
+                    <div key={day}>
+                      <button onClick={() => { setDate(day); setView('day') }} className="w-full flex items-center justify-between mb-1.5 text-left">
+                        <span className={`text-sm font-medium ${isToday ? 'text-gold-deep' : 'text-charcoal'}`}>{shortDay(day)}{isToday ? ' · today' : ''}</span>
+                        <span className="text-xs text-stone">{dayB.length ? `${dayB.length} in` : ''}</span>
+                      </button>
+                      <div className="border border-line/40 bg-cream-soft rounded-sm divide-y divide-line/30">
+                        {dayT.map((t) => (
+                          <div key={t.id} className="px-3.5 py-2 text-xs text-stone flex items-center gap-2"><Ban size={12} strokeWidth={1.75} /> {timeLabel(t.starts_at)} to {timeLabel(t.ends_at)} &nbsp;·&nbsp; {t.reason || 'Blocked'}</div>
+                        ))}
+                        {dayB.map((b) => (
+                          <div key={b.id} className="px-3.5 py-2.5 flex items-center justify-between gap-2">
+                            <span className="text-sm text-charcoal truncate min-w-0"><span className="text-stone">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>
+                            <span className="text-xs text-stone truncate shrink-0 ml-2">{b.service_name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          })()
         ) : view === 'week' ? (
           <div className="space-y-4">
             {weekDays(date).map((day) => {
