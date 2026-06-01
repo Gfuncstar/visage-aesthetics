@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { Check, Copy, LogOut, Mail, RotateCcw, Send, X } from 'lucide-react'
+import MicButton, { appendText } from '@/components/ui/MicButton'
 
 type Item = {
   markKey: string
@@ -175,12 +176,15 @@ function RebookCard({
       </div>
 
       <label className="text-eyebrow text-ink-soft mt-3 mb-1.5 block">Message to send (edit if you like)</label>
-      <textarea
-        value={msg}
-        onChange={(e) => setMsg(e.target.value)}
-        rows={3}
-        className="w-full bg-cream border border-line/40 rounded-sm px-3 py-2.5 text-sm text-charcoal focus:outline-none focus:border-gold leading-relaxed"
-      />
+      <div className="relative">
+        <textarea
+          value={msg}
+          onChange={(e) => setMsg(e.target.value)}
+          rows={3}
+          className="w-full bg-cream border border-line/40 rounded-sm px-3 py-2.5 pr-10 text-sm text-charcoal focus:outline-none focus:border-gold leading-relaxed"
+        />
+        <MicButton onText={(t) => setMsg((v) => appendText(v, t))} className="absolute right-2.5 top-2.5" />
+      </div>
 
       <div className="mt-3 flex items-center gap-2 flex-wrap">
         {wa && (

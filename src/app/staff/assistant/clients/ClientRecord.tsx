@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ArrowLeft, BellOff, Ban, Camera, Check, ChevronRight, CreditCard, ImagePlus, LogOut, Search, Trash2, X } from 'lucide-react'
+import MicButton, { appendText } from '@/components/ui/MicButton'
 import { gbp, ukDate } from '@/lib/assistant/format'
 
 const inputClass =
@@ -163,11 +164,12 @@ export default function ClientRecord() {
           <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-stone" />
           <input
             autoFocus
-            className={`${inputClass} pl-11`}
+            className={`${inputClass} pl-11 pr-12`}
             placeholder="Search a client by name…"
             value={q}
             onChange={(e) => { setQ(e.target.value); search(e.target.value, sortBy) }}
           />
+          <MicButton onText={(t) => { const nv = appendText(q, t); setQ(nv); search(nv, sortBy) }} className="absolute right-3.5 top-1/2 -translate-y-1/2" />
         </div>
 
         <div className="border border-line/40 rounded-sm divide-y divide-line/30 bg-cream-soft">

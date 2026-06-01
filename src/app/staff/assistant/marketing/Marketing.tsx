@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { FileText, LogOut, Mail, Megaphone, Send, Share2 } from 'lucide-react'
+import MicButton, { appendText } from '@/components/ui/MicButton'
 
 type Activity = { id: string; channel: string; title: string | null; detail: string | null; url: string | null; count: number | null; status: string; created_at: string }
 type Blog = { slug: string; title: string; category: string; datePublished: string }
@@ -158,7 +159,10 @@ function Composer({ metaConnected, onPosted }: { metaConnected: boolean; onPoste
           {metaConnected ? 'Connected' : 'Not connected'}
         </span>
       </div>
-      <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} className="w-full bg-cream border border-line rounded-sm px-4 py-3 text-base text-charcoal focus:outline-none focus:border-gold leading-relaxed" placeholder="Write a Facebook / Instagram post. Keep it warm and clinical." />
+      <div className="relative">
+        <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} className="w-full bg-cream border border-line rounded-sm px-4 py-3 pr-10 text-base text-charcoal focus:outline-none focus:border-gold leading-relaxed" placeholder="Write a Facebook / Instagram post. Keep it warm and clinical." />
+        <MicButton onText={(t) => setMessage((v) => appendText(v, t))} className="absolute right-3 top-3" />
+      </div>
       <input value={link} onChange={(e) => setLink(e.target.value)} className="w-full bg-cream border border-line rounded-sm px-4 py-2.5 text-sm mt-2" placeholder="Optional link (a treatment page or blog post)" />
       {error && <p className="text-sm text-clay mt-2">{error}</p>}
       {note && <p className="text-sm text-sage mt-2">{note}</p>}
@@ -186,8 +190,14 @@ function AdLogger({ onLogged }: { onLogged: () => void }) {
 
   return (
     <div className="border border-line/50 bg-cream-soft rounded-sm p-4 space-y-2">
-      <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" placeholder="Advert name, e.g. Facebook lead ad, May" />
-      <input value={detail} onChange={(e) => setDetail(e.target.value)} className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" placeholder="Spend, audience, notes (optional)" />
+      <div className="relative">
+        <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 pr-10 text-sm" placeholder="Advert name, e.g. Facebook lead ad, May" />
+        <MicButton onText={(t) => setTitle((v) => appendText(v, t))} className="absolute right-2.5 top-1/2 -translate-y-1/2" />
+      </div>
+      <div className="relative">
+        <input value={detail} onChange={(e) => setDetail(e.target.value)} className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 pr-10 text-sm" placeholder="Spend, audience, notes (optional)" />
+        <MicButton onText={(t) => setDetail((v) => appendText(v, t))} className="absolute right-2.5 top-1/2 -translate-y-1/2" />
+      </div>
       <button onClick={log} disabled={busy || !title.trim()} className="btn btn-secondary disabled:opacity-50" style={{ minHeight: 36 }}>{busy ? 'Logging…' : 'Log advert'}</button>
     </div>
   )
