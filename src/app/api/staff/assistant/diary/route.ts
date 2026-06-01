@@ -22,11 +22,12 @@ export async function GET(req: Request) {
   if (!DATE_RE.test(date)) return NextResponse.json({ error: 'Bad date' }, { status: 400 })
   const { start, end } = dayBounds(date)
   try {
-    const [bookings, timeOff] = await Promise.all([
+    const [bookings, timeOff, waitlist] = await Promise.all([
       select<Booking>('bookings', { and: `(starts_at.gte.${start},starts_at.lte.${end})`, order: 'starts_at.asc', limit: 200 }),
       select<TimeOff>('time_off', { and: `(starts_at.lte.${end},ends_at.gte.${start})`, order: 'starts_at.asc', limit: 100 }),
+      select<Record<string, unknown>>('waitlist', { status: 'eq.waiting', order: 'created_at.asc', limit: 50 }),
     ])
-    return NextResponse.json({ bookings, timeOff, configured: true })
+    return NextResponse.json({ bookings, timeOff, waitlist, configured: true })
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : 'Load failed' }, { status: 502 })
   }

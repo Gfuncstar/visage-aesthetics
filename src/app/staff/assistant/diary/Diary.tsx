@@ -17,6 +17,7 @@ type Booking = {
 }
 type TimeOff = { id: string; starts_at: string; ends_at: string; reason: string | null }
 type Service = { slug: string; name: string; duration_min: number }
+type WaitlistEntry = { id: string; client_name: string; service_name: string | null; client_phone: string | null; preferred_note: string | null }
 
 const TZ = 'Europe/London'
 
@@ -52,6 +53,7 @@ export default function Diary() {
   const [date, setDate] = useState(todayStr())
   const [bookings, setBookings] = useState<Booking[]>([])
   const [timeOff, setTimeOff] = useState<TimeOff[]>([])
+  const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([])
   const [services, setServices] = useState<Service[]>([])
   const [loading, setLoading] = useState(true)
   const [adding, setAdding] = useState<'booking' | 'time_off' | null>(null)
@@ -63,6 +65,7 @@ export default function Diary() {
       const d = await res.json()
       setBookings(d.bookings ?? [])
       setTimeOff(d.timeOff ?? [])
+      setWaitlist(d.waitlist ?? [])
     }
     setLoading(false)
   }, [])
@@ -157,6 +160,23 @@ export default function Diary() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {waitlist.length > 0 && (
+          <div className="mt-8">
+            <div className="eyebrow text-gold mb-3">Waitlist ({waitlist.length})</div>
+            <div className="space-y-2">
+              {waitlist.map((w) => (
+                <div key={w.id} className="border border-line/40 bg-cream-soft rounded-sm px-4 py-3 text-sm">
+                  <span className="text-charcoal font-medium">{w.client_name}</span>
+                  {w.service_name ? <span className="text-stone"> &nbsp;·&nbsp; {w.service_name}</span> : null}
+                  {w.client_phone ? <span className="text-stone"> &nbsp;·&nbsp; {w.client_phone}</span> : null}
+                  {w.preferred_note ? <div className="text-xs text-ink-soft mt-0.5">{w.preferred_note}</div> : null}
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-ink-soft mt-2">When you cancel a booking, anyone waiting for that treatment is texted automatically.</p>
           </div>
         )}
       </div>

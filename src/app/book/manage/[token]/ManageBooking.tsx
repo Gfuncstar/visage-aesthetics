@@ -1,9 +1,14 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Calendar, Check, X } from 'lucide-react'
+import { Calendar, Check, Clock, RotateCcw, X } from 'lucide-react'
 
-type Booking = { serviceName: string; clientName: string; startsAt: string; status: string }
+type Booking = { serviceName: string; serviceSlug: string | null; clientName: string; startsAt: string; status: string }
+type Slot = { startsAtIso: string; label: string }
+
+function dayChip(dateStr: string): string {
+  return new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Europe/London' }).format(new Date(`${dateStr}T12:00:00Z`))
+}
 
 function whenLabel(iso: string): string {
   return new Intl.DateTimeFormat('en-GB', {
@@ -22,6 +27,11 @@ export default function ManageBooking({ token }: { token: string }) {
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [cancelling, setCancelling] = useState(false)
+  const [rescheduling, setRescheduling] = useState(false)
+  const [calendar, setCalendar] = useState<Record<string, number>>({})
+  const [day, setDay] = useState<string | null>(null)
+  const [slots, setSlots] = useState<Slot[]>([])
+  const [moving, setMoving] = useState(false)
 
   useEffect(() => {
     void (async () => {
@@ -43,6 +53,38 @@ export default function ManageBooking({ token }: { token: string }) {
     if (res.ok) setBooking((b) => (b ? { ...b, status: 'cancelled' } : b))
     setCancelling(false)
   }
+
+  async function startReschedule() {
+    if (!booking?.serviceSlug) return
+    setRescheduling(true)
+    setDay(null)
+    setSlots([])
+    const res = await fetch(`/api/book/availability?service=${booking.serviceSlug}&days=90`)
+    if (res.ok) setCalendar((await res.json()).calendar ?? {})
+  }
+
+  async function pickDay(ds: string) {
+    setDay(ds)
+    const res = await fetch(`/api/book/availability?service=${booking!.serviceSlug}&date=${ds}`)
+    if (res.ok) setSlots((await res.json()).slots ?? [])
+  }
+
+  async function moveTo(iso: string) {
+    setMoving(true)
+    const res = await fetch(`/api/book/manage/${token}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'reschedule', startsAt: iso }),
+    })
+    const d = await res.json().catch(() => ({}))
+    if (res.ok && d.startsAt) {
+      setBooking((b) => (b ? { ...b, startsAt: d.startsAt } : b))
+      setRescheduling(false)
+    }
+    setMoving(false)
+  }
+
+  const availableDays = Object.keys(calendar).filter((k) => calendar[k] > 0).sort()
 
   return (
     <section className="bg-cream text-charcoal min-h-screen">
@@ -69,12 +111,43 @@ export default function ManageBooking({ token }: { token: string }) {
                 <span className="inline-flex items-center gap-1.5 text-sm text-sage"><Check size={15} strokeWidth={2} /> Confirmed</span>
               )}
             </div>
-            {booking.status !== 'cancelled' && (
-              <button onClick={cancel} disabled={cancelling} className="btn btn-secondary mt-6 disabled:opacity-50">
-                <span className="inline-flex items-center gap-2"><X size={14} strokeWidth={1.75} /> {cancelling ? 'Cancelling…' : 'Cancel appointment'}</span>
-              </button>
+            {booking.status !== 'cancelled' && !rescheduling && (
+              <div className="mt-6 flex flex-wrap gap-2">
+                <button onClick={startReschedule} className="btn btn-primary" style={{ minHeight: 40 }}>
+                  <span className="inline-flex items-center gap-2"><RotateCcw size={14} strokeWidth={1.75} /> Reschedule</span>
+                </button>
+                <button onClick={cancel} disabled={cancelling} className="btn btn-secondary disabled:opacity-50" style={{ minHeight: 40 }}>
+                  <span className="inline-flex items-center gap-2"><X size={14} strokeWidth={1.75} /> {cancelling ? 'Cancelling…' : 'Cancel'}</span>
+                </button>
+              </div>
             )}
-            <p className="text-xs text-ink-soft mt-4 leading-relaxed">To move your appointment, cancel here and rebook, or call the clinic and we will sort it for you.</p>
+
+            {rescheduling && (
+              <div className="mt-6 border-t border-line/40 pt-5">
+                <div className="eyebrow text-gold mb-2 flex items-center gap-2"><Calendar size={13} strokeWidth={1.75} /> Pick a new day</div>
+                {availableDays.length === 0 ? (
+                  <p className="text-sm text-ink-soft">Finding availability…</p>
+                ) : (
+                  <div className="flex gap-2 overflow-x-auto pb-2 mb-4">
+                    {availableDays.map((ds) => (
+                      <button key={ds} onClick={() => pickDay(ds)} className={`shrink-0 rounded-sm border px-3 py-2 text-sm transition-colors ${day === ds ? 'border-gold bg-gold/10' : 'border-line/50 bg-cream-soft hover:border-gold/60'}`}>{dayChip(ds)}</button>
+                    ))}
+                  </div>
+                )}
+                {day && (
+                  <>
+                    <div className="eyebrow text-gold mb-2 flex items-center gap-2"><Clock size={13} strokeWidth={1.75} /> Pick a time</div>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                      {slots.map((s) => (
+                        <button key={s.startsAtIso} onClick={() => moveTo(s.startsAtIso)} disabled={moving} className="rounded-sm border border-line/50 bg-cream-soft px-2 py-2.5 text-sm text-charcoal hover:border-gold/60 disabled:opacity-50">{s.label}</button>
+                      ))}
+                    </div>
+                  </>
+                )}
+                <button onClick={() => setRescheduling(false)} className="text-xs text-stone mt-4">Keep my current time</button>
+              </div>
+            )}
+            {!rescheduling && <p className="text-xs text-ink-soft mt-4 leading-relaxed">Need help? Call the clinic and we will sort it for you.</p>}
           </div>
         )}
       </div>

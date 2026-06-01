@@ -40,7 +40,7 @@ export default function BookingFlow() {
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [result, setResult] = useState<'confirmed' | 'deposit' | null>(null)
+  const [result, setResult] = useState<'confirmed' | 'deposit' | 'waitlist' | null>(null)
 
   useEffect(() => {
     void (async () => {
@@ -82,6 +82,26 @@ export default function BookingFlow() {
       const res = await fetch(`/api/book/availability?service=${service!.slug}&date=${ds}&${identityQuery()}`)
       const d = await res.json()
       setSlots(d.slots ?? [])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function joinWaitlist() {
+    if (!service) return
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/book/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ service: service.slug, name, email, phone, note: notes }),
+      })
+      if (!res.ok) { setError('Could not join the waitlist. Please call the clinic.'); return }
+      setResult('waitlist')
+      setStep('done')
+    } catch {
+      setError('Network error. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -183,8 +203,12 @@ export default function BookingFlow() {
               <p className="text-sm text-ink-soft">Finding availability…</p>
             ) : availableDays.length === 0 ? (
               <div className="border border-line/40 bg-cream-soft rounded-sm px-4 py-5 text-sm text-ink-soft leading-relaxed">
-                There is no online availability for this treatment in the next three months. Please call the clinic on{' '}
-                <a href="tel:+441376123456" className="text-gold-deep">01376 123456</a> and we will help you find a time.
+                <p>There is no online availability for this treatment in the next three months.</p>
+                <button onClick={joinWaitlist} disabled={loading} className="btn btn-primary mt-4 disabled:opacity-50">
+                  <span className="inline-flex items-center gap-2">{loading ? 'Joining…' : 'Join the waitlist'}</span>
+                </button>
+                <p className="mt-3 text-xs">We will text or email you the moment a suitable time opens up. You can also call the clinic and we will help.</p>
+                {error && <p className="text-sm text-clay mt-2">{error}</p>}
               </div>
             ) : (
               <>
@@ -239,7 +263,12 @@ export default function BookingFlow() {
         {step === 'done' && (
           <div className="border border-sage/40 bg-sage/10 rounded-sm p-6 text-center">
             <div className="inline-flex w-12 h-12 rounded-full bg-sage/20 text-sage items-center justify-center mb-4"><Check size={22} strokeWidth={2} /></div>
-            {result === 'deposit' ? (
+            {result === 'waitlist' ? (
+              <>
+                <h2 className="font-display italic text-2xl text-charcoal mb-2">You&apos;re on the list</h2>
+                <p className="text-ink-soft leading-relaxed">We will be in touch the moment a suitable time opens up. First to book keeps it.</p>
+              </>
+            ) : result === 'deposit' ? (
               <>
                 <h2 className="font-display italic text-2xl text-charcoal mb-2">Almost there</h2>
                 <p className="text-ink-soft leading-relaxed">Your time is held. A small deposit secures it, and we will send you a payment link shortly. Once that is paid your booking is confirmed.</p>

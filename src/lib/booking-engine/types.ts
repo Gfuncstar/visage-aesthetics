@@ -45,6 +45,8 @@ export type Booking = {
   notes: string | null
   source: 'online' | 'staff'
   manage_token: string
+  reminded_at: string | null
+  review_requested_at: string | null
   created_at: string
   updated_at: string
 }
