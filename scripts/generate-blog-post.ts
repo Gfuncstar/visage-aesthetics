@@ -118,6 +118,74 @@ async function main() {
     readTime: estimateReadTime(wordCount),
   })
   console.log('Blog manifest updated')
+
+  // Phase 7: draft a native social caption for review (never auto-posted).
+  await saveSocialDraft(client, topic, draft, `https://www.vaclinic.co.uk/blog/${topic.slug}`)
+}
+
+/**
+ * Draft a native Instagram/Facebook caption teasing the new post and save it as
+ * a Marketing draft (status 'draft') for a human to review and post. Best
+ * effort: needs SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY, otherwise skipped.
+ */
+async function saveSocialDraft(client: Anthropic, topic: Topic, draft: string, url: string): Promise<void> {
+  const supaUrl = process.env.SUPABASE_URL
+  const supaKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!supaUrl || !supaKey) {
+    console.log('No Supabase env, skipping social draft.')
+    return
+  }
+  let caption = ''
+  try {
+    const res = await client.messages.create({
+      model: MODEL,
+      max_tokens: 400,
+      messages: [{
+        role: 'user',
+        content: `Write a short, native Instagram and Facebook caption for a UK nurse-led aesthetics clinic, teasing a new blog post titled "${topic.title}".
+
+Rules:
+- 2 to 4 short lines. Open with a hook or a real question, NOT the headline.
+- Warm, calm, clinical. British English. First person where natural.
+- No em-dashes or en-dashes anywhere. No marketing hype words. Do not refer to the practitioner in the third person.
+- At most one or two tasteful hashtags.
+- End with: Read more: ${url}
+
+Output the caption only.
+
+Post body for context:
+---
+${draft.slice(0, 2000)}
+---`,
+      }],
+    })
+    caption = res.content
+      .filter((b: { type: string }) => b.type === 'text')
+      .map((b: { type: string; text?: string }) => b.text ?? '')
+      .join('')
+      .trim()
+  } catch (err) {
+    console.warn('Social caption draft failed:', err)
+    return
+  }
+  caption = scrubDashes(caption)
+  if (!caption) return
+  try {
+    const res = await fetch(`${supaUrl.replace(/\/$/, '')}/rest/v1/marketing_activity`, {
+      method: 'POST',
+      headers: {
+        apikey: supaKey,
+        Authorization: `Bearer ${supaKey}`,
+        'Content-Type': 'application/json',
+        Prefer: 'return=minimal',
+      },
+      body: JSON.stringify({ channel: 'social', title: caption.slice(0, 120), detail: caption, url, status: 'draft' }),
+    })
+    if (!res.ok) console.warn('Social draft insert failed:', res.status, (await res.text()).slice(0, 200))
+    else console.log('Social draft saved for review.')
+  } catch (err) {
+    console.warn('Social draft insert threw:', err)
+  }
 }
 
 async function researchNews(
