@@ -4,6 +4,7 @@ import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, select, update } from '@/lib/assistant/db'
 import { londonParts, dayLabel, clockLabel } from '@/lib/booking-engine/time'
 import { sendSms, smsConfigured } from '@/lib/assistant/sms'
+import { recordMessage } from '@/lib/assistant/messages'
 import { isSuppressed } from '@/lib/assistant/suppression'
 import type { Booking } from '@/lib/booking-engine/types'
 
@@ -67,18 +68,17 @@ export async function GET(req: Request) {
       let delivered = false
       if (b.client_phone && smsConfigured()) {
         delivered = await sendSms(b.client_phone, text)
-        if (delivered) sms++
+        if (delivered) {
+          sms++
+          await recordMessage({ clientName: b.client_name, phone: b.client_phone, channel: 'sms', kind: 'reminder', body: text, bookingId: b.id })
+        }
       }
       if (!delivered && b.client_email && resend) {
+        const subject = `Reminder: your ${b.service_name} on ${dayLabel(p.dateStr)}`
         try {
-          await resend.emails.send({
-            from: FROM_EMAIL,
-            to: [b.client_email],
-            replyTo: REPLY_TO,
-            subject: `Reminder: your ${b.service_name} on ${dayLabel(p.dateStr)}`,
-            text,
-          })
+          await resend.emails.send({ from: FROM_EMAIL, to: [b.client_email], replyTo: REPLY_TO, subject, text })
           email++
+          await recordMessage({ clientName: b.client_name, email: b.client_email, channel: 'email', kind: 'reminder', subject, body: text, bookingId: b.id })
         } catch (err) {
           console.error('[reminders] email failed', err)
         }

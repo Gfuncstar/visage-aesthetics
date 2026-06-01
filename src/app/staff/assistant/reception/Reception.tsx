@@ -1,8 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, BellRing, CalendarDays, Clock, ListPlus, LogOut, RotateCcw, Sparkles } from 'lucide-react'
+import { ArrowLeft, BellRing, CalendarDays, Check, Clock, ListPlus, LogOut, Mic, RotateCcw, Sparkles, X } from 'lucide-react'
 
 type Lite = { id: string; service_name: string; client_name: string; client_phone: string | null; starts_at: string; status: string; source: string; created_at: string }
 type WaitRow = { id: string; client_name: string; service_name: string | null; client_phone: string | null }
@@ -74,6 +74,8 @@ export default function Reception() {
             <LogOut size={14} strokeWidth={1.75} /><span className="hidden sm:inline">Sign out</span>
           </button>
         </div>
+
+        <CommandBar onActioned={load} />
 
         {loading ? (
           <p className="text-sm text-ink-soft">Loading…</p>
@@ -147,6 +149,121 @@ export default function Reception() {
         )}
       </div>
     </section>
+  )
+}
+
+type ParsedAction = { type: string; [k: string]: unknown }
+
+function CommandBar({ onActioned }: { onActioned: () => void }) {
+  const [text, setText] = useState('')
+  const [listening, setListening] = useState(false)
+  const [micSupported, setMicSupported] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [proposal, setProposal] = useState<{ action: ParsedAction; summary: string } | null>(null)
+  const [done, setDone] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recRef = useRef<any>(null)
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    setMicSupported(Boolean(SR))
+  }, [])
+
+  function toggleMic() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (!SR) return
+    if (listening) { recRef.current?.stop(); return }
+    const rec = new SR()
+    rec.lang = 'en-GB'
+    rec.continuous = true
+    rec.interimResults = false
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rec.onresult = (e: any) => {
+      let said = ''
+      for (let i = e.resultIndex; i < e.results.length; i++) said += e.results[i][0].transcript
+      setText((prev) => (prev ? `${prev} ${said}` : said).trim())
+    }
+    rec.onend = () => setListening(false)
+    rec.onerror = () => setListening(false)
+    recRef.current = rec
+    rec.start()
+    setListening(true)
+  }
+
+  async function interpret() {
+    if (!text.trim()) return
+    if (listening) recRef.current?.stop()
+    setBusy(true); setError(null); setDone(null); setProposal(null)
+    try {
+      const res = await fetch('/api/staff/assistant/command', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }),
+      })
+      const d = await res.json().catch(() => ({}))
+      if (!res.ok) { setError(d.error || 'Could not read that.'); return }
+      if (d.action?.type === 'unknown') { setError(d.summary || 'I could not work out what to do.'); return }
+      setProposal({ action: d.action, summary: d.summary })
+    } catch { setError('Network error.') } finally { setBusy(false) }
+  }
+
+  async function confirm() {
+    if (!proposal) return
+    setBusy(true); setError(null)
+    try {
+      const res = await fetch('/api/staff/assistant/command/execute', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: proposal.action }),
+      })
+      const d = await res.json().catch(() => ({}))
+      if (!res.ok || d.ok === false) { setError(d.message || d.error || 'Could not do that.'); return }
+      setDone(d.message || 'Done.')
+      setProposal(null); setText('')
+      onActioned()
+    } catch { setError('Network error.') } finally { setBusy(false) }
+  }
+
+  return (
+    <div className="border border-gold/40 bg-gold/5 rounded-sm p-5 mb-8">
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <span className="text-eyebrow text-gold-deep">What would you like me to do?</span>
+        {micSupported && (
+          <button type="button" onClick={toggleMic} className={`inline-flex items-center gap-2 text-sm rounded-full border px-3 py-1.5 transition-colors ${listening ? 'border-clay bg-clay/10 text-clay' : 'border-gold/50 text-gold-deep hover:bg-gold/10'}`}>
+            <Mic size={15} strokeWidth={1.75} className={listening ? 'animate-pulse' : ''} />
+            {listening ? 'Listening… tap to stop' : 'Tap to talk'}
+          </button>
+        )}
+      </div>
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        rows={2}
+        className="w-full bg-cream border border-line rounded-sm px-4 py-3 text-base text-charcoal placeholder:text-ink-soft/60 focus:outline-none focus:border-gold leading-relaxed"
+        placeholder="e.g. Book Sarah Grantham in for Botox on Thursday at 2pm. Or: block Friday afternoon. Or: cancel John's appointment."
+      />
+      {error && <p className="text-sm text-clay mt-2">{error}</p>}
+      {done && <p className="text-sm text-sage mt-2 inline-flex items-center gap-1.5"><Check size={14} strokeWidth={2} /> {done}</p>}
+
+      {proposal ? (
+        <div className="mt-3 border border-gold/40 bg-cream rounded-sm p-3">
+          <div className="text-sm text-charcoal mb-3">{proposal.summary}</div>
+          <div className="flex items-center gap-2">
+            <button onClick={confirm} disabled={busy} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 38 }}>
+              <span className="inline-flex items-center gap-2"><Check size={14} strokeWidth={2} /> {busy ? 'Doing it…' : 'Do it'}</span>
+            </button>
+            <button onClick={() => setProposal(null)} className="btn btn-secondary" style={{ minHeight: 38 }}>
+              <span className="inline-flex items-center gap-2"><X size={14} strokeWidth={1.75} /> Not that</span>
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-3">
+          <button onClick={interpret} disabled={busy || !text.trim()} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 40 }}>
+            <span className="inline-flex items-center gap-2"><Sparkles size={15} strokeWidth={1.75} /> {busy ? 'Reading…' : 'Action this'}</span>
+          </button>
+        </div>
+      )}
+    </div>
   )
 }
 

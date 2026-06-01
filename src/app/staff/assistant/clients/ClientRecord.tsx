@@ -16,6 +16,7 @@ type TRecord = {
   total_dose: number | null; unit: string | null; notes: string | null; clinical_note: string | null
 }
 type Photo = { id: string; date: string; type: string; url: string; consent: boolean; treatment_type: string | null; notes: string | null }
+type Message = { id: string; channel: string; kind: string; subject: string | null; body: string | null; created_at: string }
 type Summary = { name: string; visits: number; totalSpend: number; firstVisit: string | null; lastVisit: string | null; treatments: { service: string; count: number }[] }
 
 export default function ClientRecord() {
@@ -27,6 +28,7 @@ export default function ClientRecord() {
   const [appts, setAppts] = useState<Appt[]>([])
   const [records, setRecords] = useState<TRecord[]>([])
   const [photos, setPhotos] = useState<Photo[]>([])
+  const [messages, setMessages] = useState<Message[]>([])
   const [doNotContact, setDoNotContact] = useState(false)
   const [blocked, setBlocked] = useState(false)
   const [requiresDeposit, setRequiresDeposit] = useState(false)
@@ -62,6 +64,7 @@ export default function ClientRecord() {
       setAppts(d.appointments ?? [])
       setRecords(d.treatmentRecords ?? [])
       setPhotos(d.photos ?? [])
+      setMessages(d.messages ?? [])
       setDoNotContact(Boolean(d.doNotContact))
       setBlocked(Boolean(d.blocked))
       setRequiresDeposit(Boolean(d.requiresDeposit))
@@ -112,6 +115,7 @@ export default function ClientRecord() {
         appts={appts}
         records={records}
         photos={photos}
+        messages={messages}
         loading={loading}
         doNotContact={doNotContact}
         onToggleDnc={toggleDnc}
@@ -195,9 +199,9 @@ export default function ClientRecord() {
 }
 
 function Detail({
-  name, summary, appts, records, photos, loading, doNotContact, onToggleDnc, blocked, requiresDeposit, onToggleFlag, onBack, onRefresh, onLightbox, lightbox, onCloseLightbox, onSignOut,
+  name, summary, appts, records, photos, messages, loading, doNotContact, onToggleDnc, blocked, requiresDeposit, onToggleFlag, onBack, onRefresh, onLightbox, lightbox, onCloseLightbox, onSignOut,
 }: {
-  name: string; summary: Summary | null; appts: Appt[]; records: TRecord[]; photos: Photo[]; loading: boolean
+  name: string; summary: Summary | null; appts: Appt[]; records: TRecord[]; photos: Photo[]; messages: Message[]; loading: boolean
   doNotContact: boolean; onToggleDnc: (next: boolean) => void
   blocked: boolean; requiresDeposit: boolean; onToggleFlag: (flag: 'blocked' | 'requires_deposit', next: boolean) => void
   onBack: () => void; onRefresh: () => void; onLightbox: (url: string) => void; lightbox: string | null; onCloseLightbox: () => void; onSignOut: () => void
@@ -293,6 +297,24 @@ function Detail({
             </div>
           )}
         </div>
+
+        {/* Messages sent */}
+        {messages.length > 0 && (
+          <div className="mt-10">
+            <div className="eyebrow text-gold mb-3">Messages sent</div>
+            <div className="border border-line/40 rounded-sm divide-y divide-line/30 bg-cream-soft">
+              {messages.map((m) => (
+                <div key={m.id} className="px-4 py-2.5 text-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-charcoal capitalize">{m.kind} <span className="text-stone lowercase">· {m.channel}</span></span>
+                    <span className="text-xs text-stone">{ukDate(m.created_at)}</span>
+                  </div>
+                  {m.body && <div className="text-xs text-ink-soft mt-1 line-clamp-2">{m.body}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Appointment history */}
         <div className="mt-10">

@@ -6,6 +6,7 @@ import { Resend } from 'resend'
 import { select, update, insertMany, audit } from '../assistant/db'
 import { sendSms, smsConfigured } from '../assistant/sms'
 import { isSuppressed } from '../assistant/suppression'
+import { recordMessage, type MessageKind } from '../assistant/messages'
 import { normName } from './client-flags'
 import type { Booking } from './types'
 
@@ -31,15 +32,20 @@ async function reach(
   booking: Pick<Booking, 'client_name' | 'client_email' | 'client_phone'>,
   text: string,
   subject: string,
+  kind: MessageKind,
 ): Promise<boolean> {
   if (await isSuppressed(booking.client_name, booking.client_email)) return false
   if (booking.client_phone && smsConfigured()) {
-    if (await sendSms(booking.client_phone, text)) return true
+    if (await sendSms(booking.client_phone, text)) {
+      await recordMessage({ clientName: booking.client_name, phone: booking.client_phone, channel: 'sms', kind, body: text })
+      return true
+    }
   }
   const r = resend()
   if (booking.client_email && r) {
     try {
       await r.emails.send({ from: FROM_EMAIL, to: [booking.client_email], replyTo: REPLY_TO, subject, text })
+      await recordMessage({ clientName: booking.client_name, email: booking.client_email, channel: 'email', kind, subject, body: text })
       return true
     } catch (err) {
       console.error('[notify] email failed', err)
@@ -52,7 +58,7 @@ async function reach(
 export async function sendReviewRequest(booking: Booking): Promise<void> {
   if (booking.review_requested_at) return
   const text = `Hi ${firstName(booking.client_name)}, thank you for visiting Visage Aesthetics. If you have a moment, a short Google review means a great deal: ${REVIEW_URL}`
-  await reach(booking, text, 'Thank you from Visage Aesthetics')
+  await reach(booking, text, 'Thank you from Visage Aesthetics', 'review')
   await update('bookings', { id: booking.id }, { review_requested_at: new Date().toISOString() })
 }
 
@@ -77,6 +83,7 @@ export async function notifyWaitlistForService(serviceSlug: string | null): Prom
       { client_name: w.client_name, client_email: w.client_email, client_phone: w.client_phone },
       text,
       'A time has opened at Visage Aesthetics',
+      'waitlist',
     )
     await update('waitlist', { id: w.id }, { status: 'notified', notified_at: new Date().toISOString() })
     if (ok) sent++
