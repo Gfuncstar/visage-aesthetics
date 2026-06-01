@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, FileText, LogOut, Mail, Megaphone, Send, Share2 } from 'lucide-react'
+import { FileText, LogOut, Mail, Megaphone, Send, Share2 } from 'lucide-react'
 
 type Activity = { id: string; channel: string; title: string | null; detail: string | null; url: string | null; count: number | null; status: string; created_at: string }
 type Blog = { slug: string; title: string; category: string; datePublished: string }
@@ -45,9 +45,6 @@ export default function Marketing() {
       <div className="max-w-3xl mx-auto px-5 md:px-8 pt-12 md:pt-20 pb-24">
         <div className="flex items-start justify-between gap-4 mb-8">
           <div>
-            <Link href="/staff/assistant/marketing" className="inline-flex items-center gap-2 mb-5 bg-charcoal text-cream rounded-sm px-4 py-3 text-sm font-medium hover:bg-gold-deep transition-colors">
-              <ArrowLeft size={14} strokeWidth={1.75} /> Marketing
-            </Link>
             <div className="eyebrow text-gold mb-2">Marketing &nbsp;·&nbsp; Overview</div>
             <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight">Getting the clinic seen.</h1>
             <p className="text-ink-soft mt-3 max-w-xl leading-relaxed">What has gone out, in one place: blogs, emails, social and advertising.</p>

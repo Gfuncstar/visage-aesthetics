@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, BellRing, CalendarDays, Check, Clock, ListPlus, LogOut, Mic, Sparkles, X } from 'lucide-react'
+import { BellRing, CalendarDays, Check, Clock, ListPlus, LogOut, Mic, Sparkles, X } from 'lucide-react'
 
 type Lite = { id: string; service_name: string; client_name: string; client_phone: string | null; starts_at: string; status: string; source: string; created_at: string }
 type WaitRow = { id: string; client_name: string; service_name: string | null; client_phone: string | null }
@@ -61,9 +61,6 @@ export default function Reception() {
       <div className="max-w-3xl mx-auto px-5 md:px-8 pt-12 md:pt-20 pb-24">
         <div className="flex items-start justify-between gap-4 mb-8">
           <div>
-            <Link href="/staff/assistant/reception" className="inline-flex items-center gap-2 mb-5 bg-charcoal text-cream rounded-sm px-4 py-3 text-sm font-medium hover:bg-gold-deep transition-colors">
-              <ArrowLeft size={14} strokeWidth={1.75} /> Receptionist
-            </Link>
             <div className="eyebrow text-gold mb-2 inline-flex items-center gap-2">
               Front desk
               <span className="text-[10px] tracking-[0.18em] uppercase rounded-full px-2 py-0.5 bg-gold/15 text-gold-deep border border-gold/40">Paused</span>

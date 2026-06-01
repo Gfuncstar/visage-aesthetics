@@ -19,24 +19,10 @@ export default function Hub({
   cards: HubCard[]
   banner?: React.ReactNode
 }) {
-  const dateLabel = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'Europe/London',
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  }).format(new Date())
-
   return (
     <section className="bg-cream text-charcoal min-h-screen">
-      <div className="max-w-3xl mx-auto px-5 md:px-8 pt-8 md:pt-12 pb-24">
-        <header className="flex items-center justify-between gap-4 pb-4 mb-6 border-b border-line/50">
-          <div className="flex flex-col">
-            <span className="font-display text-charcoal" style={{ fontSize: 18, letterSpacing: '0.01em' }}>Visage Aesthetics</span>
-            <span className="eyebrow text-gold" style={{ fontSize: 9.5, marginTop: 2 }}>{eyebrow}</span>
-          </div>
-          <span className="eyebrow text-stone text-right" style={{ fontSize: 9.5 }}>{dateLabel}</span>
-        </header>
-
+      <div className="max-w-3xl mx-auto px-5 md:px-8 pt-7 md:pt-10 pb-24">
+        <div className="eyebrow text-gold mb-2">{eyebrow}</div>
         <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight">{title}</h1>
         {intro && <p className="text-ink-soft mt-3 max-w-xl leading-relaxed">{intro}</p>}
         {banner && <div className="mt-6">{banner}</div>}

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Camera, Check, Inbox, Link2, LogOut, Plus, RefreshCw, Trash2 } from 'lucide-react'
+import { Camera, Check, Inbox, Link2, LogOut, Plus, RefreshCw, Trash2 } from 'lucide-react'
 import { ORDER_CATEGORIES, type Order, type OrderCategory } from '@/lib/assistant/types'
 import { gbp, ukDate, currentMonthKey, monthLabel, recentMonthKeys } from '@/lib/assistant/format'
 
@@ -104,10 +104,6 @@ export default function OrdersLog() {
       <div className="max-w-5xl mx-auto px-5 md:px-8 pt-12 md:pt-20 pb-24">
         <div className="flex items-start justify-between gap-4 mb-8">
           <div>
-            <Link href="/staff/assistant" className="inline-flex items-center gap-2 mb-5 bg-charcoal text-cream rounded-sm px-4 py-3 text-sm font-medium hover:bg-gold-deep transition-colors">
-              <ArrowLeft size={14} strokeWidth={1.75} />
-              Assistant
-            </Link>
             <div className="eyebrow text-gold mb-2">Assistant &nbsp;·&nbsp; Orders &amp; expenses</div>
             <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight">The order book.</h1>
           </div>

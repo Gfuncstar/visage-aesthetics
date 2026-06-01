@@ -1,7 +1,6 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
 import { ArrowLeft, BellOff, Ban, Camera, Check, ChevronRight, CreditCard, ImagePlus, LogOut, Search, Trash2, X } from 'lucide-react'
 import { gbp, ukDate } from '@/lib/assistant/format'
 
@@ -137,9 +136,6 @@ export default function ClientRecord() {
       <div className="max-w-3xl mx-auto px-5 md:px-8 pt-12 md:pt-20 pb-24">
         <div className="flex items-start justify-between gap-4 mb-8">
           <div>
-            <Link href="/staff/assistant" className="inline-flex items-center gap-2 mb-5 bg-charcoal text-cream rounded-sm px-4 py-3 text-sm font-medium hover:bg-gold-deep transition-colors">
-              <ArrowLeft size={14} strokeWidth={1.75} /> Assistant
-            </Link>
             <div className="eyebrow text-gold mb-2">Assistant &nbsp;·&nbsp; Client records</div>
             <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight">Look someone up.</h1>
           </div>
