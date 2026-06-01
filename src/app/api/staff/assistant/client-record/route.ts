@@ -35,10 +35,12 @@ export async function GET(req: Request) {
     if (name) {
       // PostgREST equality is case-sensitive; match case-insensitively.
       const enc = name.replace(/[%,()]/g, ' ')
-      const [appts, treatments, photos] = await Promise.all([
+      const norm = name.trim().toLowerCase().replace(/\s+/g, ' ')
+      const [appts, treatments, photos, dnc] = await Promise.all([
         select<Appointment>('appointments', { client_name: `ilike.${enc}`, order: 'date.desc', limit: 500 }),
         select<TreatmentRecord>('treatment_records', { client_name: `ilike.${enc}`, order: 'date.desc', limit: 500 }),
         select<Photo>('photos', { client_name: `ilike.${enc}`, order: 'date.desc', limit: 200 }),
+        select<{ id: string }>('do_not_contact', { name_normalised: `eq.${norm}`, limit: 1 }).catch(() => []),
       ])
 
       const completed = appts.filter((a) => a.status === 'completed')
@@ -64,6 +66,7 @@ export async function GET(req: Request) {
           treatment_label: getTreatmentType(t.treatment_type)?.name ?? t.treatment_type,
         })),
         photos,
+        doNotContact: dnc.length > 0,
       })
     }
 
