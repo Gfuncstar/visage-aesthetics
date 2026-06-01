@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ClipboardList, ConciergeBell, Megaphone, Send, Sparkles } from 'lucide-react'
+import { ClipboardList, ConciergeBell, Megaphone, Sparkles } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from './notes/StaffGate'
 
@@ -17,12 +17,6 @@ const tools = [
     title: 'Patient notes',
     description: 'Record a treatment straight into the clinic notes sheet.',
     Icon: ClipboardList,
-  },
-  {
-    href: '/staff/broadcasts',
-    title: 'Broadcasts',
-    description: 'Compose and send an email broadcast to a list of patients.',
-    Icon: Send,
   },
   {
     href: '/staff/assistant',

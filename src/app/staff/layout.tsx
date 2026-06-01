@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import { isStaffAuthed } from '@/lib/staff-auth'
+import StaffNav from './StaffNav'
 
 // The staff area is installable as a home-screen app (PWA): "Add to Home
 // Screen" gives a Visage icon that opens straight into the Assistant, full
@@ -14,6 +16,17 @@ export const metadata: Metadata = {
   },
 }
 
-export default function StaffLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+export const dynamic = 'force-dynamic'
+
+// A persistent, mobile-first bottom navigation bar is shown once signed in, so
+// moving between Home, Reception, Marketing and Assistant is always one tap and
+// the current section is clearly highlighted.
+export default async function StaffLayout({ children }: { children: React.ReactNode }) {
+  const authed = await isStaffAuthed()
+  return (
+    <>
+      {children}
+      {authed && <StaffNav />}
+    </>
+  )
 }
