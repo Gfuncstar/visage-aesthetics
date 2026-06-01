@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowLeft, Award, Boxes, CalendarClock, CalendarDays, ClipboardPen, ClipboardCheck, ReceiptText, RotateCcw, TrendingUp, Users } from 'lucide-react'
+import { ArrowLeft, Boxes, ClipboardPen, ClipboardCheck, ReceiptText, TrendingUp, Users } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from '../notes/StaffGate'
 import { assistantConfigured } from '@/lib/assistant/db'
@@ -16,15 +16,9 @@ export const dynamic = 'force-dynamic'
 
 const tools = [
   {
-    href: '/staff/assistant/diary',
-    title: 'Diary',
-    description: 'The book: appointments, statuses, block time.',
-    Icon: CalendarDays,
-  },
-  {
     href: '/staff/assistant/treatment',
     title: 'Treatment write-up',
-    description: 'Clinical note + aftercare email from an appointment.',
+    description: 'Clinical note from an appointment.',
     Icon: ClipboardPen,
   },
   {
@@ -32,18 +26,6 @@ const tools = [
     title: 'Client records',
     description: "Any client's history, notes, photos and spend.",
     Icon: Users,
-  },
-  {
-    href: '/staff/assistant/squeeze-in',
-    title: 'Squeeze-in',
-    description: 'Fit someone in: best gap + to-book list.',
-    Icon: CalendarClock,
-  },
-  {
-    href: '/staff/assistant/rebook',
-    title: "Who's due back",
-    description: 'Clients due a top-up, with a message ready.',
-    Icon: RotateCcw,
   },
   {
     href: '/staff/assistant/stock',
@@ -62,12 +44,6 @@ const tools = [
     title: 'Profit & accountant pack',
     description: 'Revenue, margin and a month-end pack.',
     Icon: TrendingUp,
-  },
-  {
-    href: '/staff/assistant/visibility',
-    title: 'Awards & press',
-    description: 'Free awards to enter and press to reply to.',
-    Icon: Award,
   },
 ]
 

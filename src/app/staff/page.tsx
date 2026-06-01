@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ClipboardList, ConciergeBell, Send, Sparkles } from 'lucide-react'
+import { ClipboardList, ConciergeBell, Megaphone, Send, Sparkles } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from './notes/StaffGate'
 
@@ -36,6 +36,12 @@ const tools = [
     description: 'Online booking, diary, reminders, waitlist and a voice command desk. Mirrors Ovatu, ready to take over.',
     Icon: ConciergeBell,
     badge: 'PAUSED',
+  },
+  {
+    href: '/staff/assistant/marketing',
+    title: 'Marketing',
+    description: 'Everything going out: blogs, email broadcasts, social posts to Meta and advertising, in one view.',
+    Icon: Megaphone,
   },
 ]
 

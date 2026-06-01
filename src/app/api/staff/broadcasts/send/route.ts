@@ -8,6 +8,7 @@ import {
 } from '@/lib/broadcast-email'
 import { customerEmails } from '@/lib/customers'
 import { filterSuppressedEmails } from '@/lib/assistant/suppression'
+import { insert } from '@/lib/assistant/db'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -208,6 +209,15 @@ export async function POST(req: Request) {
         error: msg,
       })
       failures.push({ error: msg })
+    }
+  }
+
+  // Record the send in the marketing activity log (real broadcasts only).
+  if (mode !== 'test' && sent > 0) {
+    try {
+      await insert('marketing_activity', { channel: 'email', title: subject, detail: headline || null, count: sent, status: 'done' })
+    } catch (e) {
+      console.error('[broadcasts] activity log failed', e)
     }
   }
 
