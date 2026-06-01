@@ -60,24 +60,24 @@ export default async function StaffIndex() {
           Choose a tool to continue.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-10">
+        <div className="grid grid-cols-2 gap-3 mt-8">
           {tools.map(({ href, title, description, Icon, badge }) => (
             <Link
               key={href}
               href={href}
-              className="group relative bg-cream-soft border border-line/40 rounded-sm p-7 hover:border-gold transition-colors"
+              className="group relative bg-cream-soft border border-line/40 rounded-sm p-4 sm:p-5 hover:border-gold transition-colors flex flex-col"
             >
               {badge && (
-                <span className="absolute top-4 right-4 text-[10px] font-medium tracking-[0.18em] uppercase rounded-full px-2.5 py-1 bg-gold/15 text-gold-deep border border-gold/40">
+                <span className="absolute top-2.5 right-2.5 text-[9px] font-medium tracking-[0.14em] uppercase rounded-full px-2 py-0.5 bg-gold/15 text-gold-deep border border-gold/40">
                   {badge}
                 </span>
               )}
-              <div className="inline-flex w-11 h-11 rounded-full bg-charcoal text-cream items-center justify-center mb-5 group-hover:bg-gold-deep transition-colors">
-                <Icon size={18} strokeWidth={1.75} />
+              <div className="inline-flex w-10 h-10 rounded-full bg-charcoal text-cream items-center justify-center mb-3 group-hover:bg-gold-deep transition-colors">
+                <Icon size={16} strokeWidth={1.75} />
               </div>
-              <h2 className="font-display italic text-2xl text-charcoal leading-tight">{title}</h2>
-              <p className="text-sm text-ink-soft mt-2 leading-relaxed">{description}</p>
-              <div className="mt-5 eyebrow text-gold inline-flex items-center gap-2">
+              <h2 className="font-display italic text-lg sm:text-xl text-charcoal leading-tight">{title}</h2>
+              <p className="text-xs text-ink-soft mt-1 leading-snug">{description}</p>
+              <div className="mt-3 eyebrow text-gold inline-flex items-center gap-2">
                 {badge === 'PAUSED' ? 'Preview' : 'Open'}
                 <span className="transition-transform group-hover:translate-x-1">→</span>
               </div>
