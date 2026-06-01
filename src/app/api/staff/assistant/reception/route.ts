@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, select } from '@/lib/assistant/db'
-import { dueRebookings } from '@/lib/assistant/rebook'
 import { londonToday } from '@/lib/booking-engine/time'
 import type { Booking } from '@/lib/booking-engine/types'
 
@@ -26,13 +25,12 @@ export async function GET() {
   const weekAgo = new Date(now.getTime() - 7 * 86400_000).toISOString()
 
   try {
-    const [today, justBooked, upcoming, soon, waitlist, dueBack] = await Promise.all([
+    const [today, justBooked, upcoming, soon, waitlist] = await Promise.all([
       select<Booking>('bookings', { and: `(starts_at.gte.${todayStart},starts_at.lte.${todayEnd})`, status: 'neq.cancelled', order: 'starts_at.asc', limit: 100 }),
       select<Booking>('bookings', { source: 'eq.online', and: `(created_at.gte.${weekAgo})`, order: 'created_at.desc', limit: 8 }),
       select<Booking>('bookings', { and: `(starts_at.gt.${now.toISOString()},starts_at.lte.${weekEnd})`, status: 'neq.cancelled', select: 'id', limit: 300 }),
       select<Booking>('bookings', { status: 'eq.confirmed', and: `(starts_at.gt.${now.toISOString()},starts_at.lte.${next24})`, select: 'id,reminded_at', limit: 200 }),
       select<WaitRow>('waitlist', { status: 'eq.waiting', order: 'created_at.asc', limit: 50 }),
-      dueRebookings().catch(() => []),
     ])
 
     const remindersPending = soon.filter((b) => !b.reminded_at).length
@@ -44,14 +42,12 @@ export async function GET() {
         todayCount: today.filter((b) => b.status !== 'cancelled').length,
         weekCount: upcoming.length,
         waitlistCount: waitlist.length,
-        dueBackCount: dueBack.length,
         remindersPending,
         remindersSoon: soon.length,
       },
       todaysBookings: today.map(lite),
       justBooked: justBooked.map(lite),
       waitlist,
-      dueBack: dueBack.slice(0, 6).map((d) => ({ name: d.clientName, treatment: d.treatmentLabel, overdueDays: d.overdueDays })),
     })
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : 'Load failed' }, { status: 502 })

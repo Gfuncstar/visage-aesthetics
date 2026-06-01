@@ -2,19 +2,17 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, BellRing, CalendarDays, Check, Clock, ListPlus, LogOut, Mic, RotateCcw, Sparkles, X } from 'lucide-react'
+import { ArrowLeft, BellRing, CalendarDays, Check, Clock, ListPlus, LogOut, Mic, Sparkles, X } from 'lucide-react'
 
 type Lite = { id: string; service_name: string; client_name: string; client_phone: string | null; starts_at: string; status: string; source: string; created_at: string }
 type WaitRow = { id: string; client_name: string; service_name: string | null; client_phone: string | null }
-type DueBack = { name: string; treatment: string; overdueDays: number }
 type Data = {
   configured: boolean
   today: string
-  stats: { todayCount: number; weekCount: number; waitlistCount: number; dueBackCount: number; remindersPending: number; remindersSoon: number }
+  stats: { todayCount: number; weekCount: number; waitlistCount: number; remindersPending: number; remindersSoon: number }
   todaysBookings: Lite[]
   justBooked: Lite[]
   waitlist: WaitRow[]
-  dueBack: DueBack[]
 }
 
 const TZ = 'Europe/London'
@@ -83,11 +81,10 @@ export default function Reception() {
           <p className="text-sm text-ink-soft border border-line/40 rounded-sm bg-cream-soft px-4 py-4">The clinic database is not connected yet.</p>
         ) : (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+            <div className="grid grid-cols-3 gap-3 mb-8">
               <Stat n={s!.todayCount} label="In today" tone="ink" />
               <Stat n={s!.weekCount} label="Next 7 days" tone="ink" />
               <Stat n={s!.waitlistCount} label="On waitlist" tone={s!.waitlistCount > 0 ? 'gold' : 'mute'} />
-              <Stat n={s!.dueBackCount} label="Due back" tone={s!.dueBackCount > 0 ? 'gold' : 'mute'} />
             </div>
 
             {/* Reminders going out */}
@@ -129,18 +126,6 @@ export default function Reception() {
                 <div className="space-y-2">
                   {data.waitlist.map((w) => (
                     <Row key={w.id} left={<span className="font-medium">{w.client_name}</span>} sub={[w.service_name, w.client_phone].filter(Boolean).join(' · ') || null} right={null} />
-                  ))}
-                </div>
-              )}
-            </Section>
-
-            <Section title="Due back" icon={RotateCcw} href="/staff/assistant/rebook" cta="Chase them">
-              {data.dueBack.length === 0 ? (
-                <Empty>No one due right now.</Empty>
-              ) : (
-                <div className="space-y-2">
-                  {data.dueBack.map((d, i) => (
-                    <Row key={i} left={<span className="font-medium">{d.name}</span>} sub={d.treatment} right={<span className={d.overdueDays > 0 ? 'text-clay text-xs' : 'text-stone text-xs'}>{d.overdueDays > 0 ? `${d.overdueDays}d overdue` : 'due soon'}</span>} />
                   ))}
                 </div>
               )}
