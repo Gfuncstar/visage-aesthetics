@@ -43,15 +43,34 @@ export default async function StaffIndex() {
   const authed = await isStaffAuthed()
   if (!authed) return <StaffGate />
 
+  const hour = Number(
+    new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour: '2-digit', hour12: false }).format(new Date()),
+  )
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
+  const dateLabel = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/London',
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  }).format(new Date())
+
   return (
     <section className="bg-cream text-charcoal min-h-screen">
-      <div className="max-w-3xl mx-auto px-5 md:px-8 pt-20 md:pt-24 pb-24">
+      <div className="max-w-3xl mx-auto px-5 md:px-8 pt-10 md:pt-14 pb-24">
+        <header className="flex items-center justify-between gap-4 pb-5 mb-8 border-b border-line/50">
+          <div className="flex flex-col">
+            <span className="font-display text-charcoal" style={{ fontSize: 20, letterSpacing: '0.01em' }}>Visage Aesthetics</span>
+            <span className="eyebrow text-stone" style={{ fontSize: 9.5, marginTop: 2 }}>Private clinic &nbsp;·&nbsp; Braintree</span>
+          </div>
+          <span className="eyebrow text-gold text-right" style={{ fontSize: 9.5 }}>{dateLabel}</span>
+        </header>
+
         <div className="eyebrow text-gold mb-2">Clinic staff</div>
         <h1 className="font-display italic text-charcoal text-4xl md:text-5xl leading-tight">
-          What would you like to do?
+          {greeting}.
         </h1>
-        <p className="text-ink-soft mt-4 max-w-xl leading-relaxed">
-          Choose a tool to continue.
+        <p className="text-ink-soft mt-3 max-w-xl leading-relaxed">
+          What would you like to do?
         </p>
 
         <div className="grid grid-cols-2 gap-3 mt-8">
