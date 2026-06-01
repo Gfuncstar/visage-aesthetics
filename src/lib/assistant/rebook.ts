@@ -13,6 +13,7 @@ import { select } from './db'
 import { matchTreatmentType, getTreatmentType } from './treatment-types'
 import { BOOKING_URL } from '../booking'
 import { customers } from '../customers'
+import { loadSuppression } from './suppression'
 import type { Appointment, Client } from './types'
 
 // Recall interval per treatment type, in days. Conservative: this is "about
@@ -122,13 +123,14 @@ export async function dueRebookings(): Promise<RebookItem[]> {
   const todayIso = today.toISOString().slice(0, 10)
   const lookbackIso = addDays(todayIso, -LOOKBACK_DAYS)
 
-  const [appts, clients, marks] = await Promise.all([
+  const [appts, clients, marks, suppression] = await Promise.all([
     select<Appointment>('appointments', { order: 'date.desc', limit: 5000 }),
     select<Client>('clients', { select: 'first_name,last_name,phone', limit: 5000 }).catch(() => []),
     select<{ mark_key: string; snooze_until: string | null }>('rebook_marks', {
       select: 'mark_key,snooze_until',
       limit: 5000,
     }).catch(() => []),
+    loadSuppression(),
   ])
 
   // Phone lookup by "first last" (best effort; clients table may be sparse).
@@ -169,6 +171,14 @@ export async function dueRebookings(): Promise<RebookItem[]> {
   const items: RebookItem[] = []
   for (const [key, last] of lastByKey) {
     if (snoozed.has(key) || futureBooked.has(key)) continue
+    // Never surface a suppressed client (no email, WhatsApp or copy).
+    const email = emailByName.get(normaliseName(last.clientName)) ?? null
+    if (
+      suppression.names.has(normaliseName(last.clientName)) ||
+      (email && suppression.emails.has(email.toLowerCase()))
+    ) {
+      continue
+    }
     const group = key.split('|')[1]
     const interval = RECALL_DAYS[group]
     const dueDate = addDays(last.date, interval)
@@ -188,7 +198,7 @@ export async function dueRebookings(): Promise<RebookItem[]> {
       monthsSince,
       overdueDays,
       phone: phoneByName.get(last.clientName.toLowerCase()) ?? null,
-      email: emailByName.get(normaliseName(last.clientName)) ?? null,
+      email,
       draft: buildDraft(firstName, group, monthsSince),
     })
   }

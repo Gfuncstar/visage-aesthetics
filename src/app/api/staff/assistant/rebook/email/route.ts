@@ -3,6 +3,7 @@ import { Resend } from 'resend'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, insertMany, audit } from '@/lib/assistant/db'
 import { dueRebookings, rebookEmail, recallDays } from '@/lib/assistant/rebook'
+import { isSuppressed } from '@/lib/assistant/suppression'
 import { buildBroadcastHtml, buildBroadcastText } from '@/lib/broadcast-email'
 
 export const runtime = 'nodejs'
@@ -38,6 +39,10 @@ export async function POST(req: Request) {
   const item = (await dueRebookings()).find((i) => i.markKey === markKey)
   if (!item) return NextResponse.json({ error: 'That client is no longer on the due list.' }, { status: 409 })
   if (!item.email) return NextResponse.json({ error: 'No email on file for this client.' }, { status: 422 })
+  // Defence in depth: never email a suppressed client.
+  if (await isSuppressed(item.clientName, item.email)) {
+    return NextResponse.json({ error: 'This client is marked do-not-contact.' }, { status: 403 })
+  }
 
   const { subject, preheader, headline, body } = rebookEmail(item)
   const resend = new Resend(apiKey)
