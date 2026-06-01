@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffNav from './StaffNav'
+import StaffTopBar from './StaffTopBar'
 
 // The staff area is installable as a home-screen app (PWA): "Add to Home
 // Screen" gives a Visage icon that opens straight into the Assistant, full
@@ -26,9 +27,10 @@ export default async function StaffLayout({ children }: { children: React.ReactN
   if (!authed) return <>{children}</>
   return (
     <>
-      {/* Clear the fixed bottom nav: pages already pad the bottom, so this just
-          adds the device safe area plus a small margin so nothing tucks under. */}
+      {/* Sticky breadcrumb bar for in-section context + up-navigation, then the
+          page. Bottom padding clears the fixed bottom nav (plus safe area). */}
       <div className="bg-cream" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}>
+        <StaffTopBar />
         {children}
       </div>
       <StaffNav />

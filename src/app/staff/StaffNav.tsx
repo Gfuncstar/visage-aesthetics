@@ -7,15 +7,21 @@ import { ConciergeBell, Home, Megaphone, Sparkles } from 'lucide-react'
 // Persistent, mobile-first bottom navigation for the staff back end. Always
 // visible, big tap targets, and the current section is highlighted so it is
 // always obvious where you are and how to move between the arms.
+// Pages that belong to a section even though their URL does not sit under it.
+const RECEPTION = ['/staff/assistant/reception', '/staff/assistant/diary', '/staff/assistant/squeeze-in', '/staff/assistant/rebook']
+const MARKETING = ['/staff/assistant/marketing', '/staff/broadcasts', '/staff/assistant/visibility']
+
+const inAny = (p: string, list: string[]) => list.some((x) => p === x || p.startsWith(x + '/'))
+
 const tabs = [
-  { href: '/staff', label: 'Home', Icon: Home, match: (p: string) => p === '/staff' || p.startsWith('/staff/notes') || p.startsWith('/staff/broadcasts') },
-  { href: '/staff/assistant/reception', label: 'Reception', Icon: ConciergeBell, match: (p: string) => p.startsWith('/staff/assistant/reception') },
-  { href: '/staff/assistant/marketing', label: 'Marketing', Icon: Megaphone, match: (p: string) => p.startsWith('/staff/assistant/marketing') },
+  { href: '/staff', label: 'Home', Icon: Home, match: (p: string) => p === '/staff' || p.startsWith('/staff/notes') },
+  { href: '/staff/assistant/reception', label: 'Reception', Icon: ConciergeBell, match: (p: string) => inAny(p, RECEPTION) },
+  { href: '/staff/assistant/marketing', label: 'Marketing', Icon: Megaphone, match: (p: string) => inAny(p, MARKETING) },
   {
     href: '/staff/assistant',
     label: 'Assistant',
     Icon: Sparkles,
-    match: (p: string) => p.startsWith('/staff/assistant') && !p.startsWith('/staff/assistant/reception') && !p.startsWith('/staff/assistant/marketing'),
+    match: (p: string) => p.startsWith('/staff/assistant') && !inAny(p, RECEPTION) && !inAny(p, MARKETING),
   },
 ]
 

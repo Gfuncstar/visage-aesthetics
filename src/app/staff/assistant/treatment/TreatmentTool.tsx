@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import Link from 'next/link'
 import {
   ArrowLeft,
   Camera,
@@ -300,13 +299,6 @@ export default function TreatmentTool() {
       <div className="max-w-3xl mx-auto px-5 md:px-8 pt-12 md:pt-20 pb-24">
         <div className="flex items-start justify-between gap-4 mb-10">
           <div>
-            <Link
-              href="/staff/assistant"
-              className="inline-flex items-center gap-2 mb-5 bg-charcoal text-cream rounded-sm px-4 py-3 text-sm font-medium hover:bg-gold-deep transition-colors"
-            >
-              <ArrowLeft size={14} strokeWidth={1.75} />
-              Assistant
-            </Link>
             <div className="eyebrow text-gold mb-2">Assistant &nbsp;·&nbsp; Treatment write-up</div>
             <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight">
               Write up a treatment.

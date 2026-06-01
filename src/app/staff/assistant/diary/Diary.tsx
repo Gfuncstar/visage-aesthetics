@@ -1,8 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import Link from 'next/link'
-import { ArrowLeft, ChevronLeft, ChevronRight, LogOut, Plus, Ban } from 'lucide-react'
+import { ChevronLeft, ChevronRight, LogOut, Plus, Ban } from 'lucide-react'
 
 type Booking = {
   id: string
@@ -99,10 +98,7 @@ export default function Diary() {
       <div className="max-w-3xl mx-auto px-5 md:px-8 pt-12 md:pt-20 pb-24">
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <Link href="/staff/assistant" className="inline-flex items-center gap-2 mb-5 bg-charcoal text-cream rounded-sm px-4 py-3 text-sm font-medium hover:bg-gold-deep transition-colors">
-              <ArrowLeft size={14} strokeWidth={1.75} /> Assistant
-            </Link>
-            <div className="eyebrow text-gold mb-2">Assistant &nbsp;·&nbsp; Diary</div>
+            <div className="eyebrow text-gold mb-2">Reception &nbsp;·&nbsp; Diary</div>
             <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight">The book.</h1>
           </div>
           <button onClick={signOut} className="eyebrow text-stone hover:text-gold-deep transition-colors flex items-center gap-2 shrink-0 mt-2">

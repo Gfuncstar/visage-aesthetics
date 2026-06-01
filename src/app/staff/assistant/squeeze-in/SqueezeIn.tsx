@@ -1,8 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
-import { ArrowLeft, Calendar, Check, Copy, LogOut, Mic, Send, Sparkles, X } from 'lucide-react'
+import { Calendar, Check, Copy, LogOut, Mic, Send, Sparkles, X } from 'lucide-react'
 
 const textareaClass =
   'w-full bg-cream border border-line/40 rounded-sm px-4 py-3 text-base text-charcoal placeholder:text-ink-soft/60 focus:outline-none focus:border-gold leading-relaxed'
@@ -121,10 +120,7 @@ export default function SqueezeIn() {
       <div className="max-w-3xl mx-auto px-5 md:px-8 pt-12 md:pt-20 pb-24">
         <div className="flex items-start justify-between gap-4 mb-8">
           <div>
-            <Link href="/staff/assistant" className="inline-flex items-center gap-2 mb-5 bg-charcoal text-cream rounded-sm px-4 py-3 text-sm font-medium hover:bg-gold-deep transition-colors">
-              <ArrowLeft size={14} strokeWidth={1.75} /> Assistant
-            </Link>
-            <div className="eyebrow text-gold mb-2">Assistant &nbsp;·&nbsp; Squeeze-in</div>
+            <div className="eyebrow text-gold mb-2">Reception &nbsp;·&nbsp; Squeeze-in</div>
             <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight">Who wants squeezing in?</h1>
             <p className="text-ink-soft mt-4 max-w-xl leading-relaxed">
               Got a message asking to fit someone in? Just say it. I&apos;ll work out who, what and when,
