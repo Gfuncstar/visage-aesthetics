@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, BellOff, Camera, Check, ChevronRight, ImagePlus, LogOut, Search, Trash2, X } from 'lucide-react'
+import { ArrowLeft, BellOff, Ban, Camera, Check, ChevronRight, CreditCard, ImagePlus, LogOut, Search, Trash2, X } from 'lucide-react'
 import { gbp, ukDate } from '@/lib/assistant/format'
 
 const inputClass =
@@ -28,6 +28,8 @@ export default function ClientRecord() {
   const [records, setRecords] = useState<TRecord[]>([])
   const [photos, setPhotos] = useState<Photo[]>([])
   const [doNotContact, setDoNotContact] = useState(false)
+  const [blocked, setBlocked] = useState(false)
+  const [requiresDeposit, setRequiresDeposit] = useState(false)
   const [loading, setLoading] = useState(false)
   const [lightbox, setLightbox] = useState<string | null>(null)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -61,6 +63,8 @@ export default function ClientRecord() {
       setRecords(d.treatmentRecords ?? [])
       setPhotos(d.photos ?? [])
       setDoNotContact(Boolean(d.doNotContact))
+      setBlocked(Boolean(d.blocked))
+      setRequiresDeposit(Boolean(d.requiresDeposit))
     } finally {
       setLoading(false)
     }
@@ -80,6 +84,21 @@ export default function ClientRecord() {
     }
   }
 
+  async function toggleFlag(flag: 'blocked' | 'requires_deposit', next: boolean) {
+    const setter = flag === 'blocked' ? setBlocked : setRequiresDeposit
+    setter(next) // optimistic
+    try {
+      const res = await fetch('/api/staff/assistant/client-flags', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: selected, flag, value: next }),
+      })
+      if (!res.ok) setter(!next)
+    } catch {
+      setter(!next)
+    }
+  }
+
   async function signOut() {
     await fetch('/api/staff/logout', { method: 'POST' })
     window.location.reload()
@@ -96,6 +115,9 @@ export default function ClientRecord() {
         loading={loading}
         doNotContact={doNotContact}
         onToggleDnc={toggleDnc}
+        blocked={blocked}
+        requiresDeposit={requiresDeposit}
+        onToggleFlag={toggleFlag}
         onBack={() => { setSelected(null); setSummary(null) }}
         onRefresh={() => openClient(selected)}
         onLightbox={setLightbox}
@@ -173,10 +195,11 @@ export default function ClientRecord() {
 }
 
 function Detail({
-  name, summary, appts, records, photos, loading, doNotContact, onToggleDnc, onBack, onRefresh, onLightbox, lightbox, onCloseLightbox, onSignOut,
+  name, summary, appts, records, photos, loading, doNotContact, onToggleDnc, blocked, requiresDeposit, onToggleFlag, onBack, onRefresh, onLightbox, lightbox, onCloseLightbox, onSignOut,
 }: {
   name: string; summary: Summary | null; appts: Appt[]; records: TRecord[]; photos: Photo[]; loading: boolean
   doNotContact: boolean; onToggleDnc: (next: boolean) => void
+  blocked: boolean; requiresDeposit: boolean; onToggleFlag: (flag: 'blocked' | 'requires_deposit', next: boolean) => void
   onBack: () => void; onRefresh: () => void; onLightbox: (url: string) => void; lightbox: string | null; onCloseLightbox: () => void; onSignOut: () => void
 }) {
   return (
@@ -193,7 +216,32 @@ function Detail({
 
         <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight mb-4">{name}</h1>
 
-        <DoNotContactToggle on={doNotContact} onToggle={onToggleDnc} />
+        <div className="space-y-2 mb-6">
+          <FlagToggle
+            on={doNotContact}
+            onToggle={onToggleDnc}
+            Icon={BellOff}
+            title="Do not contact"
+            onText="No emails, WhatsApp or broadcasts will be sent to this client."
+            offText="Outreach is allowed for this client."
+          />
+          <FlagToggle
+            on={requiresDeposit}
+            onToggle={(v) => onToggleFlag('requires_deposit', v)}
+            Icon={CreditCard}
+            title="Require deposit to book"
+            onText="This client must pay a deposit online before a booking is confirmed."
+            offText="No deposit required to book."
+          />
+          <FlagToggle
+            on={blocked}
+            onToggle={(v) => onToggleFlag('blocked', v)}
+            Icon={Ban}
+            title="Block online booking"
+            onText="This client discreetly sees no availability when booking online."
+            offText="This client can book online normally."
+          />
+        </div>
 
         {summary && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
@@ -274,16 +322,19 @@ function Detail({
   )
 }
 
-function DoNotContactToggle({ on, onToggle }: { on: boolean; onToggle: (next: boolean) => void }) {
+function FlagToggle({
+  on, onToggle, Icon, title, onText, offText,
+}: {
+  on: boolean; onToggle: (next: boolean) => void
+  Icon: typeof BellOff; title: string; onText: string; offText: string
+}) {
   return (
-    <div className={`flex items-center justify-between gap-3 rounded-sm border px-4 py-3 mb-6 ${on ? 'border-clay/40 bg-clay/5' : 'border-line/40 bg-cream-soft'}`}>
+    <div className={`flex items-center justify-between gap-3 rounded-sm border px-4 py-3 ${on ? 'border-clay/40 bg-clay/5' : 'border-line/40 bg-cream-soft'}`}>
       <div className="flex items-start gap-2.5">
-        <BellOff size={16} strokeWidth={1.75} className={`mt-0.5 shrink-0 ${on ? 'text-clay' : 'text-stone'}`} />
+        <Icon size={16} strokeWidth={1.75} className={`mt-0.5 shrink-0 ${on ? 'text-clay' : 'text-stone'}`} />
         <div>
-          <div className={`text-sm font-medium ${on ? 'text-clay' : 'text-charcoal'}`}>Do not contact</div>
-          <div className="text-xs text-stone mt-0.5">
-            {on ? 'No emails, WhatsApp or broadcasts will be sent to this client.' : 'Outreach is allowed for this client.'}
-          </div>
+          <div className={`text-sm font-medium ${on ? 'text-clay' : 'text-charcoal'}`}>{title}</div>
+          <div className="text-xs text-stone mt-0.5">{on ? onText : offText}</div>
         </div>
       </div>
       <button
@@ -292,7 +343,7 @@ function DoNotContactToggle({ on, onToggle }: { on: boolean; onToggle: (next: bo
         aria-checked={on}
         onClick={() => onToggle(!on)}
         className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${on ? 'bg-clay' : 'bg-line'}`}
-        aria-label="Toggle do not contact"
+        aria-label={`Toggle ${title}`}
       >
         <span className={`inline-block h-5 w-5 transform rounded-full bg-cream transition-transform ${on ? 'translate-x-5' : 'translate-x-0.5'}`} />
       </button>
