@@ -61,11 +61,11 @@ export default function Reception() {
       <div className="max-w-3xl mx-auto px-5 md:px-8 pt-12 md:pt-20 pb-24">
         <div className="flex items-start justify-between gap-4 mb-8">
           <div>
-            <Link href="/staff" className="inline-flex items-center gap-2 mb-5 bg-charcoal text-cream rounded-sm px-4 py-3 text-sm font-medium hover:bg-gold-deep transition-colors">
-              <ArrowLeft size={14} strokeWidth={1.75} /> Staff
+            <Link href="/staff/assistant/reception" className="inline-flex items-center gap-2 mb-5 bg-charcoal text-cream rounded-sm px-4 py-3 text-sm font-medium hover:bg-gold-deep transition-colors">
+              <ArrowLeft size={14} strokeWidth={1.75} /> Receptionist
             </Link>
             <div className="eyebrow text-gold mb-2 inline-flex items-center gap-2">
-              Receptionist
+              Front desk
               <span className="text-[10px] tracking-[0.18em] uppercase rounded-full px-2 py-0.5 bg-gold/15 text-gold-deep border border-gold/40">Paused</span>
             </div>
             <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight">The front desk.</h1>
