@@ -7,6 +7,7 @@ import {
   type CtaKind,
 } from '@/lib/broadcast-email'
 import { customerEmails } from '@/lib/customers'
+import { filterSuppressedEmails } from '@/lib/assistant/suppression'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -138,8 +139,11 @@ export async function POST(req: Request) {
     }
   }
 
+  // Remove anyone on the do-not-contact list before sending.
+  targets = await filterSuppressedEmails(targets)
+
   if (targets.length === 0) {
-    return NextResponse.json({ error: 'No recipients to send to.' }, { status: 400 })
+    return NextResponse.json({ error: 'No recipients to send to (all may be on the do-not-contact list).' }, { status: 400 })
   }
 
   const resend = new Resend(apiKey)
