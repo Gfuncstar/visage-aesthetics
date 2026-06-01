@@ -29,6 +29,29 @@ function ago(iso: string): string {
   if (hrs < 24) return `${hrs}h ago`
   return `${Math.round(hrs / 24)}d ago`
 }
+function todayStr(): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date())
+}
+function addDays(ds: string, n: number): string {
+  const d = new Date(`${ds}T12:00:00Z`)
+  d.setUTCDate(d.getUTCDate() + n)
+  return d.toISOString().slice(0, 10)
+}
+function weekStart(ds: string): string {
+  const d = new Date(`${ds}T12:00:00Z`)
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7))
+  return d.toISOString().slice(0, 10)
+}
+function monthBounds(ds: string): { from: string; to: string } {
+  const [y, m] = ds.split('-').map(Number)
+  return { from: `${ds.slice(0, 7)}-01`, to: new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10) }
+}
+function localDate(iso: string): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date(iso))
+}
+function dayLabelShort(ds: string): string {
+  return new Intl.DateTimeFormat('en-GB', { timeZone: TZ, weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(`${ds}T12:00:00Z`))
+}
 
 const statusTone: Record<string, string> = {
   confirmed: 'text-sage',
@@ -40,6 +63,9 @@ const statusTone: Record<string, string> = {
 export default function Reception() {
   const [data, setData] = useState<Data | null>(null)
   const [loading, setLoading] = useState(true)
+  const [view, setView] = useState<'day' | 'week' | 'month'>('day')
+  const [range, setRange] = useState<Lite[]>([])
+  const [rangeLoading, setRangeLoading] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -48,6 +74,17 @@ export default function Reception() {
     setLoading(false)
   }, [])
   useEffect(() => { void load() }, [load])
+
+  useEffect(() => {
+    if (view === 'day') return
+    const today = todayStr()
+    const { from, to } = view === 'week' ? { from: weekStart(today), to: addDays(weekStart(today), 6) } : monthBounds(today)
+    setRangeLoading(true)
+    fetch(`/api/staff/assistant/diary?from=${from}&to=${to}`)
+      .then((r) => (r.ok ? r.json() : { bookings: [] }))
+      .then((d) => { setRange((d.bookings ?? []).filter((b: Lite) => b.status !== 'cancelled')); setRangeLoading(false) })
+      .catch(() => setRangeLoading(false))
+  }, [view])
 
   async function signOut() {
     await fetch('/api/staff/logout', { method: 'POST' })
@@ -99,14 +136,46 @@ export default function Reception() {
               </div>
             </div>
 
-            <Section title="Today" icon={CalendarDays} href="/staff/assistant/diary" cta="Open diary">
-              {data.todaysBookings.length === 0 ? (
-                <Empty>Nothing booked today.</Empty>
-              ) : (
-                <div className="space-y-2">
-                  {data.todaysBookings.map((b) => (
-                    <Row key={b.id} left={<span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>} sub={b.service_name} right={<span className={`capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>} />
+            <Section title={view === 'day' ? 'Today' : view === 'week' ? 'This week' : 'This month'} icon={CalendarDays} href="/staff/assistant/diary" cta="Open diary">
+              <div className="flex mb-3">
+                <div className="inline-flex rounded-full border border-line/50 bg-cream-soft p-0.5">
+                  {(['day', 'week', 'month'] as const).map((v) => (
+                    <button key={v} onClick={() => setView(v)} className={`text-sm rounded-full px-4 py-1.5 capitalize transition-colors ${view === v ? 'bg-gold text-charcoal' : 'text-ink-soft'}`}>{v}</button>
                   ))}
+                </div>
+              </div>
+              {view === 'day' ? (
+                data.todaysBookings.length === 0 ? (
+                  <Empty>Nothing booked today.</Empty>
+                ) : (
+                  <div className="space-y-2">
+                    {data.todaysBookings.map((b) => (
+                      <Row key={b.id} left={<span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>} sub={b.service_name} right={<span className={`capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>} />
+                    ))}
+                  </div>
+                )
+              ) : rangeLoading ? (
+                <p className="text-sm text-ink-soft">Loading…</p>
+              ) : range.length === 0 ? (
+                <Empty>Nothing booked.</Empty>
+              ) : (
+                <div className="space-y-4">
+                  {[...new Set(range.map((b) => localDate(b.starts_at)))].sort().map((day) => {
+                    const dayB = range.filter((b) => localDate(b.starts_at) === day).sort((a, b) => a.starts_at.localeCompare(b.starts_at))
+                    return (
+                      <div key={day}>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className={`text-sm font-medium ${day === todayStr() ? 'text-gold-deep' : 'text-charcoal'}`}>{dayLabelShort(day)}{day === todayStr() ? ' · today' : ''}</span>
+                          <span className="text-xs text-stone">{dayB.length} in</span>
+                        </div>
+                        <div className="space-y-2">
+                          {dayB.map((b) => (
+                            <Row key={b.id} left={<span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>} sub={b.service_name} right={<span className={`capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>} />
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
               )}
             </Section>
