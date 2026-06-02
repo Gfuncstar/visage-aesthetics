@@ -302,6 +302,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-06-01',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'chin-filler-for-jawline-projection',
+    category: "Dermal filler",
+    title: "Chin filler for jawline projection: a small change with big effect",
+    excerpt: "Chin filler is the most underused 1–2ml in UK aesthetics: it lengthens the neck, sharpens the jaw, and quietly makes the nose look smaller without touching it.",
+    readTime: "8 min read",
+    datePublished: '2026-06-02',
+    dateModified: '2026-06-02',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
