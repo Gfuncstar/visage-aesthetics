@@ -4,6 +4,7 @@ import { assistantConfigured, insert, audit } from '@/lib/assistant/db'
 import { getService, computeDay } from '@/lib/booking-engine/availability'
 import { londonParts, dayLabel, clockLabel } from '@/lib/booking-engine/time'
 import { bookingConfirmationEmail } from '@/lib/booking-email'
+import { consentFormForService } from '@/lib/consent/forms'
 import { isSuppressed } from '@/lib/assistant/suppression'
 import { lookupClientFlags } from '@/lib/booking-engine/client-flags'
 import { stripeConfigured, depositPence, createDepositCheckout } from '@/lib/booking-engine/stripe'
@@ -119,11 +120,18 @@ export async function POST(req: Request) {
     if (email && !(await isSuppressed(name, email))) {
       const apiKey = process.env.RESEND_API_KEY
       if (apiKey) {
+        // Attach the consent-form link only for treatments we have a form for,
+        // and only once consent forms are switched on (CONSENT_FORMS_ENABLED).
+        const consentUrl =
+          process.env.CONSENT_FORMS_ENABLED === 'true' && consentFormForService(service.slug, service.name)
+            ? `${SITE}/consent/${booking.manage_token}`
+            : undefined
         const mail = bookingConfirmationEmail({
           name,
           serviceName: service.name,
           startsAtIso: slot.startsAtIso,
           manageToken: booking.manage_token,
+          consentUrl,
         })
         try {
           await new Resend(apiKey).emails.send({

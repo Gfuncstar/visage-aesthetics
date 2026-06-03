@@ -3,8 +3,11 @@ import { Resend } from 'resend'
 import { assistantConfigured, select, update, audit } from '@/lib/assistant/db'
 import { checkoutSessionPaid } from '@/lib/booking-engine/stripe'
 import { bookingConfirmationEmail } from '@/lib/booking-email'
+import { consentFormForService } from '@/lib/consent/forms'
 import { isSuppressed } from '@/lib/assistant/suppression'
 import type { Booking } from '@/lib/booking-engine/types'
+
+const SITE = 'https://www.vaclinic.co.uk'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -43,11 +46,16 @@ export async function POST(req: Request) {
     if (booking.client_email && !(await isSuppressed(booking.client_name, booking.client_email))) {
       const apiKey = process.env.RESEND_API_KEY
       if (apiKey) {
+        const consentUrl =
+          process.env.CONSENT_FORMS_ENABLED === 'true' && consentFormForService(booking.service_slug, booking.service_name)
+            ? `${SITE}/consent/${booking.manage_token}`
+            : undefined
         const mail = bookingConfirmationEmail({
           name: booking.client_name,
           serviceName: booking.service_name,
           startsAtIso: booking.starts_at,
           manageToken: booking.manage_token,
+          consentUrl,
         })
         try {
           await new Resend(apiKey).emails.send({

@@ -66,25 +66,21 @@ service to a form by keyword, mirroring Ovatu's attachments:
 - filler / lip / cheek / harmonyca / **cryopen** → **Dermal Filler**
 - anything else → no form yet (pending the remaining captures)
 
-## Going live (when ready — currently OFF)
+## Going live (two switches — currently OFF)
 
-1. **Create the table:** run `scripts/consent-submissions.sql` against the clinic
-   Supabase project. Until then the staff view shows "no consent forms yet" and
-   submissions return a clear "not configured" message (nothing crashes).
-2. **Switch on the email link:** in `src/app/api/book/create/route.ts`, where the
-   confirmation email is built, pass the consent URL — gated by a flag so it is
-   easy to toggle:
+The wiring is already in place in `src/app/api/book/create/route.ts` and
+`src/app/api/book/deposit/confirm/route.ts`. The confirmation email adds the
+consent link only when **both** are true: the booked treatment has a form, and
+the feature flag is on. Two steps switch it on:
 
-   ```ts
-   const consentUrl =
-     process.env.CONSENT_FORMS_ENABLED === 'true' && consentFormForService(service.slug, service.name)
-       ? `${SITE}/consent/${booking.manage_token}`
-       : undefined
-   const mail = bookingConfirmationEmail({ /* …existing… */, consentUrl })
-   ```
+1. **Create the table:** run `scripts/consent-submissions.sql` against the
+   `visage-aesthetics-clinic` Supabase project (project ref `yawclxvhgbtzacthstpr`).
+   Until then the staff view shows "no consent forms yet" and submissions return
+   a clear "not configured" message (nothing crashes).
+2. **Set `CONSENT_FORMS_ENABLED=true`** in Vercel (production). With it unset or
+   any other value, confirmation emails are byte-for-byte identical to today, so
+   it is safe to merge before either switch is flipped.
 
-   With `CONSENT_FORMS_ENABLED` unset, `bookingConfirmationEmail` produces the
-   exact same email as today.
-
-3. Smoke-test with a real booking token at `/consent/<token>` and confirm it
-   lands under Assistant → Consent forms.
+Then smoke-test: make a test booking for one of the five treatments, open the
+`/consent/<token>` link from the email, submit, and confirm it appears under
+**Assistant → Consent forms**.
