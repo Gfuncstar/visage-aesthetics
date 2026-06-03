@@ -312,6 +312,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-06-02',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'mole-mapping-how-often',
+    category: "Treatment guide",
+    title: "Mole mapping: who needs it, how often, and what the appointment involves",
+    excerpt: "Mole mapping is overkill for some and overdue for others — here is who genuinely benefits, how often it is sensible, and what actually happens in the appointment.",
+    readTime: "8 min read",
+    datePublished: '2026-06-03',
+    dateModified: '2026-06-03',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
