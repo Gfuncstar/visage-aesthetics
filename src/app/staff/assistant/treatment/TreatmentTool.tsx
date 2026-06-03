@@ -6,16 +6,21 @@ import {
   Camera,
   Check,
   ChevronRight,
+  Copy,
   LogOut,
+  Mail,
   Plus,
   Save,
+  Send,
   Sparkles,
   X,
 } from 'lucide-react'
 import { TREATMENT_TYPES, getTreatmentType, matchTreatmentType } from '@/lib/assistant/treatment-types'
 import { ukDate } from '@/lib/assistant/format'
+import { bodyToText } from '@/lib/broadcast-email'
 import DictateButton from '@/components/ui/DictateButton'
 import {
+  buildClientEmail,
   buildClinicalNote,
   totalDose,
   type WriteUpInput,
@@ -75,13 +80,22 @@ export default function TreatmentTool() {
   const [consent, setConsent] = useState(true)
   const [reviewDate, setReviewDate] = useState('')
   const [notes, setNotes] = useState('')
+  const [interest, setInterest] = useState('')
 
   // Outputs
   const [generated, setGenerated] = useState(false)
   const [clinicalNote, setClinicalNote] = useState('')
+  const [emailSubject, setEmailSubject] = useState('')
+  const [emailBody, setEmailBody] = useState('')
 
   const [saving, setSaving] = useState(false)
   const [saveResult, setSaveResult] = useState<{ ok: boolean; message: string } | null>(null)
+
+  const [copied, setCopied] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [sendResult, setSendResult] = useState<{ ok: boolean; message: string } | null>(null)
+
+  const isConsult = typeId === 'consultation'
 
   const [txPhotos, setTxPhotos] = useState<{ url: string; type: string }[]>([])
   const [photoType, setPhotoType] = useState<'before' | 'after'>('before')
@@ -176,6 +190,8 @@ export default function TreatmentTool() {
     setDate(a.date)
     const matched = matchTreatmentType(a.service_name)
     if (matched) setTypeId(matched)
+    // For a consultation, seed "what they came in for" from the booked service.
+    if (matched === 'consultation') setInterest(a.service_name || '')
   }
 
   // Default the review date when a treatment type with a follow-up gap is chosen.
@@ -244,6 +260,7 @@ export default function TreatmentTool() {
       consent,
       reviewDate,
       notes,
+      interest,
     }
   }
 
@@ -251,8 +268,13 @@ export default function TreatmentTool() {
     saveMemory(type.id, { product, batchNumber, expiry, technique })
     const input = currentInput()
     setClinicalNote(buildClinicalNote(input))
+    const email = buildClientEmail(input)
+    setEmailSubject(email.subject)
+    setEmailBody(email.body)
     setGenerated(true)
     setSaveResult(null)
+    setSendResult(null)
+    setCopied(false)
     setTimeout(() => {
       document.getElementById('outputs')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }, 50)
@@ -283,6 +305,52 @@ export default function TreatmentTool() {
       setSaveResult({ ok: false, message: 'Network error while saving.' })
     } finally {
       setSaving(false)
+    }
+  }
+
+  // Plain-text version of the edited email (strips the **bold** markers etc.),
+  // used for copy-to-clipboard and the "open in email app" link.
+  const emailPlain = useMemo(() => bodyToText(emailBody), [emailBody])
+  const mailtoHref = `mailto:${clientEmail ?? ''}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailPlain)}`
+
+  async function copyEmail() {
+    try {
+      await navigator.clipboard.writeText(`Subject: ${emailSubject}\n\n${emailPlain}`)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      setCopied(false)
+    }
+  }
+
+  async function sendEmail() {
+    setSending(true)
+    setSendResult(null)
+    try {
+      const res = await fetch('/api/staff/assistant/client-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientName,
+          treatmentTypeId: typeId,
+          date,
+          interest,
+          notes,
+          subject: emailSubject,
+          body: emailBody,
+          to: clientEmail,
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setSendResult({ ok: false, message: data.error || 'Could not send the email.' })
+        return
+      }
+      setSendResult({ ok: true, message: `Sent to ${clientEmail}.` })
+    } catch {
+      setSendResult({ ok: false, message: 'Network error while sending.' })
+    } finally {
+      setSending(false)
     }
   }
 
@@ -443,6 +511,25 @@ export default function TreatmentTool() {
             )}
           </div>
 
+          {/* What they came in for — drives the consultation follow-up email */}
+          {isConsult && (
+            <div>
+              <label htmlFor="interest" className="text-eyebrow text-ink-soft mb-2 block">
+                What they came in for
+              </label>
+              <input
+                id="interest"
+                className={inputClass}
+                value={interest}
+                onChange={(e) => setInterest(e.target.value)}
+                placeholder="e.g. lip filler, or anti-wrinkle for the forehead"
+              />
+              <p className="text-xs text-ink-soft mt-1.5">
+                Used to prefill the follow-up email. Their name and the date are filled in for you.
+              </p>
+            </div>
+          )}
+
           {/* Areas */}
           {type.areas.length > 0 && (
             <div>
@@ -551,10 +638,23 @@ export default function TreatmentTool() {
 
           <div>
             <div className="flex items-center justify-between gap-3 mb-2">
-              <label htmlFor="notes" className="text-eyebrow text-ink-soft">Notes (optional)</label>
+              <label htmlFor="notes" className="text-eyebrow text-ink-soft">
+                {isConsult ? 'What you discussed' : 'Notes (optional)'}
+              </label>
               <DictateButton onText={(t) => setNotes((prev) => (prev ? `${prev} ${t}` : t).trim())} />
             </div>
-            <textarea id="notes" rows={3} className={textareaClass} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Consultation, contraindications checked, anything noted… or tap Dictate and talk." />
+            <textarea
+              id="notes"
+              rows={isConsult ? 5 : 3}
+              className={textareaClass}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder={
+                isConsult
+                  ? 'What you talked through, what you recommended, suitability, next steps… or tap Dictate and talk. This goes into the follow-up email.'
+                  : 'Consultation, contraindications checked, anything noted… or tap Dictate and talk.'
+              }
+            />
           </div>
 
           <label className="flex items-center gap-3 cursor-pointer select-none">
@@ -638,6 +738,75 @@ export default function TreatmentTool() {
                 <div className={`mt-3 border rounded-sm px-4 py-3 text-sm flex items-start gap-3 ${saveResult.ok ? 'border-sage/50 bg-sage/10' : 'border-gold/40 bg-gold/10'}`}>
                   <Check size={16} strokeWidth={1.75} className="text-gold-deep mt-0.5 shrink-0" />
                   <span>{saveResult.message}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Client follow-up email — consultation follow-up, or aftercare */}
+            <div className="border-t border-line/40 pt-8">
+              <div className="flex items-center gap-2 mb-1">
+                <ChevronRight size={16} className="text-gold-deep" />
+                <span className="text-eyebrow text-gold-deep">
+                  {isConsult ? 'Consultation follow-up email' : 'Aftercare email'}
+                </span>
+              </div>
+              <p className="text-xs text-ink-soft mb-3">
+                {isConsult
+                  ? 'Prefilled with their name, the date and what they came in for. Edit it, then copy, open in your email app, or send.'
+                  : 'A warm aftercare email for the client. Edit it, then copy, open in your email app, or send.'}
+              </p>
+
+              <label htmlFor="email-subject" className="text-eyebrow text-ink-soft mb-2 block">Subject</label>
+              <input
+                id="email-subject"
+                className={inputClass}
+                value={emailSubject}
+                onChange={(e) => setEmailSubject(e.target.value)}
+              />
+
+              <label htmlFor="email-body" className="text-eyebrow text-ink-soft mb-2 mt-4 block">Message</label>
+              <textarea
+                id="email-body"
+                rows={14}
+                className={`${textareaClass} font-body`}
+                value={emailBody}
+                onChange={(e) => setEmailBody(e.target.value)}
+              />
+
+              {clientEmail ? (
+                <p className="text-xs text-stone mt-2">To: {clientEmail}</p>
+              ) : (
+                <p className="text-xs text-ink-soft mt-2">
+                  No email on file for this client. Copy the message or open it in your email app to address it.
+                </p>
+              )}
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button type="button" onClick={copyEmail} className="btn btn-secondary">
+                  <span className="inline-flex items-center gap-2">
+                    {copied ? <Check size={15} strokeWidth={1.75} /> : <Copy size={15} strokeWidth={1.75} />}
+                    {copied ? 'Copied' : 'Copy email'}
+                  </span>
+                </button>
+                <a href={mailtoHref} className="btn btn-secondary">
+                  <span className="inline-flex items-center gap-2">
+                    <Mail size={15} strokeWidth={1.75} />
+                    Open in email app
+                  </span>
+                </a>
+                {clientEmail && (
+                  <button type="button" onClick={sendEmail} disabled={sending} className="btn btn-primary disabled:opacity-50">
+                    <span className="inline-flex items-center gap-2">
+                      <Send size={15} strokeWidth={1.75} />
+                      {sending ? 'Sending…' : 'Send from clinic'}
+                    </span>
+                  </button>
+                )}
+              </div>
+              {sendResult && (
+                <div className={`mt-3 border rounded-sm px-4 py-3 text-sm flex items-start gap-3 ${sendResult.ok ? 'border-sage/50 bg-sage/10' : 'border-gold/40 bg-gold/10'}`}>
+                  <Check size={16} strokeWidth={1.75} className="text-gold-deep mt-0.5 shrink-0" />
+                  <span>{sendResult.message}</span>
                 </div>
               )}
             </div>

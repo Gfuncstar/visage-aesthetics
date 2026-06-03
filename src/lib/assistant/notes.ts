@@ -21,6 +21,8 @@ export type WriteUpInput = {
   consent: boolean
   reviewDate: string // ISO or ''
   notes: string
+  /** What the client came in to discuss (used for the consultation follow-up). */
+  interest?: string
 }
 
 export function totalDose(areas: { dose: number }[]): number {
@@ -113,4 +115,62 @@ function friendlyTreatmentName(name: string): string {
   // Strip the parenthetical clinical qualifier for the patient-facing email.
   const base = name.replace(/\s*\(.*?\)\s*/g, ' ').trim()
   return base.toLowerCase()
+}
+
+/** Clean a free-text "what they came for" into a phrase to drop into a sentence. */
+function friendlyInterest(text: string): string {
+  return text
+    .replace(/\s*\(.*?\)\s*/g, ' ')
+    .replace(/\bconsultations?\b/gi, '')
+    .replace(/\bconsults?\b/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+}
+
+/**
+ * A warm follow-up email after a consultation. Prefilled with their name, the
+ * date, and what they came in to discuss; with a clearly marked space for what
+ * was actually discussed (the clinician's notes), which only the clinician can
+ * fill in. Editable before it is copied or sent. No clinical claims here.
+ */
+export function buildConsultationEmail(input: WriteUpInput): AftercareEmail {
+  const firstName = (input.clientName.trim().split(/\s+/)[0] || '').trim()
+  const greeting = firstName ? `Hello ${firstName},` : 'Hello,'
+  const came = friendlyInterest(input.interest ?? '')
+  const t = getTreatmentType(input.treatmentTypeId)
+  const followUp = t?.followUp ?? ''
+  const when = ukDate(input.date)
+
+  const paras: string[] = []
+  paras.push(greeting)
+  paras.push(
+    came
+      ? `Thank you for coming in${when ? ` on ${when}` : ''} to talk through ${came}. It was lovely to meet you and to have the time to understand what you are hoping to achieve.`
+      : `Thank you for coming in${when ? ` on ${when}` : ''} for your consultation. It was lovely to meet you and to have the time to understand what you are hoping to achieve.`,
+  )
+
+  paras.push('**What we discussed**')
+  paras.push(
+    input.notes?.trim() ||
+      '[Add a short, friendly summary of what we talked through, what I recommended, and any next steps.]',
+  )
+
+  if (followUp) paras.push(followUp)
+  paras.push(
+    'If anything comes to mind after today, or you have any questions at all, please do get in touch. There is no rush and no pressure, take whatever time you need.',
+  )
+
+  return {
+    subject: came ? `Following up on your ${came} consultation` : 'Following up on your consultation',
+    headline: 'Thank you for coming in',
+    body: paras.join('\n\n'),
+  }
+}
+
+/** The right client email for a write-up: consultation follow-up, or aftercare. */
+export function buildClientEmail(input: WriteUpInput): AftercareEmail {
+  return input.treatmentTypeId === 'consultation'
+    ? buildConsultationEmail(input)
+    : buildAftercareEmail(input)
 }
