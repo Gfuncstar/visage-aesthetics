@@ -2,8 +2,10 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
+import { CONSENT_FORMS } from '@/lib/consent/forms'
 import StaffGate from '../../notes/StaffGate'
 import ConsentSubmissions from './ConsentSubmissions'
+import FormSendCards from './FormSendCards'
 
 export const metadata: Metadata = {
   title: 'Consent forms',
@@ -27,14 +29,26 @@ export default async function ConsentBackendPage() {
         </Link>
         <div className="eyebrow text-gold mb-2">Clinic staff &nbsp;·&nbsp; Consent forms</div>
         <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight">
-          Completed consent forms.
+          Consent forms.
         </h1>
         <p className="text-ink-soft mt-4 max-w-xl leading-relaxed">
-          Forms clients have filled in before their appointment, saved against their record. Search by name,
-          then open one to read everything they submitted.
+          Send a client a form to fill in, and read everything that comes back. Forms normally go out with the
+          booking confirmation — use the cards below to send one separately when it was missed.
         </p>
 
-        <ConsentSubmissions />
+        <div className="mt-10">
+          <h2 className="eyebrow text-gold-deep mb-1">Send a form</h2>
+          <p className="text-sm text-ink-soft mb-4 max-w-xl leading-relaxed">
+            For when a form needs to go out on its own — for example if a client didn&rsquo;t complete it before
+            their appointment. Copy the link and send it however you like; the completed form appears below.
+          </p>
+          <FormSendCards forms={CONSENT_FORMS.map((f) => ({ id: f.id, name: f.name }))} />
+        </div>
+
+        <div className="mt-12">
+          <h2 className="eyebrow text-gold-deep mb-4">Completed forms</h2>
+          <ConsentSubmissions />
+        </div>
       </div>
     </section>
   )

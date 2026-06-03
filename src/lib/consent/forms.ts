@@ -214,6 +214,39 @@ export function getConsentForm(id: string): ConsentForm | undefined {
   return CONSENT_FORMS.find((f) => f.id === id)
 }
 
+/** True when a submitted value counts as a real answer for the given field. */
+export function isAnswered(field: ConsentField, value: unknown): boolean {
+  if (field.type === 'multi-choice') return Array.isArray(value) && value.length > 0
+  return typeof value === 'string' ? value.trim().length > 0 : value != null && value !== ''
+}
+
+/**
+ * Keep only answers that correspond to real input fields, coerced to a safe
+ * shape, and report any required fields left blank. Shared by both submit
+ * paths (per-booking and standalone) so validation stays identical.
+ */
+export function sanitiseAnswers(
+  form: ConsentForm,
+  raw: unknown,
+): { answers: Record<string, string | string[]>; missing: string[] } {
+  const input = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>
+  const answers: Record<string, string | string[]> = {}
+  const missing: string[] = []
+  for (const field of form.fields) {
+    if (field.type === 'heading' || field.type === 'info') continue
+    const v = input[field.label]
+    if (field.type === 'multi-choice') {
+      const arr = Array.isArray(v) ? v.map((x) => String(x).slice(0, 300)).filter(Boolean) : []
+      const allowed = field.options ?? []
+      answers[field.label] = arr.filter((x) => allowed.includes(x))
+    } else {
+      answers[field.label] = typeof v === 'string' ? v.slice(0, 4000) : ''
+    }
+    if (field.required && !isAnswered(field, answers[field.label])) missing.push(field.label)
+  }
+  return { answers, missing }
+}
+
 /**
  * Resolve the consent form a booking needs, from its service slug and/or name.
  * Mirrors how Ovatu attaches forms to services today (e.g. CryoPen uses the

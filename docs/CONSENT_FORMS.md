@@ -15,8 +15,10 @@ it is explicitly switched on (see "Going live" below).
 | --- | --- |
 | Faithful form definitions (verbatim from Ovatu) | `src/lib/consent/forms.ts` |
 | Public fillable form (token-gated, per booking) | `src/app/consent/[token]/` |
-| Submit + storage API | `src/app/api/book/consent/[token]/route.ts` |
-| Staff back-end list + reader | `src/app/staff/assistant/consent/` |
+| Public fillable form (generic, per form — sent outside a booking) | `src/app/consent/form/[formId]/` |
+| Submit + storage API (per booking) | `src/app/api/book/consent/[token]/route.ts` |
+| Submit + storage API (standalone) | `src/app/api/consent/standalone/[formId]/route.ts` |
+| Staff back-end: send a form + list + reader | `src/app/staff/assistant/consent/` |
 | Staff list API | `src/app/api/staff/assistant/consent/route.ts` |
 | Database table (run once) | `scripts/consent-submissions.sql` |
 | Optional confirmation-email link (inert until passed) | `src/lib/booking-email.ts` |
@@ -26,6 +28,19 @@ booking's existing unguessable token). The page looks up the booking, picks the
 form for that treatment, shows the **verbatim** information and questions, and on
 submit stores everything in `consent_submissions`. Staff read it at
 **Assistant → Consent forms**.
+
+## Sending a form outside the booking system
+
+Not every form goes out with a booking — a client may book without one attached,
+or simply not complete the one they were sent. **Assistant → Consent forms** has
+a **Send a form** section with one card per form (Botox, Dermal Filler, Skin
+Booster, Polynucleotide, B12). Each card gives a generic, reusable link
+(`https://www.vaclinic.co.uk/consent/form/<form-id>`) that staff copy and send
+however they like. The client fills in their own Personal Details, and the
+completed form lands under **Completed forms** on the same page — matched to a
+client record by the email they enter, where one exists. These submissions are
+stored with no `booking_id` (standalone) via
+`src/app/api/consent/standalone/[formId]/route.ts`.
 
 ## Forms captured so far (exact)
 

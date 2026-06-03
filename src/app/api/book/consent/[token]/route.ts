@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { assistantConfigured, select, insert, audit } from '@/lib/assistant/db'
-import { consentFormForService, type ConsentForm, type ConsentField } from '@/lib/consent/forms'
+import { consentFormForService, sanitiseAnswers } from '@/lib/consent/forms'
 import type { Booking } from '@/lib/booking-engine/types'
 
 export const runtime = 'nodejs'
@@ -55,31 +55,6 @@ export async function GET(_req: Request, ctx: { params: Promise<{ token: string 
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : 'Load failed' }, { status: 502 })
   }
-}
-
-function isAnswered(field: ConsentField, value: unknown): boolean {
-  if (field.type === 'multi-choice') return Array.isArray(value) && value.length > 0
-  return typeof value === 'string' ? value.trim().length > 0 : value != null && value !== ''
-}
-
-// Keep only answers that correspond to real input fields, coerced to a safe shape.
-function sanitiseAnswers(form: ConsentForm, raw: unknown): { answers: Record<string, string | string[]>; missing: string[] } {
-  const input = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>
-  const answers: Record<string, string | string[]> = {}
-  const missing: string[] = []
-  for (const field of form.fields) {
-    if (field.type === 'heading' || field.type === 'info') continue
-    const v = input[field.label]
-    if (field.type === 'multi-choice') {
-      const arr = Array.isArray(v) ? v.map((x) => String(x).slice(0, 300)).filter(Boolean) : []
-      const allowed = field.options ?? []
-      answers[field.label] = arr.filter((x) => allowed.includes(x))
-    } else {
-      answers[field.label] = typeof v === 'string' ? v.slice(0, 4000) : ''
-    }
-    if (field.required && !isAnswered(field, answers[field.label])) missing.push(field.label)
-  }
-  return { answers, missing }
 }
 
 // POST — a client submits their consent form. Stored against the booking (and,

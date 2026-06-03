@@ -79,8 +79,8 @@ export default async function ConsentPage({ params }: { params: Promise<{ token:
 
   return (
     <ConsentFormClient
-      token={token}
       form={form}
+      submitUrl={`/api/book/consent/${token}`}
       clientName={booking.client_name}
       serviceName={booking.service_name}
     />
