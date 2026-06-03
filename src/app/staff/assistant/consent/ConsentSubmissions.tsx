@@ -1,0 +1,117 @@
+'use client'
+
+import { useEffect, useMemo, useState } from 'react'
+import { ChevronDown, ChevronRight, FileCheck2, Search } from 'lucide-react'
+import { ukDate } from '@/lib/assistant/format'
+import type { ConsentSubmissionRow } from '@/app/api/staff/assistant/consent/route'
+
+export default function ConsentSubmissions() {
+  const [rows, setRows] = useState<ConsentSubmissionRow[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [q, setQ] = useState('')
+  const [openId, setOpenId] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/staff/assistant/consent')
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('Could not load'))))
+      .then((d) => {
+        if (cancelled) return
+        setRows(d.submissions ?? [])
+        if (d.error) setError(d.error)
+      })
+      .catch((e) => !cancelled && setError(e.message))
+      .finally(() => !cancelled && setLoading(false))
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const filtered = useMemo(() => {
+    const term = q.trim().toLowerCase()
+    if (!term) return rows
+    return rows.filter(
+      (r) =>
+        r.client_name.toLowerCase().includes(term) ||
+        (r.client_email ?? '').toLowerCase().includes(term) ||
+        r.form_name.toLowerCase().includes(term),
+    )
+  }, [rows, q])
+
+  return (
+    <div className="mt-8">
+      <div className="relative mb-5">
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone" />
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search by client name, email or form…"
+          className="w-full bg-cream border border-line/40 rounded-sm pl-10 pr-4 py-3 text-base text-charcoal placeholder:text-ink-soft/60 focus:outline-none focus:border-gold min-h-[48px]"
+        />
+      </div>
+
+      {loading && <p className="text-sm text-ink-soft">Loading…</p>}
+      {error && (
+        <div className="border border-gold/40 bg-gold/10 text-charcoal text-sm rounded-sm px-4 py-3 leading-relaxed">
+          {error.includes('consent_submissions') || error.toLowerCase().includes('does not exist')
+            ? 'No consent forms yet. (The consent_submissions table has not been created — run the migration in scripts/consent-submissions.sql to switch storage on.)'
+            : error}
+        </div>
+      )}
+
+      {!loading && !error && filtered.length === 0 && (
+        <p className="text-sm text-ink-soft">No completed consent forms yet.</p>
+      )}
+
+      <ul className="space-y-2">
+        {filtered.map((r) => {
+          const open = openId === r.id
+          return (
+            <li key={r.id} className="border border-line/40 rounded-sm bg-cream-soft">
+              <button
+                type="button"
+                onClick={() => setOpenId(open ? null : r.id)}
+                className="w-full flex items-center gap-3 px-4 py-3 text-left"
+              >
+                <FileCheck2 size={16} className="text-gold-deep shrink-0" />
+                <span className="flex-1 min-w-0">
+                  <span className="block text-base text-charcoal truncate">{r.client_name}</span>
+                  <span className="block text-xs text-ink-soft truncate">
+                    {r.form_name} &nbsp;·&nbsp; {ukDate(r.submitted_at)}
+                  </span>
+                </span>
+                {open ? <ChevronDown size={16} className="text-stone" /> : <ChevronRight size={16} className="text-stone" />}
+              </button>
+
+              {open && (
+                <div className="px-4 pb-4 border-t border-line/30 pt-3">
+                  <dl className="space-y-2.5">
+                    {r.client_email && <Row label="Email" value={r.client_email} />}
+                    {r.service_name && <Row label="Appointment" value={r.service_name} />}
+                    {Object.entries(r.answers || {}).map(([k, v]) => (
+                      <Row key={k} label={k} value={Array.isArray(v) ? (v.length ? v.join(', ') : '—') : v || '—'} />
+                    ))}
+                  </dl>
+                  <div className="mt-3 border-t border-line/30 pt-3">
+                    <span className="text-eyebrow text-ink-soft block mb-1">Declaration agreed</span>
+                    <p className="text-sm text-charcoal leading-relaxed">{r.declaration}</p>
+                  </div>
+                </div>
+              )}
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="grid grid-cols-[40%_60%] gap-3">
+      <dt className="text-xs text-ink-soft leading-snug">{label}</dt>
+      <dd className="text-sm text-charcoal leading-snug">{value}</dd>
+    </div>
+  )
+}

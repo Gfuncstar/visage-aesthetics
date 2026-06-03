@@ -22,15 +22,25 @@ export function bookingConfirmationEmail(input: {
   serviceName: string
   startsAtIso: string
   manageToken: string
+  /**
+   * Optional link to the client's online consent form. When provided, a line
+   * asking them to complete it before the appointment is added. The live
+   * booking flow does NOT pass this yet, so confirmation emails are unchanged
+   * until consent forms are switched on (see docs/CONSENT_FORMS.md).
+   */
+  consentUrl?: string
 }): { subject: string; html: string; text: string } {
   const manageUrl = `${SITE}/book/manage/${input.manageToken}`
+  const consentLine = input.consentUrl
+    ? `\n\n**Before your appointment:** please [complete your consent form here](${input.consentUrl}). It only takes a couple of minutes and saves time when you arrive.`
+    : ''
   const body = `Hi ${firstName(input.name)},
 
 Your appointment is confirmed. Here are the details:
 
 **${input.serviceName}**
 ${whenLine(input.startsAtIso)}
-${ADDRESS}
+${ADDRESS}${consentLine}
 
 If you need to change or cancel, you can [manage your booking here](${manageUrl}).
 

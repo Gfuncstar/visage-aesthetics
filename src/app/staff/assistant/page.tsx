@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowLeft, Boxes, ClipboardPen, ClipboardCheck, ReceiptText, TrendingUp, Users } from 'lucide-react'
+import { ArrowLeft, Boxes, ClipboardPen, ClipboardCheck, FileCheck2, ReceiptText, TrendingUp, Users } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from '../notes/StaffGate'
 import { assistantConfigured } from '@/lib/assistant/db'
@@ -26,6 +26,12 @@ const tools = [
     title: 'Client records',
     description: "Any client's history, notes, photos and spend.",
     Icon: Users,
+  },
+  {
+    href: '/staff/assistant/consent',
+    title: 'Consent forms',
+    description: 'Forms clients completed before their visit.',
+    Icon: FileCheck2,
   },
   {
     href: '/staff/assistant/stock',
