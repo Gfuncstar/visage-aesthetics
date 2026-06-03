@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Copy, ExternalLink, FileText } from 'lucide-react'
+import Link from 'next/link'
+import { Check, Copy, Eye, ExternalLink, FileText } from 'lucide-react'
 
 export type SendableForm = { id: string; name: string }
 
@@ -36,7 +37,13 @@ export default function FormSendCards({ forms }: { forms: SendableForm[] }) {
             <FileText size={16} strokeWidth={1.75} />
           </div>
           <h3 className="font-display italic text-lg text-charcoal leading-tight">{f.name}</h3>
-          <div className="mt-4 flex items-center gap-2">
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <Link
+              href={`/staff/assistant/consent/preview/${f.id}`}
+              className="inline-flex items-center gap-1.5 text-xs text-charcoal border border-line/50 hover:border-gold rounded-sm px-3 py-2 transition-colors min-h-[40px]"
+            >
+              <Eye size={14} strokeWidth={1.75} /> View
+            </Link>
             <button
               type="button"
               onClick={() => copy(f.id)}
