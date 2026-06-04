@@ -96,6 +96,9 @@ export default function TreatmentTool() {
   const [sending, setSending] = useState(false)
   const [sendResult, setSendResult] = useState<{ ok: boolean; message: string } | null>(null)
 
+  const [aiEnhancing, setAiEnhancing] = useState(false)
+  const [aiNextSteps, setAiNextSteps] = useState<string[]>([])
+
   const isConsult = typeId === 'consultation'
 
   const [txPhotos, setTxPhotos] = useState<{ url: string; type: string }[]>([])
@@ -286,9 +289,31 @@ export default function TreatmentTool() {
     setSaveResult(null)
     setSendResult(null)
     setCopied(false)
+    setAiNextSteps([])
     setTimeout(() => {
       document.getElementById('outputs')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }, 50)
+  }
+
+  async function enhanceConsultationEmail() {
+    setAiEnhancing(true)
+    try {
+      const res = await fetch('/api/staff/assistant/consultation-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clientName, interest, notes, date }),
+      })
+      const data = await res.json() as { ok?: boolean; email?: { subject: string; body: string }; next_steps?: string[] }
+      if (res.ok && data.email) {
+        setEmailSubject(data.email.subject)
+        setEmailBody(data.email.body)
+        setAiNextSteps(data.next_steps ?? [])
+      }
+    } catch {
+      // enhancement is best-effort
+    } finally {
+      setAiEnhancing(false)
+    }
   }
 
   async function saveNote() {
@@ -542,9 +567,12 @@ export default function TreatmentTool() {
           {/* What they came in for — drives the consultation follow-up email */}
           {isConsult && (
             <div>
-              <label htmlFor="interest" className="text-eyebrow text-ink-soft mb-2 block">
-                What they came in for
-              </label>
+              <div className="flex items-center justify-between gap-3 mb-2">
+                <label htmlFor="interest" className="text-eyebrow text-ink-soft">
+                  What they came in for
+                </label>
+                <DictateButton onText={(t) => setInterest((prev) => (prev ? `${prev} ${t}` : t).trim())} />
+              </div>
               <input
                 id="interest"
                 className={inputClass}
@@ -553,7 +581,7 @@ export default function TreatmentTool() {
                 placeholder="e.g. lip filler, or anti-wrinkle for the forehead"
               />
               <p className="text-xs text-ink-soft mt-1.5">
-                Used to prefill the follow-up email. Their name and the date are filled in for you.
+                Used to personalise the follow-up email.
               </p>
             </div>
           )}
@@ -792,6 +820,18 @@ export default function TreatmentTool() {
                 onChange={(e) => setEmailSubject(e.target.value)}
               />
 
+              {isConsult && (
+                <button
+                  type="button"
+                  onClick={enhanceConsultationEmail}
+                  disabled={aiEnhancing}
+                  className="mb-4 inline-flex items-center gap-2 text-sm text-gold-deep hover:text-charcoal border border-gold/40 hover:border-gold rounded-sm px-3 py-2 transition-colors disabled:opacity-50"
+                >
+                  <Sparkles size={14} strokeWidth={1.75} />
+                  {aiEnhancing ? 'Writing personalised email…' : 'Personalise with AI'}
+                </button>
+              )}
+
               <label htmlFor="email-body" className="text-eyebrow text-ink-soft mb-2 mt-4 block">Message</label>
               <textarea
                 id="email-body"
@@ -838,6 +878,26 @@ export default function TreatmentTool() {
                 </div>
               )}
             </div>
+
+            {/* Suggested next steps — populated after AI personalisation */}
+            {isConsult && aiNextSteps.length > 0 && (
+              <div className="border-t border-line/40 pt-8">
+                <div className="flex items-center gap-2 mb-3">
+                  <ChevronRight size={16} className="text-gold-deep" />
+                  <span className="text-eyebrow text-gold-deep">Suggested next steps</span>
+                </div>
+                <ul className="space-y-2">
+                  {aiNextSteps.map((step, i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm text-charcoal">
+                      <span className="inline-flex w-5 h-5 rounded-full bg-gold/15 text-gold-deep items-center justify-center shrink-0 mt-0.5 text-[11px] font-medium">
+                        {i + 1}
+                      </span>
+                      {step}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
       </div>
