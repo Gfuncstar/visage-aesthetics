@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { isStaffAuthed } from '@/lib/staff-auth'
+import { isSimpleView } from '@/lib/staff-prefs'
 import StaffGate from '../../../notes/StaffGate'
 import Reception from '../Reception'
 
@@ -13,5 +14,6 @@ export const dynamic = 'force-dynamic'
 export default async function FrontDeskPage() {
   const authed = await isStaffAuthed()
   if (!authed) return <StaffGate />
-  return <Reception />
+  const simple = await isSimpleView()
+  return <Reception simple={simple} />
 }

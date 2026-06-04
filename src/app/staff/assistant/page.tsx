@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowLeft, Bot, Boxes, ClipboardPen, FileCheck2, ReceiptText, TrendingUp, Users } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
+import { isSimpleView } from '@/lib/staff-prefs'
 import StaffGate from '../notes/StaffGate'
 import { assistantConfigured } from '@/lib/assistant/db'
 import { endOfDaySummary } from '@/lib/assistant/end-of-day'
@@ -45,18 +46,21 @@ const tools = [
     title: 'Orders & expenses',
     description: 'Log supplier orders, costs and stock.',
     Icon: ReceiptText,
+    advanced: true,
   },
   {
     href: '/staff/assistant/money',
     title: 'Profit & accountant pack',
     description: 'Revenue, margin and a month-end pack.',
     Icon: TrendingUp,
+    advanced: true,
   },
   {
     href: '/staff/assistant/agents',
     title: 'Agents',
     description: 'Background tasks — stock, finance, social, compliance and more.',
     Icon: Bot,
+    advanced: true,
   },
 ]
 
@@ -64,7 +68,9 @@ export default async function AssistantIndex() {
   const authed = await isStaffAuthed()
   if (!authed) return <StaffGate />
   const configured = assistantConfigured()
+  const simple = await isSimpleView()
   const today = configured ? await endOfDaySummary() : null
+  const visibleTools = simple ? tools.filter((t) => !t.advanced) : tools
 
   return (
     <section className="bg-cream text-charcoal min-h-screen">
@@ -96,10 +102,10 @@ export default async function AssistantIndex() {
           </div>
         )}
 
-        {today && <WriteUpReminders today={today} />}
+        {today && <WriteUpReminders today={today} simple={simple} />}
 
         <div className="grid grid-cols-2 gap-3 mt-8">
-          {tools.map(({ href, title, description, Icon }) => (
+          {visibleTools.map(({ href, title, description, Icon }) => (
             <Link
               key={href}
               href={href}
@@ -113,6 +119,13 @@ export default async function AssistantIndex() {
             </Link>
           ))}
         </div>
+
+        {simple && (
+          <p className="text-xs text-ink-soft mt-4 leading-relaxed">
+            Orders, profit and the background agents are tucked away. Switch to full view at the
+            top to bring them back.
+          </p>
+        )}
       </div>
     </section>
   )

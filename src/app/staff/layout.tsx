@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
 import { isStaffAuthed } from '@/lib/staff-auth'
+import { isSimpleView } from '@/lib/staff-prefs'
 import StaffNav from './StaffNav'
 import StaffTopBar from './StaffTopBar'
+import SimpleViewToggle from './SimpleViewToggle'
 
 // The staff area is installable as a home-screen app (PWA): "Add to Home
 // Screen" gives a Visage icon that opens straight into the Assistant, full
@@ -25,11 +27,14 @@ export const dynamic = 'force-dynamic'
 export default async function StaffLayout({ children }: { children: React.ReactNode }) {
   const authed = await isStaffAuthed()
   if (!authed) return <>{children}</>
+  const simple = await isSimpleView()
   return (
     <>
-      {/* Sticky breadcrumb bar for in-section context + up-navigation, then the
-          page. Bottom padding clears the fixed bottom nav (plus safe area). */}
+      {/* A slim Simple/Full view switch sits above everything, then the sticky
+          breadcrumb bar for in-section context + up-navigation, then the page.
+          Bottom padding clears the fixed bottom nav (plus safe area). */}
       <div className="bg-cream" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}>
+        <SimpleViewToggle initialSimple={simple} />
         <StaffTopBar />
         {children}
       </div>
