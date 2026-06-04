@@ -38,9 +38,11 @@ export function verifySessionToken(token: string | undefined): boolean {
 }
 
 export function checkPin(pin: string): boolean {
-  const expected = Buffer.from(secret())
-  const provided = Buffer.from(pin)
-  if (expected.length !== provided.length) return false
+  // Compare HMACs so the buffer lengths are always equal — prevents a length
+  // oracle that would reveal how many characters the passcode has.
+  const key = Buffer.from('va-pin-check')
+  const expected = createHmac('sha256', key).update(secret()).digest()
+  const provided = createHmac('sha256', key).update(pin).digest()
   return timingSafeEqual(expected, provided)
 }
 

@@ -1,0 +1,169 @@
+import { NextResponse } from 'next/server'
+import {
+  generateRegistrationOptions,
+  verifyRegistrationResponse,
+  generateAuthenticationOptions,
+  verifyAuthenticationResponse,
+} from '@simplewebauthn/server'
+import type {
+  RegistrationResponseJSON,
+  AuthenticationResponseJSON,
+} from '@simplewebauthn/server'
+import { STAFF_COOKIE, buildSessionToken, isStaffAuthed } from '@/lib/staff-auth'
+import {
+  RP_ID,
+  RP_NAME,
+  ORIGIN,
+  saveChallenge,
+  consumeChallenge,
+  saveCredential,
+  getCredential,
+  updateSignCount,
+} from '@/lib/webauthn'
+import { assistantConfigured } from '@/lib/assistant/db'
+
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
+// POST /api/staff/webauthn?action=register-options   — generate registration challenge (must be authed)
+// POST /api/staff/webauthn?action=register-verify    — verify registration response (must be authed)
+// POST /api/staff/webauthn?action=auth-options       — generate authentication challenge (public)
+// POST /api/staff/webauthn?action=auth-verify        — verify assertion + issue session (public)
+// DELETE /api/staff/webauthn                         — remove stored passkey (must be authed)
+
+export async function POST(req: Request) {
+  if (!assistantConfigured()) {
+    return NextResponse.json({ error: 'Database not configured' }, { status: 503 })
+  }
+
+  const { searchParams } = new URL(req.url)
+  const action = searchParams.get('action')
+
+  // ── Register: generate options ────────────────────────────────────────────
+  if (action === 'register-options') {
+    if (!(await isStaffAuthed())) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+
+    const options = await generateRegistrationOptions({
+      rpName: RP_NAME,
+      rpID: RP_ID,
+      userName: 'bernadette',
+      userDisplayName: 'Bernadette',
+      attestationType: 'none',
+      authenticatorSelection: {
+        authenticatorAttachment: 'platform',
+        requireResidentKey: false,
+        userVerification: 'required',
+      },
+    })
+
+    await saveChallenge(options.challenge, 'register')
+    return NextResponse.json(options)
+  }
+
+  // ── Register: verify ──────────────────────────────────────────────────────
+  if (action === 'register-verify') {
+    if (!(await isStaffAuthed())) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+
+    const body = await req.json() as RegistrationResponseJSON
+    const expectedChallenge = await consumeChallenge('register')
+    if (!expectedChallenge) return NextResponse.json({ error: 'Challenge expired — try again' }, { status: 400 })
+
+    try {
+      const { verified, registrationInfo } = await verifyRegistrationResponse({
+        response: body,
+        expectedChallenge,
+        expectedOrigin: ORIGIN,
+        expectedRPID: RP_ID,
+        requireUserVerification: true,
+      })
+
+      if (!verified || !registrationInfo) {
+        return NextResponse.json({ error: 'Verification failed' }, { status: 400 })
+      }
+
+      const { credential, credentialDeviceType } = registrationInfo
+      await saveCredential(
+        Buffer.from(credential.id).toString('base64url'),
+        Buffer.from(credential.publicKey).toString('base64'),
+        credential.counter,
+        credentialDeviceType,
+      )
+
+      return NextResponse.json({ ok: true })
+    } catch (err) {
+      console.error('[webauthn] register-verify error:', err)
+      return NextResponse.json({ error: 'Registration failed' }, { status: 400 })
+    }
+  }
+
+  // ── Authenticate: generate options ───────────────────────────────────────
+  if (action === 'auth-options') {
+    const stored = await getCredential()
+
+    const options = await generateAuthenticationOptions({
+      rpID: RP_ID,
+      userVerification: 'required',
+      allowCredentials: stored
+        ? [{ id: stored.credential_id }]
+        : [],
+    })
+
+    await saveChallenge(options.challenge, 'authenticate')
+    return NextResponse.json({ ...options, hasCredential: Boolean(stored) })
+  }
+
+  // ── Authenticate: verify + issue session ─────────────────────────────────
+  if (action === 'auth-verify') {
+    const body = await req.json() as AuthenticationResponseJSON
+    const expectedChallenge = await consumeChallenge('authenticate')
+    if (!expectedChallenge) return NextResponse.json({ error: 'Challenge expired — try again' }, { status: 400 })
+
+    const stored = await getCredential()
+    if (!stored) return NextResponse.json({ error: 'No passkey registered' }, { status: 400 })
+
+    try {
+      const { verified, authenticationInfo } = await verifyAuthenticationResponse({
+        response: body,
+        expectedChallenge,
+        expectedOrigin: ORIGIN,
+        expectedRPID: RP_ID,
+        requireUserVerification: true,
+        credential: {
+          id: stored.credential_id,
+          publicKey: Buffer.from(stored.public_key, 'base64'),
+          counter: stored.sign_count,
+        },
+      })
+
+      if (!verified) return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
+
+      await updateSignCount(stored.credential_id, authenticationInfo.newCounter)
+
+      const { value, maxAge } = buildSessionToken()
+      const res = NextResponse.json({ ok: true })
+      res.cookies.set(STAFF_COOKIE, value, {
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        maxAge,
+      })
+      return res
+    } catch (err) {
+      console.error('[webauthn] auth-verify error:', err)
+      return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
+    }
+  }
+
+  return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
+}
+
+export async function DELETE(req: Request) {
+  if (!(await isStaffAuthed())) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+  if (!assistantConfigured()) return NextResponse.json({ error: 'Database not configured' }, { status: 503 })
+
+  const { remove } = await import('@/lib/assistant/db')
+  const stored = await getCredential()
+  if (stored) await remove('webauthn_credentials', { id: stored.id })
+  return NextResponse.json({ ok: true })
+}
