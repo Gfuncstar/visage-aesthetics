@@ -44,42 +44,69 @@ stored with no `booking_id` (standalone) via
 
 ## Forms captured so far (exact)
 
-Transcribed verbatim from Ovatu (14 forms total in the account):
+Transcribed verbatim from Ovatu (14 forms total in the account). **13 encoded:**
 
 1. **Botox Consent Form**
-2. **Dermal Filler Consent Form** — Ovatu attaches this to **Filler** *and* **CryoPen**
+2. **Dermal Filler Consent Form**
 3. **Skin Booster Consent Form**
 4. **Polynucleotide Consent Form**
 5. **B12 Consent Form**
+6. **NAD Consent Form**
+7. **CryoPen Consent Form** — its own form, *not* the Dermal Filler one
+8. **Micro-Needling Consent**
+9. **Haytox Consent Form** — Botox for hay fever / rhinitis
+10. **Hyalase Consent Form** — hyaluronidase / filler dissolving
+11. **Profhilo Structura Consent Form** — its own form, *not* the Skin Booster one
+12. **HarmonyCa** — its own form, *not* the Dermal Filler one
+13. **HIFU Mini**
 
 ### Faithfulness notes — please confirm at source
-- **B12 declaration is truncated in Ovatu itself** — it ends mid-word at
-  "…about the treatment **deta**". Reproduced exactly (`declarationTruncated: true`
-  in `forms.ts`). **This should be fixed in the canonical wording.**
-- **Polynucleotide** has a stored typo: "How often are you dissatisfied with your
-  **apperaance**?" — reproduced verbatim on purpose.
-- Every Ovatu form uses a single **tick-to-agree** checkbox (no drawn signature).
-  We capture name + date automatically and one agreement tick, to match.
+- **B12 and NAD declarations are truncated in Ovatu itself** — both end mid-word at
+  "…about the treatment **deta**". Reproduced exactly (`declarationTruncated: true`,
+  shared `TRUNCATED_DECLARATION` in `forms.ts`). **Fix the canonical wording at source.**
+- Several forms carry stored typos, reproduced verbatim on purpose: Polynucleotide
+  "**apperaance**"; NAD "**Prenicious Anemia**" / "**Immunosupression**"; HIFU
+  "**Sclerroderma**"; HarmonyCa "**Strenious**" / "**foro**"; CryoPen "**risk-risk**";
+  Profhilo Structura "**fat pats**"; "**Gillian Barre Syndrome**" across several.
+- **CryoPen, HarmonyCa, Profhilo Structura** were previously mapped to a *fallback*
+  form (Dermal Filler / Skin Booster). Now each has its own captured form and the
+  mapping points to it.
+- Every encoded Ovatu form uses a single **tick-to-agree** checkbox (no drawn
+  signature). We capture name + date automatically and one agreement tick, to match.
 
-### Still to capture (NOT invented — do not ship without them)
-- **NAD Consent Form** (capture was cut off mid-form)
-- **Forms 7–14** were never reached (the browser extraction hit its spend limit)
+### Still to encode (NOT invented — do not ship without a decision)
+- **Aqualyx (92394)** — captured, but its Ovatu structure is unusual: no Personal
+  Details section, no tick-to-agree declaration (Data Consent toggle off), two fields
+  sharing the label "Aqualyx & Lidocaine", and the consent statements embedded as the
+  pre-filled default of a long-text box. It does not fit the current `ConsentForm`
+  model without either adding a standard Personal Details + tick-to-agree declaration,
+  or fixing the form at source in Ovatu. Held back pending that decision.
 
-To add each remaining form: append a `ConsentForm` object to `CONSENT_FORMS` in
+To add a form: append a `ConsentForm` object to `CONSENT_FORMS` in
 `src/lib/consent/forms.ts` and, if needed, extend `consentFormForService()` so the
-relevant service maps to it.
+relevant service maps to it. Staff "Send a form" cards render automatically from
+`CONSENT_FORMS`.
 
 ## Service → form mapping
 
 `consentFormForService(slug, name)` in `src/lib/consent/forms.ts` maps a booking's
-service to a form by keyword, mirroring Ovatu's attachments:
+service to a form by keyword. **Order matters** — specific treatments are checked
+before the broad buckets:
 
+- haytox / hay fever / rhinitis → **Haytox**
 - botox / anti-wrinkle / toxin / hyperhidrosis / migraine → **Botox**
+- harmonyca → **HarmonyCa**
+- cryopen / cryo → **CryoPen**
+- hyalase / hyaluronidase → **Hyalase**
+- structura → **Profhilo Structura**
 - profhilo / skin booster / bio-remodelling → **Skin Booster**
 - polynucleotide → **Polynucleotide**
+- nad → **NAD**
 - b12 / vitamin b → **B12**
-- filler / lip / cheek / harmonyca / **cryopen** → **Dermal Filler**
-- anything else → no form yet (pending the remaining captures)
+- micro-needling / skin needling / dermapen → **Micro-Needling**
+- hifu / focused ultrasound → **HIFU Mini**
+- filler / lip / cheek / juvederm / restylane → **Dermal Filler**
+- anything else (e.g. Aqualyx) → no form yet
 
 ## Going live (two switches — currently OFF)
 

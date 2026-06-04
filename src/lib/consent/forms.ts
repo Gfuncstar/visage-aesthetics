@@ -5,13 +5,24 @@
 // these are medical/legal documents and must mirror the source.
 //
 // Source: extracted from Visage Aesthetics – Ovatu Manager (14 forms total).
-// Captured so far and encoded below (exact):
-//   1. Botox Consent Form
-//   2. Dermal Filler Consent Form        (Ovatu attaches this to: Filler, CryoPen)
-//   3. Skin Booster Consent Form
-//   4. Polynucleotide Consent Form
-//   5. B12 Consent Form                  (declaration is TRUNCATED in Ovatu itself)
-// Still to capture from Ovatu (do not invent): NAD, and forms 7–14.
+// Captured and encoded below (exact):
+//    1. Botox Consent Form
+//    2. Dermal Filler Consent Form
+//    3. Skin Booster Consent Form
+//    4. Polynucleotide Consent Form
+//    5. B12 Consent Form                 (declaration is TRUNCATED in Ovatu itself)
+//    6. NAD Consent Form                 (declaration TRUNCATED, same as B12)
+//    7. CryoPen Consent Form             (its own form — NOT the Dermal Filler one)
+//    8. Micro-Needling Consent
+//    9. Haytox Consent Form              (Botox for hay fever / rhinitis)
+//   10. Hyalase Consent Form             (hyaluronidase / filler dissolving)
+//   11. Profhilo Structura Consent Form  (its own form — NOT the Skin Booster one)
+//   12. HarmonyCa                        (its own form — NOT the Dermal Filler one)
+//   13. HIFU Mini
+// Still to capture/encode from Ovatu (do not invent):
+//   14. Aqualyx — captured, but its Ovatu structure is unusual (no Personal
+//       Details, no tick-to-agree declaration, consent embedded in a pre-filled
+//       text box). Held back pending a decision on how to represent it here.
 //
 // Signature model: every Ovatu form uses a single tick-to-agree checkbox next
 // to the declaration. There is no drawn signature, typed-name or date field in
@@ -69,6 +80,12 @@ const PERSONAL_DETAILS: ConsentField[] = [
 
 const STANDARD_DECLARATION =
   'I accept and understand the information provided to me both verbally and within this form. All information I am consenting is correct'
+
+// The declaration is TRUNCATED in Ovatu itself (ends mid-word at "...treatment
+// deta"). Reproduced as-is for fidelity; flagged for correction at source.
+// Shared by the B12 and NAD forms, which carry the identical truncated text.
+const TRUNCATED_DECLARATION =
+  'I accept and understand the information provided to me both verbally and within this form. I confirm that my treating practitioner has: Provided me with sufficient information about the treatment deta'
 
 const INJECTABLE_PRE_POST = `Pre-Treatment Instructions: • {TREATMENT} must not be administered if you have had any vaccines, immunizations, procedures, illnesses, or dental work in the past two weeks and for an additional two weeks after this procedure. • Do not {USE} if you are pregnant or breastfeeding, are allergic to any of the ingredients, suffer from any neurological or autoimmune disorders, are experiencing any cold or flu-like symptoms, or have any active inflammatory processes (cysts, pimples, rashes, hives). • For optimal results, and to minimize the chance of bleeding or bruising at the injection site, please avoid all blood-thinning medications (unless prescribed) and supplements for one week prior to your appointment. This includes over-the-counter medication such as aspirin and ibuprofen. If you are taking prescribed blood thinning medication, please consult with your named clinician before stopping these. Also avoid herbal supplements such as garlic, vitamin E, ginko biloba, St. John's Wort and omega-3 capsules. If you have a cardiovascular history, please check with your doctor prior to stopping use of aspirin. Do not drink alcoholic beverages 24 hours before or after your treatment to avoid extra bruising. • Inform your provider if you have a history of Perioral Herpes to receive advice on antiviral therapy prior to treatment. • Avoid topical products such as Tretinoin (Retin-A) retinols, retinoids, glycolic acid, alpha hydroxy acid, or any "anti-aging" products for two days before and after treatment. Post-Treatment Instructions: • Avoid significant movement or massage of the treated area unless instructed by provider. • Avoid strenuous exercise or anything that increases your heart rate for 24 hours. • Avoid extensive sun or heat for 72 hours (no sauna, hot tub). • Avoid consuming excess amounts of alcohol or salts to avoid excessive swelling. • You may apply a cool compress or ice pack for 15 minutes each hour while awake to reduce swelling. • Use paracetamol for discomfort. No NSAIDs (ibuprofen, aspirin) for 24 hours as they can increase bleeding. • Try to sleep face up and slightly elevated if you experience swelling. • You may want to consider taking Arnica (found in health food stores) to help with the bruising and swelling. • Avoid wearing makeup the day of procedure ( 12 hours post procedure). • Sanitize your phone before putting it to your face and try to talk on speaker phone as much as you can day of. • Wait a minimum of two weeks before dental work, immunizations, or laser treatments.`
 
@@ -202,11 +219,205 @@ export const CONSENT_FORMS: ConsentForm[] = [
       { type: 'yes-no', label: 'Are you Pregnant or Breast-feeding?', options: ['Yes', 'No'], required: true },
       { type: 'yes-no', label: 'Have you ever had severe allergic or an anaphylactic reaction?', options: ['Yes', 'No'], required: true, helper: 'If YES, please inform your practitioner' },
     ],
-    // The declaration is TRUNCATED in Ovatu itself (ends mid-word at "...treatment deta").
-    // Reproduced exactly as stored; flagged for correction at source.
-    declaration:
-      'I accept and understand the information provided to me both verbally and within this form. I confirm that my treating practitioner has: Provided me with sufficient information about the treatment deta',
+    declaration: TRUNCATED_DECLARATION,
     declarationTruncated: true,
+  },
+  {
+    id: 'nad',
+    name: 'NAD Consent Form',
+    intro: `The purpose of this informed consent form is to provide written information regarding the risks, benefits and alternatives of the procedure named above. This material serves as a supplement to the discussion you have with your practitioner. About NAD+ NAD (Nicotinamide Adenine Dinucleotide) is essential for our cellular health. It is a coenzyme found in all cells of the body. It is revered for its anti-ageing properties and plays a key role in prolonging lifespan. These powerful molecules have the potential to slow down age-related changes occurring in the skin, brain, and all vital organs and tissues. Therapeutic NAD Injections can help combat several undesirable side-effects of ageing, as well as chronic conditions affecting the skin and health. Benefits of NAD Injections Promotes normal circadian rhythm for sleep Improves mental clarity, alertness, concentration, and memory Energy Metabolism: NAD is essential for converting food into energy. It powers metabolic processes by transferring electrons in the mitochondria, our cells powerhouse Cellular repair: NAD supports DNA repair, protecting cells from damage caused by aging, toxins or environmental stressors What are Contraindications & Considerations to getting NAD? History of Cancer or significant family history of Cancer, genetic predisposition as determined by Medical Director in consult Cardiovascular disease-History of severe heart failure, multiple medicated hypertension, and arrhythmogenic issues-as determined by Medical Director in consult Pregnancy (there is no safety data for use of NAD in pregnant clients); client must attest they are not pregnant to receive NAD infusion(intravenous "IV")/intramuscular injection ("IM"); if client is not absolutely positive she is not pregnant, then postponement and a client's self-administered pregnancy test is recommended prior to beginning any course of NAD IV/IM Breastfeeding (there is no safety data for use of NAD in clients who are regularly engaged in breastfeeding a child); client must attest they are not breastfeeding to receive NAD IM injections. Severe chronic illnesses like kidney or liver disease as this may affect how the body processes NAD. Metabolic Disorders. Clients with conditions like gout or hyperuricaemia may experience worsening symptoms as NAD may influence uric acid levels.`,
+    fields: [
+      ...PERSONAL_DETAILS,
+      { type: 'heading', label: 'Medical History' },
+      { type: 'yes-no', label: 'Do you smoke?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Do you drink alcohol?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Are you currently taking any prescribed medications or any over the counter medications?', options: ['Yes', 'No'], required: true },
+      { type: 'long-text', label: 'If yes, please state name and dosage of medication below' },
+      {
+        type: 'multi-choice',
+        label: 'Do you suffer from any of the following conditions?',
+        // "Immunosupression" (one 's') and "Prenicious Anemia" (should be "Pernicious") are verbatim Ovatu typos.
+        options: ['Allergies', 'Autoimmune Conditions', 'Epilepsy/Convulsions', 'Diabetes', 'Active Cancer', 'HIV/Hepatitis', 'Kidney/liver failure', 'Bleeding Conditions', 'Immunosupression', 'Numbness/Tingling of the body', 'Prenicious Anemia', 'MS', 'An active Infection', 'Fatigue'],
+      },
+      { type: 'long-text', label: 'If you have any of the above conditions or are currently receiving medical treatment, please provide details below', required: true },
+      { type: 'yes-no', label: 'Are you Pregnant or Breast-feeding?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Have you ever had severe allergic or an anaphylactic reaction?', options: ['Yes', 'No'], required: true, helper: 'If YES, please inform your practitioner' },
+    ],
+    // Declaration is TRUNCATED in Ovatu itself, identically to B12 (ends "...treatment deta").
+    declaration: TRUNCATED_DECLARATION,
+    declarationTruncated: true,
+  },
+  {
+    id: 'cryopen',
+    name: 'CryoPen Consent Form',
+    intro: `Cryosurgery is minimally invasive treatment of controlled destruction of unwanted tissue by the application of extreme cold. Cryosurgery is used to treat different types of lesions on the skin such as skin tags, warts and many more. Rapid freezing to -27°C and more will produce cryonecrosis in all benign human tissues. Although necrosis takes place at -27°C we have to take into consideration the body temperature, so the treatment needs to be done at least -64°C Difference between liquid nitrogen and nitrous oxide Nitrous oxide rapidly freezes and destroys targeted cells but it's not so cold as to cause unwanted damage to the surrounding healthy tissue. Nitrous oxide works at -89°C as cold as you can go without causing tissue damage. Liquid nitrogen is -196°C and provides a much higher the risk of damage. The CryoPen applicator is designed for precision and allows a focused gas flow that targets only the lesion and provides pinpoint accuracy during the treatment. Cryosurgery using liquid nitrogen involves the use of a cryoprobe or a cotton-tipped applicator that could be less precise than the CryoPen. This is why nitrous oxide is now favoured over liquid nitrogen Risks and Side Effects CryoPen Therapy is a relatively low risk-risk treatment and side effects and complications are usually minimal. Some side effects may occurs a result of the treatment. These include: Pigment changes: Both hypo-pigmentation (lightening of the skin) and hyper-pigmentation (darkening of the skin). Both can last a few months but can be longer lasting. Shards of frozen humidity: The innovation of the CryoPen is the direct application of nitrous oxide under pressure (55 bar). The high pressure jet may cause minor shards of frozen humidity in the air blown away in a circle of approx 30cm, They will thaw the moment they would eventually touch healthy skin. Lesions on sites with coarse thermal hair: Hair follicles are easily damaged by cryosurgery and permanent alopecia is not uncommon. Nerve Damage: Though rare, damage to nerves are possible, particularly in areas where they are closer to the surface such as fingers, wrists and the area behind the ear. Reports suggest thar this may disappear after several months. Blisters: Patients may experience blistering for a period of 7-14 days post treatment and potentially up to 2-4 weeks depending on the area treated. Lesions on the body generally have a longer healing period compared to those that those on the face. Considerations Pregnancy or Breastfeeding: It is advised to abstain from treatment due to unknown side effects Antihistamine: Treatment with CryoPen cannot be performed if you are taking Anti-histamines. Please avoid taking them for 2-3 days prior to your treatment unless medically prescribed. *Please ensure that you have sought medical advice and have confirmed that the lesion is benign`,
+    fields: [
+      ...PERSONAL_DETAILS,
+      { type: 'heading', label: 'Medical History' },
+      { type: 'yes-no', label: 'Have you previously had Cryotherapy treatment?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Do you use sun beds?', options: ['Yes', 'No'], required: true },
+      {
+        type: 'multi-choice',
+        label: 'Do you suffer from any of the following conditions?',
+        options: ['Allergies', 'Angina/heart related conditions', 'Thyroid Disease', 'Autoimmune Conditions', 'Arthritis', 'Epilepsy/Convulsions', "Bell's Palsy/Nerve Problems", 'Diabetes', 'Facial cold sores/acne', 'Active Cancer', 'HIV/Hepatitis', "Raynaud's Disease", 'Multiple Myeloma', 'Skin Cancer', 'Adverse reaction to cold temperatures'],
+      },
+      { type: 'long-text', label: 'If you have any of the above conditions or are currently receiving medical treatment, please provide details below', required: true },
+      { type: 'yes-no', label: 'Are you Pregnant or Breast-feeding?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Have you ever had an anaphylactic reaction?', options: ['Yes', 'No'], required: true, helper: 'If YES, please inform your practitioner' },
+      { type: 'yes-no', label: 'Are you planning to go abroad or use sunbeds in the next 3 weeks?', options: ['Yes', 'No'], required: true },
+      // "rarely" (lower-case) and "Most Days/Every days" are verbatim Ovatu inconsistencies.
+      { type: 'single-choice', label: 'How often are you dissatisfied with your appearance?', options: ['Never', 'rarely', 'Monthly', 'Weekly', 'Most Days/Every days'], required: true },
+    ],
+    declaration: STANDARD_DECLARATION,
+  },
+  {
+    id: 'micro-needling',
+    name: 'Micro-Needling Consent',
+    intro: `The purpose of this informed consent form is to provide written information regarding the risks, benefits and alternatives of the procedure named above. This material serves as a supplement to the discussion you have with your doctor/healthcare provider. It is important that you fully understand this information, so please read this document thoroughly. If you have any questions regarding the procedure, ask your doctor/healthcare professional prior to signing the consent form. THE TREATMENT To the patient: Being fully informed about your condition and treatment will help you make the decision whether or not to have a microneedling treatment. This disclosure is not to alarm you but to better inform you so that you may withhold your consent for this treatment. Description of the Procedure Microneedling treatment allows for controlled induction of the skin's self-repair mechanism by creating micro-"injuries" in the skin, which triggers new collagen synthesis, yet does not pose the risk of permanent scarring. The result is smoother, firmer and younger-looking skin. Microneedling procedures are performed in a safe and precise manner with the use of the sterile needle head. The procedure is normally completed within 30-60 minutes, depending on the required treatment and anatomical site. Side Effects After the procedure, the skin will be red and flushed in appearance in a similar way to moderate sunburn. You may also experience skin tightness and mild sensitivity to touch on the area being treated. This will diminish greatly after a few hours following treatments and within the next 24 hours the skin will be completely healed. After three days there is barely any evidence that the procedure has taken place. Contraindications Microneedling treatment is contraindicated for patients with: keloid scars, scleroderma, collagen vascular diseases or cardiac abnormalities, a hemorrhagic disorder or haemostatic dysfunction, active bacterial or fungal infection.`,
+    fields: [
+      ...PERSONAL_DETAILS,
+      { type: 'heading', label: 'Medical History' },
+      { type: 'yes-no', label: 'Do you smoke?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Do you drink alcohol?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Do you use sun beds?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Are you currently taking any prescribed medications or any over the counter medications?', options: ['Yes', 'No'], required: true },
+      { type: 'long-text', label: 'If yes, please state name and dosage of medication below' },
+      {
+        type: 'multi-choice',
+        label: 'Do you suffer from any of the following conditions?',
+        options: ['Allergies', 'Angina/heart related conditions', 'Autoimmune Conditions', 'Arthritis', 'Epilepsy/Convulsions', 'Myasthenia Gravis', 'Gillian Barre Syndrome', "Bell's Palsy/Nerve Problems", 'Diabetes', 'Facial cold sores/acne', 'Active Cancer', 'HIV/Hepatitis', 'Kidney/liver failure', 'Hypertrophic scarring/Keloid', 'Porphyria', 'Bleeding Conditions', 'Active Infection'],
+      },
+      { type: 'long-text', label: 'If you have any of the above conditions or are currently receiving medical treatment, please provide details below', required: true },
+      { type: 'yes-no', label: 'Are you Pregnant or Breast-feeding?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Have you ever had severe allergic or an anaphylactic reaction?', options: ['Yes', 'No'], required: true, helper: 'If YES, please inform your practitioner' },
+    ],
+    declaration: STANDARD_DECLARATION,
+  },
+  {
+    id: 'haytox',
+    name: 'Haytox Consent Form',
+    intro: `BOTOX® should only be administered by medically qualified physicians with appropriate qualifications and expertise in this treatment and having the required equipment. Too frequent or excessive dosing of BOTOX® may increase the risk of antibodies in the blood which may lead to failure of treatment with botulinum toxin when used for this and other conditions. The aesthetic effects of BOTOX® last for an average of 3-4 months Botox for the treatment of hay fever and Rhinitis is used ''Off label''. Off label use means that the medicine has a license for treating some conditions (e.g muscle spasticity, cosmetic use) but the manufacturer has not applied for a license for it to be used for hay fever or rhinitis. Like all medicines, BOTOX® can have side effects, although not everybody gets them. In general, side effects occur within the first few days following treatment. They usually last only for a short time, but they may last for several months and in rare cases, longer. These adverse reactions may be related to treatment, technique or both. Possible side effects with using Botox for the treatment of hay fever/rhinitis are extremely rare. However, the following may occur: Atomiser site discomfort Bleeding from the nostrils Redness, itching or irritation Headache Under eye puffiness Flu-like symptoms Anxiety symptoms Lack of effect If you experience any of these, please inform your practitioner. You cannot have this treatment if you have any of the following: An allergy to Botox or materials used in the treatment You currently have infected rhinitis You are pregnant or breastfeeding If you have a bleeding disorder that is poorly controlled on anti-coagulant therapy You must tell us if you suffer from the following: Severe anxiety If you have a deviated septum or problems with inhalation Pre-Care: It is advisable to perform a saline nasal spray 30-60 minutes prior to the appointment. This will wash away existing pollen particles and prepare the nasal passage to have better contact with the toxin Aftercare You must not use a nasal spray for 24 hours following your procedure You may use all your other hay fever/rhinitis medication as normal Results take 1-2 weeks to take effect Your practitioner may review you at a 2 week period and may suggest a dose adjustment`,
+    fields: [
+      ...PERSONAL_DETAILS,
+      { type: 'heading', label: 'Medical History' },
+      { type: 'yes-no', label: 'Do you smoke?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Do you drink alcohol?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Do you use sun beds?', options: ['Yes', 'No'], required: true },
+      {
+        type: 'multi-choice',
+        label: 'Do you suffer from any of the following conditions?',
+        options: ['Allergies', 'Angina/heart related conditions', 'Thyroid Disease', 'Autoimmune Conditions', 'Arthritis', 'Epilepsy/Convulsions', 'Myasthenia Gravis', 'Gillian Barre Syndrome', "Bell's Palsy/Nerve Problems", 'Diabetes', 'Facial cold sores/acne', 'Active Cancer', 'HIV/Hepatitis', 'Kidney/liver failure'],
+      },
+      { type: 'long-text', label: 'If you have any of the above conditions or are currently receiving medical treatment, please provide details below', required: true },
+      { type: 'yes-no', label: 'Are you Pregnant or Breast-feeding?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Have you ever had an anaphylactic reaction?', options: ['Yes', 'No'], required: true, helper: 'If YES, please inform your practitioner' },
+      { type: 'yes-no', label: 'Are you taking any prescribed or over the counter medications?', options: ['Yes', 'No'], required: true },
+      { type: 'long-text', label: 'If yes, please state name and dose below' },
+    ],
+    declaration: STANDARD_DECLARATION,
+  },
+  {
+    id: 'hyalase',
+    name: 'Hyalase Consent Form',
+    intro: `The purpose of this informed consent form is to provide written information regarding the risks, benefits and alternatives of the procedure named above. This material serves as a supplement to the discussion you have with your doctor/healthcare provider. It is important that you fully understand this information, so please read this document thoroughly. If you have any questions regarding the procedure, ask your doctor/healthcare professional prior to signing the consent form. THE TREATMENT Uses of Hyalase (Hyaluronidase) 1. Aesthetic Medicine – It is commonly used to dissolve dermal fillers (like hyaluronic acid fillers) in case of overcorrection, lumps, migration, or complications. 2. Ophthalmology – Used in eye surgeries to enhance the spread of local anesthesia. 3. Dermatology & Medicine – Helps improve the absorption of subcutaneous injections (e.g., local anesthetics, fluids). 4. Emergency Treatment – Used to manage vascular occlusions caused by filler injections, which can lead to skin necrosis if untreated. Treatment & Administration - Injection: Hyalase is injected directly into the area requiring treatment. - Dosage: Depends on the purpose (e.g., dissolving fillers vs. improving drug absorption). - Effect Time: Works within 24–48 hours for filler dissolving, but minor results can be seen sooner. - Repeat Treatments: Sometimes required for full effect. Side Effects & Risks - Swelling & Redness: Common but temporary. - Bruising: May occur at the injection site. - Allergic Reactions: Rare but possible—skin testing may be recommended. Allergic reaction including anaphylactic shock are possible, they occur at a rate of between 1/2000 and 1/100 depending on the data source. Anaphylactic shock has a mortality rate 0.3 to 5% depending on the study. An allergy test can often identify this risk prior to full exposure. Local reactions include oedema, erythema, pain and itching, urticaria and angioedema. - Over dissolving: If too much is used, it may break down the body's natural hyaluronic acid.`,
+    fields: [
+      ...PERSONAL_DETAILS,
+      { type: 'heading', label: 'Medical History' },
+      { type: 'yes-no', label: 'Do you smoke?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Do you drink alcohol?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Do you use sun beds?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Are you currently taking any prescribed medications or any over the counter medications?', options: ['Yes', 'No'], required: true },
+      { type: 'long-text', label: 'If yes, please state name and dosage of medication below' },
+      {
+        type: 'multi-choice',
+        label: 'Do you suffer from any of the following conditions?',
+        options: ['Allergies', 'Angina/heart related conditions', 'Autoimmune Conditions', 'Arthritis', 'Epilepsy/Convulsions', 'Myasthenia Gravis', 'Gillian Barre Syndrome', "Bell's Palsy/Nerve Problems", 'Diabetes', 'Facial cold sores/acne', 'Active Cancer', 'HIV/Hepatitis', 'Kidney/liver failure', 'Hypertrophic scarring/Keloid', 'Porphyria', 'Bleeding Conditions'],
+      },
+      { type: 'long-text', label: 'If you have any of the above conditions or are currently receiving medical treatment, please provide details below', required: true },
+      { type: 'yes-no', label: 'Are you Pregnant or Breast-feeding?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Have you ever had severe allergic or an anaphylactic reaction?', options: ['Yes', 'No'], required: true, helper: 'If YES, please inform your practitioner' },
+      { type: 'yes-no', label: 'Are you allergic to bee-stings?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Have you had any dental work within the last 2 weeks?', options: ['Yes', 'No'], required: true },
+    ],
+    declaration: STANDARD_DECLARATION,
+  },
+  {
+    id: 'profhilo-structura',
+    name: 'Profhilo Structura Consent Form',
+    intro: `The purpose of this informed consent form is to provide written information regarding the risks, benefits and alternatives of the procedure named above. This material serves as a supplement to the discussion you have with your doctor/healthcare provider. It is important that you fully understand this information, so please read this document thoroughly. If you have any questions regarding the procedure, ask your doctor/healthcare professional prior to signing the consent form. THE TREATMENT About Profhilo Structura From the scientists behind the sought-after Profhilo skin treatment, Profhilo Structura is a truly ground-breaking injectable treatment that targets and regenerates your natural facial fat pads. The results are a more lifted, naturally contoured and rejuvenated facial profile without looking artificially enhanced. Profhilo Structura should not be mistaken for a dermal filler, skin booster, nor the original Profhilo treatment. It is a unique category of advanced treatment. Unlike skin boosters or the original Profhilo skin treatment, Profhilo Structura specifically targets the mid-face superficial fat and triggers regeneration; this is important because the ageing process shrinks and drops these fat pads, leading to facial hollowness, sagging skin, jowl formation, lack of facial definition, and more. Profhilo Structura differs to dermal fillers as dermal fillers physically replace lost fat with a synthetic hyaluronic acid-based gel. Structura stimulates the restoration of your fat pats, not replication of them. Possible Side-Effects Some individuals may have an allergic reaction to the components of Profhilo Structura, such as hyaluronic acid. Symptoms of an allergic reaction may include itching, swelling, or rash. It's a rare adverse reaction and can be prevented by a thorough discussion of the health condition during consultation with the doctor. If you suspect an allergic reaction seek medical attention promptly. There is a risk of infection at the injection sites, particularly if proper hygiene protocols are not followed during the procedure. Signs of infection may include increased redness, warmth, pain, or discharge from the treated area. Granulomas, which are small, firm bumps under the skin, may develop at the injection sites. They are a rare complication of Profhilo injections. These require further medical intervention to address. Nerve damage may occur as a result of injectable treatment. Symptoms may include numbness, tingling, or loss of sensation in the fixed area. Are There Contraindications for Injectable Treatments Like Profhilo Structura? Injection treatments are not performed on individuals under 18, pregnant, or breastfeeding. Contraindications include active herpes, inflammation or active skin disease in the treatment area, excessive scarring, porphyria, skin damage or open wounds in the treatment area, active skin cancer, warts, bacterial or fungal infections, frostbite or sunburned skin. If you have any questions or concerns, please raise these with your practitioner before your treatment.`,
+    fields: [
+      ...PERSONAL_DETAILS,
+      { type: 'heading', label: 'Medical History' },
+      { type: 'yes-no', label: 'Do you smoke?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Do you drink alcohol?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Do you use sun beds?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Are you currently taking any prescribed medications or any over the counter medications?', options: ['Yes', 'No'], required: true },
+      { type: 'long-text', label: 'If yes, please state name and dosage of medication below' },
+      {
+        type: 'multi-choice',
+        label: 'Do you suffer from any of the following conditions?',
+        options: ['Allergies', 'Angina/heart related conditions', 'Autoimmune Conditions', 'Arthritis', 'Epilepsy/Convulsions', 'Myasthenia Gravis', 'Gillian Barre Syndrome', "Bell's Palsy/Nerve Problems", 'Diabetes', 'Facial cold sores/acne', 'Active Cancer', 'HIV/Hepatitis', 'Kidney/liver failure', 'Hypertrophic scarring/Keloid', 'Porphyria', 'Bleeding Conditions'],
+      },
+      { type: 'long-text', label: 'If you have any of the above conditions or are currently receiving medical treatment, please provide details below', required: true },
+      { type: 'yes-no', label: 'Are you Pregnant or Breast-feeding?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Have you ever had severe allergic or an anaphylactic reaction?', options: ['Yes', 'No'], required: true, helper: 'If YES, please inform your practitioner' },
+      { type: 'yes-no', label: 'Are you allergic to bee stings?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Have you had any dental work within the last 2 weeks?', options: ['Yes', 'No'], required: true },
+      { type: 'single-choice', label: 'How often are you dissatisfied with your appearance?', options: ['Never', 'Rarely', 'Monthly', 'Weekly', 'Every day/Most days'], required: true },
+    ],
+    declaration: STANDARD_DECLARATION,
+  },
+  {
+    id: 'harmonyca',
+    name: 'HarmonyCa',
+    intro: `The purpose of this informed consent form is to provide written information regarding the risks, benefits and alternatives of the procedure named above. This material serves as a supplement to the discussion you have with your doctor/healthcare provider. It is important that you fully understand this information, so please read this document thoroughly. If you have any questions regarding the procedure, ask your doctor/healthcare professional prior to signing the consent form. THE TREATMENT The HArmonyCa treatment is a dual-effect hybrid injectable that combines Calcium Hydroxyapatite (CaHA) with Hyaluronic Acid (HA). HArmonyCa provides an immediate lift from the Hyaluronic Acid, a natural substance found within us which causes us to look plump and youthful when we are young. It also provides a sustained lifting effect from new collagen production associated with Calcium Hydroxyapatite. As we age, your body starts producing less collagen which reduces the volume behind our skin. Re-introducing the Hyaluronic Acid and Calcium Hydroxyapatite using the hybrid injectable HArmonyCa treatment can help you boost and support the bodies collagen production whilst improving your skin architecture, enhancing and sculpting the face. Risks/Side Effects This injectable has received CE-mark approval, allowing wide use in Europe. Despite undergoing rigorous clinical trials and tests, aesthetic providers should discuss that common Harmonyca side effects may still occur after treatments. These typically last for a few days, subside independently, and may range from mild to moderate. Temporary Redness and Swelling: After the injection, patients may notice redness and swelling at the treatment site. This is a normal reaction as the skin adjusts to the filler. The symptoms generally resolve within a few days and can be managed by applying a cold compress. Mild Discomfort or Tenderness: Some patients may feel mild discomfort or tenderness at the injection site, which is the body's natural response to the needle and the filler formulation. This tenderness usually fades within a few days and can be alleviated with over-the-counter pain relievers if necessary. Itching or Bruising: Itching or minor bruising may also occur, particularly in sensitive areas. These symptoms are usually mild and resolve on their own within a week. Avoiding alcohol and certain medications before treatment can help minimize bruising. Allergic Reactions: Treated individuals with hypersensitivity to Harmonyca components may experience allergic reactions. Symptoms may include itching, hives, rash, difficulty breathing, or more severe reactions. Infection at the Injection Site: Although rare, infections may still occur. Improper administration, sterilization, or Harmonyca aftercare may cause this severe side effect. Nodule Formation or Lumps under the Skin: This rare side effect may be caused by uneven distribution during injection sessions and may require medical intervention. Aftercare Please avoid Strenious activity , exposure to sunlight and tanning lamps/beds or extreme weather conditions foro 24 hours after treatment. Applying an ice pack/cold compress to the treated area for 24 hours after treatment may help reduce redness, swelling and irritation. If nodules or small lumps appear, gently massage the area. If you have any concerns- please contact your practitioner/GP`,
+    fields: [
+      ...PERSONAL_DETAILS,
+      { type: 'heading', label: 'Medical History' },
+      { type: 'yes-no', label: 'Do you smoke?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Do you drink alcohol?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Do you use sun beds?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Are you currently taking any prescribed medications or any over the counter medications?', options: ['Yes', 'No'], required: true },
+      { type: 'long-text', label: 'If yes, please state name and dosage of medication below' },
+      {
+        type: 'multi-choice',
+        label: 'Do you suffer from any of the following conditions?',
+        options: ['Allergies', 'Angina/heart related conditions', 'Autoimmune Conditions', 'Arthritis', 'Epilepsy/Convulsions', 'Myasthenia Gravis', 'Gillian Barre Syndrome', "Bell's Palsy/Nerve Problems", 'Diabetes', 'Facial cold sores/acne', 'Active Cancer', 'HIV/Hepatitis', 'Kidney/liver failure', 'Hypertrophic scarring/Keloid', 'Porphyria', 'Bleeding Conditions'],
+      },
+      { type: 'long-text', label: 'If you have any of the above conditions or are currently receiving medical treatment, please provide details below', required: true },
+      { type: 'yes-no', label: 'Are you Pregnant or Breast-feeding?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Have you ever had severe allergic or an anaphylactic reaction?', options: ['Yes', 'No'], required: true, helper: 'If YES, please inform your practitioner' },
+      { type: 'yes-no', label: 'Are you allergic to bee-stings?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Have you had any dental work within the last 2 weeks?', options: ['Yes', 'No'], required: true },
+      { type: 'single-choice', label: 'How often are you dissatisfied with your appearance?', options: ['Never', 'Rarely', '1-2 a month', 'Weekly', 'Every day/Most days'], required: true },
+    ],
+    declaration: STANDARD_DECLARATION,
+  },
+  {
+    id: 'hifu',
+    name: 'HIFU Mini',
+    intro: `The purpose of this informed consent form is to provide written information regarding the risks, benefits and alternatives of the procedure named above. This material serves as a supplement to the discussion you have with your doctor/healthcare provider. It is important that you fully understand this information, so please read this document thoroughly. If you have any questions regarding the procedure, ask your doctor/healthcare professional prior to signing the consent form. THE TREATMENT HIFU, or High-Intensity Focused Ultrasound, offers a revolutionary approach to facial rejuvenation without surgery. This non-invasive procedure uses ultrasound energy to penetrate deep into the skin's layers, stimulating collagen production and tightening tissues. Unlike traditional facelifts or other invasive cosmetic procedures, HIFU doesn't require any incisions, injections, or damage to the skin's surface. The non-invasive nature of HIFU brings several benefits. Patients experience minimal discomfort during the treatment, with most describing it as a warm, tingling sensation. There's no need for anesthesia, and the risk of complications is significantly lower compared to surgical alternatives. The ultrasound energy used in HIFU is precisely focused on specific tissue depths below the skin's surface. This creates thermal coagulation points, which trigger the body's natural healing response. This response includes the production of new collagen and elastin, leading to gradual skin tightening and lifting effects. The precision of HIFU allows practitioners to target the foundational layers of the skin typically addressed in cosmetic surgery, but without cutting or disrupting the surface of the skin. HIFU Facial Treatment Procedure To prepare for your HIFU facial treatment, it's important to clean and clear your skin. This procedure utilizes targeted ultrasound waves that aim to tighten and lift your facial structure. Post-treatment, adhering to proper care guidelines is crucial to enhance the effects and ensure a smooth recovery. Here are the steps you should follow: Pre-Treatment Preparation Cleanse your skin to remove any makeup, oils, or dirt. Avoid using any harsh skincare products that might irritate your skin a few days prior. During the Procedure The clinician will apply a gel to your face; this acts as a conductor for the ultrasound waves. You may feel slight discomfort or warmth as the ultrasound energy penetrates the skin layers. Post-Treatment Care Keep your skin hydrated by drinking plenty of water and using a gentle moisturizer. Avoid direct sunlight and wear sunscreen to protect your skin. Don't use high-heat treatments like saunas or steam rooms for at least 48 hours. Following these steps will help you achieve the best possible results from your HIFU treatment.`,
+    fields: [
+      ...PERSONAL_DETAILS,
+      { type: 'heading', label: 'Medical History' },
+      { type: 'yes-no', label: 'Do you smoke?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Do you drink alcohol?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Do you use sun beds?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Are you currently taking any prescribed medications or any over the counter medications?', options: ['Yes', 'No'], required: true },
+      { type: 'long-text', label: 'If yes, please state name and dosage of medication below' },
+      {
+        type: 'multi-choice',
+        label: 'Do you suffer from any of the following conditions?',
+        // "Sclerroderma" (double-r) is a verbatim Ovatu typo.
+        options: ['Allergies', 'Autoimmune Conditions', 'Arthritis', 'Epilepsy/Convulsions', 'Myasthenia Gravis', 'Gillian Barre Syndrome', "Bell's Palsy/Nerve Problems", 'Diabetes', 'Facial cold sores/acne', 'Active Cancer', 'HIV/Hepatitis', 'Hypertrophic scarring/Keloid', 'Porphyria', 'Bleeding Conditions', 'Pacemaker', 'Lupus', 'Sclerroderma', 'Metal Implants', 'Active Infections'],
+      },
+      { type: 'long-text', label: 'If you have any of the above conditions or are currently receiving any medical treatment, please provide details below', required: true },
+      { type: 'yes-no', label: 'Are you Pregnant or Breast-feeding?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Have you ever had severe allergic or an anaphylactic reaction?', options: ['Yes', 'No'], required: true, helper: 'If YES, please inform your practitioner' },
+      { type: 'yes-no', label: 'Have you had any dental work, fillers or threads within the last 4 weeks?', options: ['Yes', 'No'], required: true },
+      { type: 'single-choice', label: 'How often are you dissatisfied with your appearance?', options: ['Never', 'Rarely', '1-2 a month', 'Weekly', 'Every day/most days'], required: true },
+    ],
+    declaration: STANDARD_DECLARATION,
   },
 ]
 
@@ -249,23 +460,40 @@ export function sanitiseAnswers(
 
 /**
  * Resolve the consent form a booking needs, from its service slug and/or name.
- * Mirrors how Ovatu attaches forms to services today (e.g. CryoPen uses the
- * Dermal Filler form). Returns null when no form is mapped yet — the remaining
- * Ovatu forms (NAD, etc.) are not encoded, so those services map to nothing
- * until they are captured.
+ * Mirrors how Ovatu attaches forms to services today. Order matters: the more
+ * specific treatments (Haytox, HarmonyCa, CryoPen, Hyalase, Profhilo Structura)
+ * are checked BEFORE the broader Botox / filler / skin-booster buckets, because
+ * their names would otherwise be swept up by those. Returns null when no form is
+ * mapped — e.g. Aqualyx, which is not yet encoded.
  */
 export function consentFormForService(slug: string | null | undefined, name: string | null | undefined): ConsentForm | null {
   const s = `${slug ?? ''} ${name ?? ''}`.toLowerCase()
   if (!s.trim()) return null
+  // Haytox — Botox for hay fever / rhinitis (its own form; check before Botox).
+  if (/haytox|hay.?fever|rhinitis/.test(s)) return getConsentForm('haytox') ?? null
   // Botox / botulinum toxin (incl. hyperhidrosis & migraine use).
   if (/botox|anti.?wrinkle|toxin|wrinkle|hyperhidrosis|sweat|migraine|masseter|jaw slim/.test(s)) return getConsentForm('botox') ?? null
+  // HarmonyCa — CaHA + HA hybrid (its own form; check before filler).
+  if (/harmonyca/.test(s)) return getConsentForm('harmonyca') ?? null
+  // CryoPen cryotherapy (its own form; check before filler).
+  if (/cryopen|cryo/.test(s)) return getConsentForm('cryopen') ?? null
+  // Hyalase / hyaluronidase — filler dissolving (its own form; check before filler).
+  if (/hyalase|hyaluronidase/.test(s)) return getConsentForm('hyalase') ?? null
+  // Profhilo Structura — fat-pad regeneration (distinct from skin boosters).
+  if (/structura/.test(s)) return getConsentForm('profhilo-structura') ?? null
   // Skin booster / Profhilo (bio-remodelling).
   if (/profhilo|skin.?booster|booster|bio.?remodel/.test(s)) return getConsentForm('skin-booster') ?? null
   // Polynucleotides.
   if (/polynucleotide|plinest|nucleofill|\bpn\b/.test(s)) return getConsentForm('polynucleotide') ?? null
+  // NAD+.
+  if (/\bnad\b/.test(s)) return getConsentForm('nad') ?? null
   // B12.
   if (/\bb12\b|b-12|vitamin.?b/.test(s)) return getConsentForm('b12') ?? null
-  // Dermal filler — Ovatu also attaches this form to CryoPen.
-  if (/filler|lip|cheek|tear.?trough|jawline|chin|nasolabial|harmonyca|juvederm|restylane|cryopen|cryo/.test(s)) return getConsentForm('dermal-filler') ?? null
+  // Micro-needling / skin needling.
+  if (/micro.?needl|microneedl|skin.?needl|derma.?pen|dermaroll/.test(s)) return getConsentForm('micro-needling') ?? null
+  // HIFU (high-intensity focused ultrasound).
+  if (/\bhifu\b|focused.?ultrasound/.test(s)) return getConsentForm('hifu') ?? null
+  // Dermal filler — general HA filler.
+  if (/filler|lip|cheek|tear.?trough|jawline|chin|nasolabial|juvederm|restylane/.test(s)) return getConsentForm('dermal-filler') ?? null
   return null
 }
