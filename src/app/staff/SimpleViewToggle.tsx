@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { SIMPLE_VIEW_COOKIE } from '@/lib/staff-prefs'
+import { SIMPLE_VIEW_COOKIE } from '@/lib/staff-view'
 
 // A slim, always-present bar that flips the whole staff area between a
 // pared-back "Simple view" (just the everyday tools, no stats or deep admin)
