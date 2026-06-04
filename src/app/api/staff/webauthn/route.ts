@@ -13,7 +13,7 @@ import { STAFF_COOKIE, buildSessionToken, isStaffAuthed } from '@/lib/staff-auth
 import {
   RP_ID,
   RP_NAME,
-  ORIGIN,
+  ALLOWED_ORIGINS,
   saveChallenge,
   consumeChallenge,
   saveCredential,
@@ -25,11 +25,13 @@ import { assistantConfigured } from '@/lib/assistant/db'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-// POST /api/staff/webauthn?action=register-options   — generate registration challenge (must be authed)
-// POST /api/staff/webauthn?action=register-verify    — verify registration response (must be authed)
-// POST /api/staff/webauthn?action=auth-options       — generate authentication challenge (public)
-// POST /api/staff/webauthn?action=auth-verify        — verify assertion + issue session (public)
-// DELETE /api/staff/webauthn                         — remove stored passkey (must be authed)
+function getOrigin(req: Request): string {
+  // Use the actual request origin so this works on both vaclinic.co.uk
+  // and any Vercel preview deployment without extra env vars.
+  const origin = req.headers.get('origin')
+  if (origin && ALLOWED_ORIGINS.includes(origin)) return origin
+  return ALLOWED_ORIGINS[0]
+}
 
 export async function POST(req: Request) {
   if (!assistantConfigured()) {
@@ -38,6 +40,7 @@ export async function POST(req: Request) {
 
   const { searchParams } = new URL(req.url)
   const action = searchParams.get('action')
+  const origin = getOrigin(req)
 
   // ── Register: generate options ────────────────────────────────────────────
   if (action === 'register-options') {
@@ -66,13 +69,15 @@ export async function POST(req: Request) {
 
     const body = await req.json() as RegistrationResponseJSON
     const expectedChallenge = await consumeChallenge('register')
-    if (!expectedChallenge) return NextResponse.json({ error: 'Challenge expired — try again' }, { status: 400 })
+    if (!expectedChallenge) {
+      return NextResponse.json({ error: 'Challenge expired — tap Enable Face ID again' }, { status: 400 })
+    }
 
     try {
       const { verified, registrationInfo } = await verifyRegistrationResponse({
         response: body,
         expectedChallenge,
-        expectedOrigin: ORIGIN,
+        expectedOrigin: ALLOWED_ORIGINS,
         expectedRPID: RP_ID,
         requireUserVerification: true,
       })
@@ -91,8 +96,9 @@ export async function POST(req: Request) {
 
       return NextResponse.json({ ok: true })
     } catch (err) {
-      console.error('[webauthn] register-verify error:', err)
-      return NextResponse.json({ error: 'Registration failed' }, { status: 400 })
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error('[webauthn] register-verify error:', msg)
+      return NextResponse.json({ error: `Registration failed: ${msg}` }, { status: 400 })
     }
   }
 
@@ -103,9 +109,7 @@ export async function POST(req: Request) {
     const options = await generateAuthenticationOptions({
       rpID: RP_ID,
       userVerification: 'required',
-      allowCredentials: stored
-        ? [{ id: stored.credential_id }]
-        : [],
+      allowCredentials: stored ? [{ id: stored.credential_id }] : [],
     })
 
     await saveChallenge(options.challenge, 'authenticate')
@@ -116,7 +120,9 @@ export async function POST(req: Request) {
   if (action === 'auth-verify') {
     const body = await req.json() as AuthenticationResponseJSON
     const expectedChallenge = await consumeChallenge('authenticate')
-    if (!expectedChallenge) return NextResponse.json({ error: 'Challenge expired — try again' }, { status: 400 })
+    if (!expectedChallenge) {
+      return NextResponse.json({ error: 'Challenge expired — tap Sign in with Face ID again' }, { status: 400 })
+    }
 
     const stored = await getCredential()
     if (!stored) return NextResponse.json({ error: 'No passkey registered' }, { status: 400 })
@@ -125,7 +131,7 @@ export async function POST(req: Request) {
       const { verified, authenticationInfo } = await verifyAuthenticationResponse({
         response: body,
         expectedChallenge,
-        expectedOrigin: ORIGIN,
+        expectedOrigin: ALLOWED_ORIGINS,
         expectedRPID: RP_ID,
         requireUserVerification: true,
         credential: {
@@ -150,7 +156,8 @@ export async function POST(req: Request) {
       })
       return res
     } catch (err) {
-      console.error('[webauthn] auth-verify error:', err)
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error('[webauthn] auth-verify error:', msg)
       return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
     }
   }
