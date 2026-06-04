@@ -160,6 +160,7 @@ export function buildConsultationEmail(input: WriteUpInput): AftercareEmail {
   paras.push(
     'If anything comes to mind after today, or you have any questions at all, please do get in touch. There is no rush and no pressure, take whatever time you need.',
   )
+  paras.push('Warm wishes,\nBernadette')
 
   return {
     subject: came ? `Following up on your ${came} consultation` : 'Following up on your consultation',

@@ -290,6 +290,9 @@ export default function TreatmentTool() {
     setSendResult(null)
     setCopied(false)
     setAiNextSteps([])
+    // For a consultation, rewrite the follow-up email in Bernadette's voice from
+    // the fields straight away, so it is ready to send without a second step.
+    if (isConsult && clientName.trim()) void enhanceConsultationEmail()
     setTimeout(() => {
       document.getElementById('outputs')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }, 50)
@@ -808,7 +811,7 @@ export default function TreatmentTool() {
               </div>
               <p className="text-xs text-ink-soft mb-3">
                 {isConsult
-                  ? 'Prefilled with their name, the date and what they came in for. Edit it, then copy, open in your email app, or send.'
+                  ? 'Written in Bernadette’s voice from their name, the date, what they came in for and what you discussed. Edit it, then copy, open in your email app, or send.'
                   : 'A warm aftercare email for the client. Edit it, then copy, open in your email app, or send.'}
               </p>
 
@@ -828,7 +831,7 @@ export default function TreatmentTool() {
                   className="mb-4 inline-flex items-center gap-2 text-sm text-gold-deep hover:text-charcoal border border-gold/40 hover:border-gold rounded-sm px-3 py-2 transition-colors disabled:opacity-50"
                 >
                   <Sparkles size={14} strokeWidth={1.75} />
-                  {aiEnhancing ? 'Writing…' : 'Email client with consultation summary'}
+                  {aiEnhancing ? 'Writing in Bernadette’s voice…' : 'Rewrite in Bernadette’s voice'}
                 </button>
               )}
 
