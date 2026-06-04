@@ -9,7 +9,7 @@ import type {
   RegistrationResponseJSON,
   AuthenticationResponseJSON,
 } from '@simplewebauthn/server'
-import { STAFF_COOKIE, buildSessionToken, isAuthedFromRequest } from '@/lib/staff-auth'
+import { STAFF_COOKIE, buildSessionToken, isAuthedFromRequest, isStaffAuthed } from '@/lib/staff-auth'
 import {
   RP_ID,
   RP_NAME,
