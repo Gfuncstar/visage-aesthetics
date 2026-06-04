@@ -56,8 +56,8 @@ export default async function ConsentPage({ params }: { params: Promise<{ token:
   const { context } = resolved
   return (
     <ConsentFormClient
-      token={token}
       form={context.form}
+      submitUrl={`/api/book/consent/${token}`}
       clientName={context.clientName}
       serviceName={context.serviceName ?? context.form.name}
     />

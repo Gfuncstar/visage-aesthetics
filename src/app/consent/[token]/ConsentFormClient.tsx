@@ -23,15 +23,17 @@ function initialAnswers(form: ConsentForm, clientName: string): AnswerMap {
 }
 
 export default function ConsentFormClient({
-  token,
   form,
-  clientName,
+  submitUrl,
+  clientName = '',
   serviceName,
 }: {
-  token: string
   form: ConsentForm
-  clientName: string
-  serviceName: string
+  /** Where the completed form is POSTed (per-booking or standalone). */
+  submitUrl: string
+  clientName?: string
+  /** The booked treatment, when this form is tied to an appointment. */
+  serviceName?: string | null
 }) {
   const [answers, setAnswers] = useState<AnswerMap>(() => initialAnswers(form, clientName))
   const [agreed, setAgreed] = useState(false)
@@ -59,7 +61,7 @@ export default function ConsentFormClient({
     }
     setSubmitting(true)
     try {
-      const res = await fetch(`/api/book/consent/${token}`, {
+      const res = await fetch(submitUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ answers, agreed: true }),
@@ -100,8 +102,17 @@ export default function ConsentFormClient({
         <div className="eyebrow text-gold mb-2">Visage Aesthetics &nbsp;·&nbsp; Before your appointment</div>
         <h1 className="font-display italic text-charcoal text-3xl md:text-4xl leading-tight">{form.name}</h1>
         <p className="text-ink-soft mt-3 leading-relaxed">
-          For your <span className="text-charcoal">{serviceName}</span> appointment. Please read the information
-          below and complete the form. It takes a couple of minutes and saves time when you arrive.
+          {serviceName ? (
+            <>
+              For your <span className="text-charcoal">{serviceName}</span> appointment. Please read the
+              information below and complete the form. It takes a couple of minutes and saves time when you arrive.
+            </>
+          ) : (
+            <>
+              Please read the information below and complete the form. It takes a couple of minutes and saves time
+              when you arrive.
+            </>
+          )}
         </p>
 
         {/* Verbatim information / preamble */}

@@ -17,6 +17,11 @@ type TRecord = {
 }
 type Photo = { id: string; date: string; type: string; url: string; consent: boolean; treatment_type: string | null; notes: string | null }
 type Message = { id: string; channel: string; kind: string; subject: string | null; body: string | null; created_at: string }
+type ConsentFormRecord = {
+  id: string; form_id: string; form_name: string; service_name: string | null
+  client_email: string | null; answers: Record<string, string | string[]>
+  declaration: string; submitted_at: string; booking_id: string | null
+}
 type Summary = { name: string; visits: number; totalSpend: number; firstVisit: string | null; lastVisit: string | null; treatments: { service: string; count: number }[] }
 
 export default function ClientRecord() {
@@ -29,6 +34,7 @@ export default function ClientRecord() {
   const [records, setRecords] = useState<TRecord[]>([])
   const [photos, setPhotos] = useState<Photo[]>([])
   const [messages, setMessages] = useState<Message[]>([])
+  const [consentForms, setConsentForms] = useState<ConsentFormRecord[]>([])
   const [doNotContact, setDoNotContact] = useState(false)
   const [blocked, setBlocked] = useState(false)
   const [requiresDeposit, setRequiresDeposit] = useState(false)
@@ -65,6 +71,7 @@ export default function ClientRecord() {
       setRecords(d.treatmentRecords ?? [])
       setPhotos(d.photos ?? [])
       setMessages(d.messages ?? [])
+      setConsentForms(d.consentForms ?? [])
       setDoNotContact(Boolean(d.doNotContact))
       setBlocked(Boolean(d.blocked))
       setRequiresDeposit(Boolean(d.requiresDeposit))
@@ -116,6 +123,7 @@ export default function ClientRecord() {
         records={records}
         photos={photos}
         messages={messages}
+        consentForms={consentForms}
         loading={loading}
         doNotContact={doNotContact}
         onToggleDnc={toggleDnc}
@@ -197,9 +205,9 @@ export default function ClientRecord() {
 }
 
 function Detail({
-  name, summary, appts, records, photos, messages, loading, doNotContact, onToggleDnc, blocked, requiresDeposit, onToggleFlag, onBack, onRefresh, onLightbox, lightbox, onCloseLightbox, onSignOut,
+  name, summary, appts, records, photos, messages, consentForms, loading, doNotContact, onToggleDnc, blocked, requiresDeposit, onToggleFlag, onBack, onRefresh, onLightbox, lightbox, onCloseLightbox, onSignOut,
 }: {
-  name: string; summary: Summary | null; appts: Appt[]; records: TRecord[]; photos: Photo[]; messages: Message[]; loading: boolean
+  name: string; summary: Summary | null; appts: Appt[]; records: TRecord[]; photos: Photo[]; messages: Message[]; consentForms: ConsentFormRecord[]; loading: boolean
   doNotContact: boolean; onToggleDnc: (next: boolean) => void
   blocked: boolean; requiresDeposit: boolean; onToggleFlag: (flag: 'blocked' | 'requires_deposit', next: boolean) => void
   onBack: () => void; onRefresh: () => void; onLightbox: (url: string) => void; lightbox: string | null; onCloseLightbox: () => void; onSignOut: () => void
@@ -296,6 +304,39 @@ function Detail({
           )}
         </div>
 
+        {/* Consent forms */}
+        <div className="mt-10">
+          <div className="eyebrow text-gold mb-3">Consent forms</div>
+          {loading ? <p className="text-sm text-ink-soft py-6 text-center">Loading…</p>
+            : consentForms.length === 0 ? (
+            <p className="text-sm text-ink-soft border border-line/40 rounded-sm bg-cream-soft px-4 py-4">
+              No consent forms yet. Forms this client completes (online or sent to them) will appear here.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {consentForms.map((c) => (
+                <details key={c.id} className="border border-line/40 rounded-sm bg-cream-soft px-4 py-3">
+                  <summary className="cursor-pointer flex items-center justify-between gap-3">
+                    <span className="text-charcoal font-medium">{c.form_name}</span>
+                    <span className="text-xs text-stone">{ukDate(c.submitted_at)}</span>
+                  </summary>
+                  <div className="mt-3 space-y-2">
+                    {c.service_name && <AnswerRow label="Appointment" value={c.service_name} />}
+                    {c.client_email && <AnswerRow label="Email" value={c.client_email} />}
+                    {Object.entries(c.answers || {}).map(([k, v]) => (
+                      <AnswerRow key={k} label={k} value={Array.isArray(v) ? (v.length ? v.join(', ') : '—') : v || '—'} />
+                    ))}
+                    <div className="border-t border-line/30 pt-2 mt-2">
+                      <span className="text-xs text-ink-soft block mb-1">Declaration agreed</span>
+                      <p className="text-sm text-charcoal leading-relaxed">{c.declaration}</p>
+                    </div>
+                  </div>
+                </details>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Messages sent */}
         {messages.length > 0 && (
           <div className="mt-10">
@@ -376,6 +417,15 @@ function Stat({ label, value }: { label: string; value: string }) {
     <div className="border border-line/40 bg-cream-soft rounded-sm p-3">
       <div className="text-eyebrow text-ink-soft mb-1">{label}</div>
       <div className="font-display italic text-2xl text-charcoal leading-none">{value}</div>
+    </div>
+  )
+}
+
+function AnswerRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="grid grid-cols-[40%_60%] gap-3">
+      <span className="text-xs text-ink-soft leading-snug">{label}</span>
+      <span className="text-sm text-charcoal leading-snug">{value}</span>
     </div>
   )
 }

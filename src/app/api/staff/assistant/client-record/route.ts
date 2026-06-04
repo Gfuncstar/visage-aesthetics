@@ -18,6 +18,18 @@ type Photo = {
   notes: string | null
 }
 
+export type ConsentFormRow = {
+  id: string
+  form_id: string
+  form_name: string
+  service_name: string | null
+  client_email: string | null
+  answers: Record<string, string | string[]>
+  declaration: string
+  submitted_at: string
+  booking_id: string | null
+}
+
 // GET ?q=...      -> matching clients with a quick summary (search list)
 // GET ?name=...   -> one client's full record (visits, notes, photos, summary)
 export async function GET(req: Request) {
@@ -36,13 +48,17 @@ export async function GET(req: Request) {
       // PostgREST equality is case-sensitive; match case-insensitively.
       const enc = name.replace(/[%,()]/g, ' ')
       const norm = name.trim().toLowerCase().replace(/\s+/g, ' ')
-      const [appts, treatments, photos, dnc, flags, messages] = await Promise.all([
+      const [appts, treatments, photos, dnc, flags, messages, consentForms] = await Promise.all([
         select<Appointment>('appointments', { client_name: `ilike.${enc}`, order: 'date.desc', limit: 500 }),
         select<TreatmentRecord>('treatment_records', { client_name: `ilike.${enc}`, order: 'date.desc', limit: 500 }),
         select<Photo>('photos', { client_name: `ilike.${enc}`, order: 'date.desc', limit: 200 }),
         select<{ id: string }>('do_not_contact', { name_normalised: `eq.${norm}`, limit: 1 }).catch(() => []),
         select<{ blocked: boolean; requires_deposit: boolean }>('client_flags', { name_normalised: `eq.${norm}`, limit: 1 }).catch(() => []),
         select<{ id: string; channel: string; kind: string; subject: string | null; body: string | null; created_at: string }>('messages', { name_normalised: `eq.${norm}`, order: 'created_at.desc', limit: 30 }).catch(() => []),
+        // Consent forms are matched by name — the same way the rest of this record
+        // is — so they appear regardless of whether the email-based client_id link
+        // was set. .catch keeps the record loading if the table isn't created yet.
+        select<ConsentFormRow>('consent_submissions', { client_name: `ilike.${enc}`, order: 'submitted_at.desc', select: 'id,form_id,form_name,service_name,client_email,answers,declaration,submitted_at,booking_id', limit: 100 }).catch(() => []),
       ])
 
       const completed = appts.filter((a) => a.status === 'completed')
@@ -69,6 +85,7 @@ export async function GET(req: Request) {
         })),
         photos,
         messages,
+        consentForms,
         doNotContact: dnc.length > 0,
         blocked: flags[0]?.blocked ?? false,
         requiresDeposit: flags[0]?.requires_deposit ?? false,

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowLeft, Boxes, ClipboardPen, ClipboardCheck, FileCheck2, ReceiptText, TrendingUp, Users } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Boxes, ClipboardPen, ClipboardCheck, FileCheck2, ReceiptText, TrendingUp, Users } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from '../notes/StaffGate'
 import { assistantConfigured } from '@/lib/assistant/db'
@@ -86,6 +86,40 @@ export default async function AssistantIndex() {
             to the patient-notes sheet and drafts the aftercare email). Orders and profit need the
             database. Add <code>SUPABASE_URL</code> and <code>SUPABASE_SERVICE_ROLE_KEY</code> in
             Vercel to switch them on.
+          </div>
+        )}
+
+        {today && today.overdue.length > 0 && (
+          <div className="mt-8 border border-clay/50 bg-clay/10 rounded-sm p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <AlertTriangle size={16} strokeWidth={1.75} className="text-clay" />
+              <span className="text-eyebrow text-clay">Write-ups overdue &nbsp;·&nbsp; over 24 hours</span>
+            </div>
+            <p className="text-sm text-ink-soft">
+              {today.overdue.length === 1 ? 'One earlier visit has' : `${today.overdue.length} earlier visits have`} no
+              clinical note yet. Please write them up.
+            </p>
+            <ul className="mt-3 space-y-1.5">
+              {today.overdue.slice(0, 8).map((o) => (
+                <li key={`${o.date}-${o.name}`} className="text-sm flex items-baseline justify-between gap-3">
+                  <span className="truncate">
+                    <span className="text-charcoal">{o.name}</span>{' '}
+                    <span className="text-ink-soft">&middot; {o.service}</span>
+                  </span>
+                  <span className="text-clay shrink-0 whitespace-nowrap">
+                    {o.daysAgo === 1 ? '1 day' : `${o.daysAgo} days`} ago
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {today.overdue.length > 8 && (
+              <p className="text-xs text-ink-soft mt-2">+{today.overdue.length - 8} more</p>
+            )}
+            <Link href="/staff/assistant/treatment" className="mt-4 btn btn-primary inline-flex" style={{ minHeight: 40 }}>
+              <span className="inline-flex items-center gap-2">
+                <ClipboardPen size={15} strokeWidth={1.75} /> Write them up
+              </span>
+            </Link>
           </div>
         )}
 

@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   Camera,
   Check,
+  ChevronLeft,
   ChevronRight,
   Copy,
   LogOut,
@@ -181,6 +182,16 @@ export default function TreatmentTool() {
       cancelled = true
     }
   }, [product, type])
+
+  // Step the appointment-pick day backwards/forwards. Going further into the
+  // past is unbounded (write up an older clinic); the future is capped at today.
+  function shiftPickDate(delta: number) {
+    const d = new Date(`${pickDate}T00:00:00`)
+    d.setDate(d.getDate() + delta)
+    const next = d.toISOString().slice(0, 10)
+    if (next > today) return
+    setPickDate(next)
+  }
 
   function pickAppt(a: RecentAppt) {
     setPickedApptId(a.id)
@@ -396,12 +407,29 @@ export default function TreatmentTool() {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
+                  onClick={() => shiftPickDate(-1)}
+                  aria-label="Previous day"
+                  className="inline-flex items-center justify-center rounded-sm border border-line/40 text-ink-soft hover:border-gold/60 w-8 h-8 transition-colors"
+                >
+                  <ChevronLeft size={16} strokeWidth={1.75} />
+                </button>
+                <button
+                  type="button"
                   onClick={() => setPickDate(today)}
                   className={`text-xs rounded-sm border px-2.5 py-1.5 transition-colors ${
                     pickDate === today ? 'border-gold bg-gold/10 text-charcoal' : 'border-line/40 text-ink-soft hover:border-gold/60'
                   }`}
                 >
                   Today
+                </button>
+                <button
+                  type="button"
+                  onClick={() => shiftPickDate(1)}
+                  disabled={pickDate >= today}
+                  aria-label="Next day"
+                  className="inline-flex items-center justify-center rounded-sm border border-line/40 text-ink-soft hover:border-gold/60 w-8 h-8 transition-colors disabled:opacity-40 disabled:hover:border-line/40"
+                >
+                  <ChevronRight size={16} strokeWidth={1.75} />
                 </button>
                 <input
                   type="date"
