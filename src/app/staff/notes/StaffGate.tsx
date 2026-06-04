@@ -106,7 +106,10 @@ export default function StaffGate() {
     setError(null)
     try {
       const optRes = await fetch('/api/staff/webauthn?action=register-options', { method: 'POST' })
-      if (!optRes.ok) throw new Error('Could not start registration')
+      if (!optRes.ok) {
+        const d = await optRes.json().catch(() => ({})) as { error?: string }
+        throw new Error(d.error ?? `register-options failed (${optRes.status})`)
+      }
       const options = await optRes.json()
 
       const attestation = await startRegistration({ optionsJSON: options })
@@ -119,15 +122,17 @@ export default function StaffGate() {
 
       if (verifyRes.ok) {
         window.location.reload()
-      } else {
-        throw new Error('Registration failed')
+        return
       }
+      const d = await verifyRes.json().catch(() => ({})) as { error?: string }
+      throw new Error(d.error ?? `register-verify failed (${verifyRes.status})`)
     } catch (err) {
-      const msg = err instanceof Error ? err.message : ''
-      if (!msg.includes('cancel') && !msg.includes('abort')) {
-        setError('Could not enable Face ID — you can try later from settings')
+      const msg = err instanceof Error ? err.message : String(err)
+      const cancelled = msg.includes('cancel') || msg.includes('abort') || msg.includes('NotAllowed')
+      if (!cancelled) {
+        setError(msg)
       }
-      window.location.reload()
+      // Don't auto-reload on error — let the user see what went wrong
     } finally {
       setBusy(false)
     }
