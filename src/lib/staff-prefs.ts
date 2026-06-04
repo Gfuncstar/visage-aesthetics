@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers'
+import { SIMPLE_VIEW_COOKIE } from './staff-view'
 
-export const SIMPLE_VIEW_COOKIE = 'va_staff_simple'
+export { SIMPLE_VIEW_COOKIE }
 
 // The staff back end can run in a pared-back "Simple view" that hides the
 // in-depth tools and numbers — profit, background agents, press, stat tiles —
