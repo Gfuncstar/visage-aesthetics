@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import Anthropic from '@anthropic-ai/sdk'
+import { assistantConfigured, insert, audit } from '@/lib/assistant/db'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -148,6 +150,70 @@ export async function POST(req: Request) {
       console.error('[contact] Resend error:', error)
       return NextResponse.json({ ok: false, error: 'Could not send. Please try again.' }, { status: 502 })
     }
+
+    // Log enquiry for FAQ analysis (graceful — table may not exist yet)
+    if (assistantConfigured()) {
+      insert('contact_enquiries', {
+        name: fullName,
+        email,
+        phone,
+        treatment,
+        message,
+        created_at: new Date().toISOString(),
+      }).catch(() => {})
+    }
+
+    // GDPR detection
+    const gdprKeywords = ['subject access', 'sar', 'my data', 'delete my', 'gdpr', 'data request', 'right to erasure', 'right to access']
+    const msgLower = message.toLowerCase()
+    const gdprKeyword = gdprKeywords.find((k) => msgLower.includes(k))
+    if (gdprKeyword && assistantConfigured()) {
+      audit('gdpr_request_received', 'contact_form', email, { treatment, keyword: gdprKeyword }).catch(() => {})
+      resend.emails.send({
+        from: FROM_EMAIL,
+        to: [email],
+        replyTo: TO_EMAIL,
+        subject: 'Your data request — Visage Aesthetics',
+        html: `<div style="font-family:-apple-system,sans-serif;color:#1F1B1A;max-width:560px;line-height:1.7;"><p>Thank you for getting in touch, ${escapeHtml(firstName)}.</p><p>We have received your data request and will respond within 30 days as required by UK GDPR. If you have any questions in the meantime, please reply to this email or contact us at <a href="mailto:${escapeHtml(TO_EMAIL)}" style="color:#A8895E;">${escapeHtml(TO_EMAIL)}</a>.</p><p style="color:#8A807D;font-size:13px;">Visage Aesthetics, Braintree, Essex</p></div>`,
+        text: `Thank you for getting in touch, ${firstName}.\n\nWe have received your data request and will respond within 30 days as required by UK GDPR. If you have any questions in the meantime, please reply to this email or contact us at ${TO_EMAIL}.\n\nVisage Aesthetics, Braintree, Essex`,
+      }).catch(() => {})
+    }
+
+    // AI-powered auto-reply (non-blocking — never delays or fails the main response)
+    if (process.env.ANTHROPIC_API_KEY && !gdprKeyword) {
+      ;(async () => {
+        try {
+          const ai = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
+          const prompt = [
+            `Write a brief, warm auto-reply email from Bernadette Tobin RGN of Visage Aesthetics, Braintree, Essex.`,
+            `Client's treatment interest: ${treatment}.`,
+            message ? `Their message: ${message.slice(0, 400)}` : '',
+            `Requirements: first person, British English, 2–3 short paragraphs. Acknowledge their specific interest. Say you will be in touch within 24 hours. No bullet points. No salesy language. Sign off: Bernadette Tobin RGN, MSc\\nVisage Aesthetics`,
+            `Return only the email body text.`,
+          ]
+            .filter(Boolean)
+            .join('\n')
+          const msg = await ai.messages.create({
+            model: 'claude-opus-4-7',
+            max_tokens: 400,
+            messages: [{ role: 'user', content: prompt }],
+          })
+          const replyText = msg.content[0].type === 'text' ? msg.content[0].text.trim() : ''
+          if (!replyText) return
+          const replyHtml = `<div style="font-family:-apple-system,sans-serif;color:#1F1B1A;max-width:560px;line-height:1.7;">${replyText.split('\n\n').map((p: string) => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('')}</div>`
+          await resend.emails.send({
+            from: 'Bernadette at Visage <enquiries@vaclinic.co.uk>',
+            to: [email],
+            subject: 'Your enquiry — Visage Aesthetics',
+            html: replyHtml,
+            text: replyText,
+          })
+        } catch {
+          // auto-reply is best-effort
+        }
+      })()
+    }
+
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error('[contact] send threw:', err)
