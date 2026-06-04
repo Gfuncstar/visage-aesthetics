@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowLeft, Bot, Boxes, ClipboardPen, FileCheck2, ReceiptText, TrendingUp, Users } from 'lucide-react'
+import { ArrowLeft, Bot, Boxes, ClipboardPen, FileCheck2, HardDrive, ReceiptText, TrendingUp, Users } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from '../notes/StaffGate'
 import { assistantConfigured } from '@/lib/assistant/db'
@@ -57,6 +57,12 @@ const tools = [
     title: 'Agents',
     description: 'Background tasks — stock, finance, social, compliance and more.',
     Icon: Bot,
+  },
+  {
+    href: '/staff/assistant/backup',
+    title: 'Backup',
+    description: 'Daily automated backup of all clinical records to Dropbox.',
+    Icon: HardDrive,
   },
 ]
 
