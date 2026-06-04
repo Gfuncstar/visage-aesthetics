@@ -118,7 +118,7 @@ async function run() {
     const resend = new Resend(apiKey)
     await resend.emails.send({
       from: 'Visage Aesthetics <enquiries@vaclinic.co.uk>',
-      to: [process.env.CLINIC_EMAIL ?? 'info@vaclinic.co.uk'],
+      to: [process.env.CLINIC_EMAIL ?? 'ber.parsons@outlook.com'],
       subject: `Stock expiry alert — ${items.length} item${items.length > 1 ? 's' : ''} expiring within 30 days`,
       html,
       text,

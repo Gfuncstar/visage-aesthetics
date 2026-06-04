@@ -179,39 +179,40 @@ export async function POST(req: Request) {
       }).catch(() => {})
     }
 
-    // AI-powered auto-reply (non-blocking — never delays or fails the main response)
+    // AI-powered auto-reply — awaited with a 8s timeout so it completes reliably
+    // in serverless but never holds up the response if Claude is slow.
     if (process.env.ANTHROPIC_API_KEY && !gdprKeyword) {
-      ;(async () => {
-        try {
-          const ai = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
-          const prompt = [
-            `Write a brief, warm auto-reply email from Bernadette Tobin RGN of Visage Aesthetics, Braintree, Essex.`,
-            `Client's treatment interest: ${treatment}.`,
-            message ? `Their message: ${message.slice(0, 400)}` : '',
-            `Requirements: first person, British English, 2–3 short paragraphs. Acknowledge their specific interest. Say you will be in touch within 24 hours. No bullet points. No salesy language. Sign off: Bernadette Tobin RGN, MSc\\nVisage Aesthetics`,
-            `Return only the email body text.`,
-          ]
-            .filter(Boolean)
-            .join('\n')
-          const msg = await ai.messages.create({
-            model: 'claude-opus-4-7',
-            max_tokens: 400,
-            messages: [{ role: 'user', content: prompt }],
-          })
-          const replyText = msg.content[0].type === 'text' ? msg.content[0].text.trim() : ''
-          if (!replyText) return
-          const replyHtml = `<div style="font-family:-apple-system,sans-serif;color:#1F1B1A;max-width:560px;line-height:1.7;">${replyText.split('\n\n').map((p: string) => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('')}</div>`
-          await resend.emails.send({
-            from: 'Bernadette at Visage <enquiries@vaclinic.co.uk>',
-            to: [email],
-            subject: 'Your enquiry — Visage Aesthetics',
-            html: replyHtml,
-            text: replyText,
-          })
-        } catch {
-          // auto-reply is best-effort
-        }
-      })()
+      const autoReply = async () => {
+        const ai = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! })
+        const prompt = [
+          `Write a brief, warm auto-reply email from Bernadette Tobin RGN of Visage Aesthetics, Braintree, Essex.`,
+          `Client's treatment interest: ${treatment}.`,
+          message ? `Their message: ${message.slice(0, 400)}` : '',
+          `Requirements: first person, British English, 2–3 short paragraphs. Acknowledge their specific interest. Say you will be in touch within 24 hours. No bullet points. No salesy language. Sign off: Bernadette Tobin RGN, MSc\nVisage Aesthetics`,
+          `Return only the email body text.`,
+        ]
+          .filter(Boolean)
+          .join('\n')
+        const msg = await ai.messages.create({
+          model: 'claude-opus-4-7',
+          max_tokens: 400,
+          messages: [{ role: 'user', content: prompt }],
+        })
+        const replyText = msg.content[0].type === 'text' ? msg.content[0].text.trim() : ''
+        if (!replyText) return
+        const replyHtml = `<div style="font-family:-apple-system,sans-serif;color:#1F1B1A;max-width:560px;line-height:1.7;">${replyText.split('\n\n').map((p: string) => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('')}</div>`
+        await resend.emails.send({
+          from: 'Bernadette at Visage <enquiries@vaclinic.co.uk>',
+          to: [email],
+          subject: 'Your enquiry — Visage Aesthetics',
+          html: replyHtml,
+          text: replyText,
+        })
+      }
+      await Promise.race([
+        autoReply(),
+        new Promise<void>((resolve) => setTimeout(resolve, 8000)),
+      ]).catch(() => {})
     }
 
     return NextResponse.json({ ok: true })

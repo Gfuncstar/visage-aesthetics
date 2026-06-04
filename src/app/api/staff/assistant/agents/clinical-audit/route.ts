@@ -159,7 +159,7 @@ async function run() {
     const resend = new Resend(apiKey)
     await resend.emails.send({
       from: 'Visage Aesthetics <enquiries@vaclinic.co.uk>',
-      to: [process.env.CLINIC_EMAIL ?? 'info@vaclinic.co.uk'],
+      to: [process.env.CLINIC_EMAIL ?? 'ber.parsons@outlook.com'],
       subject: `Clinical audit — ${monthLabel(monthKey)}${flagCount > 0 ? ` ⚠ ${flagCount} flag${flagCount > 1 ? 's' : ''}` : ''}`,
       html,
       text: `Clinical audit — ${monthLabel(monthKey)}\n${records.length} records reviewed, ${flagCount} flags\n\n${narrative}`,

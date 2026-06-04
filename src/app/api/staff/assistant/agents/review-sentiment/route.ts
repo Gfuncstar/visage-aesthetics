@@ -141,7 +141,7 @@ Return valid JSON only: {"positive_themes":["..."],"concern_themes":["..."],"sum
     const resend = new Resend(process.env.RESEND_API_KEY)
     await resend.emails.send({
       from: 'Visage Aesthetics <enquiries@vaclinic.co.uk>',
-      to: [process.env.CLINIC_EMAIL ?? 'info@vaclinic.co.uk'],
+      to: [process.env.CLINIC_EMAIL ?? 'ber.parsons@outlook.com'],
       subject,
       html,
       text: `${subject}\n\nPositive themes: ${result.positive_themes.join(', ')}\n${hasConcerns ? `Concerns: ${result.concern_themes.join(', ')}\n` : ''}\n${result.summary}\n${result.action ? `\nSuggestion: ${result.action}` : ''}`,
