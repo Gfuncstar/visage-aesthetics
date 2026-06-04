@@ -194,7 +194,7 @@ export default function StaffGate() {
             </div>
             <div className="eyebrow text-gold mb-2">Clinic staff</div>
             <h1 className="font-display italic text-charcoal text-3xl md:text-4xl leading-tight mb-3">
-              Patient notes
+              Staff login
             </h1>
             {error && <p className="text-sm text-gold mb-4">{error}</p>}
             <button
@@ -228,7 +228,7 @@ export default function StaffGate() {
             <Lock size={18} strokeWidth={1.75} />
           </div>
           <div className="eyebrow text-gold mb-2">Clinic staff</div>
-          <h1 className="font-display italic text-charcoal text-3xl md:text-4xl leading-tight">Patient notes</h1>
+          <h1 className="font-display italic text-charcoal text-3xl md:text-4xl leading-tight">Staff login</h1>
           <p className="text-ink-soft mt-3 leading-relaxed">
             Enter the staff passcode to record a treatment.
           </p>
