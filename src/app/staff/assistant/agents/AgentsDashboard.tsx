@@ -13,6 +13,7 @@ import {
   Package,
   Play,
   RefreshCw,
+  Search,
   Star,
   TrendingUp,
   X,
@@ -27,6 +28,7 @@ type AgentId =
   | 'seasonal-campaign'
   | 'review-sentiment'
   | 'faq-updater'
+  | 'seo-monitor'
 
 type AgentDef = {
   id: AgentId
@@ -94,6 +96,14 @@ const AGENTS: AgentDef[] = [
     Icon: HelpCircle,
     output: 'dashboard',
   },
+  {
+    id: 'seo-monitor',
+    name: 'SEO competitor monitor',
+    schedule: 'Thursdays 07:00',
+    description: 'Tracks Essex competitor rankings for 12 keywords. Finds gaps, competitor threats, and award citation opportunities.',
+    Icon: Search,
+    output: 'both',
+  },
 ]
 
 type SocialDraft = {
@@ -116,9 +126,19 @@ type Sentiment = {
   action_needed: boolean
 }
 
+type SeoReport = {
+  week_of: string
+  summary: string
+  action_items: string
+  keyword_count: number
+  competitor_alerts: string
+  award_opportunities: string
+}
+
 type StatusData = {
   social_drafts: SocialDraft[]
   sentiment: Sentiment | null
+  seo_report: SeoReport | null
   configured: boolean
 }
 
@@ -141,6 +161,11 @@ function resultMessage(id: AgentId, data: Record<string, unknown>, ok: boolean):
   if (id === 'seasonal-campaign') return `Campaign draft created: ${String(data.campaign ?? '')}`
   if (id === 'review-sentiment') return 'Analysis complete'
   if (id === 'faq-updater') return `${Number(data.suggestions ?? 0)} suggestions saved`
+  if (id === 'seo-monitor') {
+    const appearing = Number(data.appearing ?? 0)
+    const total = Number(data.keywords_checked ?? 0)
+    return `${appearing}/${total} keywords covered — report emailed`
+  }
   return 'Done'
 }
 
@@ -197,12 +222,22 @@ export default function AgentsDashboard() {
 
   const drafts = status?.social_drafts ?? []
   const sentiment = status?.sentiment ?? null
+  const seoReport = status?.seo_report ?? null
 
   let positiveThemes: string[] = []
   let concernThemes: string[] = []
   if (sentiment) {
     try { positiveThemes = JSON.parse(sentiment.themes_positive) as string[] } catch { /* */ }
     try { concernThemes = JSON.parse(sentiment.themes_concern) as string[] } catch { /* */ }
+  }
+
+  let seoActions: { priority: number; action: string; why: string }[] = []
+  let seoAlerts: string[] = []
+  let seoAwardOps: string[] = []
+  if (seoReport) {
+    try { seoActions = (JSON.parse(seoReport.action_items) as typeof seoActions).sort((a, b) => a.priority - b.priority) } catch { /* */ }
+    try { seoAlerts = JSON.parse(seoReport.competitor_alerts) as string[] } catch { /* */ }
+    try { seoAwardOps = JSON.parse(seoReport.award_opportunities) as string[] } catch { /* */ }
   }
 
   return (
@@ -308,6 +343,54 @@ export default function AgentsDashboard() {
                   >
                     ⚠ {t}
                   </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* SEO report */}
+        {seoReport && (
+          <div className="mb-10">
+            <div className="eyebrow text-stone mb-3">
+              SEO monitor &nbsp;·&nbsp; w/c {seoReport.week_of} &nbsp;·&nbsp; {seoReport.keyword_count} keywords
+            </div>
+
+            {seoReport.summary && (
+              <div className="bg-cream-soft border border-line/40 rounded-sm p-4 mb-3">
+                <p className="text-sm text-charcoal leading-relaxed">{seoReport.summary}</p>
+              </div>
+            )}
+
+            {seoAlerts.length > 0 && (
+              <div className="bg-amber-50 border border-amber-200 rounded-sm p-3 mb-3">
+                <div className="eyebrow text-[10px] text-amber-700 mb-2">Competitor alerts</div>
+                {seoAlerts.map((a, i) => (
+                  <p key={i} className="text-xs text-amber-900 mb-1">• {a}</p>
+                ))}
+              </div>
+            )}
+
+            {seoActions.length > 0 && (
+              <div className="space-y-2 mb-3">
+                <div className="eyebrow text-[10px] text-stone mb-1">This week&apos;s actions</div>
+                {seoActions.map((item, i) => (
+                  <div
+                    key={i}
+                    className={`border-l-2 pl-3 py-1 ${item.priority === 1 ? 'border-gold' : 'border-line'}`}
+                  >
+                    <p className="text-sm text-charcoal font-medium leading-snug">{item.action}</p>
+                    <p className="text-xs text-stone mt-0.5">{item.why}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {seoAwardOps.length > 0 && (
+              <div className="space-y-1">
+                <div className="eyebrow text-[10px] text-stone mb-1">Award citation opportunities</div>
+                {seoAwardOps.map((a, i) => (
+                  <p key={i} className="text-xs text-gold-deep">★ {a}</p>
                 ))}
               </div>
             )}

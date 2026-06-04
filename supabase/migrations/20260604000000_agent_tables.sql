@@ -37,3 +37,17 @@ CREATE TABLE IF NOT EXISTS review_sentiment_log (
   action_needed BOOLEAN DEFAULT false
 );
 ALTER TABLE review_sentiment_log ENABLE ROW LEVEL SECURITY;
+
+-- Weekly SEO competitive intelligence reports
+CREATE TABLE IF NOT EXISTS seo_reports (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  week_of DATE NOT NULL,
+  summary TEXT,
+  action_items TEXT,
+  keyword_count INTEGER,
+  competitor_alerts TEXT,
+  award_opportunities TEXT,
+  full_report TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+ALTER TABLE seo_reports ENABLE ROW LEVEL SECURITY;
