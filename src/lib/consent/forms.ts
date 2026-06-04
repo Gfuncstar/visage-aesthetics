@@ -19,10 +19,10 @@
 //   11. Profhilo Structura Consent Form  (its own form — NOT the Skin Booster one)
 //   12. HarmonyCa                        (its own form — NOT the Dermal Filler one)
 //   13. HIFU Mini
-// Still to capture/encode from Ovatu (do not invent):
-//   14. Aqualyx — captured, but its Ovatu structure is unusual (no Personal
-//       Details, no tick-to-agree declaration, consent embedded in a pre-filled
-//       text box). Held back pending a decision on how to represent it here.
+//   14. Aqualyx Consent Form           (ADAPTED — see note on that form: the
+//       Ovatu source had no Personal Details and no tick-to-agree declaration,
+//       so the standard block + declaration were added to fit our model)
+// All 14 Ovatu forms are now captured and encoded.
 //
 // Signature model: every Ovatu form uses a single tick-to-agree checkbox next
 // to the declaration. There is no drawn signature, typed-name or date field in
@@ -419,6 +419,39 @@ export const CONSENT_FORMS: ConsentForm[] = [
     ],
     declaration: STANDARD_DECLARATION,
   },
+  {
+    // ADAPTED to our model (Giles' decision). The Ovatu source for Aqualyx is
+    // structurally unlike the others: it had NO Personal Details section, NO
+    // tick-to-agree declaration (Data Consent toggle off), two fields both
+    // labelled "Aqualyx & Lidocaine", and the consent statements embedded as the
+    // pre-filled default text of a long-text box. To make it usable and
+    // consistent here we: add the standard Personal Details block, show the
+    // verbatim treatment overview + "I understand / I agree" statements as the
+    // read-only intro, and add the standard tick-to-agree declaration.
+    id: 'aqualyx',
+    name: 'Aqualyx Consent Form',
+    intro: `Aqualyx & Lidocaine Consent Form. This needs to be completed prior to the treatment commencing. Treatment Overview Aqualyx is an injectable fat-dissolving treatment used to reduce small, localised areas of stubborn fat. The active ingredient is deoxycholic acid, which works by breaking down fat cell membranes so the body can naturally eliminate the released fat over time. It is intended for body contouring and is not a weight-loss treatment. Common treatment areas include the chin, abdomen, thighs, upper arms, flanks, knees, and back rolls. I understand that common side effects may include: Swelling Bruising Redness Tenderness Itching Temporary numbness Firmness or nodules under the skin Mild discomfort or burning sensation I understand that rare but more serious complications may include: Infection Allergic reaction Skin irregularities Hyperpigmentation Persistent lumps or nodules Nerve irritation Tissue damage or skin necrosis Scarring I understand that no guarantee has been made regarding the outcome of treatment. I agree to follow all aftercare instructions provided, including: Avoiding strenuous exercise for 48 hours Avoiding excessive heat, saunas, and sunbeds Maintaining adequate hydration Avoiding alcohol for 24 hours where advised Contacting the practitioner immediately if I experience unusual pain, excessive swelling, or signs of infection`,
+    fields: [
+      ...PERSONAL_DETAILS,
+      { type: 'heading', label: 'Medical History' },
+      { type: 'info', label: 'Please state if you are/have any of the following;' },
+      { type: 'yes-no', label: 'Pregnant or breastfeeding?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Liver Disease?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Diabetes', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Kidney Disease?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Autoimmune', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Taking anti-coagulants/blood thinners?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Previous fat dissolving treatments?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Blood clotting disorder?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Allergies to deoxycholate?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Have you any allergies?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Heart Condition?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'To your knowledge have you any allergies to Lidocaine or any local anaesthetic?', options: ['Yes', 'No'], required: true },
+      { type: 'yes-no', label: 'Do you take prescribed or OTC medication?', options: ['Yes', 'No'], required: true },
+      { type: 'short-text', label: 'If so please put below' },
+    ],
+    declaration: STANDARD_DECLARATION,
+  },
 ]
 
 export function getConsentForm(id: string): ConsentForm | undefined {
@@ -493,6 +526,8 @@ export function consentFormForService(slug: string | null | undefined, name: str
   if (/micro.?needl|microneedl|skin.?needl|derma.?pen|dermaroll/.test(s)) return getConsentForm('micro-needling') ?? null
   // HIFU (high-intensity focused ultrasound).
   if (/\bhifu\b|focused.?ultrasound/.test(s)) return getConsentForm('hifu') ?? null
+  // Aqualyx — fat dissolving (deoxycholic acid).
+  if (/aqualyx|deoxychol|fat.?dissolv/.test(s)) return getConsentForm('aqualyx') ?? null
   // Dermal filler — general HA filler.
   if (/filler|lip|cheek|tear.?trough|jawline|chin|nasolabial|juvederm|restylane/.test(s)) return getConsentForm('dermal-filler') ?? null
   return null

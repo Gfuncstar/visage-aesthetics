@@ -44,7 +44,7 @@ stored with no `booking_id` (standalone) via
 
 ## Forms captured so far (exact)
 
-Transcribed verbatim from Ovatu (14 forms total in the account). **13 encoded:**
+Transcribed verbatim from Ovatu (14 forms total in the account). **All 14 encoded:**
 
 1. **Botox Consent Form**
 2. **Dermal Filler Consent Form**
@@ -59,6 +59,7 @@ Transcribed verbatim from Ovatu (14 forms total in the account). **13 encoded:**
 11. **Profhilo Structura Consent Form** — its own form, *not* the Skin Booster one
 12. **HarmonyCa** — its own form, *not* the Dermal Filler one
 13. **HIFU Mini**
+14. **Aqualyx Consent Form** — **adapted**, see below
 
 ### Faithfulness notes — please confirm at source
 - **B12 and NAD declarations are truncated in Ovatu itself** — both end mid-word at
@@ -74,13 +75,15 @@ Transcribed verbatim from Ovatu (14 forms total in the account). **13 encoded:**
 - Every encoded Ovatu form uses a single **tick-to-agree** checkbox (no drawn
   signature). We capture name + date automatically and one agreement tick, to match.
 
-### Still to encode (NOT invented — do not ship without a decision)
-- **Aqualyx (92394)** — captured, but its Ovatu structure is unusual: no Personal
-  Details section, no tick-to-agree declaration (Data Consent toggle off), two fields
-  sharing the label "Aqualyx & Lidocaine", and the consent statements embedded as the
-  pre-filled default of a long-text box. It does not fit the current `ConsentForm`
-  model without either adding a standard Personal Details + tick-to-agree declaration,
-  or fixing the form at source in Ovatu. Held back pending that decision.
+### Aqualyx — adapted to our model
+The Ovatu source for **Aqualyx (92394)** was structurally unlike the others: no
+Personal Details section, no tick-to-agree declaration (Data Consent toggle off), two
+fields both labelled "Aqualyx & Lidocaine", and the consent statements embedded as the
+pre-filled default of a long-text box. Per Giles' decision it was **adapted** to fit
+our model: the standard Personal Details block and standard tick-to-agree declaration
+were added, and the verbatim treatment overview + "I understand / I agree" statements
+are shown as the read-only intro. **Worth tidying the source form in Ovatu** so a future
+recapture would be clean.
 
 To add a form: append a `ConsentForm` object to `CONSENT_FORMS` in
 `src/lib/consent/forms.ts` and, if needed, extend `consentFormForService()` so the
@@ -105,8 +108,9 @@ before the broad buckets:
 - b12 / vitamin b → **B12**
 - micro-needling / skin needling / dermapen → **Micro-Needling**
 - hifu / focused ultrasound → **HIFU Mini**
+- aqualyx / fat dissolving / deoxycholic → **Aqualyx**
 - filler / lip / cheek / juvederm / restylane → **Dermal Filler**
-- anything else (e.g. Aqualyx) → no form yet
+- anything else → no form
 
 ## Going live (two switches — currently OFF)
 
