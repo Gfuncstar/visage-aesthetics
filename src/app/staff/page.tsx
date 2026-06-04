@@ -1,8 +1,11 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ClipboardList, ConciergeBell, Megaphone, Sparkles } from 'lucide-react'
+import { type LucideIcon, AlertTriangle, Boxes, CalendarClock, Check, ClipboardList, ClipboardPen } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from './notes/StaffGate'
+import { assistantConfigured } from '@/lib/assistant/db'
+import { endOfDaySummary } from '@/lib/assistant/end-of-day'
+import { stockReview } from '@/lib/assistant/stock'
 
 export const metadata: Metadata = {
   title: 'Staff',
@@ -11,33 +14,13 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-const tools = [
-  {
-    href: '/staff/notes',
-    title: 'Patient notes',
-    description: 'Record a treatment straight into the clinic notes sheet.',
-    Icon: ClipboardList,
-  },
-  {
-    href: '/staff/assistant',
-    title: 'Assistant',
-    description: 'Write up treatments, log orders, and see profit and an accountant pack.',
-    Icon: Sparkles,
-  },
-  {
-    href: '/staff/assistant/reception',
-    title: 'Receptionist',
-    description: 'Online booking, diary, reminders, waitlist and a voice command desk. Mirrors Ovatu, ready to take over.',
-    Icon: ConciergeBell,
-    badge: 'PAUSED',
-  },
-  {
-    href: '/staff/assistant/marketing',
-    title: 'Marketing',
-    description: 'Everything going out: blogs, email broadcasts, social posts to Meta and advertising, in one view.',
-    Icon: Megaphone,
-  },
-]
+type Tone = 'urgent' | 'attention'
+type AttentionItem = { key: string; href: string; Icon: LucideIcon; tone: Tone; title: string; detail: string }
+
+const toneStyles: Record<Tone, { card: string; badge: string }> = {
+  urgent: { card: 'border-clay/50 bg-clay/10 hover:border-clay', badge: 'bg-clay text-cream' },
+  attention: { card: 'border-gold/50 bg-gold/10 hover:border-gold', badge: 'bg-gold-deep text-cream' },
+}
 
 export default async function StaffIndex() {
   const authed = await isStaffAuthed()
@@ -54,6 +37,78 @@ export default async function StaffIndex() {
     month: 'long',
   }).format(new Date())
 
+  // The landing page is a "what needs you right now" view, not a menu — moving
+  // between the sections is the job of the bottom bar. So we surface only the
+  // things that actually need attention today, pulled straight from the clinic
+  // data, and otherwise say it's all clear.
+  const configured = assistantConfigured()
+  const [today, stock] = configured
+    ? await Promise.all([endOfDaySummary(), stockReview()])
+    : [null, null]
+
+  const items: AttentionItem[] = []
+
+  if (today?.overdue.length) {
+    const n = today.overdue.length
+    items.push({
+      key: 'overdue',
+      href: '/staff/assistant/treatment',
+      Icon: AlertTriangle,
+      tone: 'urgent',
+      title: n === 1 ? 'A write-up is overdue' : `${n} write-ups are overdue`,
+      detail: 'Clinical notes over 24 hours old. Tap to write them up.',
+    })
+  }
+
+  if (today?.toWrite.length) {
+    const n = today.toWrite.length
+    const names = today.toWrite.map((t) => t.name).slice(0, 3).join(', ')
+    items.push({
+      key: 'to-write',
+      href: '/staff/assistant/treatment',
+      Icon: ClipboardPen,
+      tone: 'attention',
+      title: n === 1 ? '1 treatment to write up' : `${n} treatments to write up`,
+      detail: `Seen today: ${names}${n > 3 ? `, +${n - 3} more` : ''}.`,
+    })
+  }
+
+  if (stock) {
+    const toOrder = stock.lines.filter((l) => l.needOrder)
+    if (stock.urgentItems.length && stock.beforeCutoff) {
+      items.push({
+        key: 'order-urgent',
+        href: '/staff/assistant/stock',
+        Icon: Boxes,
+        tone: 'urgent',
+        title: 'Order before 3pm today',
+        detail: `${stock.urgentItems.join(', ')} — needed for tomorrow’s bookings.`,
+      })
+    } else if (toOrder.length) {
+      const n = toOrder.length
+      items.push({
+        key: 'order',
+        href: '/staff/assistant/stock',
+        Icon: Boxes,
+        tone: 'attention',
+        title: n === 1 ? '1 item to order' : `${n} items to order`,
+        detail: `${toOrder.map((l) => l.item).slice(0, 3).join(', ')} for upcoming bookings.`,
+      })
+    }
+  }
+
+  if (today?.squeezeIns) {
+    const n = today.squeezeIns
+    items.push({
+      key: 'squeeze',
+      href: '/staff/assistant/squeeze-in',
+      Icon: CalendarClock,
+      tone: 'attention',
+      title: n === 1 ? '1 person to fit in' : `${n} people to fit in`,
+      detail: 'Find the best gap and get them booked.',
+    })
+  }
+
   return (
     <section className="bg-cream text-charcoal min-h-screen">
       <div className="max-w-3xl mx-auto px-5 md:px-8 pt-10 md:pt-14 pb-24">
@@ -69,33 +124,64 @@ export default async function StaffIndex() {
         <h1 className="font-display italic text-charcoal text-4xl md:text-5xl leading-tight">
           {greeting}.
         </h1>
-        <p className="text-ink-soft mt-3 max-w-xl leading-relaxed">
-          What would you like to do?
-        </p>
 
-        <div className="grid grid-cols-2 gap-3 mt-8">
-          {tools.map(({ href, title, description, Icon, badge }) => (
-            <Link
-              key={href}
-              href={href}
-              className="group relative bg-cream-soft border border-line/40 rounded-sm p-4 sm:p-5 hover:border-gold transition-colors flex flex-col"
-            >
-              {badge && (
-                <span className="absolute top-2.5 right-2.5 text-[9px] font-medium tracking-[0.14em] uppercase rounded-full px-2 py-0.5 bg-gold/15 text-gold-deep border border-gold/40">
-                  {badge}
-                </span>
-              )}
-              <div className="inline-flex w-10 h-10 rounded-full bg-charcoal text-cream items-center justify-center mb-3 group-hover:bg-gold-deep transition-colors">
-                <Icon size={16} strokeWidth={1.75} />
+        {/* The one everyday action that isn't a section in the bottom bar. */}
+        <Link
+          href="/staff/notes"
+          className="group mt-7 flex items-center gap-4 bg-charcoal text-cream rounded-sm px-5 py-4 hover:bg-gold-deep transition-colors"
+        >
+          <span className="inline-flex w-10 h-10 rounded-full bg-cream/15 items-center justify-center shrink-0">
+            <ClipboardList size={17} strokeWidth={1.75} />
+          </span>
+          <span className="min-w-0">
+            <span className="block font-display italic text-lg leading-tight">Record a treatment</span>
+            <span className="block text-xs text-cream/70 mt-0.5 leading-snug">Straight into the clinic notes sheet.</span>
+          </span>
+          <span className="ml-auto eyebrow text-cream/80 inline-flex items-center gap-2 shrink-0">
+            <span className="transition-transform group-hover:translate-x-1">→</span>
+          </span>
+        </Link>
+
+        <div className="mt-9">
+          <div className="eyebrow text-gold mb-3">Needs your attention</div>
+
+          {items.length === 0 ? (
+            <div className="flex items-center gap-3 border border-sage/40 bg-sage/10 rounded-sm px-5 py-5">
+              <span className="inline-flex w-9 h-9 rounded-full bg-sage/20 text-sage items-center justify-center shrink-0">
+                <Check size={16} strokeWidth={2} />
+              </span>
+              <div>
+                <p className="text-charcoal font-medium leading-snug">All caught up.</p>
+                <p className="text-sm text-ink-soft leading-snug mt-0.5">
+                  {configured
+                    ? 'Nothing needs you right now.'
+                    : 'Connect the clinic database to see write-ups and stock that need you.'}
+                </p>
               </div>
-              <h2 className="font-display italic text-lg sm:text-xl text-charcoal leading-tight">{title}</h2>
-              <p className="text-xs text-ink-soft mt-1 leading-snug">{description}</p>
-              <div className="mt-3 eyebrow text-gold inline-flex items-center gap-2">
-                {badge === 'PAUSED' ? 'Preview' : 'Open'}
-                <span className="transition-transform group-hover:translate-x-1">→</span>
-              </div>
-            </Link>
-          ))}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {items.map(({ key, href, Icon, tone, title, detail }) => {
+                const s = toneStyles[tone]
+                return (
+                  <Link
+                    key={key}
+                    href={href}
+                    className={`group flex items-center gap-4 border rounded-sm px-4 py-4 transition-colors ${s.card}`}
+                  >
+                    <span className={`inline-flex w-10 h-10 rounded-full items-center justify-center shrink-0 ${s.badge}`}>
+                      <Icon size={17} strokeWidth={1.75} />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block font-display italic text-lg text-charcoal leading-tight">{title}</span>
+                      <span className="block text-xs text-ink-soft mt-0.5 leading-snug">{detail}</span>
+                    </span>
+                    <span className="ml-auto text-gold-deep shrink-0 transition-transform group-hover:translate-x-1">→</span>
+                  </Link>
+                )
+              })}
+            </div>
+          )}
         </div>
       </div>
     </section>
