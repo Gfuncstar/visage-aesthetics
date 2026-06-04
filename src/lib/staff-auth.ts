@@ -50,3 +50,12 @@ export async function isStaffAuthed(): Promise<boolean> {
   const store = await cookies()
   return verifySessionToken(store.get(STAFF_COOKIE)?.value)
 }
+
+// Read the session cookie directly from a raw Request — avoids the async
+// next/headers cookies() call which can stall inside Route Handlers.
+export function isAuthedFromRequest(req: Request): boolean {
+  const header = req.headers.get('cookie') ?? ''
+  const match = header.match(new RegExp(`(?:^|;\\s*)${STAFF_COOKIE}=([^;]+)`))
+  const token = match ? decodeURIComponent(match[1]) : undefined
+  return verifySessionToken(token)
+}
