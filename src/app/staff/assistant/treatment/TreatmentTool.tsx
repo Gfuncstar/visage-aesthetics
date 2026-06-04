@@ -828,7 +828,7 @@ export default function TreatmentTool() {
                   className="mb-4 inline-flex items-center gap-2 text-sm text-gold-deep hover:text-charcoal border border-gold/40 hover:border-gold rounded-sm px-3 py-2 transition-colors disabled:opacity-50"
                 >
                   <Sparkles size={14} strokeWidth={1.75} />
-                  {aiEnhancing ? 'Writing personalised email…' : 'Personalise with AI'}
+                  {aiEnhancing ? 'Writing…' : 'Email client with consultation summary'}
                 </button>
               )}
 
