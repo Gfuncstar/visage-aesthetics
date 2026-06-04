@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { type LucideIcon } from 'lucide-react'
 
-export type HubCard = { href: string; title: string; description: string; Icon: LucideIcon; badge?: string }
+export type HubCard = { href: string; title: string; description: string; Icon: LucideIcon; badge?: string; advanced?: boolean }
 
 // A section hub: a slim brand header, a heading, an optional banner, and a grid
 // of cards (two per row). Navigation between sections is handled by the

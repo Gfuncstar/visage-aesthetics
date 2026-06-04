@@ -60,7 +60,7 @@ const statusTone: Record<string, string> = {
   no_show: 'text-clay',
 }
 
-export default function Reception() {
+export default function Reception({ simple = false }: { simple?: boolean }) {
   const [data, setData] = useState<Data | null>(null)
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState<'day' | 'week' | 'month'>('day')
@@ -122,11 +122,13 @@ export default function Reception() {
           <p className="text-sm text-ink-soft border border-line/40 rounded-sm bg-cream-soft px-4 py-4">The clinic database is not connected yet.</p>
         ) : (
           <>
-            <div className="grid grid-cols-3 gap-3 mb-8">
-              <Stat n={s!.todayCount} label="In today" tone="ink" />
-              <Stat n={s!.weekCount} label="Next 7 days" tone="ink" />
-              <Stat n={s!.waitlistCount} label="On waitlist" tone={s!.waitlistCount > 0 ? 'gold' : 'mute'} />
-            </div>
+            {!simple && (
+              <div className="grid grid-cols-3 gap-3 mb-8">
+                <Stat n={s!.todayCount} label="In today" tone="ink" />
+                <Stat n={s!.weekCount} label="Next 7 days" tone="ink" />
+                <Stat n={s!.waitlistCount} label="On waitlist" tone={s!.waitlistCount > 0 ? 'gold' : 'mute'} />
+              </div>
+            )}
 
             {/* Reminders going out */}
             <div className={`flex items-center gap-3 rounded-sm border px-4 py-3 mb-8 ${s!.remindersPending > 0 ? 'border-gold/40 bg-gold/5' : 'border-sage/30 bg-sage/5'}`}>

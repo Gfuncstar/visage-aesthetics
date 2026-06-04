@@ -26,7 +26,7 @@ function overdueKey(o: OverdueWriteUp): string {
   return `${o.date}|${o.name.trim().toLowerCase()}`
 }
 
-export default function WriteUpReminders({ today }: { today: EndOfDay }) {
+export default function WriteUpReminders({ today, simple = false }: { today: EndOfDay; simple?: boolean }) {
   const [dismissed, setDismissed] = useState<Set<string>>(new Set())
 
   useEffect(() => {
@@ -96,11 +96,13 @@ export default function WriteUpReminders({ today }: { today: EndOfDay }) {
             <ClipboardCheck size={16} strokeWidth={1.75} className="text-gold-deep" />
             <span className="text-eyebrow text-gold-deep">End of day</span>
           </div>
-          <div className="grid grid-cols-3 gap-3">
-            <Tile n={today.seen} label="Seen today" />
-            <Tile n={visibleToWrite.length} label="To write up" tone={visibleToWrite.length > 0 ? 'gold' : 'sage'} />
-            <Tile n={today.squeezeIns} label="Squeeze-ins" tone={today.squeezeIns > 0 ? 'gold' : 'mute'} />
-          </div>
+          {!simple && (
+            <div className="grid grid-cols-3 gap-3">
+              <Tile n={today.seen} label="Seen today" />
+              <Tile n={visibleToWrite.length} label="To write up" tone={visibleToWrite.length > 0 ? 'gold' : 'sage'} />
+              <Tile n={today.squeezeIns} label="Squeeze-ins" tone={today.squeezeIns > 0 ? 'gold' : 'mute'} />
+            </div>
+          )}
           {visibleToWrite.length > 0 ? (
             <>
               <ul className="mt-3 space-y-1.5">
