@@ -52,7 +52,7 @@ export default function StaffGate() {
                 type="password"
                 autoFocus
                 autoComplete="current-password"
-                inputMode="numeric"
+                inputMode="text"
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
                 className="w-full bg-cream border border-line/40 rounded-sm px-4 py-3 text-base text-charcoal placeholder:text-ink-soft/60 focus:outline-none focus:border-gold min-h-[48px]"
