@@ -86,7 +86,8 @@ If you have any questions, just reply to this email.`
 
     await recordMessage({ clientName, email: clientEmail, channel: 'email', kind: 'other', subject: 'Consent form', body: emailBody })
     await audit('send', 'consent_request', request.id, { form: form.id, email: clientEmail })
-    return NextResponse.json({ ok: true })
+    // Return the link so staff can copy it as a fallback if the email doesn't arrive.
+    return NextResponse.json({ ok: true, link })
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : 'Could not send the form.' }, { status: 502 })
   }

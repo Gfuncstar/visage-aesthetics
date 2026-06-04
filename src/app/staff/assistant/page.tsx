@@ -30,7 +30,7 @@ const tools = [
   {
     href: '/staff/assistant/consent',
     title: 'Consent forms',
-    description: 'Forms clients completed before their visit.',
+    description: 'Send a form, preview it, and read what comes back.',
     Icon: FileCheck2,
   },
   {

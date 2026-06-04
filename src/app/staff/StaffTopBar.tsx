@@ -30,6 +30,7 @@ const ROUTES: Record<string, { sec?: Sec; page: string; back: string }> = {
   '/staff/assistant/visibility': { sec: 'marketing', page: 'Awards & press', back: '/staff/assistant/marketing' },
   '/staff/assistant/treatment': { sec: 'assistant', page: 'Treatment write-up', back: '/staff/assistant' },
   '/staff/assistant/clients': { sec: 'assistant', page: 'Client records', back: '/staff/assistant' },
+  '/staff/assistant/consent': { sec: 'assistant', page: 'Consent forms', back: '/staff/assistant' },
   '/staff/assistant/stock': { sec: 'assistant', page: 'What to order', back: '/staff/assistant' },
   '/staff/assistant/orders': { sec: 'assistant', page: 'Orders & expenses', back: '/staff/assistant' },
   '/staff/assistant/money': { sec: 'assistant', page: 'Profit & pack', back: '/staff/assistant' },
@@ -38,7 +39,12 @@ const ROUTES: Record<string, { sec?: Sec; page: string; back: string }> = {
 export default function StaffTopBar() {
   const pathname = usePathname() || ''
   if (pathname === '/staff') return null
-  const info = ROUTES[pathname]
+  // Dynamic sub-pages that aren't exact keys above.
+  const info =
+    ROUTES[pathname] ??
+    (pathname.startsWith('/staff/assistant/consent/preview/')
+      ? { sec: 'assistant' as const, page: 'Preview', back: '/staff/assistant/consent' }
+      : undefined)
   if (!info) return null
   const sec = info.sec ? SECTIONS[info.sec] : null
 
