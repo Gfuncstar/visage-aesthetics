@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { AlertTriangle, ArrowLeft, Bot, Boxes, ClipboardPen, ClipboardCheck, FileCheck2, ReceiptText, TrendingUp, Users } from 'lucide-react'
+import { ArrowLeft, Bot, Boxes, ClipboardPen, FileCheck2, ReceiptText, TrendingUp, Users } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from '../notes/StaffGate'
 import { assistantConfigured } from '@/lib/assistant/db'
 import { endOfDaySummary } from '@/lib/assistant/end-of-day'
 import NotificationToggle from './NotificationToggle'
+import WriteUpReminders from './WriteUpReminders'
 
 export const metadata: Metadata = {
   title: 'Assistant',
@@ -95,63 +96,7 @@ export default async function AssistantIndex() {
           </div>
         )}
 
-        {today && today.overdue.length > 0 && (
-          <div className="mt-8 border border-clay/50 bg-clay/10 rounded-sm p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <AlertTriangle size={16} strokeWidth={1.75} className="text-clay" />
-              <span className="text-eyebrow text-clay">Write-ups overdue &nbsp;·&nbsp; over 24 hours</span>
-            </div>
-            <p className="text-sm text-ink-soft">
-              {today.overdue.length === 1 ? 'One earlier visit has' : `${today.overdue.length} earlier visits have`} no
-              clinical note yet. Please write them up.
-            </p>
-            <ul className="mt-3 space-y-1.5">
-              {today.overdue.slice(0, 8).map((o) => (
-                <li key={`${o.date}-${o.name}`} className="text-sm flex items-baseline justify-between gap-3">
-                  <span className="truncate">
-                    <span className="text-charcoal">{o.name}</span>{' '}
-                    <span className="text-ink-soft">&middot; {o.service}</span>
-                  </span>
-                  <span className="text-clay shrink-0 whitespace-nowrap">
-                    {o.daysAgo === 1 ? '1 day' : `${o.daysAgo} days`} ago
-                  </span>
-                </li>
-              ))}
-            </ul>
-            {today.overdue.length > 8 && (
-              <p className="text-xs text-ink-soft mt-2">+{today.overdue.length - 8} more</p>
-            )}
-            <Link href="/staff/assistant/treatment" className="mt-4 btn btn-primary inline-flex" style={{ minHeight: 40 }}>
-              <span className="inline-flex items-center gap-2">
-                <ClipboardPen size={15} strokeWidth={1.75} /> Write them up
-              </span>
-            </Link>
-          </div>
-        )}
-
-        {today && today.seen > 0 && (
-          <div className={`mt-8 border rounded-sm p-5 ${today.toWrite.length > 0 ? 'border-gold/50 bg-gold/10' : 'border-sage/40 bg-sage/10'}`}>
-            <div className="flex items-center gap-2 mb-3">
-              <ClipboardCheck size={16} strokeWidth={1.75} className="text-gold-deep" />
-              <span className="text-eyebrow text-gold-deep">End of day</span>
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              <Tile n={today.seen} label="Seen today" />
-              <Tile n={today.toWrite.length} label="To write up" tone={today.toWrite.length > 0 ? 'gold' : 'sage'} />
-              <Tile n={today.squeezeIns} label="Squeeze-ins" tone={today.squeezeIns > 0 ? 'gold' : 'mute'} />
-            </div>
-            {today.toWrite.length > 0 ? (
-              <>
-                <p className="text-sm text-ink-soft mt-3">Still to write up: <span className="text-charcoal">{today.toWrite.map((c) => c.name).join(', ')}</span></p>
-                <Link href="/staff/assistant/treatment" className="mt-3 btn btn-primary inline-flex" style={{ minHeight: 40 }}>
-                  <span className="inline-flex items-center gap-2"><ClipboardPen size={15} strokeWidth={1.75} /> Write them up</span>
-                </Link>
-              </>
-            ) : (
-              <p className="text-sm text-sage mt-3">All caught up. Nice work.</p>
-            )}
-          </div>
-        )}
+        {today && <WriteUpReminders today={today} />}
 
         <div className="grid grid-cols-2 gap-3 mt-8">
           {tools.map(({ href, title, description, Icon }) => (
@@ -173,13 +118,3 @@ export default async function AssistantIndex() {
   )
 }
 
-function Tile({ n, label, tone = 'ink' }: { n: number; label: string; tone?: 'gold' | 'sage' | 'mute' | 'ink' }) {
-  const color =
-    tone === 'gold' ? 'text-gold-deep' : tone === 'sage' ? 'text-sage' : tone === 'mute' ? 'text-stone' : 'text-charcoal'
-  return (
-    <div className="bg-cream border border-line/40 rounded-sm px-3 py-3 text-center">
-      <div className={`font-display italic text-3xl leading-none ${color}`}>{n}</div>
-      <div className="text-eyebrow text-ink-soft mt-1.5">{label}</div>
-    </div>
-  )
-}
