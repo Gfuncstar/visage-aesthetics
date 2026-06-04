@@ -322,6 +322,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-06-03',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'vascular-occlusion-filler-safety',
+    category: "Clinic",
+    title: "Vascular occlusion: the rare but serious filler complication",
+    excerpt: "Vascular occlusion is rare, but the difference between a full recovery and lasting damage often comes down to one question you should ask before any filler appointment.",
+    readTime: "8 min read",
+    datePublished: '2026-06-04',
+    dateModified: '2026-06-04',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
