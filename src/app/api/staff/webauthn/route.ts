@@ -9,7 +9,7 @@ import type {
   RegistrationResponseJSON,
   AuthenticationResponseJSON,
 } from '@simplewebauthn/server'
-import { STAFF_COOKIE, buildSessionToken, isStaffAuthed } from '@/lib/staff-auth'
+import { STAFF_COOKIE, buildSessionToken, isAuthedFromRequest } from '@/lib/staff-auth'
 import {
   RP_ID,
   RP_NAME,
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
 
   // ── Register: generate options ────────────────────────────────────────────
   if (action === 'register-options') {
-    if (!(await isStaffAuthed())) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+    if (!isAuthedFromRequest(req)) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
 
     const options = await generateRegistrationOptions({
       rpName: RP_NAME,
@@ -65,7 +65,7 @@ export async function POST(req: Request) {
 
   // ── Register: verify ──────────────────────────────────────────────────────
   if (action === 'register-verify') {
-    if (!(await isStaffAuthed())) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+    if (!isAuthedFromRequest(req)) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
 
     const body = await req.json() as RegistrationResponseJSON
     const expectedChallenge = await consumeChallenge('register')
