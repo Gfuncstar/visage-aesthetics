@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { CONSENT_FORMS } from '@/lib/consent/forms'
 import StaffGate from '../../notes/StaffGate'
+import ConsentSender from './ConsentSender'
 import ConsentSubmissions from './ConsentSubmissions'
 import FormSendCards from './FormSendCards'
 
@@ -16,6 +17,8 @@ export const dynamic = 'force-dynamic'
 
 export default async function ConsentBackendPage() {
   if (!(await isStaffAuthed())) return <StaffGate />
+
+  const forms = CONSENT_FORMS.map((f) => ({ id: f.id, name: f.name }))
 
   return (
     <section className="bg-cream text-charcoal min-h-screen">
@@ -32,19 +35,24 @@ export default async function ConsentBackendPage() {
           Consent forms.
         </h1>
         <p className="text-ink-soft mt-4 max-w-xl leading-relaxed">
-          Send a client a form to fill in, and read everything that comes back. Forms normally go out with the
-          booking confirmation — use the cards below to send one separately when it was missed.
+          Send a form to a client at any time, preview any form, and read everything they have completed —
+          saved against their record.
         </p>
 
-        <div className="mt-10">
-          <h2 className="eyebrow text-gold-deep mb-1">Send a form</h2>
+        {/* Send a named client their own tracked link. */}
+        <ConsentSender forms={forms} />
+
+        {/* Preview any form, or grab a generic link to send. */}
+        <div className="mt-12">
+          <h2 className="eyebrow text-gold-deep mb-1">All forms</h2>
           <p className="text-sm text-ink-soft mb-4 max-w-xl leading-relaxed">
-            For when a form needs to go out on its own — for example if a client didn&rsquo;t complete it before
-            their appointment. Copy the link and send it however you like; the completed form appears below.
+            View any form as the client sees it, or copy a generic link to send when you don&rsquo;t need it tied to
+            a specific person.
           </p>
-          <FormSendCards forms={CONSENT_FORMS.map((f) => ({ id: f.id, name: f.name }))} />
+          <FormSendCards forms={forms} />
         </div>
 
+        {/* Completed submissions, searchable. */}
         <div className="mt-12">
           <h2 className="eyebrow text-gold-deep mb-4">Completed forms</h2>
           <ConsentSubmissions />

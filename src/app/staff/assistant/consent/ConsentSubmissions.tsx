@@ -1,12 +1,13 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { ChevronDown, ChevronRight, FileCheck2, Search } from 'lucide-react'
+import { ChevronDown, ChevronRight, Clock, FileCheck2, Search } from 'lucide-react'
 import { ukDate } from '@/lib/assistant/format'
-import type { ConsentSubmissionRow } from '@/app/api/staff/assistant/consent/route'
+import type { ConsentSubmissionRow, ConsentRequestSummary } from '@/app/api/staff/assistant/consent/route'
 
 export default function ConsentSubmissions() {
   const [rows, setRows] = useState<ConsentSubmissionRow[]>([])
+  const [outstanding, setOutstanding] = useState<ConsentRequestSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [q, setQ] = useState('')
@@ -19,6 +20,7 @@ export default function ConsentSubmissions() {
       .then((d) => {
         if (cancelled) return
         setRows(d.submissions ?? [])
+        setOutstanding(d.outstanding ?? [])
         if (d.error) setError(d.error)
       })
       .catch((e) => !cancelled && setError(e.message))
@@ -27,6 +29,17 @@ export default function ConsentSubmissions() {
       cancelled = true
     }
   }, [])
+
+  const outstandingFiltered = useMemo(() => {
+    const term = q.trim().toLowerCase()
+    if (!term) return outstanding
+    return outstanding.filter(
+      (r) =>
+        r.client_name.toLowerCase().includes(term) ||
+        (r.client_email ?? '').toLowerCase().includes(term) ||
+        r.form_name.toLowerCase().includes(term),
+    )
+  }, [outstanding, q])
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase()
@@ -57,6 +70,36 @@ export default function ConsentSubmissions() {
           {error.includes('consent_submissions') || error.toLowerCase().includes('does not exist')
             ? 'No consent forms yet. (The consent_submissions table has not been created — run the migration in scripts/consent-submissions.sql to switch storage on.)'
             : error}
+        </div>
+      )}
+
+      {!loading && outstandingFiltered.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-2">
+            <Clock size={15} className="text-gold-deep" />
+            <span className="text-eyebrow text-gold-deep">Outstanding — sent, not completed</span>
+          </div>
+          <ul className="space-y-2">
+            {outstandingFiltered.map((r) => (
+              <li key={r.id} className="border border-line/40 rounded-sm bg-cream px-4 py-3 flex items-center gap-3">
+                <Clock size={16} className="text-stone shrink-0" />
+                <span className="flex-1 min-w-0">
+                  <span className="block text-base text-charcoal truncate">{r.client_name}</span>
+                  <span className="block text-xs text-ink-soft truncate">
+                    {r.form_name.replace(/ Consent Form$/i, '')} &nbsp;·&nbsp; sent {ukDate(r.created_at)}
+                    {r.client_email ? ` · ${r.client_email}` : ''}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {!loading && !error && (filtered.length > 0 || outstandingFiltered.length > 0) && (
+        <div className="flex items-center gap-2 mb-2">
+          <FileCheck2 size={15} className="text-gold-deep" />
+          <span className="text-eyebrow text-gold-deep">Completed</span>
         </div>
       )}
 
