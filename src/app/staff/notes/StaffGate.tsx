@@ -1,14 +1,78 @@
 'use client'
 
-import { useState } from 'react'
-import { Lock } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Fingerprint, Lock } from 'lucide-react'
+import {
+  startRegistration,
+  startAuthentication,
+  browserSupportsWebAuthn,
+} from '@simplewebauthn/browser'
+
+type View = 'loading' | 'face-id' | 'pin' | 'offer-face-id'
 
 export default function StaffGate() {
+  const [view, setView] = useState<View>('loading')
   const [pin, setPin] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [hasPasskey, setHasPasskey] = useState(false)
 
-  async function onSubmit(e: React.FormEvent) {
+  // On mount: check if a passkey is registered + browser supports it
+  useEffect(() => {
+    if (!browserSupportsWebAuthn()) {
+      setView('pin')
+      return
+    }
+    fetch('/api/staff/webauthn?action=auth-options', { method: 'POST' })
+      .then((r) => r.json())
+      .then((d: { hasCredential?: boolean }) => {
+        if (d.hasCredential) {
+          setHasPasskey(true)
+          setView('face-id')
+        } else {
+          setView('pin')
+        }
+      })
+      .catch(() => setView('pin'))
+  }, [])
+
+  // ── Face ID authentication ────────────────────────────────────────────────
+  async function signInWithFaceId() {
+    setBusy(true)
+    setError(null)
+    try {
+      const optRes = await fetch('/api/staff/webauthn?action=auth-options', { method: 'POST' })
+      const options = await optRes.json()
+
+      const assertion = await startAuthentication({ optionsJSON: options })
+
+      const verifyRes = await fetch('/api/staff/webauthn?action=auth-verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(assertion),
+      })
+
+      if (verifyRes.ok) {
+        window.location.reload()
+      } else {
+        const d = await verifyRes.json().catch(() => ({}))
+        setError(d.error || 'Face ID failed — use your passcode')
+        setView('pin')
+      }
+    } catch (err) {
+      // User cancelled or Face ID unavailable — fall back to PIN
+      const msg = err instanceof Error ? err.message : ''
+      if (!msg.includes('cancel') && !msg.includes('abort')) {
+        setError('Face ID unavailable — use your passcode')
+      }
+      setView('pin')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  // ── Passcode authentication ───────────────────────────────────────────────
+  async function signInWithPin(e: React.FormEvent) {
     e.preventDefault()
     setBusy(true)
     setError(null)
@@ -24,13 +88,138 @@ export default function StaffGate() {
         setBusy(false)
         return
       }
-      window.location.reload()
+      // Logged in via PIN — offer Face ID registration if supported and not yet set up
+      if (browserSupportsWebAuthn() && !hasPasskey) {
+        setView('offer-face-id')
+      } else {
+        window.location.reload()
+      }
     } catch {
       setError('Could not reach the server')
       setBusy(false)
     }
   }
 
+  // ── Face ID registration ──────────────────────────────────────────────────
+  async function enableFaceId() {
+    setBusy(true)
+    setError(null)
+    try {
+      const optRes = await fetch('/api/staff/webauthn?action=register-options', { method: 'POST' })
+      if (!optRes.ok) throw new Error('Could not start registration')
+      const options = await optRes.json()
+
+      const attestation = await startRegistration({ optionsJSON: options })
+
+      const verifyRes = await fetch('/api/staff/webauthn?action=register-verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(attestation),
+      })
+
+      if (verifyRes.ok) {
+        window.location.reload()
+      } else {
+        throw new Error('Registration failed')
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : ''
+      if (!msg.includes('cancel') && !msg.includes('abort')) {
+        setError('Could not enable Face ID — you can try later from settings')
+      }
+      window.location.reload()
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  // ── Views ─────────────────────────────────────────────────────────────────
+
+  if (view === 'loading') {
+    return (
+      <section className="bg-cream min-h-[80vh] flex items-center justify-center">
+        <div className="w-6 h-6 rounded-full border-2 border-gold/40 border-t-gold animate-spin" />
+      </section>
+    )
+  }
+
+  if (view === 'offer-face-id') {
+    return (
+      <section className="bg-cream text-charcoal min-h-[80vh] flex items-center">
+        <div className="max-w-md mx-auto w-full px-5 py-20">
+          <div className="bg-cream-soft border border-line/40 rounded-md p-8 md:p-10 text-center">
+            <div className="inline-flex w-16 h-16 rounded-full bg-charcoal text-cream items-center justify-center mb-5 mx-auto">
+              <Fingerprint size={28} strokeWidth={1.5} />
+            </div>
+            <div className="eyebrow text-gold mb-2">One-time setup</div>
+            <h1 className="font-display italic text-charcoal text-2xl md:text-3xl leading-tight mb-3">
+              Enable Face ID?
+            </h1>
+            <p className="text-ink-soft leading-relaxed text-sm mb-8">
+              Sign in with Face ID next time instead of typing your passcode.
+              Your passcode always works as a backup.
+            </p>
+            {error && <p className="text-sm text-gold mb-4">{error}</p>}
+            <div className="space-y-3">
+              <button
+                onClick={enableFaceId}
+                disabled={busy}
+                className="btn btn-primary btn-block"
+              >
+                <span className="inline-flex items-center gap-2">
+                  <Fingerprint size={16} strokeWidth={1.75} />
+                  {busy ? 'Setting up…' : 'Enable Face ID'}
+                </span>
+              </button>
+              <button
+                onClick={() => window.location.reload()}
+                className="btn btn-secondary btn-block"
+              >
+                Not now
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (view === 'face-id') {
+    return (
+      <section className="bg-cream text-charcoal min-h-[80vh] flex items-center">
+        <div className="max-w-md mx-auto w-full px-5 py-20">
+          <div className="bg-cream-soft border border-line/40 rounded-md p-8 md:p-10 text-center">
+            <div className="inline-flex w-16 h-16 rounded-full bg-charcoal text-cream items-center justify-center mb-5 mx-auto">
+              <Fingerprint size={28} strokeWidth={1.5} />
+            </div>
+            <div className="eyebrow text-gold mb-2">Clinic staff</div>
+            <h1 className="font-display italic text-charcoal text-3xl md:text-4xl leading-tight mb-3">
+              Patient notes
+            </h1>
+            {error && <p className="text-sm text-gold mb-4">{error}</p>}
+            <button
+              onClick={signInWithFaceId}
+              disabled={busy}
+              className="btn btn-primary btn-block mb-4"
+            >
+              <span className="inline-flex items-center gap-2">
+                <Fingerprint size={16} strokeWidth={1.75} />
+                {busy ? 'Checking…' : 'Sign in with Face ID'}
+              </span>
+            </button>
+            <button
+              onClick={() => { setError(null); setView('pin') }}
+              className="text-sm text-stone hover:text-gold-deep transition-colors"
+            >
+              Use passcode instead
+            </button>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  // Default: PIN view
   return (
     <section className="bg-cream text-charcoal min-h-[80vh] flex items-center">
       <div className="max-w-md mx-auto w-full px-5 py-20">
@@ -44,7 +233,7 @@ export default function StaffGate() {
             Enter the staff passcode to record a treatment.
           </p>
 
-          <form onSubmit={onSubmit} className="mt-8 space-y-4" noValidate>
+          <form onSubmit={signInWithPin} className="mt-8 space-y-4" noValidate>
             <div>
               <label htmlFor="pin" className="text-eyebrow text-ink-soft mb-2 block">Passcode</label>
               <input
@@ -63,6 +252,15 @@ export default function StaffGate() {
               {busy ? 'Checking…' : 'Sign in'}
             </button>
           </form>
+
+          {hasPasskey && (
+            <button
+              onClick={() => { setError(null); setView('face-id') }}
+              className="mt-4 w-full text-sm text-stone hover:text-gold-deep transition-colors text-center"
+            >
+              Use Face ID instead
+            </button>
+          )}
         </div>
         <p className="text-center text-xs text-ink-soft mt-6">
           For Visage Aesthetics clinic staff only.
