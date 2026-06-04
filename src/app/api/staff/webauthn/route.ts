@@ -87,8 +87,9 @@ export async function POST(req: Request) {
       }
 
       const { credential, credentialDeviceType } = registrationInfo
+      // credential.id is already a Base64URLString in SimpleWebAuthn v13
       await saveCredential(
-        Buffer.from(credential.id).toString('base64url'),
+        credential.id,
         Buffer.from(credential.publicKey).toString('base64'),
         credential.counter,
         credentialDeviceType,
