@@ -30,6 +30,7 @@ export default function BookingFlow() {
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [notes, setNotes] = useState('')
+  const [voucherCode, setVoucherCode] = useState('')
 
   const [services, setServices] = useState<Service[]>([])
   const [service, setService] = useState<Service | null>(null)
@@ -116,7 +117,7 @@ export default function BookingFlow() {
       const res = await fetch('/api/book/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ service: service.slug, startsAt: slot.startsAtIso, name, email, phone, notes }),
+        body: JSON.stringify({ service: service.slug, startsAt: slot.startsAtIso, name, email, phone, notes, voucherCode }),
       })
       const d = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -261,6 +262,14 @@ export default function BookingFlow() {
                       <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 pr-10 text-sm text-charcoal focus:outline-none focus:border-gold" placeholder="First time, a question, anything helpful." />
                       <MicButton onText={(t) => setNotes((v) => appendText(v, t))} className="absolute right-2.5 top-2.5" />
                     </div>
+                    <label className="text-eyebrow text-ink-soft mb-1.5 block">Gift voucher code (optional)</label>
+                    <input
+                      value={voucherCode}
+                      onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
+                      className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 text-sm text-charcoal uppercase tracking-[0.1em] focus:outline-none focus:border-gold mb-3"
+                      placeholder="GIFT-XXXX-XXXX"
+                      autoComplete="off"
+                    />
                     {error && <p className="text-sm text-clay mb-2">{error}</p>}
                     <button onClick={submit} disabled={loading} className="btn btn-primary btn-block disabled:opacity-50">
                       <span className="inline-flex items-center gap-2">{loading ? 'Booking…' : `Confirm ${service.name}`}</span>
