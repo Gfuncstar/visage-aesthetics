@@ -765,10 +765,15 @@ export default function TreatmentTool() {
           >
             <span className="inline-flex items-center gap-3">
               <Sparkles size={15} strokeWidth={1.75} />
-              Generate clinical note
+              {isConsult ? 'Generate note & follow-up email' : 'Generate clinical note'}
             </span>
             <span className="btn-arrow">→</span>
           </button>
+          {isConsult && (
+            <p className="text-xs text-ink-soft mt-2 text-center leading-snug">
+              Drafts the follow-up email in Bernadette’s voice from your notes — you can review, edit and send it below.
+            </p>
+          )}
         </div>
 
         {/* Outputs */}
