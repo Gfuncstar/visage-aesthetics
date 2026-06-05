@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { type LucideIcon, AlertTriangle, Boxes, CalendarClock, Check, ClipboardList, ClipboardPen } from 'lucide-react'
+import { type LucideIcon, AlertTriangle, Boxes, CalendarClock, Check, ClipboardPen } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from './notes/StaffGate'
 import { assistantConfigured } from '@/lib/assistant/db'
@@ -124,23 +124,6 @@ export default async function StaffIndex() {
         <h1 className="font-display italic text-charcoal text-4xl md:text-5xl leading-tight">
           {greeting}.
         </h1>
-
-        {/* The one everyday action that isn't a section in the bottom bar. */}
-        <Link
-          href="/staff/notes"
-          className="group mt-7 flex items-center gap-4 bg-charcoal text-cream rounded-sm px-5 py-4 hover:bg-gold-deep transition-colors"
-        >
-          <span className="inline-flex w-10 h-10 rounded-full bg-cream/15 items-center justify-center shrink-0">
-            <ClipboardList size={17} strokeWidth={1.75} />
-          </span>
-          <span className="min-w-0">
-            <span className="block font-display italic text-lg leading-tight">Record a treatment</span>
-            <span className="block text-xs text-cream/70 mt-0.5 leading-snug">Straight into the clinic notes sheet.</span>
-          </span>
-          <span className="ml-auto eyebrow text-cream/80 inline-flex items-center gap-2 shrink-0">
-            <span className="transition-transform group-hover:translate-x-1">→</span>
-          </span>
-        </Link>
 
         <div className="mt-9">
           <div className="eyebrow text-gold mb-3">Needs your attention</div>
