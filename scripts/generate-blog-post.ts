@@ -42,7 +42,7 @@ type TopicsFile = {
   voiceRules: string[]
 }
 
-const MODEL = 'claude-opus-4-7'
+const MODEL = 'claude-haiku-4-5-20251001'
 
 async function main() {
   const apiKey = process.env.ANTHROPIC_API_KEY
