@@ -1,8 +1,11 @@
 import type { Metadata } from 'next'
 import { isStaffAuthed } from '@/lib/staff-auth'
+import { assistantConfigured } from '@/lib/assistant/db'
+import { consentReview } from '@/lib/assistant/consent'
 import { CONSENT_FORMS } from '@/lib/consent/forms'
 import StaffGate from '../../notes/StaffGate'
 import ConsentForms from './ConsentForms'
+import ConsentMissing from './ConsentMissing'
 import ConsentSubmissions from './ConsentSubmissions'
 
 export const metadata: Metadata = {
@@ -16,6 +19,7 @@ export default async function ConsentBackendPage() {
   if (!(await isStaffAuthed())) return <StaffGate />
 
   const forms = CONSENT_FORMS.map((f) => ({ id: f.id, name: f.name }))
+  const review = assistantConfigured() ? await consentReview() : null
 
   return (
     <section className="bg-cream text-charcoal min-h-screen">
@@ -28,8 +32,13 @@ export default async function ConsentBackendPage() {
           Send any form to a client, preview it, and read everything they have completed — saved against their record.
         </p>
 
-        {/* One card per form: Send (tracked email) · View (preview) · Link (generic). */}
+        {/* Booked clients with nothing on file — who needs a form, with a send button each. */}
         <div className="mt-8">
+          <ConsentMissing missing={review?.bookedMissing ?? []} forms={forms} />
+        </div>
+
+        {/* One card per form: Send (tracked email) · View (preview) · Link (generic). */}
+        <div>
           <ConsentForms forms={forms} />
         </div>
 

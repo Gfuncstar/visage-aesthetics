@@ -51,7 +51,7 @@ export default function StaffTopBar() {
   const dateLabel = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date())
 
   return (
-    <div className="sticky top-0 z-40 bg-cream/90 backdrop-blur-md border-b border-line/60">
+    <div className="z-40 bg-cream/90 border-b border-line/60">
       <div className="max-w-3xl mx-auto px-5 md:px-8 h-14 flex items-center justify-between gap-3">
         <Link href={info.back} className="inline-flex items-center gap-1.5 min-w-0 group" aria-label="Back">
           <span className="inline-flex items-center justify-center w-8 h-8 -ml-1 rounded-full text-gold-deep group-hover:bg-gold/10 transition-colors shrink-0">

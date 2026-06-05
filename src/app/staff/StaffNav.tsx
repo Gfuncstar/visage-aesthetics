@@ -4,9 +4,9 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ConciergeBell, Home, Megaphone, Sparkles } from 'lucide-react'
 
-// Persistent, mobile-first bottom navigation for the staff back end. Always
-// visible, big tap targets, and the current section is highlighted so it is
-// always obvious where you are and how to move between the arms.
+// Persistent, mobile-first navigation for the staff back end, pinned to the
+// top so the section you're in — and how to switch — is always obvious. Big
+// tap targets, current section highlighted.
 // Pages that belong to a section even though their URL does not sit under it.
 const RECEPTION = ['/staff/assistant/reception', '/staff/assistant/diary', '/staff/assistant/squeeze-in', '/staff/assistant/rebook']
 const MARKETING = ['/staff/assistant/marketing', '/staff/broadcasts', '/staff/assistant/visibility']
@@ -29,8 +29,8 @@ export default function StaffNav() {
   const pathname = usePathname() || ''
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-50 bg-charcoal border-t border-cream/10"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      className="sticky top-0 inset-x-0 z-50 bg-charcoal border-b border-cream/10"
+      style={{ paddingTop: 'env(safe-area-inset-top)' }}
       aria-label="Staff sections"
     >
       <div className="max-w-3xl mx-auto grid grid-cols-4">
