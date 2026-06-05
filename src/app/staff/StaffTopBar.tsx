@@ -25,6 +25,7 @@ const ROUTES: Record<string, { sec?: Sec; page: string; back: string }> = {
   '/staff/assistant/diary': { sec: 'reception', page: 'Diary', back: '/staff/assistant/reception' },
   '/staff/assistant/squeeze-in': { sec: 'reception', page: 'Squeeze-in', back: '/staff/assistant/reception' },
   '/staff/assistant/rebook': { sec: 'reception', page: "Who's due back", back: '/staff/assistant/reception' },
+  '/staff/assistant/reception/coupon': { sec: 'reception', page: 'Send a coupon', back: '/staff/assistant/reception' },
   '/staff/assistant/marketing': { page: 'Marketing', back: '/staff' },
   '/staff/assistant/marketing/overview': { sec: 'marketing', page: 'Overview', back: '/staff/assistant/marketing' },
   '/staff/assistant/visibility': { sec: 'marketing', page: 'Awards & press', back: '/staff/assistant/marketing' },

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { CalendarClock, CalendarDays, ConciergeBell, FileCheck2, RotateCcw } from 'lucide-react'
+import { CalendarClock, CalendarDays, ConciergeBell, FileCheck2, RotateCcw, Ticket } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from '../../notes/StaffGate'
 import Hub from '@/components/staff/Hub'
@@ -16,6 +16,7 @@ const cards = [
   { href: '/staff/assistant/diary', title: 'Diary', description: 'The book: appointments, statuses, block time.', Icon: CalendarDays },
   { href: '/staff/assistant/squeeze-in', title: 'Squeeze-in', description: 'Fit someone in: best gap + to-book list.', Icon: CalendarClock },
   { href: '/staff/assistant/rebook', title: "Who's due back", description: 'Clients due a top-up, with a message ready.', Icon: RotateCcw },
+  { href: '/staff/assistant/reception/coupon', title: 'Send a coupon', description: 'Email a client a branded discount voucher — set the code and amount.', Icon: Ticket },
   { href: '/staff/assistant/consent', title: 'Consent forms', description: 'Send a form, preview it, and read what comes back.', Icon: FileCheck2 },
 ]
 
