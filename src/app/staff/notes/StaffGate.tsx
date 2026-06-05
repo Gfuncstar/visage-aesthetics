@@ -7,8 +7,21 @@ import {
   startAuthentication,
   browserSupportsWebAuthn,
 } from '@simplewebauthn/browser'
+import type {
+  PublicKeyCredentialCreationOptionsJSON,
+  PublicKeyCredentialRequestOptionsJSON,
+} from '@simplewebauthn/types'
 
 type View = 'loading' | 'face-id' | 'pin' | 'offer-face-id'
+
+// Safety net so the passkey call can never spin forever: if the OS prompt
+// doesn't resolve, reject so the UI recovers instead of stalling.
+function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    p,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error('Face ID timed out')), ms)),
+  ])
+}
 
 export default function StaffGate() {
   const [view, setView] = useState<View>('loading')
@@ -16,6 +29,11 @@ export default function StaffGate() {
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [hasPasskey, setHasPasskey] = useState(false)
+  // Options are fetched ahead of the tap. On iOS the passkey prompt must be
+  // triggered directly by the user gesture — an awaited fetch in the click
+  // handler drops the gesture and the prompt silently never appears (the stall).
+  const [authOptions, setAuthOptions] = useState<PublicKeyCredentialRequestOptionsJSON | null>(null)
+  const [regOptions, setRegOptions] = useState<PublicKeyCredentialCreationOptionsJSON | null>(null)
 
   // On mount: check if a passkey is registered + browser supports it
   useEffect(() => {
@@ -25,8 +43,9 @@ export default function StaffGate() {
     }
     fetch('/api/staff/webauthn?action=auth-options', { method: 'POST' })
       .then((r) => r.json())
-      .then((d: { hasCredential?: boolean }) => {
+      .then((d: PublicKeyCredentialRequestOptionsJSON & { hasCredential?: boolean }) => {
         if (d.hasCredential) {
+          setAuthOptions(d)
           setHasPasskey(true)
           setView('face-id')
         } else {
@@ -36,15 +55,36 @@ export default function StaffGate() {
       .catch(() => setView('pin'))
   }, [])
 
+  // Pre-fetch the right options as soon as a Face ID screen is shown, so the
+  // tap handler can call the passkey API immediately, within the user gesture.
+  useEffect(() => {
+    if (view === 'offer-face-id' && !regOptions) {
+      fetch('/api/staff/webauthn?action=register-options', { method: 'POST' })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => { if (d && !d.error) setRegOptions(d) })
+        .catch(() => {})
+    }
+    if (view === 'face-id' && !authOptions) {
+      fetch('/api/staff/webauthn?action=auth-options', { method: 'POST' })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => { if (d && !d.error) setAuthOptions(d) })
+        .catch(() => {})
+    }
+  }, [view, regOptions, authOptions])
+
   // ── Face ID authentication ────────────────────────────────────────────────
   async function signInWithFaceId() {
-    setBusy(true)
     setError(null)
+    setBusy(true)
     try {
-      const optRes = await fetch('/api/staff/webauthn?action=auth-options', { method: 'POST' })
-      const options = await optRes.json()
+      // Prefer the pre-fetched options so the prompt fires within the gesture.
+      let options = authOptions
+      if (!options) {
+        const optRes = await fetch('/api/staff/webauthn?action=auth-options', { method: 'POST' })
+        options = await optRes.json() as PublicKeyCredentialRequestOptionsJSON
+      }
 
-      const assertion = await startAuthentication({ optionsJSON: options })
+      const assertion = await withTimeout(startAuthentication({ optionsJSON: options }), 90_000)
 
       const verifyRes = await fetch('/api/staff/webauthn?action=auth-verify', {
         method: 'POST',
@@ -57,14 +97,16 @@ export default function StaffGate() {
       } else {
         const d = await verifyRes.json().catch(() => ({}))
         setError(d.error || 'Face ID failed — use your passcode')
+        setAuthOptions(null) // stale challenge — refetch next time
         setView('pin')
       }
     } catch (err) {
       // User cancelled or Face ID unavailable — fall back to PIN
       const msg = err instanceof Error ? err.message : ''
-      if (!msg.includes('cancel') && !msg.includes('abort')) {
+      if (!msg.includes('cancel') && !msg.includes('abort') && !msg.includes('NotAllowed')) {
         setError('Face ID unavailable — use your passcode')
       }
+      setAuthOptions(null)
       setView('pin')
     } finally {
       setBusy(false)
@@ -102,17 +144,22 @@ export default function StaffGate() {
 
   // ── Face ID registration ──────────────────────────────────────────────────
   async function enableFaceId() {
-    setBusy(true)
     setError(null)
+    setBusy(true)
     try {
-      const optRes = await fetch('/api/staff/webauthn?action=register-options', { method: 'POST' })
-      if (!optRes.ok) {
-        const d = await optRes.json().catch(() => ({})) as { error?: string }
-        throw new Error(d.error ?? `register-options failed (${optRes.status})`)
+      // Use the pre-fetched options if we have them, so startRegistration is
+      // triggered directly by the tap (iOS drops the gesture across a fetch).
+      let options = regOptions
+      if (!options) {
+        const optRes = await fetch('/api/staff/webauthn?action=register-options', { method: 'POST' })
+        if (!optRes.ok) {
+          const d = await optRes.json().catch(() => ({})) as { error?: string }
+          throw new Error(d.error ?? `register-options failed (${optRes.status})`)
+        }
+        options = await optRes.json() as PublicKeyCredentialCreationOptionsJSON
       }
-      const options = await optRes.json()
 
-      const attestation = await startRegistration({ optionsJSON: options })
+      const attestation = await withTimeout(startRegistration({ optionsJSON: options }), 90_000)
 
       const verifyRes = await fetch('/api/staff/webauthn?action=register-verify', {
         method: 'POST',
@@ -130,8 +177,10 @@ export default function StaffGate() {
       const msg = err instanceof Error ? err.message : String(err)
       const cancelled = msg.includes('cancel') || msg.includes('abort') || msg.includes('NotAllowed')
       if (!cancelled) {
-        setError(msg)
+        setError(msg.includes('timed out') ? 'Face ID didn’t respond — please try again, or use your passcode.' : msg)
       }
+      // The challenge is now spent/stale — drop it so the next tap re-fetches.
+      setRegOptions(null)
       // Don't auto-reload on error — let the user see what went wrong
     } finally {
       setBusy(false)

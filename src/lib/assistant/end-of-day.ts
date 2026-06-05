@@ -21,6 +21,12 @@ export type EndOfDay = {
 // How far back to chase missing write-ups.
 const OVERDUE_WINDOW_DAYS = 14
 
+// Go-live baseline: visits before this date are NOT chased as overdue, so the
+// imported back-history doesn't all show up as missing write-ups. This is a
+// one-time reset that naturally expires once OVERDUE_WINDOW_DAYS has passed.
+// Override with WRITEUP_OVERDUE_SINCE=YYYY-MM-DD if the start date changes.
+const OVERDUE_SINCE = process.env.WRITEUP_OVERDUE_SINCE || '2026-06-05'
+
 const DAY_MS = 24 * 60 * 60 * 1000
 
 function isoDaysAgo(days: number): string {
@@ -35,7 +41,9 @@ function visitKey(name: string, date: string): string {
 
 export async function endOfDaySummary(): Promise<EndOfDay | null> {
   const today = new Date().toISOString().slice(0, 10)
-  const since = isoDaysAgo(OVERDUE_WINDOW_DAYS)
+  // Chase the last OVERDUE_WINDOW_DAYS, but never earlier than the go-live date.
+  const windowStart = isoDaysAgo(OVERDUE_WINDOW_DAYS)
+  const since = OVERDUE_SINCE > windowStart ? OVERDUE_SINCE : windowStart
   try {
     const [appts, records, requests, windowAppts, windowRecords] = await Promise.all([
       select<ApptRow>('appointments', {
