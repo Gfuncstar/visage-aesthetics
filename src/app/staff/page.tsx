@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { type LucideIcon, AlertTriangle, Boxes, CalendarClock, Check, ClipboardPen } from 'lucide-react'
+import { type LucideIcon, AlertTriangle, Boxes, CalendarClock, Check, ClipboardPen, FileCheck2, ShieldAlert } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from './notes/StaffGate'
 import { assistantConfigured } from '@/lib/assistant/db'
 import { endOfDaySummary } from '@/lib/assistant/end-of-day'
 import { stockReview } from '@/lib/assistant/stock'
+import { consentReview } from '@/lib/assistant/consent'
 
 export const metadata: Metadata = {
   title: 'Staff',
@@ -42,11 +43,38 @@ export default async function StaffIndex() {
   // things that actually need attention today, pulled straight from the clinic
   // data, and otherwise say it's all clear.
   const configured = assistantConfigured()
-  const [today, stock] = configured
-    ? await Promise.all([endOfDaySummary(), stockReview()])
-    : [null, null]
+  const [today, stock, consent] = configured
+    ? await Promise.all([endOfDaySummary(), stockReview(), consentReview()])
+    : [null, null, null]
 
   const items: AttentionItem[] = []
+
+  // Consent leads the list — nobody should be treated without it on file.
+  if (consent?.bookedMissing.length) {
+    const n = consent.bookedMissing.length
+    const names = consent.bookedMissing.map((c) => c.name).slice(0, 3).join(', ')
+    items.push({
+      key: 'consent-missing',
+      href: '/staff/assistant/consent',
+      Icon: ShieldAlert,
+      tone: 'urgent',
+      title: n === 1 ? '1 booked client has no consent form' : `${n} booked clients have no consent form`,
+      detail: `Nothing on file yet for ${names}${n > 3 ? `, +${n - 3} more` : ''}. Send a form before they come in.`,
+    })
+  }
+
+  if (consent?.outstanding.length) {
+    const n = consent.outstanding.length
+    const names = consent.outstanding.map((c) => c.name).slice(0, 3).join(', ')
+    items.push({
+      key: 'consent-outstanding',
+      href: '/staff/assistant/consent',
+      Icon: FileCheck2,
+      tone: 'attention',
+      title: n === 1 ? '1 consent form not returned' : `${n} consent forms not returned`,
+      detail: `Sent but not completed by ${names}${n > 3 ? `, +${n - 3} more` : ''}. Give them a nudge.`,
+    })
+  }
 
   if (today?.overdue.length) {
     const n = today.overdue.length
