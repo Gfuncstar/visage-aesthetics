@@ -48,6 +48,39 @@ export async function createDepositCheckout(input: {
   return data.url ?? null
 }
 
+/** Create a Checkout Session to buy a gift voucher. Returns the hosted URL. */
+export async function createGiftCheckout(input: {
+  amountPence: number
+  voucherId: string
+  buyerEmail?: string | null
+}): Promise<string | null> {
+  const key = process.env.STRIPE_SECRET_KEY
+  if (!key) return null
+
+  const form = new URLSearchParams()
+  form.set('mode', 'payment')
+  form.set('success_url', `${SITE}/gift/confirm?id=${input.voucherId}&session_id={CHECKOUT_SESSION_ID}`)
+  form.set('cancel_url', `${SITE}/gift`)
+  if (input.buyerEmail) form.set('customer_email', input.buyerEmail)
+  form.set('line_items[0][quantity]', '1')
+  form.set('line_items[0][price_data][currency]', 'gbp')
+  form.set('line_items[0][price_data][unit_amount]', String(input.amountPence))
+  form.set('line_items[0][price_data][product_data][name]', 'Visage Aesthetics gift voucher')
+  form.set('metadata[gift_voucher_id]', input.voucherId)
+
+  const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${key}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: form.toString(),
+  })
+  if (!res.ok) throw new Error(`Stripe error (${res.status}): ${(await res.text()).slice(0, 200)}`)
+  const data = (await res.json()) as { url?: string }
+  return data.url ?? null
+}
+
 /** Whether a Checkout Session has been paid (used on the deposit return). */
 export async function checkoutSessionPaid(sessionId: string): Promise<boolean> {
   const key = process.env.STRIPE_SECRET_KEY
