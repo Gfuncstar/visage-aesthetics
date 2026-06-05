@@ -1,9 +1,17 @@
 import type { NextConfig } from 'next'
 import path from 'node:path'
+import fs from 'node:fs'
+
+// In a git worktree node_modules lives in the main repo, not the worktree dir.
+function findRepoRoot(dir: string): string {
+  if (fs.existsSync(path.join(dir, 'node_modules'))) return dir
+  const parent = path.dirname(dir)
+  return parent === dir ? dir : findRepoRoot(parent)
+}
 
 const nextConfig: NextConfig = {
   turbopack: {
-    root: path.resolve(__dirname),
+    root: findRepoRoot(__dirname),
   },
   images: {
     remotePatterns: [
