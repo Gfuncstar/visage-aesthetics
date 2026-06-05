@@ -332,6 +332,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-06-04',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'nasolabial-fold-treatment-options',
+    category: "Dermal filler",
+    title: "Nasolabial folds: filler is rarely the right first step",
+    excerpt: "Most clients ask me to fill the line running from nose to mouth; in most cases I decline, because the fold itself is rarely what's actually causing the fold.",
+    readTime: "8 min read",
+    datePublished: '2026-06-05',
+    dateModified: '2026-06-05',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
