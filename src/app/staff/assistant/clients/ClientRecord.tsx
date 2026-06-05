@@ -22,6 +22,7 @@ type ConsentFormRecord = {
   client_email: string | null; answers: Record<string, string | string[]>
   declaration: string; submitted_at: string; booking_id: string | null
 }
+type Voucher = { id: string; code: string | null; status: string; amount_pence: number; balance_pence: number; created_at: string; expires_at: string | null; buyer_name: string | null }
 type Summary = { name: string; visits: number; totalSpend: number; firstVisit: string | null; lastVisit: string | null; treatments: { service: string; count: number }[] }
 
 export default function ClientRecord() {
@@ -35,6 +36,7 @@ export default function ClientRecord() {
   const [photos, setPhotos] = useState<Photo[]>([])
   const [messages, setMessages] = useState<Message[]>([])
   const [consentForms, setConsentForms] = useState<ConsentFormRecord[]>([])
+  const [vouchers, setVouchers] = useState<Voucher[]>([])
   const [doNotContact, setDoNotContact] = useState(false)
   const [blocked, setBlocked] = useState(false)
   const [requiresDeposit, setRequiresDeposit] = useState(false)
@@ -72,6 +74,7 @@ export default function ClientRecord() {
       setPhotos(d.photos ?? [])
       setMessages(d.messages ?? [])
       setConsentForms(d.consentForms ?? [])
+      setVouchers(d.vouchers ?? [])
       setDoNotContact(Boolean(d.doNotContact))
       setBlocked(Boolean(d.blocked))
       setRequiresDeposit(Boolean(d.requiresDeposit))
@@ -124,6 +127,7 @@ export default function ClientRecord() {
         photos={photos}
         messages={messages}
         consentForms={consentForms}
+        vouchers={vouchers}
         loading={loading}
         doNotContact={doNotContact}
         onToggleDnc={toggleDnc}
@@ -205,9 +209,9 @@ export default function ClientRecord() {
 }
 
 function Detail({
-  name, summary, appts, records, photos, messages, consentForms, loading, doNotContact, onToggleDnc, blocked, requiresDeposit, onToggleFlag, onBack, onRefresh, onLightbox, lightbox, onCloseLightbox, onSignOut,
+  name, summary, appts, records, photos, messages, consentForms, vouchers, loading, doNotContact, onToggleDnc, blocked, requiresDeposit, onToggleFlag, onBack, onRefresh, onLightbox, lightbox, onCloseLightbox, onSignOut,
 }: {
-  name: string; summary: Summary | null; appts: Appt[]; records: TRecord[]; photos: Photo[]; messages: Message[]; consentForms: ConsentFormRecord[]; loading: boolean
+  name: string; summary: Summary | null; appts: Appt[]; records: TRecord[]; photos: Photo[]; messages: Message[]; consentForms: ConsentFormRecord[]; vouchers: Voucher[]; loading: boolean
   doNotContact: boolean; onToggleDnc: (next: boolean) => void
   blocked: boolean; requiresDeposit: boolean; onToggleFlag: (flag: 'blocked' | 'requires_deposit', next: boolean) => void
   onBack: () => void; onRefresh: () => void; onLightbox: (url: string) => void; lightbox: string | null; onCloseLightbox: () => void; onSignOut: () => void
@@ -336,6 +340,27 @@ function Detail({
             </div>
           )}
         </div>
+
+        {/* Gift vouchers */}
+        {vouchers.length > 0 && (
+          <div className="mt-10">
+            <div className="eyebrow text-gold mb-3">Gift vouchers</div>
+            <div className="border border-line/40 rounded-sm divide-y divide-line/30 bg-cream-soft">
+              {vouchers.map((v) => (
+                <div key={v.id} className="px-4 py-3 text-sm flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-charcoal font-medium tracking-[0.12em]">{v.code ?? 'Pending payment'}</div>
+                    <div className="text-xs text-stone mt-0.5">
+                      £{(v.balance_pence / 100).toFixed(2).replace(/\.00$/, '')} of £{(v.amount_pence / 100).toFixed(2).replace(/\.00$/, '')} left
+                      {v.buyer_name ? ` · from ${v.buyer_name}` : ''} · {ukDate(v.created_at)}
+                    </div>
+                  </div>
+                  <span className={`text-xs capitalize shrink-0 ${v.status === 'active' ? 'text-sage' : v.status === 'redeemed' ? 'text-stone' : 'text-gold-deep'}`}>{v.status}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Messages sent */}
         {messages.length > 0 && (
