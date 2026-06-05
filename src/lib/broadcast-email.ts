@@ -109,6 +109,8 @@ export type BuildEmailInput = {
   body: string
   cta?: CtaKind
   recipientEmail?: string
+  /** Optional pre-built table-row HTML inserted above the body (e.g. a voucher). */
+  featureHtml?: string
 }
 
 export function buildBroadcastHtml({
@@ -119,6 +121,7 @@ export function buildBroadcastHtml({
   body,
   cta = 'none',
   recipientEmail,
+  featureHtml,
 }: BuildEmailInput): string {
   const ctaInfo = ctaPreset(cta)
   const ctaBlock = ctaInfo
@@ -181,6 +184,7 @@ ${preheaderHtml}
       <tr><td class="px-pad" style="padding:${imageUrl ? '36px' : '32px'} 40px 36px;">
         ${headline ? `<h1 class="hl" style="margin:0 0 20px;font-family:${FONT_DISPLAY};font-style:italic;font-weight:300;color:${COLOR_CHARCOAL};font-size:38px;line-height:1.05;letter-spacing:-0.015em;">${escapeHtml(headline)}</h1>` : ''}
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          ${featureHtml ?? ''}
           ${bodyToHtml(body)}
           ${ctaBlock}
         </table>
