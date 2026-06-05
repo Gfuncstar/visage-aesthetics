@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { type LucideIcon, AlertTriangle, Boxes, CalendarClock, Check, ClipboardPen, FileCheck2, ShieldAlert } from 'lucide-react'
+import { type LucideIcon, AlertTriangle, Boxes, CalendarClock, Check, ClipboardPen, ShieldAlert } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from './notes/StaffGate'
 import { assistantConfigured } from '@/lib/assistant/db'
@@ -60,19 +60,6 @@ export default async function StaffIndex() {
       tone: 'urgent',
       title: n === 1 ? '1 booked client has no consent form' : `${n} booked clients have no consent form`,
       detail: `Nothing on file yet for ${names}${n > 3 ? `, +${n - 3} more` : ''}. Send a form before they come in.`,
-    })
-  }
-
-  if (consent?.outstanding.length) {
-    const n = consent.outstanding.length
-    const names = consent.outstanding.map((c) => c.name).slice(0, 3).join(', ')
-    items.push({
-      key: 'consent-outstanding',
-      href: '/staff/assistant/consent',
-      Icon: FileCheck2,
-      tone: 'attention',
-      title: n === 1 ? '1 consent form not returned' : `${n} consent forms not returned`,
-      detail: `Sent but not completed by ${names}${n > 3 ? `, +${n - 3} more` : ''}. Give them a nudge.`,
     })
   }
 

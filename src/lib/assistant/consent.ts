@@ -16,12 +16,16 @@ const HORIZON_DAYS = 14
 const CONSENT_LOOKBACK_DAYS = 180
 const DAY_MS = 24 * 60 * 60 * 1000
 
+// Grandfather: only flag appointments BOOKED on/after go-live, so the existing
+// diary (consented in person the old way) isn't chased — only new bookings from
+// launch onward. Override with CONSENT_ENFORCE_FROM (ISO timestamp).
+const CONSENT_ENFORCE_FROM = process.env.CONSENT_ENFORCE_FROM || '2026-06-05T00:00:00Z'
+
 type SubRow = { client_name: string; submitted_at: string }
 type ReqRow = { id: string; client_name: string }
 type ApptRow = { client_name: string; service_name: string; date: string }
 
 export type ConsentReview = {
-  outstanding: { name: string }[]
   bookedMissing: { name: string; service: string; date: string }[]
 }
 
@@ -40,7 +44,7 @@ export async function consentReview(): Promise<ConsentReview | null> {
       select<ReqRow>('consent_requests', { status: 'eq.sent', select: 'id,client_name', limit: 300 }).catch(() => [] as ReqRow[]),
       select<SubRow>('consent_submissions', { submitted_at: `gte.${since}`, select: 'client_name,submitted_at', limit: 1000 }),
       select<ApptRow>('appointments', {
-        and: `(date.gte.${today},date.lte.${horizon},status.neq.cancelled)`,
+        and: `(date.gte.${today},date.lte.${horizon},status.neq.cancelled,created_at.gte.${CONSENT_ENFORCE_FROM})`,
         select: 'client_name,service_name,date',
         order: 'date.asc',
         limit: 500,
@@ -50,19 +54,7 @@ export async function consentReview(): Promise<ConsentReview | null> {
     const consented = new Set(submissions.map((s) => norm(s.client_name ?? '')).filter(Boolean))
     const requested = new Set(requests.map((r) => norm(r.client_name ?? '')).filter(Boolean))
 
-    // Outstanding sent forms, de-duplicated by client.
-    const seenOut = new Set<string>()
-    const outstanding: { name: string }[] = []
-    for (const r of requests) {
-      const name = (r.client_name ?? '').trim()
-      if (!name) continue
-      const k = norm(name)
-      if (seenOut.has(k)) continue
-      seenOut.add(k)
-      outstanding.push({ name })
-    }
-
-    // Booked soon, nothing on file and no form sent yet → send a form.
+    // Booked soon (and newly booked), nothing on file and no form sent yet.
     const seenBM = new Set<string>()
     const bookedMissing: { name: string; service: string; date: string }[] = []
     for (const a of appts) {
@@ -74,7 +66,7 @@ export async function consentReview(): Promise<ConsentReview | null> {
       bookedMissing.push({ name, service: a.service_name || 'Appointment', date: a.date })
     }
 
-    return { outstanding, bookedMissing }
+    return { bookedMissing }
   } catch {
     return null
   }
