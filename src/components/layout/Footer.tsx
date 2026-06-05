@@ -25,6 +25,7 @@ function InstagramIcon({ size = 16 }: { size?: number }) {
 const links = [
   { label: 'Treatments', href: '/treatments' },
   { label: 'Prices', href: '/pricing' },
+  { label: 'Gift vouchers', href: '/gift' },
   { label: 'About', href: '/about' },
   { label: 'Awards', href: '/awards' },
   { label: 'Blog', href: '/blog' },

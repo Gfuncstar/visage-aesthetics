@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
-import { assistantConfigured, insert, audit } from '@/lib/assistant/db'
+import { assistantConfigured, insert, select, audit } from '@/lib/assistant/db'
 import { getService, computeDay } from '@/lib/booking-engine/availability'
 import { londonParts, dayLabel, clockLabel } from '@/lib/booking-engine/time'
 import { bookingConfirmationEmail } from '@/lib/booking-email'
@@ -28,7 +28,7 @@ const REPLY_TO = process.env.BROADCAST_REPLY_TO ?? 'info@vaclinic.co.uk'
 export async function POST(req: Request) {
   if (!assistantConfigured()) return NextResponse.json({ error: 'Booking is not available right now.' }, { status: 503 })
 
-  let b: { service?: unknown; startsAt?: unknown; name?: unknown; email?: unknown; phone?: unknown; notes?: unknown }
+  let b: { service?: unknown; startsAt?: unknown; name?: unknown; email?: unknown; phone?: unknown; notes?: unknown; voucherCode?: unknown }
   try {
     b = await req.json()
   } catch {
@@ -41,6 +41,7 @@ export async function POST(req: Request) {
   const email = typeof b.email === 'string' ? b.email.trim().slice(0, 160) : ''
   const phone = typeof b.phone === 'string' ? b.phone.trim().slice(0, 40) : ''
   const notes = typeof b.notes === 'string' ? b.notes.trim().slice(0, 600) : ''
+  const voucherCode = typeof b.voucherCode === 'string' ? b.voucherCode.trim().toUpperCase().slice(0, 40) : ''
 
   if (!slug || !startsAt || !name) return NextResponse.json({ error: 'Please fill in your name and a time.' }, { status: 400 })
   if (!email && !phone) return NextResponse.json({ error: 'Please leave an email or phone number.' }, { status: 400 })
@@ -68,6 +69,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Sorry, that time has just been taken. Please pick another.' }, { status: 409 })
     }
 
+    // If the client entered a gift voucher code, validate it and flag it on the
+    // booking so reception applies it in clinic. Never blocks the booking.
+    let finalNotes = notes
+    if (voucherCode) {
+      try {
+        const vrows = await select<{ code: string; status: string; balance_pence: number; expires_at: string | null }>(
+          'gift_vouchers',
+          { code: `eq.${voucherCode}`, select: 'code,status,balance_pence,expires_at', limit: 1 },
+        )
+        const v = vrows[0]
+        const live = v && v.status === 'active' && v.balance_pence > 0 && (!v.expires_at || new Date(v.expires_at) > new Date())
+        const tag = live
+          ? `🎁 Gift voucher ${v!.code} — £${(v!.balance_pence / 100).toFixed(2).replace(/\.00$/, '')} balance, apply in clinic`
+          : `Gift voucher entered: ${voucherCode} (please check — not active)`
+        finalNotes = finalNotes ? `${tag}\n${finalNotes}` : tag
+      } catch {
+        /* voucher lookup is best-effort */
+      }
+    }
+
     // A deposit-required client books as pending until the deposit is paid.
     const needsDeposit = flags.requiresDeposit
     const booking = await insert<Booking>('bookings', {
@@ -80,7 +101,7 @@ export async function POST(req: Request) {
       starts_at: slot.startsAtIso,
       ends_at: slot.endsAtIso,
       status: needsDeposit ? 'pending' : 'confirmed',
-      notes: notes || null,
+      notes: finalNotes || null,
       source: 'online',
     })
     await audit('create', 'booking', booking.id, { service: service.slug, source: 'online', needsDeposit })
