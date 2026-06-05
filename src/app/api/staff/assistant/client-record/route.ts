@@ -30,6 +30,17 @@ export type ConsentFormRow = {
   booking_id: string | null
 }
 
+export type VoucherRow = {
+  id: string
+  code: string | null
+  status: string
+  amount_pence: number
+  balance_pence: number
+  created_at: string
+  expires_at: string | null
+  buyer_name: string | null
+}
+
 // GET ?q=...      -> matching clients with a quick summary (search list)
 // GET ?name=...   -> one client's full record (visits, notes, photos, summary)
 export async function GET(req: Request) {
@@ -48,7 +59,7 @@ export async function GET(req: Request) {
       // PostgREST equality is case-sensitive; match case-insensitively.
       const enc = name.replace(/[%,()]/g, ' ')
       const norm = name.trim().toLowerCase().replace(/\s+/g, ' ')
-      const [appts, treatments, photos, dnc, flags, messages, consentForms] = await Promise.all([
+      const [appts, treatments, photos, dnc, flags, messages, consentForms, vouchers] = await Promise.all([
         select<Appointment>('appointments', { client_name: `ilike.${enc}`, order: 'date.desc', limit: 500 }),
         select<TreatmentRecord>('treatment_records', { client_name: `ilike.${enc}`, order: 'date.desc', limit: 500 }),
         select<Photo>('photos', { client_name: `ilike.${enc}`, order: 'date.desc', limit: 200 }),
@@ -59,6 +70,8 @@ export async function GET(req: Request) {
         // is — so they appear regardless of whether the email-based client_id link
         // was set. .catch keeps the record loading if the table isn't created yet.
         select<ConsentFormRow>('consent_submissions', { client_name: `ilike.${enc}`, order: 'submitted_at.desc', select: 'id,form_id,form_name,service_name,client_email,answers,declaration,submitted_at,booking_id', limit: 100 }).catch(() => []),
+        // Gift vouchers issued to this client (matched by recipient name).
+        select<VoucherRow>('gift_vouchers', { recipient_name: `ilike.${enc}`, order: 'created_at.desc', select: 'id,code,status,amount_pence,balance_pence,created_at,expires_at,buyer_name', limit: 50 }).catch(() => []),
       ])
 
       const completed = appts.filter((a) => a.status === 'completed')
@@ -86,6 +99,7 @@ export async function GET(req: Request) {
         photos,
         messages,
         consentForms,
+        vouchers,
         doNotContact: dnc.length > 0,
         blocked: flags[0]?.blocked ?? false,
         requiresDeposit: flags[0]?.requires_deposit ?? false,

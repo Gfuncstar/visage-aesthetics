@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Check, Send } from 'lucide-react'
 
 const inputClass =
@@ -9,6 +10,7 @@ const inputClass =
 const gbp = (pence: number) => (Number.isInteger(pence / 100) ? `£${pence / 100}` : `£${(pence / 100).toFixed(2)}`)
 
 export default function IssueVoucher() {
+  const router = useRouter()
   const [recipientName, setRecipientName] = useState('')
   const [recipientEmail, setRecipientEmail] = useState('')
   const [amount, setAmount] = useState(50)
@@ -33,6 +35,7 @@ export default function IssueVoucher() {
       if (!res.ok) { setResult({ ok: false, message: data.error || 'Could not send the voucher.' }); return }
       setResult({ ok: true, message: data.message || 'Voucher sent.', code: data.code })
       setRecipientName(''); setRecipientEmail(''); setMessage('')
+      router.refresh() // update the issued-vouchers record below
     } catch {
       setResult({ ok: false, message: 'Network error while sending.' })
     } finally {
