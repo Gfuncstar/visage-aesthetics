@@ -99,6 +99,9 @@ export default function TreatmentTool() {
   const [aiEnhancing, setAiEnhancing] = useState(false)
   const [aiNextSteps, setAiNextSteps] = useState<string[]>([])
 
+  const [aiNoteBusy, setAiNoteBusy] = useState(false)
+  const [aiNoteError, setAiNoteError] = useState<string | null>(null)
+
   const isConsult = typeId === 'consultation'
 
   const [txPhotos, setTxPhotos] = useState<{ url: string; type: string }[]>([])
@@ -316,6 +319,31 @@ export default function TreatmentTool() {
       // enhancement is best-effort
     } finally {
       setAiEnhancing(false)
+    }
+  }
+
+  // Rewrite the clinician's plain-language dictation into a professional,
+  // in-depth clinical note in Bernadette's voice. Faithful to the entered
+  // facts — invents nothing. The result lands in the editable note for review.
+  async function polishClinicalNote() {
+    setAiNoteBusy(true)
+    setAiNoteError(null)
+    try {
+      const res = await fetch('/api/staff/assistant/clinical-note-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...currentInput(), clinicalNote }),
+      })
+      const data = await res.json().catch(() => ({})) as { ok?: boolean; note?: string; error?: string }
+      if (!res.ok || !data.note) {
+        setAiNoteError(data.error || 'Could not rewrite the note.')
+        return
+      }
+      setClinicalNote(data.note)
+    } catch {
+      setAiNoteError('Network error while rewriting the note.')
+    } finally {
+      setAiNoteBusy(false)
     }
   }
 
@@ -784,12 +812,25 @@ export default function TreatmentTool() {
                 <ChevronRight size={16} className="text-gold-deep" />
                 <span className="text-eyebrow text-gold-deep">Clinical note</span>
               </div>
+              <button
+                type="button"
+                onClick={polishClinicalNote}
+                disabled={aiNoteBusy}
+                className="mb-3 inline-flex items-center gap-2 text-sm text-gold-deep hover:text-charcoal border border-gold/40 hover:border-gold rounded-sm px-3 py-2 transition-colors disabled:opacity-50"
+              >
+                <Sparkles size={14} strokeWidth={1.75} className={aiNoteBusy ? 'animate-pulse' : ''} />
+                {aiNoteBusy ? 'Writing it up…' : 'Make it a professional clinical note'}
+              </button>
+              <p className="text-xs text-ink-soft mb-3 leading-snug">
+                Rewrites your dictation into an in-depth clinical note in Bernadette&apos;s voice, using only what you entered, it adds nothing. Review and edit before saving.
+              </p>
               <textarea
                 rows={12}
                 className={`${textareaClass} font-body`}
                 value={clinicalNote}
                 onChange={(e) => setClinicalNote(e.target.value)}
               />
+              {aiNoteError && <p className="text-xs text-clay mt-2">{aiNoteError}</p>}
               <div className="mt-3">
                 <button type="button" onClick={saveNote} disabled={saving} className="btn btn-primary disabled:opacity-50">
                   <span className="inline-flex items-center gap-2">
