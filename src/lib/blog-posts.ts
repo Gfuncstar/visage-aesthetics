@@ -342,6 +342,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-06-05',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'biostimulators-explained',
+    category: "Hybrid filler",
+    title: "Biostimulators explained: HarmonyCa, Sculptra, Radiesse",
+    excerpt: "Biostimulators trigger your own collagen production over months rather than adding volume instantly, creating results that look naturally firmer and last 18–24 months.",
+    readTime: "9 min read",
+    datePublished: '2026-06-07',
+    dateModified: '2026-06-07',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
