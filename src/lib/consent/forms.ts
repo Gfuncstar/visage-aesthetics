@@ -10,8 +10,8 @@
 //    2. Dermal Filler Consent Form
 //    3. Skin Booster Consent Form
 //    4. Polynucleotide Consent Form
-//    5. B12 Consent Form                 (declaration is TRUNCATED in Ovatu itself)
-//    6. NAD Consent Form                 (declaration TRUNCATED, same as B12)
+//    5. B12 Consent Form                 (declaration was TRUNCATED in Ovatu; completed here, push back to Ovatu)
+//    6. NAD Consent Form                 (declaration was TRUNCATED, same as B12; completed here, push back to Ovatu)
 //    7. CryoPen Consent Form             (its own form — NOT the Dermal Filler one)
 //    8. Micro-Needling Consent
 //    9. Haytox Consent Form              (Botox for hay fever / rhinitis)
@@ -66,26 +66,42 @@ export type ConsentForm = {
   declarationTruncated?: boolean
 }
 
-// Shared personal-details block (identical across every captured Ovatu form).
+// Shared personal-details block (was identical across every captured Ovatu
+// form). Two clinic tightening changes have been made here and MUST be pushed
+// back to the live Ovatu forms so what clients sign matches:
+//   1. Date of Birth is now a real date field (was free text).
+//   2. A required "I am 18 or over" attestation is captured in writing, to
+//      meet the policy condition that aesthetic injectables and prescribing are
+//      for over-18s only. This records the attestation; staff should still
+//      verify age at the appointment for any treatment that needs it.
 const PERSONAL_DETAILS: ConsentField[] = [
   { type: 'heading', label: 'Personal Details' },
   { type: 'short-text', label: 'First Name', required: true },
   { type: 'short-text', label: 'Last Name', required: true },
-  { type: 'short-text', label: 'Date of Birth', required: true },
+  { type: 'date', label: 'Date of Birth', required: true },
   { type: 'short-text', label: 'Address', required: true },
   { type: 'short-text', label: 'E-mail', required: true },
   { type: 'short-text', label: 'Contact Number', required: true },
   { type: 'short-text', label: 'Doctor Surgery', required: true },
+  {
+    type: 'yes-no',
+    label: 'I confirm I am 18 years of age or over',
+    options: ['Yes', 'No'],
+    required: true,
+    helper: 'Aesthetic treatments are for clients aged 18 and over only.',
+  },
 ]
 
 const STANDARD_DECLARATION =
   'I accept and understand the information provided to me both verbally and within this form. All information I am consenting is correct'
 
-// The declaration is TRUNCATED in Ovatu itself (ends mid-word at "...treatment
-// deta"). Reproduced as-is for fidelity; flagged for correction at source.
-// Shared by the B12 and NAD forms, which carry the identical truncated text.
-const TRUNCATED_DECLARATION =
-  'I accept and understand the information provided to me both verbally and within this form. I confirm that my treating practitioner has: Provided me with sufficient information about the treatment deta'
+// The B12 and NAD declarations were TRUNCATED in Ovatu itself (ended mid-word
+// at "...treatment deta"). The original full text is not recoverable from the
+// source, so a complete informed-consent declaration has been authored here to
+// close the gap. This MUST be pushed back to the live Ovatu B12 and NAD forms
+// so the document clients actually sign carries the full declaration.
+const COMPLETE_INJECTABLE_DECLARATION =
+  'I accept and understand the information provided to me both verbally and within this form. I confirm that my treating practitioner has: provided me with sufficient information about the treatment, its details, benefits, risks, possible side effects and alternatives; answered my questions to my satisfaction; and explained that no specific result can be guaranteed. I confirm that the medical history and personal information I have given is accurate and complete to the best of my knowledge, and I understand that withholding information may affect my safety. I consent to the treatment described above.'
 
 const INJECTABLE_PRE_POST = `Pre-Treatment Instructions: • {TREATMENT} must not be administered if you have had any vaccines, immunizations, procedures, illnesses, or dental work in the past two weeks and for an additional two weeks after this procedure. • Do not {USE} if you are pregnant or breastfeeding, are allergic to any of the ingredients, suffer from any neurological or autoimmune disorders, are experiencing any cold or flu-like symptoms, or have any active inflammatory processes (cysts, pimples, rashes, hives). • For optimal results, and to minimize the chance of bleeding or bruising at the injection site, please avoid all blood-thinning medications (unless prescribed) and supplements for one week prior to your appointment. This includes over-the-counter medication such as aspirin and ibuprofen. If you are taking prescribed blood thinning medication, please consult with your named clinician before stopping these. Also avoid herbal supplements such as garlic, vitamin E, ginko biloba, St. John's Wort and omega-3 capsules. If you have a cardiovascular history, please check with your doctor prior to stopping use of aspirin. Do not drink alcoholic beverages 24 hours before or after your treatment to avoid extra bruising. • Inform your provider if you have a history of Perioral Herpes to receive advice on antiviral therapy prior to treatment. • Avoid topical products such as Tretinoin (Retin-A) retinols, retinoids, glycolic acid, alpha hydroxy acid, or any "anti-aging" products for two days before and after treatment. Post-Treatment Instructions: • Avoid significant movement or massage of the treated area unless instructed by provider. • Avoid strenuous exercise or anything that increases your heart rate for 24 hours. • Avoid extensive sun or heat for 72 hours (no sauna, hot tub). • Avoid consuming excess amounts of alcohol or salts to avoid excessive swelling. • You may apply a cool compress or ice pack for 15 minutes each hour while awake to reduce swelling. • Use paracetamol for discomfort. No NSAIDs (ibuprofen, aspirin) for 24 hours as they can increase bleeding. • Try to sleep face up and slightly elevated if you experience swelling. • You may want to consider taking Arnica (found in health food stores) to help with the bruising and swelling. • Avoid wearing makeup the day of procedure ( 12 hours post procedure). • Sanitize your phone before putting it to your face and try to talk on speaker phone as much as you can day of. • Wait a minimum of two weeks before dental work, immunizations, or laser treatments.`
 
@@ -219,8 +235,8 @@ export const CONSENT_FORMS: ConsentForm[] = [
       { type: 'yes-no', label: 'Are you Pregnant or Breast-feeding?', options: ['Yes', 'No'], required: true },
       { type: 'yes-no', label: 'Have you ever had severe allergic or an anaphylactic reaction?', options: ['Yes', 'No'], required: true, helper: 'If YES, please inform your practitioner' },
     ],
-    declaration: TRUNCATED_DECLARATION,
-    declarationTruncated: true,
+    // Was TRUNCATED in Ovatu; completed here. Push the full text back to Ovatu.
+    declaration: COMPLETE_INJECTABLE_DECLARATION,
   },
   {
     id: 'nad',
@@ -243,9 +259,8 @@ export const CONSENT_FORMS: ConsentForm[] = [
       { type: 'yes-no', label: 'Are you Pregnant or Breast-feeding?', options: ['Yes', 'No'], required: true },
       { type: 'yes-no', label: 'Have you ever had severe allergic or an anaphylactic reaction?', options: ['Yes', 'No'], required: true, helper: 'If YES, please inform your practitioner' },
     ],
-    // Declaration is TRUNCATED in Ovatu itself, identically to B12 (ends "...treatment deta").
-    declaration: TRUNCATED_DECLARATION,
-    declarationTruncated: true,
+    // Was TRUNCATED in Ovatu, identically to B12; completed here. Push to Ovatu.
+    declaration: COMPLETE_INJECTABLE_DECLARATION,
   },
   {
     id: 'cryopen',
