@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, insertMany, audit } from '@/lib/assistant/db'
 import { ovatuConfigured, fetchClients, fetchAppointments } from '@/lib/assistant/ovatu'
+import { goLiveReached, GO_LIVE_DATE } from '@/lib/assistant/go-live'
 import type { Appointment, Client } from '@/lib/assistant/types'
 
 export const runtime = 'nodejs'
@@ -22,6 +23,18 @@ async function authorised(req: Request): Promise<boolean> {
 }
 
 async function run() {
+  // Cutover: from the go-live date the new app is the system of record and the
+  // Ovatu import is switched off, so the daily cron and any manual call become
+  // a no-op rather than pulling old data back in. Historical data already in
+  // the database is kept (10-year retention). To re-enable, change GO_LIVE_DATE
+  // in src/lib/assistant/go-live.ts.
+  if (goLiveReached()) {
+    return NextResponse.json({
+      ok: true,
+      skipped: true,
+      reason: `Ovatu sync is off as of the go-live cutover (${GO_LIVE_DATE}). The new system is the source of truth.`,
+    })
+  }
   if (!assistantConfigured()) {
     return NextResponse.json({ error: 'Clinic database not configured.' }, { status: 503 })
   }
