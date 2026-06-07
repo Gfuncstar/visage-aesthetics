@@ -7,6 +7,7 @@ import { select, insert, update, audit } from './db'
 import { getService } from '../booking-engine/availability'
 import { londonWallToUtc, dayLabel, clockLabel, londonToday } from '../booking-engine/time'
 import { fillGap } from '../booking-engine/notify'
+import { mirrorBookingAppointment } from '../booking-engine/appointments-mirror'
 import type { Booking } from '../booking-engine/types'
 
 export type Action =
@@ -78,6 +79,14 @@ export async function executeAction(a: Action): Promise<{ ok: boolean; message: 
         source: 'staff',
       })
       await audit('create', 'booking', booking.id, { via: 'command' })
+      await mirrorBookingAppointment({
+        bookingId: booking.id,
+        clientName: a.clientName,
+        startsAt: startsAt.toISOString(),
+        serviceName: service.name,
+        status: 'confirmed',
+        price: service.price_from,
+      })
       return { ok: true, message: `Booked ${a.clientName} in for ${service.name} on ${dayLabel(a.date)} at ${clockLabel(mins)}.` }
     }
 
@@ -96,6 +105,13 @@ export async function executeAction(a: Action): Promise<{ ok: boolean; message: 
       if (!booking) return { ok: false, message: `I could not find a booking for ${a.clientName}.` }
       await update('bookings', { id: booking.id }, { status: 'cancelled' })
       await audit('cancel', 'booking', booking.id, { via: 'command' })
+      await mirrorBookingAppointment({
+        bookingId: booking.id,
+        clientName: booking.client_name,
+        startsAt: booking.starts_at,
+        serviceName: booking.service_name,
+        status: 'cancelled',
+      })
       await fillGap(booking)
       return { ok: true, message: `Cancelled ${booking.client_name}'s ${booking.service_name} on ${dayLabel(booking.starts_at.slice(0, 10))}.` }
     }

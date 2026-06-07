@@ -8,6 +8,7 @@ import { consentFormForService } from '@/lib/consent/forms'
 import { consentAtBooking } from '@/lib/assistant/go-live'
 import { isSuppressed } from '@/lib/assistant/suppression'
 import { lookupClientFlags } from '@/lib/booking-engine/client-flags'
+import { mirrorBookingAppointment } from '@/lib/booking-engine/appointments-mirror'
 import { stripeConfigured, depositPence, createDepositCheckout } from '@/lib/booking-engine/stripe'
 import { sendSms, smsConfigured } from '@/lib/assistant/sms'
 import { recordMessage } from '@/lib/assistant/messages'
@@ -106,6 +107,19 @@ export async function POST(req: Request) {
       source: 'online',
     })
     await audit('create', 'booking', booking.id, { service: service.slug, source: 'online', needsDeposit })
+
+    // Mirror confirmed bookings into the reporting table. Deposit-pending ones
+    // are mirrored later, once the deposit is paid (see deposit/confirm).
+    if (!needsDeposit) {
+      await mirrorBookingAppointment({
+        bookingId: booking.id,
+        clientName: name,
+        startsAt: slot.startsAtIso,
+        serviceName: service.name,
+        status: 'confirmed',
+        price: service.price_from,
+      })
+    }
 
     // Tell the clinic a booking just came in (before any payment redirect).
     const np = londonParts(startDate)
