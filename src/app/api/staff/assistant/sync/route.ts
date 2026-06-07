@@ -23,12 +23,14 @@ async function authorised(req: Request): Promise<boolean> {
 }
 
 async function run() {
-  // Cutover: from the go-live date the new app is the system of record and the
-  // Ovatu import is switched off, so the daily cron and any manual call become
-  // a no-op rather than pulling old data back in. Historical data already in
-  // the database is kept (10-year retention). To re-enable, change GO_LIVE_DATE
-  // in src/lib/assistant/go-live.ts.
-  if (goLiveReached()) {
+  // Cutover in progress: the clinic is moving from Ovatu to the in-house system
+  // but is NOT fully switched yet, so the Ovatu sync is intentionally LEFT ON
+  // here to keep the diary and client list complete while both run in parallel.
+  // The go-live date (src/lib/assistant/go-live.ts) marks the intended cutover;
+  // when booking has fully moved, flip ENFORCE_GO_LIVE_SYNC_OFF to true to make
+  // this a no-op.
+  const ENFORCE_GO_LIVE_SYNC_OFF = false
+  if (ENFORCE_GO_LIVE_SYNC_OFF && goLiveReached()) {
     return NextResponse.json({
       ok: true,
       skipped: true,

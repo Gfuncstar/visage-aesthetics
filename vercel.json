@@ -1,6 +1,7 @@
 {
   "crons": [
     { "path": "/api/staff/assistant/orders/poll", "schedule": "0 */6 * * *" },
+    { "path": "/api/staff/assistant/sync", "schedule": "30 5 * * *" },
     { "path": "/api/staff/assistant/agents/stock-expiry", "schedule": "0 8 * * *" },
     { "path": "/api/staff/assistant/agents/financial-summary", "schedule": "0 7 * * 1" },
     { "path": "/api/staff/assistant/agents/clinical-audit", "schedule": "0 9 1 * *" },
