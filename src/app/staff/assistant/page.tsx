@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowLeft, Bot, Boxes, ClipboardPen, FileCheck2, ReceiptText, TrendingUp, Users } from 'lucide-react'
+import { ArrowLeft, Bot, Boxes, ClipboardPen, FileCheck2, ReceiptText, ShieldCheck, TrendingUp, Users } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { isSimpleView } from '@/lib/staff-prefs'
 import StaffGate from '../notes/StaffGate'
@@ -36,6 +36,12 @@ const tools = [
     Icon: FileCheck2,
   },
   {
+    href: '/staff/assistant/compliance',
+    title: 'Insurance check',
+    description: 'Check a new treatment against the clinic policy before you offer it.',
+    Icon: ShieldCheck,
+  },
+  {
     href: '/staff/assistant/stock',
     title: 'What to order',
     description: "What's booked and what to order by 3pm.",
@@ -58,7 +64,7 @@ const tools = [
   {
     href: '/staff/assistant/agents',
     title: 'Agents',
-    description: 'Background tasks — stock, finance, social, compliance and more.',
+    description: 'Background tasks: stock, finance, social, compliance and more.',
     Icon: Bot,
     advanced: true,
   },
