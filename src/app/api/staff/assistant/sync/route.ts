@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, insertMany, audit } from '@/lib/assistant/db'
 import { ovatuConfigured, fetchClients, fetchAppointments } from '@/lib/assistant/ovatu'
-import { goLiveReached, GO_LIVE_DATE } from '@/lib/assistant/go-live'
+import { cutoverLive } from '@/lib/assistant/go-live'
 import type { Appointment, Client } from '@/lib/assistant/types'
 
 export const runtime = 'nodejs'
@@ -23,18 +23,14 @@ async function authorised(req: Request): Promise<boolean> {
 }
 
 async function run() {
-  // Cutover in progress: the clinic is moving from Ovatu to the in-house system
-  // but is NOT fully switched yet, so the Ovatu sync is intentionally LEFT ON
-  // here to keep the diary and client list complete while both run in parallel.
-  // The go-live date (src/lib/assistant/go-live.ts) marks the intended cutover;
-  // when booking has fully moved, flip ENFORCE_GO_LIVE_SYNC_OFF to true to make
-  // this a no-op.
-  const ENFORCE_GO_LIVE_SYNC_OFF = false
-  if (ENFORCE_GO_LIVE_SYNC_OFF && goLiveReached()) {
+  // The single cutover switch. While running in parallel with Ovatu this stays
+  // on. Once CUTOVER=go is set (see src/lib/assistant/go-live.ts), the Ovatu
+  // import becomes a no-op so the in-house system is the sole source of truth.
+  if (cutoverLive()) {
     return NextResponse.json({
       ok: true,
       skipped: true,
-      reason: `Ovatu sync is off as of the go-live cutover (${GO_LIVE_DATE}). The new system is the source of truth.`,
+      reason: 'Cutover is live (CUTOVER=go). Ovatu sync is off; the in-house system is the source of truth.',
     })
   }
   if (!assistantConfigured()) {

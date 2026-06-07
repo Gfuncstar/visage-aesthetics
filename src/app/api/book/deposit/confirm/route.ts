@@ -4,6 +4,7 @@ import { assistantConfigured, select, update, audit } from '@/lib/assistant/db'
 import { checkoutSessionPaid } from '@/lib/booking-engine/stripe'
 import { bookingConfirmationEmail } from '@/lib/booking-email'
 import { consentFormForService } from '@/lib/consent/forms'
+import { consentAtBooking } from '@/lib/assistant/go-live'
 import { isSuppressed } from '@/lib/assistant/suppression'
 import type { Booking } from '@/lib/booking-engine/types'
 
@@ -47,7 +48,7 @@ export async function POST(req: Request) {
       const apiKey = process.env.RESEND_API_KEY
       if (apiKey) {
         const consentUrl =
-          process.env.CONSENT_FORMS_ENABLED === 'true' && consentFormForService(booking.service_slug, booking.service_name)
+          consentAtBooking() && consentFormForService(booking.service_slug, booking.service_name)
             ? `${SITE}/consent/${booking.manage_token}`
             : undefined
         const mail = bookingConfirmationEmail({
