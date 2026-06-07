@@ -173,6 +173,38 @@ export async function runPreflight(): Promise<PreflightReport> {
     blocker: false,
   })
 
+  // ---- FRONT END: in-flight Ovatu bookings (the swap-day pain point) -------
+  // Clients already booked in Ovatu for upcoming dates do not exist in the
+  // bookings table, so they cannot change or cancel in the new system. They
+  // need either migrating across or Ovatu's own manage links kept reachable.
+  try {
+    const today = londonToday()
+    const upcomingOvatu = await select<{ ovatu_id: string | null }>('appointments', {
+      date: `gte.${today}`,
+      status: 'eq.booked',
+      select: 'ovatu_id',
+      limit: 1000,
+    })
+    const inFlight = upcomingOvatu.filter((a) => !(a.ovatu_id ?? '').startsWith('booking:')).length
+    checks.push({
+      id: 'inflight',
+      side: 'front',
+      label: 'Clients already booked in Ovatu',
+      status: inFlight > 0 ? 'warn' : 'pass',
+      detail:
+        inFlight > 0
+          ? `${inFlight} upcoming appointment${inFlight === 1 ? '' : 's'} were booked in Ovatu. Those clients cannot change them in the new system until they are migrated across.`
+          : 'No upcoming Ovatu-only bookings found. Everyone booked is in the new system.',
+      fix:
+        inFlight > 0
+          ? 'Migrate upcoming Ovatu bookings into the new system, and keep Ovatu manage links reachable until the last one has passed.'
+          : undefined,
+      blocker: false,
+    })
+  } catch {
+    /* appointments table may be empty pre-import; skip */
+  }
+
   // ---- BACK END: card deposits --------------------------------------------
   const stripeOk = stripeConfigured()
   checks.push({
