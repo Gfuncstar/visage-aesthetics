@@ -208,7 +208,6 @@ export async function POST(req: Request) {
         clientEmail: email || null,
         clientPhone: phone || null,
         notes: finalNotes || null,
-        source: 'online',
       })
     } catch {
       /* clinic alert is best effort */

@@ -97,7 +97,6 @@ export async function POST(req: Request) {
         clientEmail: booking.client_email,
         clientPhone: booking.client_phone,
         notes: booking.notes,
-        source: booking.source,
       })
     } catch {
       /* clinic alert is best effort */
