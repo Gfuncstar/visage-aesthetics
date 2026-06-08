@@ -2,6 +2,7 @@
 // Read server-side and shown as a nudge on the Assistant landing page.
 
 import { select } from './db'
+import { goLiveDate } from './go-live'
 
 type ApptRow = { client_name: string; service_name: string; starts_at: string | null; date: string }
 type RecRow = { client_name: string; date: string }
@@ -22,10 +23,10 @@ export type EndOfDay = {
 const OVERDUE_WINDOW_DAYS = 14
 
 // Go-live baseline: visits before this date are NOT chased as overdue, so the
-// imported back-history doesn't all show up as missing write-ups. This is a
-// one-time reset that naturally expires once OVERDUE_WINDOW_DAYS has passed.
-// Override with WRITEUP_OVERDUE_SINCE=YYYY-MM-DD if the start date changes.
-const OVERDUE_SINCE = process.env.WRITEUP_OVERDUE_SINCE || '2026-06-05'
+// imported back-history doesn't all show up as missing write-ups. Driven by the
+// shared GO_LIVE_DATE so a system switch resets this feed with everything else
+// (see go-live.ts). WRITEUP_OVERDUE_SINCE overrides it for a one-off if needed.
+const OVERDUE_SINCE = process.env.WRITEUP_OVERDUE_SINCE || goLiveDate()
 
 const DAY_MS = 24 * 60 * 60 * 1000
 
