@@ -9,6 +9,11 @@ export type ParsedAppointment = {
   service_name: string
   price: number
   status: 'completed' | 'cancelled' | 'no_show' | 'booked'
+  // Captured when present, so an upcoming appointment can be rebuilt as a real,
+  // changeable booking (not just a reporting row). Null when the export omits them.
+  startMinutes: number | null // minutes from midnight, London wall time
+  email: string | null
+  phone: string | null
 }
 
 export type ParseResult = {
@@ -58,10 +63,28 @@ function splitRows(text: string): string[] {
 
 const HEADERS = {
   date: ['date', 'appointment date', 'appt date', 'start', 'start date', 'date/time', 'datetime', 'when'],
+  time: ['time', 'start time', 'appt time', 'appointment time', 'starts', 'from'],
   client: ['client', 'client name', 'customer', 'customer name', 'name', 'patient'],
   service: ['service', 'service name', 'treatment', 'appointment type', 'type'],
   price: ['price', 'total', 'amount', 'cost', 'paid', 'value', 'revenue'],
   status: ['status', 'state', 'appointment status'],
+  email: ['email', 'email address', 'e-mail', 'client email', 'customer email'],
+  phone: ['phone', 'mobile', 'telephone', 'phone number', 'mobile number', 'contact number', 'cell'],
+}
+
+/** Parse a clock time like "14:30", "2:30 pm", "2pm" to minutes from midnight. */
+function toMinutes(raw: string | undefined): number | null {
+  if (!raw) return null
+  const s = raw.trim().toLowerCase()
+  const m = s.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/)
+  if (!m) return null
+  let h = Number(m[1])
+  const min = m[2] ? Number(m[2]) : 0
+  const ap = m[3]
+  if (h > 23 || min > 59) return null
+  if (ap === 'pm' && h < 12) h += 12
+  if (ap === 'am' && h === 12) h = 0
+  return h * 60 + min
 }
 
 function findCol(headers: string[], names: string[]): number {
@@ -117,27 +140,39 @@ export function parseOvatuCsv(text: string): ParseResult {
 
   const headers = parseLine(lines[0])
   const cDate = findCol(headers, HEADERS.date)
+  const cTime = findCol(headers, HEADERS.time)
   const cClient = findCol(headers, HEADERS.client)
   const cService = findCol(headers, HEADERS.service)
   const cPrice = findCol(headers, HEADERS.price)
   const cStatus = findCol(headers, HEADERS.status)
+  const cEmail = findCol(headers, HEADERS.email)
+  const cPhone = findCol(headers, HEADERS.phone)
 
   const rows: ParsedAppointment[] = []
   let skipped = 0
 
   for (let i = 1; i < lines.length; i++) {
     const cols = parseLine(lines[i])
-    const date = cDate >= 0 ? toIsoDate(cols[cDate]) : null
+    const dateCell = cDate >= 0 ? cols[cDate] ?? '' : ''
+    const date = toIsoDate(dateCell)
     if (!date) {
       skipped++
       continue
     }
+    // Time may live in its own column, or after the date in a combined cell.
+    const timeFromDate = dateCell.includes(' ') || dateCell.includes('T') ? dateCell.split(/[ T]/).slice(1).join(' ') : ''
+    const startMinutes = toMinutes(cTime >= 0 ? cols[cTime] : undefined) ?? toMinutes(timeFromDate)
+    const email = cEmail >= 0 ? (cols[cEmail] ?? '').trim() || null : null
+    const phone = cPhone >= 0 ? (cols[cPhone] ?? '').trim() || null : null
     rows.push({
       date,
       client_name: cClient >= 0 ? cols[cClient] ?? '' : '',
       service_name: cService >= 0 ? cols[cService] ?? '' : '',
       price: cPrice >= 0 ? toPrice(cols[cPrice]) : 0,
       status: cStatus >= 0 ? toStatus(cols[cStatus]) : 'completed',
+      startMinutes,
+      email,
+      phone,
     })
   }
 

@@ -5,8 +5,10 @@ import { getService, computeDay } from '@/lib/booking-engine/availability'
 import { londonParts, dayLabel, clockLabel } from '@/lib/booking-engine/time'
 import { bookingConfirmationEmail } from '@/lib/booking-email'
 import { consentFormForService } from '@/lib/consent/forms'
+import { consentAtBooking } from '@/lib/assistant/go-live'
 import { isSuppressed } from '@/lib/assistant/suppression'
 import { lookupClientFlags } from '@/lib/booking-engine/client-flags'
+import { mirrorBookingAppointment } from '@/lib/booking-engine/appointments-mirror'
 import { stripeConfigured, depositPence, createDepositCheckout } from '@/lib/booking-engine/stripe'
 import { sendSms, smsConfigured } from '@/lib/assistant/sms'
 import { recordMessage } from '@/lib/assistant/messages'
@@ -106,6 +108,19 @@ export async function POST(req: Request) {
     })
     await audit('create', 'booking', booking.id, { service: service.slug, source: 'online', needsDeposit })
 
+    // Mirror confirmed bookings into the reporting table. Deposit-pending ones
+    // are mirrored later, once the deposit is paid (see deposit/confirm).
+    if (!needsDeposit) {
+      await mirrorBookingAppointment({
+        bookingId: booking.id,
+        clientName: name,
+        startsAt: slot.startsAtIso,
+        serviceName: service.name,
+        status: 'confirmed',
+        price: service.price_from,
+      })
+    }
+
     // Tell the clinic a booking just came in (before any payment redirect).
     const np = londonParts(startDate)
     try {
@@ -141,10 +156,11 @@ export async function POST(req: Request) {
     if (email && !(await isSuppressed(name, email))) {
       const apiKey = process.env.RESEND_API_KEY
       if (apiKey) {
-        // Attach the consent-form link only for treatments we have a form for,
-        // and only once consent forms are switched on (CONSENT_FORMS_ENABLED).
+        // Send the consent form automatically at booking, for treatments we
+        // have a form for. Driven by the single cutover switch (on at go-live);
+        // CONSENT_FORMS_ENABLED can force it on or off independently.
         const consentUrl =
-          process.env.CONSENT_FORMS_ENABLED === 'true' && consentFormForService(service.slug, service.name)
+          consentAtBooking() && consentFormForService(service.slug, service.name)
             ? `${SITE}/consent/${booking.manage_token}`
             : undefined
         const mail = bookingConfirmationEmail({

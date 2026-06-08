@@ -3,6 +3,7 @@ import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, select, insert, audit } from '@/lib/assistant/db'
 import { getService } from '@/lib/booking-engine/availability'
 import { londonWallToUtc, londonToday } from '@/lib/booking-engine/time'
+import { mirrorBookingAppointment } from '@/lib/booking-engine/appointments-mirror'
 import type { Booking, TimeOff } from '@/lib/booking-engine/types'
 
 export const runtime = 'nodejs'
@@ -94,6 +95,14 @@ export async function POST(req: Request) {
       source: 'staff',
     })
     await audit('create', 'booking', booking.id, { source: 'staff' })
+    await mirrorBookingAppointment({
+      bookingId: booking.id,
+      clientName: name,
+      startsAt: startsAt.toISOString(),
+      serviceName: service.name,
+      status: 'confirmed',
+      price: service.price_from,
+    })
     return NextResponse.json({ ok: true })
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : 'Save failed' }, { status: 502 })
