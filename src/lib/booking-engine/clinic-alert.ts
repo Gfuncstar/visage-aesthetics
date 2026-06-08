@@ -63,7 +63,14 @@ export async function notifyClinicOfBooking(input: {
       to: [CLINIC_EMAIL],
       // Replies go straight to the client when we have their address.
       replyTo: input.clientEmail || undefined,
-      subject: `New booking: ${input.clientName}, ${input.serviceName}`,
+      // The owner mostly glances at this in the inbox rather than opening it,
+      // so the subject carries the lot: who, when, what, and a phone number.
+      subject: [
+        `New booking: ${input.clientName}`,
+        when,
+        input.serviceName,
+        input.clientPhone || null,
+      ].filter(Boolean).join(' · '),
       html,
       text,
     })
