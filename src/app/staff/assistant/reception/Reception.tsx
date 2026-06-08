@@ -488,11 +488,6 @@ function QuickTools() {
 // ---- Command bar -----------------------------------------------------------
 type ParsedAction = { type: string; [k: string]: unknown }
 
-function looksLikeQuestion(s: string): boolean {
-  const t = s.trim().toLowerCase()
-  return /^(who|what|when|where|how|which|is|are|was|were|can|could|does|did|has|have)\b/.test(t) || t.endsWith('?')
-}
-
 function CommandBar({ onActioned }: { onActioned: () => void }) {
   const [text, setText] = useState('')
   const [listening, setListening] = useState(false)
@@ -504,8 +499,6 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
   const [error, setError] = useState<string | null>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recRef = useRef<any>(null)
-
-  const isQuestion = useMemo(() => looksLikeQuestion(text), [text])
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -564,11 +557,6 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
     } catch { setError('Network error.') } finally { setBusy(false) }
   }
 
-  async function goSmart() {
-    if (isQuestion) await ask()
-    else await interpret()
-  }
-
   async function confirm() {
     if (!proposal) return
     setBusy(true); setError(null)
@@ -598,7 +586,6 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
-        onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !busy) void goSmart() }}
         rows={2}
         className="w-full bg-cream border border-line rounded-sm px-4 py-3 text-base text-charcoal placeholder:text-ink-soft/60 focus:outline-none focus:border-gold leading-relaxed"
         placeholder="Book Sarah for Botox Thursday 2pm · Cancel John · When did Amy last come in? · Who's on the waitlist?"
@@ -620,29 +607,16 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
           </div>
         </div>
       ) : (
-        <div className="mt-3 flex items-center gap-3 flex-wrap">
-          <button
-            onClick={goSmart}
-            disabled={busy || !text.trim()}
-            className="btn btn-primary disabled:opacity-50"
-            style={{ minHeight: 40 }}
-          >
-            <span className="inline-flex items-center gap-2">
-              <Sparkles size={15} strokeWidth={1.75} />
-              {busy ? 'Working…' : text.trim() && isQuestion ? 'Get answer' : 'Action this'}
-            </span>
+        <div className="mt-3 flex items-center gap-2 flex-wrap">
+          <button onClick={interpret} disabled={busy || !text.trim()} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 40 }}>
+            <span className="inline-flex items-center gap-2"><Sparkles size={15} strokeWidth={1.75} />{busy ? 'Working…' : 'Action this'}</span>
           </button>
-          {text.trim() && !busy && (
-            <button
-              onClick={isQuestion ? interpret : ask}
-              className="text-xs text-stone hover:text-gold-deep transition-colors py-2"
-            >
-              {isQuestion ? 'Treat as action instead' : 'Ask a question instead'}
-            </button>
-          )}
+          <button onClick={ask} disabled={busy || !text.trim()} className="btn btn-secondary disabled:opacity-50" style={{ minHeight: 40 }}>
+            Ask a question
+          </button>
         </div>
       )}
-      <p className="text-xs text-ink-soft mt-2">Actions: book, cancel, block time, flag a client, change hours. Questions: when did [name] last come in? What has [name] had? · Cmd+Enter to go</p>
+      <p className="text-xs text-ink-soft mt-2">Actions: book, cancel, block time, flag a client, change hours. &nbsp;·&nbsp; Questions: when did [name] last come in? What has [name] had?</p>
     </div>
   )
 }
