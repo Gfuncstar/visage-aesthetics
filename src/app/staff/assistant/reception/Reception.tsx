@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { BellRing, CalendarDays, Check, Clock, ListPlus, LogOut, Mic, Sparkles, X } from 'lucide-react'
+import { BellRing, CalendarDays, Check, Clock, ListPlus, LogOut, Mic, Phone, Sparkles, X } from 'lucide-react'
 
 type Lite = { id: string; service_name: string; client_name: string; client_phone: string | null; starts_at: string; ends_at?: string; status: string; source: string; created_at: string }
 type WaitRow = { id: string; client_name: string; service_name: string | null; client_phone: string | null }
@@ -49,10 +49,10 @@ function freeMinsForDay(
   const wday = new Date(`${date}T12:00:00Z`).getUTCDay()
   const bh = businessHours.find((h) => h.weekday === wday)
   if (!bh?.is_open) return 0
-  const localDate = (iso: string) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(new Date(iso))
+  const ld = (iso: string) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(new Date(iso))
   const busy: Interval[] = [
-    ...bookings.filter((b) => localDate(b.starts_at) === date && b.ends_at).map((b) => ({ start: toLocalMin(b.starts_at), end: toLocalMin(b.ends_at!) })),
-    ...timeOff.filter((t) => localDate(t.starts_at) <= date && localDate(t.ends_at) >= date).map((t) => ({ start: toLocalMin(t.starts_at), end: toLocalMin(t.ends_at) })),
+    ...bookings.filter((b) => ld(b.starts_at) === date && b.ends_at).map((b) => ({ start: toLocalMin(b.starts_at), end: toLocalMin(b.ends_at!) })),
+    ...timeOff.filter((t) => ld(t.starts_at) <= date && ld(t.ends_at) >= date).map((t) => ({ start: toLocalMin(t.starts_at), end: toLocalMin(t.ends_at) })),
   ]
   return subtractIntervals([{ start: bh.open_min, end: bh.close_min }], busy)
     .filter((g) => g.end - g.start >= 15)
@@ -64,6 +64,13 @@ function freeLabel(mins: number): string {
   const h = Math.floor(mins / 60)
   const m = mins % 60
   return [h > 0 ? `${h}h` : null, m > 0 ? `${m}m` : null].filter(Boolean).join(' ') + ' free'
+}
+
+function minLabel(mins: number): string {
+  if (mins <= 0) return '0m'
+  const h = Math.floor(mins / 60)
+  const m = mins % 60
+  return [h > 0 ? `${h}h` : null, m > 0 ? `${m}m` : null].filter(Boolean).join(' ')
 }
 
 const TZ = 'Europe/London'
@@ -111,6 +118,28 @@ const statusTone: Record<string, string> = {
   no_show: 'text-clay',
 }
 
+// ---- live hooks ------------------------------------------------------------
+function useLiveClock(): string {
+  const fmt = () =>
+    new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hour: 'numeric', minute: '2-digit', hour12: true }).format(new Date())
+  const [clock, setClock] = useState(fmt)
+  useEffect(() => {
+    const id = setInterval(() => setClock(fmt()), 10_000)
+    return () => clearInterval(id)
+  }, [])
+  return clock
+}
+
+function useNowMin(): number {
+  const [nowMin, setNowMin] = useState(() => toLocalMin(new Date().toISOString()))
+  useEffect(() => {
+    const id = setInterval(() => setNowMin(toLocalMin(new Date().toISOString())), 30_000)
+    return () => clearInterval(id)
+  }, [])
+  return nowMin
+}
+
+// ---- main component --------------------------------------------------------
 export default function Reception({ simple = false }: { simple?: boolean }) {
   const [data, setData] = useState<Data | null>(null)
   const [loading, setLoading] = useState(true)
@@ -119,20 +148,52 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
   const [rangeLoading, setRangeLoading] = useState(false)
   const [dayDiary, setDayDiary] = useState<DayDiary | null>(null)
   const [rangeExtra, setRangeExtra] = useState<{ timeOff: TimeOffRow[]; businessHours: BusinessHour[] } | null>(null)
+  const clock = useLiveClock()
+  const nowMin = useNowMin()
 
-  const load = useCallback(async () => {
-    setLoading(true)
+  const load = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true)
     const [recRes, diaryRes] = await Promise.all([
       fetch('/api/staff/assistant/reception'),
       fetch(`/api/staff/assistant/diary?date=${todayStr()}`),
     ])
     if (recRes.ok) setData(await recRes.json())
     if (diaryRes.ok) setDayDiary(await diaryRes.json())
-    setLoading(false)
+    if (!silent) setLoading(false)
   }, [])
+
   useEffect(() => { void load() }, [load])
 
-  // Compute free gaps for the day view
+  // Silent auto-refresh every 45 seconds
+  useEffect(() => {
+    const id = setInterval(() => void load(true), 45_000)
+    return () => clearInterval(id)
+  }, [load])
+
+  // Current appointment (in chair right now)
+  const currentAppt = useMemo(() => {
+    if (!dayDiary?.bookings) return null
+    return (
+      dayDiary.bookings.find((b) => {
+        if (b.status === 'cancelled') return false
+        const start = toLocalMin(b.starts_at)
+        const end = b.ends_at ? toLocalMin(b.ends_at) : start + 60
+        return nowMin >= start && nowMin < end
+      }) ?? null
+    )
+  }, [dayDiary, nowMin])
+
+  // Next upcoming appointment
+  const nextAppt = useMemo(() => {
+    if (!dayDiary?.bookings) return null
+    return (
+      [...dayDiary.bookings]
+        .filter((b) => b.status !== 'cancelled' && toLocalMin(b.starts_at) > nowMin)
+        .sort((a, b) => a.starts_at.localeCompare(b.starts_at))[0] ?? null
+    )
+  }, [dayDiary, nowMin])
+
+  // Free gaps for the day timeline
   const dayGaps = useMemo<Interval[]>(() => {
     if (!dayDiary) return []
     const today = todayStr()
@@ -174,20 +235,29 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
   return (
     <section className="bg-cream text-charcoal min-h-screen">
       <div className="max-w-3xl mx-auto px-5 md:px-8 pt-12 md:pt-20 pb-24">
+
+        {/* Header */}
         <div className="flex items-start justify-between gap-4 mb-8">
           <div>
-            <div className="eyebrow text-gold mb-2">
-              Front desk
-            </div>
+            <div className="eyebrow text-gold mb-2">Front desk</div>
             <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight">The front desk.</h1>
-            <p className="text-ink-soft mt-3 max-w-xl leading-relaxed">Everything happening around the chair, in one place. The clinical side stays with you.</p>
+            <p className="text-ink-soft mt-3 max-w-xl leading-relaxed">Everything happening around the chair, in one place.</p>
           </div>
-          <button onClick={signOut} className="eyebrow text-stone hover:text-gold-deep transition-colors flex items-center gap-2 shrink-0 mt-2">
-            <LogOut size={14} strokeWidth={1.75} /><span className="hidden sm:inline">Sign out</span>
-          </button>
+          <div className="flex flex-col items-end gap-2 shrink-0 mt-2">
+            <div className="font-display italic text-2xl md:text-3xl text-charcoal tabular-nums">{clock}</div>
+            <div className="flex items-center gap-3">
+              <span className="inline-flex items-center gap-1.5 text-xs text-stone">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage animate-pulse" />
+                Live
+              </span>
+              <button onClick={signOut} className="eyebrow text-stone hover:text-gold-deep transition-colors flex items-center gap-2">
+                <LogOut size={14} strokeWidth={1.75} /><span className="hidden sm:inline">Sign out</span>
+              </button>
+            </div>
+          </div>
         </div>
 
-        <CommandBar onActioned={load} />
+        <CommandBar onActioned={() => void load(true)} />
 
         {loading ? (
           <p className="text-sm text-ink-soft">Loading…</p>
@@ -203,14 +273,22 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
               </div>
             )}
 
-            {/* Reminders going out */}
+            {/* Now / Next — only when relevant */}
+            {(currentAppt || nextAppt) && (
+              <NowNextCard current={currentAppt} next={nextAppt} nowMin={nowMin} />
+            )}
+
+            {/* Reminders */}
             <div className={`flex items-center gap-3 rounded-sm border px-4 py-3 mb-8 ${s!.remindersPending > 0 ? 'border-gold/40 bg-gold/5' : 'border-sage/30 bg-sage/5'}`}>
               <BellRing size={16} strokeWidth={1.75} className={s!.remindersPending > 0 ? 'text-gold-deep' : 'text-sage'} />
               <div className="text-sm text-charcoal">
-                {s!.remindersSoon === 0 ? 'No appointments in the next 24 hours.' : `${s!.remindersSoon} appointment${s!.remindersSoon === 1 ? '' : 's'} in the next 24 hours. ${s!.remindersPending} reminder${s!.remindersPending === 1 ? '' : 's'} still to send.`}
+                {s!.remindersSoon === 0
+                  ? 'No appointments in the next 24 hours.'
+                  : `${s!.remindersSoon} appointment${s!.remindersSoon === 1 ? '' : 's'} in the next 24 hours. ${s!.remindersPending} reminder${s!.remindersPending === 1 ? '' : 's'} still to send.`}
               </div>
             </div>
 
+            {/* Schedule */}
             <Section title={view === 'day' ? 'Today' : view === 'week' ? 'This week' : 'This month'} icon={CalendarDays} href="/staff/assistant/diary" cta="Open diary">
               <div className="flex mb-3">
                 <div className="inline-flex rounded-full border border-line/50 bg-cream-soft p-0.5">
@@ -221,10 +299,11 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
               </div>
               {view === 'day' ? (
                 (() => {
-                  // Merge bookings and free gaps into a single sorted timeline
+                  // Use dayDiary.bookings so we have ends_at and client_phone
+                  const todayBookings = (dayDiary?.bookings ?? []).filter((b) => b.status !== 'cancelled')
                   type TItem = { kind: 'booking'; b: Lite } | { kind: 'gap'; start: number; end: number }
                   const items: TItem[] = [
-                    ...data.todaysBookings.map((b) => ({ kind: 'booking' as const, b })),
+                    ...todayBookings.map((b) => ({ kind: 'booking' as const, b })),
                     ...dayGaps.map((g) => ({ kind: 'gap' as const, ...g })),
                   ].sort((a, b) => {
                     const ta = a.kind === 'booking' ? toLocalMin(a.b.starts_at) : a.start
@@ -236,7 +315,7 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
                     <div className="space-y-2">
                       {items.map((item, i) =>
                         item.kind === 'booking' ? (
-                          <Row key={item.b.id} left={<span><span className="font-medium">{timeLabel(item.b.starts_at)}</span> &nbsp; {item.b.client_name}</span>} sub={item.b.service_name} right={<span className={`capitalize ${statusTone[item.b.status] ?? 'text-stone'}`}>{item.b.status.replace('_', ' ')}</span>} />
+                          <BookingRow key={item.b.id} booking={item.b} nowMin={nowMin} />
                         ) : (
                           <GapRow key={`gap-${i}`} startMin={item.start} endMin={item.end} />
                         )
@@ -265,7 +344,7 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
                         </div>
                         <div className="space-y-2">
                           {dayB.map((b) => (
-                            <Row key={b.id} left={<span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>} sub={b.service_name} right={<span className={`capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>} />
+                            <Row key={b.id} left={<span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>} sub={b.service_name} right={<span className={`capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>} phone={b.client_phone} />
                           ))}
                         </div>
                       </div>
@@ -275,29 +354,53 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
               )}
             </Section>
 
+            {/* Just booked online */}
             <Section title="Just booked online" icon={Sparkles}>
               {data.justBooked.length === 0 ? (
                 <Empty>No online bookings in the last week.</Empty>
               ) : (
                 <div className="space-y-2">
-                  {data.justBooked.map((b) => (
-                    <Row key={b.id} left={<span className="font-medium">{b.client_name}</span>} sub={`${b.service_name} · ${dayTimeLabel(b.starts_at)}`} right={<span className="text-stone text-xs">{ago(b.created_at)}</span>} />
-                  ))}
+                  {data.justBooked.map((b) => {
+                    const isRecent = Date.now() - new Date(b.created_at).getTime() < 30 * 60_000
+                    return (
+                      <Row
+                        key={b.id}
+                        left={
+                          <span className="font-medium flex items-center gap-2">
+                            {b.client_name}
+                            {isRecent && <span className="inline-block w-1.5 h-1.5 rounded-full bg-gold animate-pulse shrink-0" />}
+                          </span>
+                        }
+                        sub={`${b.service_name} · ${dayTimeLabel(b.starts_at)}`}
+                        right={<span className="text-stone text-xs">{ago(b.created_at)}</span>}
+                        phone={b.client_phone}
+                      />
+                    )
+                  })}
                 </div>
               )}
             </Section>
 
+            {/* Waitlist */}
             <Section title="Waitlist" icon={ListPlus} href="/staff/assistant/diary" cta="In diary">
               {data.waitlist.length === 0 ? (
                 <Empty>No one waiting.</Empty>
               ) : (
                 <div className="space-y-2">
                   {data.waitlist.map((w) => (
-                    <Row key={w.id} left={<span className="font-medium">{w.client_name}</span>} sub={[w.service_name, w.client_phone].filter(Boolean).join(' · ') || null} right={null} />
+                    <Row
+                      key={w.id}
+                      left={<span className="font-medium">{w.client_name}</span>}
+                      sub={w.service_name || null}
+                      right={null}
+                      phone={w.client_phone}
+                    />
                   ))}
                 </div>
               )}
             </Section>
+
+            <QuickTools />
           </>
         )}
       </div>
@@ -305,7 +408,90 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
   )
 }
 
+// ---- Now / Next card -------------------------------------------------------
+function NowNextCard({ current, next, nowMin }: { current: Lite | null; next: Lite | null; nowMin: number }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+      {/* In chair */}
+      <div className={`rounded-sm border px-4 py-4 ${current ? 'border-sage/40 bg-sage/5' : 'border-line/40 bg-cream-soft'}`}>
+        <div className={`eyebrow mb-2 flex items-center gap-2 ${current ? 'text-sage' : 'text-stone'}`}>
+          {current && <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage animate-pulse" />}
+          {current ? 'In chair now' : 'Chair is free'}
+        </div>
+        {current ? (
+          <>
+            <div className="font-medium text-charcoal">{current.client_name}</div>
+            <div className="text-sm text-stone mt-0.5">{current.service_name}</div>
+            <div className="text-xs text-stone/70 mt-2">
+              Started {timeLabel(current.starts_at)} · {minLabel(nowMin - toLocalMin(current.starts_at))} in
+              {current.ends_at && ` · until ${timeLabel(current.ends_at)}`}
+            </div>
+            {current.client_phone && (
+              <a href={`tel:${current.client_phone}`} className="inline-flex items-center gap-1.5 text-xs text-gold-deep mt-3 hover:underline">
+                <Phone size={11} strokeWidth={2} /> {current.client_phone}
+              </a>
+            )}
+          </>
+        ) : (
+          <div className="text-sm text-stone mt-1">
+            {next ? `Free until ${timeLabel(next.starts_at)}.` : 'Nothing more today.'}
+          </div>
+        )}
+      </div>
+
+      {/* Up next */}
+      {next && (
+        <div className="rounded-sm border border-line/40 bg-cream-soft px-4 py-4">
+          <div className="eyebrow text-gold mb-2">Up next · {timeLabel(next.starts_at)}</div>
+          <div className="font-medium text-charcoal">{next.client_name}</div>
+          <div className="text-sm text-stone mt-0.5">{next.service_name}</div>
+          <div className="text-xs text-stone/70 mt-2">In {minLabel(toLocalMin(next.starts_at) - nowMin)}</div>
+          {next.client_phone && (
+            <a href={`tel:${next.client_phone}`} className="inline-flex items-center gap-1.5 text-xs text-gold-deep mt-3 hover:underline">
+              <Phone size={11} strokeWidth={2} /> {next.client_phone}
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ---- Quick tools strip -----------------------------------------------------
+function QuickTools() {
+  const tools = [
+    { label: 'Find a slot', href: '/staff/assistant/squeeze-in' },
+    { label: "Who's due back", href: '/staff/assistant/rebook' },
+    { label: 'Send a coupon', href: '/staff/assistant/reception/coupon' },
+    { label: 'Gift vouchers', href: '/staff/assistant/reception/vouchers' },
+    { label: 'Consent forms', href: '/staff/assistant/consent' },
+    { label: 'Clients', href: '/staff/assistant/clients' },
+  ]
+  return (
+    <div className="mb-8">
+      <div className="eyebrow text-stone mb-3">Quick tools</div>
+      <div className="flex flex-wrap gap-2">
+        {tools.map((t) => (
+          <Link
+            key={t.href}
+            href={t.href}
+            className="text-sm border border-line/50 rounded-full px-4 py-1.5 text-stone hover:border-gold/50 hover:text-gold-deep transition-colors bg-cream-soft"
+          >
+            {t.label}
+          </Link>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ---- Command bar -----------------------------------------------------------
 type ParsedAction = { type: string; [k: string]: unknown }
+
+function looksLikeQuestion(s: string): boolean {
+  const t = s.trim().toLowerCase()
+  return /^(who|what|when|where|how|which|is|are|was|were|can|could|does|did|has|have)\b/.test(t) || t.endsWith('?')
+}
 
 function CommandBar({ onActioned }: { onActioned: () => void }) {
   const [text, setText] = useState('')
@@ -318,6 +504,8 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
   const [error, setError] = useState<string | null>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recRef = useRef<any>(null)
+
+  const isQuestion = useMemo(() => looksLikeQuestion(text), [text])
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -376,6 +564,11 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
     } catch { setError('Network error.') } finally { setBusy(false) }
   }
 
+  async function goSmart() {
+    if (isQuestion) await ask()
+    else await interpret()
+  }
+
   async function confirm() {
     if (!proposal) return
     setBusy(true); setError(null)
@@ -405,13 +598,14 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !busy) void goSmart() }}
         rows={2}
         className="w-full bg-cream border border-line rounded-sm px-4 py-3 text-base text-charcoal placeholder:text-ink-soft/60 focus:outline-none focus:border-gold leading-relaxed"
-        placeholder="e.g. Book Sarah in for Botox on Thursday at 2pm · Cancel John's appointment · Change Tuesday to 10 to 2 · Block this client for 3 months · When did Sarah last come in? · Who's on the waitlist?"
+        placeholder="Book Sarah for Botox Thursday 2pm · Cancel John · When did Amy last come in? · Who's on the waitlist?"
       />
       {error && <p className="text-sm text-clay mt-2">{error}</p>}
       {done && <p className="text-sm text-sage mt-2 inline-flex items-center gap-1.5"><Check size={14} strokeWidth={2} /> {done}</p>}
-      {answer && <div className="text-sm text-charcoal mt-3 border border-line/40 bg-cream rounded-sm px-3 py-2.5">{answer}</div>}
+      {answer && <div className="text-sm text-charcoal mt-3 border border-line/40 bg-cream rounded-sm px-3 py-2.5 leading-relaxed">{answer}</div>}
 
       {proposal ? (
         <div className="mt-3 border border-gold/40 bg-cream rounded-sm p-3">
@@ -426,20 +620,34 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
           </div>
         </div>
       ) : (
-        <div className="mt-3 flex items-center gap-2">
-          <button onClick={interpret} disabled={busy || !text.trim()} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 40 }}>
-            <span className="inline-flex items-center gap-2"><Sparkles size={15} strokeWidth={1.75} /> {busy ? 'Working…' : 'Action this'}</span>
+        <div className="mt-3 flex items-center gap-3 flex-wrap">
+          <button
+            onClick={goSmart}
+            disabled={busy || !text.trim()}
+            className="btn btn-primary disabled:opacity-50"
+            style={{ minHeight: 40 }}
+          >
+            <span className="inline-flex items-center gap-2">
+              <Sparkles size={15} strokeWidth={1.75} />
+              {busy ? 'Working…' : text.trim() && isQuestion ? 'Get answer' : 'Action this'}
+            </span>
           </button>
-          <button onClick={ask} disabled={busy || !text.trim()} className="btn btn-secondary disabled:opacity-50" style={{ minHeight: 40 }}>
-            <span className="inline-flex items-center gap-2">Ask a question</span>
-          </button>
+          {text.trim() && !busy && (
+            <button
+              onClick={isQuestion ? interpret : ask}
+              className="text-xs text-stone hover:text-gold-deep transition-colors py-2"
+            >
+              {isQuestion ? 'Treat as action instead' : 'Ask a question instead'}
+            </button>
+          )}
         </div>
       )}
-      <p className="text-xs text-ink-soft mt-2">Actions: book, cancel, block time, open/close days, flag a client, change hours. Questions: when did [name] last come in? What has [name] had? Who's on the waitlist? How many Botox last month?</p>
+      <p className="text-xs text-ink-soft mt-2">Actions: book, cancel, block time, flag a client, change hours. Questions: when did [name] last come in? What has [name] had? · Cmd+Enter to go</p>
     </div>
   )
 }
 
+// ---- Sub-components --------------------------------------------------------
 function Stat({ n, label, tone }: { n: number; label: string; tone: 'gold' | 'mute' | 'ink' }) {
   const color = tone === 'gold' ? 'text-gold-deep' : tone === 'mute' ? 'text-stone' : 'text-charcoal'
   return (
@@ -462,14 +670,48 @@ function Section({ title, icon: Icon, href, cta, children }: { title: string; ic
   )
 }
 
-function Row({ left, sub, right }: { left: React.ReactNode; sub: string | null; right: React.ReactNode }) {
+// Generic row (week/month views, just-booked, waitlist)
+function Row({ left, sub, right, phone }: { left: React.ReactNode; sub: string | null; right: React.ReactNode; phone?: string | null }) {
   return (
     <div className="flex items-center justify-between gap-3 border border-line/40 bg-cream-soft rounded-sm px-4 py-3">
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <div className="text-sm text-charcoal truncate">{left}</div>
         {sub && <div className="text-xs text-stone truncate mt-0.5">{sub}</div>}
       </div>
-      {right && <div className="shrink-0 text-sm">{right}</div>}
+      <div className="shrink-0 flex items-center gap-3">
+        {phone && (
+          <a href={`tel:${phone}`} className="text-stone hover:text-gold-deep transition-colors" title="Call">
+            <Phone size={14} strokeWidth={1.75} />
+          </a>
+        )}
+        {right && <div className="text-sm">{right}</div>}
+      </div>
+    </div>
+  )
+}
+
+// Booking row for day view — highlights the current appointment
+function BookingRow({ booking: b, nowMin }: { booking: Lite; nowMin: number }) {
+  const start = toLocalMin(b.starts_at)
+  const end = b.ends_at ? toLocalMin(b.ends_at) : start + 60
+  const isCurrent = nowMin >= start && nowMin < end
+  return (
+    <div className={`flex items-center justify-between gap-3 border rounded-sm px-4 py-3 transition-colors ${isCurrent ? 'border-sage/40 bg-sage/5' : 'border-line/40 bg-cream-soft'}`}>
+      <div className="min-w-0 flex-1">
+        <div className="text-sm text-charcoal truncate flex items-center gap-2">
+          {isCurrent && <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage shrink-0" />}
+          <span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>
+        </div>
+        <div className="text-xs text-stone truncate mt-0.5">{b.service_name}</div>
+      </div>
+      <div className="shrink-0 flex items-center gap-3">
+        {b.client_phone && (
+          <a href={`tel:${b.client_phone}`} className="text-stone hover:text-gold-deep transition-colors" title={`Call ${b.client_name}`}>
+            <Phone size={14} strokeWidth={1.75} />
+          </a>
+        )}
+        <span className={`text-sm capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>
+      </div>
     </div>
   )
 }

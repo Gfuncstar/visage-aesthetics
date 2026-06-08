@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { ArrowLeft, Calendar, Check, Clock } from 'lucide-react'
-import MicButton, { appendText } from '@/components/ui/MicButton'
 
 type Service = { slug: string; name: string; category: string | null; duration_min: number; price_from: number }
 type Slot = { startsAtIso: string; label: string }
@@ -182,24 +181,15 @@ export default function BookingFlow() {
             <p className="text-ink-soft leading-relaxed">Let&apos;s start with your details so we can hold your appointment and send your confirmation.</p>
             <div>
               <label className="text-eyebrow text-ink-soft mb-1.5 block">Your name</label>
-              <div className="relative">
-                <input className={`${inputClass} pr-12`} value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" />
-                <MicButton onText={(t) => setName((v) => appendText(v, t))} className="absolute right-3 top-1/2 -translate-y-1/2" />
-              </div>
+              <input className={inputClass} value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" />
             </div>
             <div>
               <label className="text-eyebrow text-ink-soft mb-1.5 block">Email</label>
-              <div className="relative">
-                <input className={`${inputClass} pr-12`} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" />
-                <MicButton onText={(t) => setEmail((v) => appendText(v, t))} className="absolute right-3 top-1/2 -translate-y-1/2" />
-              </div>
+              <input className={inputClass} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" />
             </div>
             <div>
               <label className="text-eyebrow text-ink-soft mb-1.5 block">Mobile</label>
-              <div className="relative">
-                <input className={`${inputClass} pr-12`} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="07…" />
-                <MicButton onText={(t) => setPhone((v) => appendText(v, t))} className="absolute right-3 top-1/2 -translate-y-1/2" />
-              </div>
+              <input className={inputClass} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="07…" />
             </div>
             <p className="text-xs text-ink-soft">Leave at least an email or a mobile number so we can reach you.</p>
             <label className="inline-flex items-center gap-2.5 cursor-pointer select-none">
@@ -291,10 +281,7 @@ export default function BookingFlow() {
                 {slot && (
                   <div className="border border-gold/40 bg-gold/5 rounded-sm p-4">
                     <label className="text-eyebrow text-ink-soft mb-1.5 block">Anything we should know? (optional)</label>
-                    <div className="relative mb-3">
-                      <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 pr-10 text-sm text-charcoal focus:outline-none focus:border-gold" placeholder="First time, a question, anything helpful." />
-                      <MicButton onText={(t) => setNotes((v) => appendText(v, t))} className="absolute right-2.5 top-2.5" />
-                    </div>
+                    <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 text-sm text-charcoal focus:outline-none focus:border-gold mb-3" placeholder="First time, a question, anything helpful." />
                     <label className="text-eyebrow text-ink-soft mb-1.5 block">Gift voucher code (optional)</label>
                     <input
                       value={voucherCode}
