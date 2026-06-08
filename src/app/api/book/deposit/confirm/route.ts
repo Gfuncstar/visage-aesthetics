@@ -8,6 +8,7 @@ import { bookingConfirmationEmail } from '@/lib/booking-email'
 import { consentFormForService } from '@/lib/consent/forms'
 import { consentAtBooking } from '@/lib/assistant/go-live'
 import { isSuppressed } from '@/lib/assistant/suppression'
+import { notifyClinicOfBooking } from '@/lib/booking-engine/clinic-alert'
 import type { Booking } from '@/lib/booking-engine/types'
 
 const SITE = 'https://www.vaclinic.co.uk'
@@ -85,6 +86,23 @@ export async function POST(req: Request) {
         }
       }
     }
+
+    // Now that the deposit has cleared and the booking is real, email the
+    // clinic owner the new booking details. Best-effort.
+    try {
+      await notifyClinicOfBooking({
+        clientName: booking.client_name,
+        serviceName: booking.service_name,
+        startsAtIso: booking.starts_at,
+        clientEmail: booking.client_email,
+        clientPhone: booking.client_phone,
+        notes: booking.notes,
+        source: booking.source,
+      })
+    } catch {
+      /* clinic alert is best effort */
+    }
+
     return NextResponse.json({ ok: true, status: 'confirmed', paid: true })
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : 'Confirm failed' }, { status: 502 })

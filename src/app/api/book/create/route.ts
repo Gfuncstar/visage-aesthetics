@@ -13,6 +13,7 @@ import { stripeConfigured, depositPence, createDepositCheckout } from '@/lib/boo
 import { sendSms, smsConfigured } from '@/lib/assistant/sms'
 import { recordMessage } from '@/lib/assistant/messages'
 import { sendPush } from '@/lib/assistant/push'
+import { notifyClinicOfBooking } from '@/lib/booking-engine/clinic-alert'
 import type { Booking } from '@/lib/booking-engine/types'
 
 const SITE = 'https://www.vaclinic.co.uk'
@@ -194,6 +195,23 @@ export async function POST(req: Request) {
       if (await sendSms(phone, sms)) {
         await recordMessage({ clientName: name, phone, channel: 'sms', kind: 'confirmation', body: sms, bookingId: booking.id })
       }
+    }
+
+    // Email the clinic owner the new booking details. Deposit-pending bookings
+    // are not yet real, so they are alerted later, once the deposit clears (see
+    // deposit/confirm). Best-effort: never blocks the client's booking.
+    try {
+      await notifyClinicOfBooking({
+        clientName: name,
+        serviceName: service.name,
+        startsAtIso: slot.startsAtIso,
+        clientEmail: email || null,
+        clientPhone: phone || null,
+        notes: finalNotes || null,
+        source: 'online',
+      })
+    } catch {
+      /* clinic alert is best effort */
     }
 
     return NextResponse.json({ ok: true, manageToken: booking.manage_token })
