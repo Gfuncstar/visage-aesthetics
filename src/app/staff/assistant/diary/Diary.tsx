@@ -284,7 +284,7 @@ export default function Diary() {
                                 <span className="text-[11px] text-stone/50 whitespace-nowrap">{gapLabel(item.g.end - item.g.start)}</span>
                               </div>
                             ) : (
-                              <div key={item.b.id} className="px-3.5 py-2.5 flex items-center justify-between gap-2">
+                              <div key={item.b.id} className="px-3.5 py-2.5 flex items-center justify-between gap-2 bg-gold/[0.07]">
                                 <span className="text-sm text-charcoal truncate min-w-0"><span className="text-stone">{timeLabel(item.b.starts_at)}</span> &nbsp; {item.b.client_name}</span>
                                 <span className="text-xs text-stone truncate shrink-0 ml-2">{item.b.service_name}</span>
                               </div>
@@ -328,7 +328,7 @@ export default function Diary() {
                             <span className="text-[11px] text-stone/50 whitespace-nowrap">{gapLabel(item.g.end - item.g.start)}</span>
                           </div>
                         ) : (
-                          <div key={item.b.id} className="px-3.5 py-2.5 flex items-center justify-between gap-2">
+                          <div key={item.b.id} className="px-3.5 py-2.5 flex items-center justify-between gap-2 bg-gold/[0.07]">
                             <span className="text-sm text-charcoal truncate min-w-0"><span className="text-stone">{timeLabel(item.b.starts_at)}</span> &nbsp; {item.b.client_name}</span>
                             <span className="text-xs text-stone truncate shrink-0 ml-2">{item.b.service_name}</span>
                           </div>
@@ -365,7 +365,7 @@ export default function Diary() {
                   </div>
                 </div>
               ) : (
-                <div key={item.b.id} className="border border-line/40 bg-cream-soft rounded-sm p-4">
+                <div key={item.b.id} className="border border-gold/35 bg-gold/[0.07] rounded-sm p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="text-charcoal"><span className="font-medium">{timeLabel(item.b.starts_at)}</span> &nbsp; {item.b.client_name}</div>
