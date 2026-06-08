@@ -19,6 +19,7 @@ import {
   X,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { notifyDone } from '@/lib/staff-toast'
 
 type AgentId =
   | 'stock-expiry'
@@ -222,6 +223,7 @@ export default function AgentsDashboard() {
         ? { ...prev, social_drafts: prev.social_drafts.filter((d) => d.id !== id) }
         : prev,
     )
+    notifyDone(newStatus === 'approved' ? 'Draft approved' : 'Draft dismissed')
   }
 
   async function signOut() {

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { AlertTriangle, ArrowLeft, BellOff, Ban, Camera, Check, ChevronRight, CreditCard, ImagePlus, LogOut, Search, Trash2, X } from 'lucide-react'
 import MicButton, { appendText } from '@/components/ui/MicButton'
 import { gbp, ukDate } from '@/lib/assistant/format'
+import { notifyDone } from '@/lib/staff-toast'
 
 const inputClass =
   'w-full bg-cream border border-line/40 rounded-sm px-4 py-3 text-base text-charcoal placeholder:text-ink-soft/60 focus:outline-none focus:border-gold min-h-[48px]'
@@ -94,6 +95,7 @@ export default function ClientRecord() {
         body: JSON.stringify({ name: selected, suppress: next }),
       })
       if (!res.ok) setDoNotContact(!next) // revert on failure
+      else notifyDone(next ? 'Marked do-not-contact' : 'Contact re-enabled')
     } catch {
       setDoNotContact(!next)
     }
@@ -109,6 +111,8 @@ export default function ClientRecord() {
         body: JSON.stringify({ name: selected, flag, value: next }),
       })
       if (!res.ok) setter(!next)
+      else if (flag === 'blocked') notifyDone(next ? 'Client blocked' : 'Client unblocked')
+      else notifyDone(next ? 'Deposit now required' : 'Deposit no longer required')
     } catch {
       setter(!next)
     }
@@ -122,7 +126,11 @@ export default function ClientRecord() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: selected, blockedUntil: null }),
       })
-      if (!res.ok && selected) openClient(selected) // revert on failure
+      if (!res.ok) {
+        if (selected) openClient(selected) // revert on failure
+      } else {
+        notifyDone('Block cleared')
+      }
     } catch {
       if (selected) openClient(selected)
     }
@@ -523,6 +531,7 @@ function PhotoVault({ name, photos, onRefresh, onLightbox }: { name: string; pho
       const res = await fetch('/api/staff/assistant/photos', { method: 'POST', body: fd })
       const d = await res.json().catch(() => ({}))
       if (!res.ok) { setErr(d.error || 'Upload failed.'); return }
+      notifyDone('Photo uploaded')
       onRefresh()
     } catch { setErr('Network error.') } finally { setBusy(false) }
   }
@@ -530,6 +539,7 @@ function PhotoVault({ name, photos, onRefresh, onLightbox }: { name: string; pho
   async function del(id: string) {
     if (!window.confirm('Delete this photo?')) return
     await fetch(`/api/staff/assistant/photos?id=${id}`, { method: 'DELETE' })
+    notifyDone('Photo deleted')
     onRefresh()
   }
 

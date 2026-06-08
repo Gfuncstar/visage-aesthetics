@@ -239,6 +239,14 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
     setMicSupported(Boolean(SR))
   }, [])
 
+  // Let Escape dismiss the confirmation pop-up that appears after an action runs.
+  useEffect(() => {
+    if (!done) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setDone(null) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [done])
+
   function toggleMic() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
@@ -334,11 +342,6 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
           placeholder="Type what you want to do or ask, then choose below…"
         />
         {error && <p className="text-sm text-clay mt-2">{error}</p>}
-        {done && (
-          <p className="text-sm text-sage mt-2 inline-flex items-center gap-1.5">
-            <Check size={14} strokeWidth={2} /> {done}
-          </p>
-        )}
         {answer && (
           <div className="text-sm text-charcoal mt-3 border border-line/40 bg-cream rounded-sm px-3 py-2.5 leading-relaxed">
             {answer}
@@ -387,6 +390,39 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
               Ask a question
             </button>
             <p className="text-xs text-ink-soft leading-snug">Last visit · treatment history · who&apos;s due · waitlist · stats</p>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation pop-up — shown after an action is approved and has run, so
+          it's impossible to miss that the change went through. */}
+      {done && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-charcoal/40 px-5"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="action-done-title"
+          onClick={() => setDone(null)}
+        >
+          <div
+            className="bg-cream border border-gold/40 rounded-md shadow-xl max-w-sm w-full p-6 text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="inline-flex w-12 h-12 rounded-full bg-sage/15 text-sage items-center justify-center mb-4">
+              <Check size={24} strokeWidth={2} />
+            </span>
+            <h2 id="action-done-title" className="font-display italic text-2xl text-charcoal leading-tight">
+              Done
+            </h2>
+            <p className="text-sm text-charcoal/80 mt-2 leading-relaxed">{done}</p>
+            <button
+              onClick={() => setDone(null)}
+              className="btn btn-primary mt-5"
+              style={{ minHeight: 40 }}
+              autoFocus
+            >
+              Got it
+            </button>
           </div>
         </div>
       )}

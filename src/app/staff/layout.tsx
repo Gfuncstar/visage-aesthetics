@@ -4,10 +4,12 @@ import { isSimpleView } from '@/lib/staff-prefs'
 import StaffNav from './StaffNav'
 import StaffTopBar from './StaffTopBar'
 import SimpleViewToggle from './SimpleViewToggle'
+import StaffToaster from './StaffToaster'
 
 // The staff area is installable as a home-screen app (PWA): "Add to Home
-// Screen" gives a Visage icon that opens straight into the Assistant, full
-// screen. Scoped to /staff so it never affects the public marketing site.
+// Screen" gives a Visage icon that opens straight onto the home staff landing
+// page, full screen. Scoped to /staff so it never affects the public marketing
+// site.
 export const metadata: Metadata = {
   title: 'Staff',
   robots: { index: false, follow: false, nocache: true, googleBot: { index: false, follow: false } },
@@ -37,6 +39,7 @@ export default async function StaffLayout({ children }: { children: React.ReactN
         <StaffTopBar />
         {children}
       </div>
+      <StaffToaster />
     </>
   )
 }

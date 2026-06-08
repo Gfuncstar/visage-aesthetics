@@ -3,9 +3,17 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Award, Calendar, Check, Copy, ExternalLink, LogOut, Newspaper, X } from 'lucide-react'
 import MicButton, { appendText } from '@/components/ui/MicButton'
+import { notifyDone } from '@/lib/staff-toast'
 
 type Kind = 'award' | 'press'
 type Status = 'new' | 'shortlisted' | 'submitted' | 'dismissed'
+
+const STATUS_DONE: Record<Status, string> = {
+  new: 'Moved back to new',
+  shortlisted: 'Shortlisted',
+  submitted: 'Marked as submitted',
+  dismissed: 'Dismissed',
+}
 
 type Opportunity = {
   id: string
@@ -65,6 +73,7 @@ export default function Visibility() {
       status === 'dismissed' ? prev.filter((o) => o.id !== id) : prev.map((o) => (o.id === id ? { ...o, status } : o)),
     )
     void patch(id, { status })
+    notifyDone(STATUS_DONE[status])
   }
 
   async function signOut() {

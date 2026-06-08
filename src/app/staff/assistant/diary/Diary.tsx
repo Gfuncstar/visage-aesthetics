@@ -3,6 +3,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight, Clock, LogOut, Plus, Ban } from 'lucide-react'
 import MicButton, { appendText } from '@/components/ui/MicButton'
+import { notifyDone } from '@/lib/staff-toast'
+
+const STATUS_DONE: Record<string, string> = {
+  completed: 'Marked as completed',
+  no_show: 'Marked as no-show',
+  confirmed: 'Booking confirmed',
+  cancelled: 'Booking cancelled',
+}
 
 type Booking = {
   id: string
@@ -191,6 +199,7 @@ export default function Diary() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),
     })
+    notifyDone(STATUS_DONE[status] ?? 'Updated')
   }
 
   async function signOut() {
@@ -528,7 +537,7 @@ function EditHours({ initialHours, onDone }: { initialHours: BusinessHours[]; on
         </button>
         <button onClick={onDone} className="btn btn-secondary" style={{ minHeight: 38 }}>Cancel</button>
       </div>
-      <p className="text-xs text-ink-soft mt-1.5 leading-snug">Changes take effect immediately — clients will see the updated availability.</p>
+      <p className="text-xs text-ink-soft mt-1.5 leading-snug">Changes take effect immediately. Clients will see the updated availability.</p>
     </div>
   )
 }

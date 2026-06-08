@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Calendar, Check, Copy, LogOut, Mic, Send, Sparkles, X } from 'lucide-react'
+import { notifyDone } from '@/lib/staff-toast'
 
 const textareaClass =
   'w-full bg-cream border border-line/40 rounded-sm px-4 py-3 text-base text-charcoal placeholder:text-ink-soft/60 focus:outline-none focus:border-gold leading-relaxed'
@@ -108,6 +109,7 @@ export default function SqueezeIn() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),
     })
+    notifyDone(status === 'booked' ? 'Marked as booked' : 'Dismissed')
   }
 
   async function signOut() {

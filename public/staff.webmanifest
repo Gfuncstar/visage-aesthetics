@@ -2,7 +2,7 @@
   "name": "Visage Assistant",
   "short_name": "Assistant",
   "description": "Visage Aesthetics clinic assistant — write-ups, orders and figures.",
-  "start_url": "/staff/assistant",
+  "start_url": "/staff",
   "scope": "/staff",
   "display": "standalone",
   "orientation": "portrait",

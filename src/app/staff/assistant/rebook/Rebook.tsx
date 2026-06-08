@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Check, Copy, LogOut, Mail, RotateCcw, Send, X } from 'lucide-react'
 import MicButton, { appendText } from '@/components/ui/MicButton'
+import { notifyDone } from '@/lib/staff-toast'
 
 type Item = {
   markKey: string
@@ -59,6 +60,7 @@ export default function Rebook() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ markKey, action }),
     })
+    notifyDone(action === 'contacted' ? 'Marked as contacted' : 'Dismissed')
   }
 
   function removeLocal(markKey: string) {
