@@ -6,6 +6,7 @@ import { select } from './db'
 import { gbp, ukDate } from './format'
 
 type Appt = { client_name: string; date: string; service_name: string; price: number; status: string }
+type BookingRow = { client_name: string; starts_at: string; service_name: string; status: string }
 
 export type ReportQuery =
   | { intent: 'count_treatments'; service?: string | null; from?: string | null; to?: string | null }
@@ -15,6 +16,10 @@ export type ReportQuery =
   | { intent: 'top_clients'; by: 'spend' | 'visits'; limit?: number }
   | { intent: 'no_show_rate'; from?: string | null; to?: string | null }
   | { intent: 'count_upcoming' }
+  | { intent: 'last_visit'; clientName: string }
+  | { intent: 'client_history'; clientName: string; limit?: number }
+  | { intent: 'next_appointment'; clientName: string }
+  | { intent: 'waitlist_check'; service?: string | null }
   | { intent: 'unknown'; reason: string }
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
@@ -129,6 +134,80 @@ export async function runReport(q: ReportQuery): Promise<string> {
     case 'count_upcoming': {
       const rows = await select<Appt>('appointments', { status: 'eq.booked', and: `(date.gte.${new Date().toISOString().slice(0, 10)})`, select: 'id', limit: 5000 })
       return `${rows.length} upcoming appointment${rows.length === 1 ? '' : 's'} booked.`
+    }
+
+    case 'last_visit': {
+      const enc = q.clientName.replace(/[%,()]/g, ' ')
+      const rows = await select<Appt>('appointments', {
+        client_name: `ilike.*${enc}*`,
+        status: 'eq.completed',
+        order: 'date.desc',
+        select: 'client_name,date,service_name',
+        limit: 1,
+      })
+      if (!rows.length) {
+        // Also check bookings table (for clients who haven't been imported)
+        const bRows = await select<BookingRow>('bookings', {
+          client_name: `ilike.*${enc}*`,
+          status: 'eq.completed',
+          order: 'starts_at.desc',
+          select: 'client_name,starts_at,service_name',
+          limit: 1,
+        }).catch(() => [] as BookingRow[])
+        if (!bRows.length) return `No completed visits found for ${q.clientName}.`
+        const b = bRows[0]
+        return `${b.client_name} last came in on ${ukDate(b.starts_at.slice(0, 10))} for ${b.service_name}.`
+      }
+      const a = rows[0]
+      return `${a.client_name} last came in on ${ukDate(a.date)} for ${a.service_name}.`
+    }
+
+    case 'client_history': {
+      const enc = q.clientName.replace(/[%,()]/g, ' ')
+      const limit = Math.min(q.limit ?? 8, 20)
+      const rows = await select<Appt>('appointments', {
+        client_name: `ilike.*${enc}*`,
+        status: 'eq.completed',
+        order: 'date.desc',
+        select: 'date,service_name,price',
+        limit,
+      })
+      if (!rows.length) return `No visit history found for ${q.clientName}.`
+      const lines = rows.map((a) => `${ukDate(a.date)}: ${a.service_name}${a.price ? ` (${gbp(a.price)})` : ''}`)
+      return `${q.clientName} — ${rows.length} visit${rows.length === 1 ? '' : 's'}:\n${lines.join('\n')}`
+    }
+
+    case 'next_appointment': {
+      const enc = q.clientName.replace(/[%,()]/g, ' ')
+      const today = new Date().toISOString().slice(0, 10)
+      const rows = await select<BookingRow>('bookings', {
+        client_name: `ilike.*${enc}*`,
+        status: `neq.cancelled`,
+        and: `(starts_at.gte.${today}T00:00:00Z)`,
+        order: 'starts_at.asc',
+        select: 'client_name,starts_at,service_name,status',
+        limit: 1,
+      })
+      if (!rows.length) return `No upcoming appointment found for ${q.clientName}.`
+      const b = rows[0]
+      const d = new Date(b.starts_at)
+      const dateStr = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', weekday: 'long', day: 'numeric', month: 'long' }).format(d)
+      const timeStr = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour: 'numeric', minute: '2-digit', hour12: true }).format(d)
+      return `${b.client_name}'s next appointment is ${b.service_name} on ${dateStr} at ${timeStr}.`
+    }
+
+    case 'waitlist_check': {
+      const term = q.service ? q.service.replace(/[%,()]/g, ' ') : null
+      const rows = await select<{ client_name: string; service_name: string | null; client_phone: string | null }>('waitlist', {
+        status: 'eq.waiting',
+        ...(term ? { service_name: `ilike.*${term}*` } : {}),
+        order: 'created_at.asc',
+        limit: 20,
+        select: 'client_name,service_name,client_phone',
+      })
+      if (!rows.length) return term ? `Nobody on the waitlist for ${q.service}.` : 'The waitlist is empty.'
+      const lines = rows.map((w) => `${w.client_name}${w.service_name ? ` — ${w.service_name}` : ''}${w.client_phone ? ` (${w.client_phone})` : ''}`)
+      return `Waitlist${term ? ` for ${q.service}` : ''} (${rows.length}):\n${lines.join('\n')}`
     }
 
     default:

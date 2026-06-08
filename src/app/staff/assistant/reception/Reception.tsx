@@ -40,6 +40,32 @@ function subtractIntervals(free: Interval[], busy: Interval[]): Interval[] {
   return result
 }
 
+function freeMinsForDay(
+  date: string,
+  bookings: Lite[],
+  timeOff: TimeOffRow[],
+  businessHours: BusinessHour[],
+): number {
+  const wday = new Date(`${date}T12:00:00Z`).getUTCDay()
+  const bh = businessHours.find((h) => h.weekday === wday)
+  if (!bh?.is_open) return 0
+  const localDate = (iso: string) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(new Date(iso))
+  const busy: Interval[] = [
+    ...bookings.filter((b) => localDate(b.starts_at) === date && b.ends_at).map((b) => ({ start: toLocalMin(b.starts_at), end: toLocalMin(b.ends_at!) })),
+    ...timeOff.filter((t) => localDate(t.starts_at) <= date && localDate(t.ends_at) >= date).map((t) => ({ start: toLocalMin(t.starts_at), end: toLocalMin(t.ends_at) })),
+  ]
+  return subtractIntervals([{ start: bh.open_min, end: bh.close_min }], busy)
+    .filter((g) => g.end - g.start >= 15)
+    .reduce((s, g) => s + g.end - g.start, 0)
+}
+
+function freeLabel(mins: number): string {
+  if (mins <= 0) return ''
+  const h = Math.floor(mins / 60)
+  const m = mins % 60
+  return [h > 0 ? `${h}h` : null, m > 0 ? `${m}m` : null].filter(Boolean).join(' ') + ' free'
+}
+
 const TZ = 'Europe/London'
 function timeLabel(iso: string): string {
   return new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hour: 'numeric', minute: '2-digit', hour12: true }).format(new Date(iso))
@@ -92,6 +118,7 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
   const [range, setRange] = useState<Lite[]>([])
   const [rangeLoading, setRangeLoading] = useState(false)
   const [dayDiary, setDayDiary] = useState<DayDiary | null>(null)
+  const [rangeExtra, setRangeExtra] = useState<{ timeOff: TimeOffRow[]; businessHours: BusinessHour[] } | null>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -129,7 +156,11 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
     setRangeLoading(true)
     fetch(`/api/staff/assistant/diary?from=${from}&to=${to}`)
       .then((r) => (r.ok ? r.json() : { bookings: [] }))
-      .then((d) => { setRange((d.bookings ?? []).filter((b: Lite) => b.status !== 'cancelled')); setRangeLoading(false) })
+      .then((d) => {
+        setRange((d.bookings ?? []).filter((b: Lite) => b.status !== 'cancelled'))
+        setRangeExtra({ timeOff: d.timeOff ?? [], businessHours: d.businessHours ?? [] })
+        setRangeLoading(false)
+      })
       .catch(() => setRangeLoading(false))
   }, [view])
 
@@ -226,11 +257,16 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
                 <div className="space-y-4">
                   {[...new Set(range.map((b) => localDate(b.starts_at)))].sort().map((day) => {
                     const dayB = range.filter((b) => localDate(b.starts_at) === day).sort((a, b) => a.starts_at.localeCompare(b.starts_at))
+                    const free = rangeExtra ? freeMinsForDay(day, range, rangeExtra.timeOff, rangeExtra.businessHours) : 0
+                    const freeStr = freeLabel(free)
                     return (
                       <div key={day}>
                         <div className="flex items-center justify-between mb-1.5">
                           <span className={`text-sm font-medium ${day === todayStr() ? 'text-gold-deep' : 'text-charcoal'}`}>{dayLabelShort(day)}{day === todayStr() ? ' · today' : ''}</span>
-                          <span className="text-xs text-stone">{dayB.length} in</span>
+                          <div className="flex items-center gap-2">
+                            {freeStr && <span className="text-xs text-stone/70 border border-dashed border-line/50 rounded-full px-2 py-0.5">{freeStr}</span>}
+                            <span className="text-xs text-stone">{dayB.length} in</span>
+                          </div>
                         </div>
                         <div className="space-y-2">
                           {dayB.map((b) => (
@@ -376,7 +412,7 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
         onChange={(e) => setText(e.target.value)}
         rows={2}
         className="w-full bg-cream border border-line rounded-sm px-4 py-3 text-base text-charcoal placeholder:text-ink-soft/60 focus:outline-none focus:border-gold leading-relaxed"
-        placeholder="e.g. Book Sarah Grantham in for Botox on Thursday at 2pm. Or: block Friday afternoon. Or: cancel John's appointment."
+        placeholder="e.g. Book Sarah in for Botox on Thursday at 2pm · Cancel John's appointment · Change Tuesday to 10 to 2 · Block this client for 3 months · When did Sarah last come in? · Who's on the waitlist?"
       />
       {error && <p className="text-sm text-clay mt-2">{error}</p>}
       {done && <p className="text-sm text-sage mt-2 inline-flex items-center gap-1.5"><Check size={14} strokeWidth={2} /> {done}</p>}
@@ -404,7 +440,7 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
           </button>
         </div>
       )}
-      <p className="text-xs text-ink-soft mt-2">Tell me to do something (book, cancel, block time), or ask about the clinic (how many Botox last month, quietest day, top spenders).</p>
+      <p className="text-xs text-ink-soft mt-2">Actions: book, cancel, block time, open/close days, flag a client, change hours. Questions: when did [name] last come in? What has [name] had? Who's on the waitlist? How many Botox last month?</p>
     </div>
   )
 }
