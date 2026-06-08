@@ -552,7 +552,10 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
       })
       const d = await res.json().catch(() => ({}))
       if (!res.ok) { setError(d.error || 'Could not read that.'); return }
-      if (d.action?.type === 'unknown') { setError(d.summary || 'I could not work out what to do.'); return }
+      if (d.action?.type === 'unknown') {
+        setError('That looks like a question rather than an action — hit "Ask a question" to look that up.')
+        return
+      }
       setProposal({ action: d.action, summary: d.summary })
     } catch { setError('Network error.') } finally { setBusy(false) }
   }
@@ -573,50 +576,73 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
   }
 
   return (
-    <div className="border border-gold/40 bg-gold/5 rounded-sm p-5 mb-8">
-      <div className="flex items-center justify-between gap-3 mb-3">
-        <span className="text-eyebrow text-gold-deep">What would you like me to do?</span>
-        {micSupported && (
-          <button type="button" onClick={toggleMic} className={`inline-flex items-center gap-2 text-sm rounded-full border px-3 py-1.5 transition-colors ${listening ? 'border-clay bg-clay/10 text-clay' : 'border-gold/50 text-gold-deep hover:bg-gold/10'}`}>
-            <Mic size={15} strokeWidth={1.75} className={listening ? 'animate-pulse' : ''} />
-            {listening ? 'Listening… tap to stop' : 'Tap to talk'}
-          </button>
+    <div className="mb-8 space-y-3">
+      {/* Shared input */}
+      <div className="border border-gold/40 bg-gold/5 rounded-sm p-4">
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <span className="text-eyebrow text-gold-deep">Assistant</span>
+          {micSupported && (
+            <button type="button" onClick={toggleMic} className={`inline-flex items-center gap-2 text-sm rounded-full border px-3 py-1.5 transition-colors ${listening ? 'border-clay bg-clay/10 text-clay' : 'border-gold/50 text-gold-deep hover:bg-gold/10'}`}>
+              <Mic size={15} strokeWidth={1.75} className={listening ? 'animate-pulse' : ''} />
+              {listening ? 'Listening… tap to stop' : 'Tap to talk'}
+            </button>
+          )}
+        </div>
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          rows={2}
+          className="w-full bg-cream border border-line rounded-sm px-4 py-3 text-base text-charcoal placeholder:text-ink-soft/60 focus:outline-none focus:border-gold leading-relaxed"
+          placeholder="Type what you want to do or ask, then choose below…"
+        />
+        {error && <p className="text-sm text-clay mt-2">{error}</p>}
+        {done && <p className="text-sm text-sage mt-2 inline-flex items-center gap-1.5"><Check size={14} strokeWidth={2} /> {done}</p>}
+        {answer && <div className="text-sm text-charcoal mt-3 border border-line/40 bg-cream rounded-sm px-3 py-2.5 leading-relaxed">{answer}</div>}
+        {proposal && (
+          <div className="mt-3 border border-gold/40 bg-cream rounded-sm p-3">
+            <div className="text-sm text-charcoal mb-3">{proposal.summary}</div>
+            <div className="flex items-center gap-2">
+              <button onClick={confirm} disabled={busy} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 38 }}>
+                <span className="inline-flex items-center gap-2"><Check size={14} strokeWidth={2} /> {busy ? 'Doing it…' : 'Do it'}</span>
+              </button>
+              <button onClick={() => setProposal(null)} className="btn btn-secondary" style={{ minHeight: 38 }}>
+                <span className="inline-flex items-center gap-2"><X size={14} strokeWidth={1.75} /> Not that</span>
+              </button>
+            </div>
+          </div>
         )}
       </div>
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        rows={2}
-        className="w-full bg-cream border border-line rounded-sm px-4 py-3 text-base text-charcoal placeholder:text-ink-soft/60 focus:outline-none focus:border-gold leading-relaxed"
-        placeholder="Book Sarah for Botox Thursday 2pm · Cancel John · When did Amy last come in? · Who's on the waitlist?"
-      />
-      {error && <p className="text-sm text-clay mt-2">{error}</p>}
-      {done && <p className="text-sm text-sage mt-2 inline-flex items-center gap-1.5"><Check size={14} strokeWidth={2} /> {done}</p>}
-      {answer && <div className="text-sm text-charcoal mt-3 border border-line/40 bg-cream rounded-sm px-3 py-2.5 leading-relaxed">{answer}</div>}
 
-      {proposal ? (
-        <div className="mt-3 border border-gold/40 bg-cream rounded-sm p-3">
-          <div className="text-sm text-charcoal mb-3">{proposal.summary}</div>
-          <div className="flex items-center gap-2">
-            <button onClick={confirm} disabled={busy} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 38 }}>
-              <span className="inline-flex items-center gap-2"><Check size={14} strokeWidth={2} /> {busy ? 'Doing it…' : 'Do it'}</span>
+      {/* Two mode buttons */}
+      {!proposal && (
+        <div className="grid grid-cols-2 gap-3">
+          <div className="border border-gold/40 bg-gold/5 rounded-sm px-4 py-3">
+            <button
+              onClick={interpret}
+              disabled={busy || !text.trim()}
+              className="btn btn-primary w-full disabled:opacity-50 mb-2"
+              style={{ minHeight: 40 }}
+            >
+              <span className="inline-flex items-center gap-2">
+                <Sparkles size={14} strokeWidth={1.75} />
+                {busy ? 'Working…' : 'Action this'}
+              </span>
             </button>
-            <button onClick={() => setProposal(null)} className="btn btn-secondary" style={{ minHeight: 38 }}>
-              <span className="inline-flex items-center gap-2"><X size={14} strokeWidth={1.75} /> Not that</span>
+            <p className="text-xs text-ink-soft leading-snug">Book · cancel · block time · change hours · flag a client</p>
+          </div>
+          <div className="border border-line/40 bg-cream-soft rounded-sm px-4 py-3">
+            <button
+              onClick={ask}
+              disabled={busy || !text.trim()}
+              className="btn btn-secondary w-full disabled:opacity-50 mb-2"
+              style={{ minHeight: 40 }}
+            >
+              Ask a question
             </button>
+            <p className="text-xs text-ink-soft leading-snug">Last visit · treatment history · who&apos;s due · waitlist · stats</p>
           </div>
         </div>
-      ) : (
-        <div className="mt-3 flex items-center gap-2 flex-wrap">
-          <button onClick={interpret} disabled={busy || !text.trim()} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 40 }}>
-            <span className="inline-flex items-center gap-2"><Sparkles size={15} strokeWidth={1.75} />{busy ? 'Working…' : 'Action this'}</span>
-          </button>
-          <button onClick={ask} disabled={busy || !text.trim()} className="btn btn-secondary disabled:opacity-50" style={{ minHeight: 40 }}>
-            Ask a question
-          </button>
-        </div>
       )}
-      <p className="text-xs text-ink-soft mt-2">Actions: book, cancel, block time, flag a client, change hours. &nbsp;·&nbsp; Questions: when did [name] last come in? What has [name] had?</p>
     </div>
   )
 }
