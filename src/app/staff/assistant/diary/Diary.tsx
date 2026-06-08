@@ -112,12 +112,28 @@ function subtractIntervals(free: Interval[], busy: Interval[]): Interval[] {
 function dayFreeGaps(day: string, allBookings: Booking[], allTimeOff: TimeOff[], bh: BusinessHours[]): Interval[] {
   const wday = new Date(`${day}T12:00:00Z`).getUTCDay()
   const hours = bh.find((h) => h.weekday === wday)
-  if (!hours?.is_open) return []
-  const busy: Interval[] = [
+  // Sort all busy items together
+  const allBusy = [
     ...allBookings.filter((b) => localDate(b.starts_at) === day).map((b) => ({ start: toLocalMin(b.starts_at), end: toLocalMin(b.ends_at) })),
     ...allTimeOff.filter((t) => localDate(t.starts_at) === day).map((t) => ({ start: toLocalMin(t.starts_at), end: toLocalMin(t.ends_at) })),
-  ]
-  return subtractIntervals([{ start: hours.open_min, end: hours.close_min }], busy).filter((g) => g.end - g.start >= 15)
+  ].sort((a, b) => a.start - b.start)
+  if (allBusy.length === 0) return []
+  const gaps: Interval[] = []
+  // Gap before first booking — only if business hours are known
+  if (hours?.is_open && hours.open_min < allBusy[0].start && allBusy[0].start - hours.open_min >= 15) {
+    gaps.push({ start: hours.open_min, end: allBusy[0].start })
+  }
+  // Gaps between bookings — always computed, no business hours needed
+  for (let i = 0; i < allBusy.length - 1; i++) {
+    const gapStart = allBusy[i].end
+    const gapEnd = allBusy[i + 1].start
+    if (gapEnd - gapStart >= 15) gaps.push({ start: gapStart, end: gapEnd })
+  }
+  // Gap after last booking — only if business hours are known
+  if (hours?.is_open && allBusy[allBusy.length - 1].end < hours.close_min && hours.close_min - allBusy[allBusy.length - 1].end >= 15) {
+    gaps.push({ start: allBusy[allBusy.length - 1].end, end: hours.close_min })
+  }
+  return gaps
 }
 function gapClock(min: number): string {
   const h = Math.floor(min / 60), m = min % 60
