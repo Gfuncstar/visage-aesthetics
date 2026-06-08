@@ -116,6 +116,7 @@ export async function POST(req: Request) {
         bookingId: booking.id,
         clientName: name,
         startsAt: slot.startsAtIso,
+        endsAt: slot.endsAtIso,
         serviceName: service.name,
         status: 'confirmed',
         price: service.price_from,
