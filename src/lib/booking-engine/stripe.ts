@@ -92,3 +92,42 @@ export async function checkoutSessionPaid(sessionId: string): Promise<boolean> {
   const data = (await res.json()) as { payment_status?: string }
   return data.payment_status === 'paid'
 }
+
+/**
+ * Verify a Stripe webhook signature (HMAC-SHA256, no SDK).
+ * Returns the parsed event on success, throws on failure.
+ */
+export async function verifyWebhookEvent(
+  rawBody: string,
+  sigHeader: string,
+): Promise<{ type: string; data: { object: Record<string, unknown> } }> {
+  const secret = process.env.STRIPE_WEBHOOK_SECRET
+  if (!secret) throw new Error('STRIPE_WEBHOOK_SECRET not set')
+
+  // Header format: "t=timestamp,v1=sig1,v1=sig2,..."
+  const parts = Object.fromEntries(
+    sigHeader.split(',').map((p) => p.split('=')).filter((a) => a.length === 2).map(([k, v]) => [k, v]),
+  )
+  const timestamp = parts['t']
+  const v1 = parts['v1']
+  if (!timestamp || !v1) throw new Error('Invalid Stripe-Signature header')
+
+  // Compute expected signature
+  const { createHmac } = await import('crypto')
+  const payload = `${timestamp}.${rawBody}`
+  const expected = createHmac('sha256', secret).update(payload, 'utf8').digest('hex')
+
+  // Constant-time comparison
+  const a = Buffer.from(expected, 'hex')
+  const b = Buffer.from(v1, 'hex')
+  if (a.length !== b.length) throw new Error('Signature mismatch')
+  let diff = 0
+  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i]
+  if (diff !== 0) throw new Error('Signature mismatch')
+
+  // Reject events older than 5 minutes (replay protection)
+  const age = Math.floor(Date.now() / 1000) - parseInt(timestamp, 10)
+  if (age > 300) throw new Error('Webhook timestamp too old')
+
+  return JSON.parse(rawBody) as { type: string; data: { object: Record<string, unknown> } }
+}

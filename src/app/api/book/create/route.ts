@@ -91,8 +91,9 @@ export async function POST(req: Request) {
       }
     }
 
-    // A deposit-required client books as pending until the deposit is paid.
-    const needsDeposit = flags.requiresDeposit
+    // A deposit-required client, or any service with a configured deposit
+    // amount, books as pending until the deposit is paid.
+    const needsDeposit = flags.requiresDeposit || service.deposit > 0
     const booking = await insert<Booking>('bookings', {
       service_id: service.id,
       service_name: service.name,
