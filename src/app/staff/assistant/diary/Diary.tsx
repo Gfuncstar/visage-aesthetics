@@ -19,6 +19,7 @@ type TimeOff = { id: string; starts_at: string; ends_at: string; reason: string 
 type Service = { slug: string; name: string; duration_min: number }
 type WaitlistEntry = { id: string; client_name: string; service_name: string | null; client_phone: string | null; preferred_note: string | null }
 type BusinessHours = { weekday: number; is_open: boolean; open_min: number; close_min: number }
+type Interval = { start: number; end: number }
 
 const TZ = 'Europe/London'
 
@@ -89,6 +90,44 @@ const statusTone: Record<string, string> = {
   completed: 'text-stone',
   cancelled: 'text-clay line-through',
   no_show: 'text-clay',
+}
+
+function toLocalMin(iso: string): number {
+  const parts = new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(new Date(iso))
+  return Number(parts.find((p) => p.type === 'hour')?.value ?? '0') * 60 + Number(parts.find((p) => p.type === 'minute')?.value ?? '0')
+}
+function subtractIntervals(free: Interval[], busy: Interval[]): Interval[] {
+  let result = [...free]
+  for (const b of busy) {
+    result = result.flatMap((f) => {
+      if (b.end <= f.start || b.start >= f.end) return [f]
+      const parts: Interval[] = []
+      if (b.start > f.start) parts.push({ start: f.start, end: b.start })
+      if (b.end < f.end) parts.push({ start: b.end, end: f.end })
+      return parts
+    })
+  }
+  return result
+}
+function dayFreeGaps(day: string, allBookings: Booking[], allTimeOff: TimeOff[], bh: BusinessHours[]): Interval[] {
+  const wday = new Date(`${day}T12:00:00Z`).getUTCDay()
+  const hours = bh.find((h) => h.weekday === wday)
+  if (!hours?.is_open) return []
+  const busy: Interval[] = [
+    ...allBookings.filter((b) => localDate(b.starts_at) === day).map((b) => ({ start: toLocalMin(b.starts_at), end: toLocalMin(b.ends_at) })),
+    ...allTimeOff.filter((t) => localDate(t.starts_at) === day).map((t) => ({ start: toLocalMin(t.starts_at), end: toLocalMin(t.ends_at) })),
+  ]
+  return subtractIntervals([{ start: hours.open_min, end: hours.close_min }], busy).filter((g) => g.end - g.start >= 15)
+}
+function gapClock(min: number): string {
+  const h = Math.floor(min / 60), m = min % 60
+  const suffix = h < 12 ? 'am' : 'pm'
+  const h12 = h % 12 || 12
+  return m === 0 ? `${h12}${suffix}` : `${h12}:${String(m).padStart(2, '0')}${suffix}`
+}
+function gapLabel(mins: number): string {
+  const h = Math.floor(mins / 60), m = mins % 60
+  return [h > 0 ? `${h}h` : null, m > 0 ? `${m}m` : null].filter(Boolean).join(' ') + ' free'
 }
 
 export default function Diary() {
@@ -211,17 +250,32 @@ export default function Diary() {
                         <span className={`text-sm font-medium ${isToday ? 'text-gold-deep' : 'text-charcoal'}`}>{shortDay(day)}{isToday ? ' · today' : ''}</span>
                         <span className="text-xs text-stone">{dayB.length ? `${dayB.length} in` : ''}</span>
                       </button>
-                      <div className="border border-line/40 bg-cream-soft rounded-sm divide-y divide-line/30">
-                        {dayT.map((t) => (
-                          <div key={t.id} className="px-3.5 py-2 text-xs text-stone flex items-center gap-2"><Ban size={12} strokeWidth={1.75} /> {timeLabel(t.starts_at)} to {timeLabel(t.ends_at)} &nbsp;·&nbsp; {t.reason || 'Blocked'}</div>
-                        ))}
-                        {dayB.map((b) => (
-                          <div key={b.id} className="px-3.5 py-2.5 flex items-center justify-between gap-2">
-                            <span className="text-sm text-charcoal truncate min-w-0"><span className="text-stone">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>
-                            <span className="text-xs text-stone truncate shrink-0 ml-2">{b.service_name}</span>
+                      {(() => {
+                        const gaps = dayFreeGaps(day, live, timeOff, businessHours)
+                        const sorted = [
+                          ...dayB.map((b) => ({ t: 'b' as const, b, min: toLocalMin(b.starts_at) })),
+                          ...dayT.map((t) => ({ t: 'to' as const, to: t, min: toLocalMin(t.starts_at) })),
+                          ...gaps.map((g) => ({ t: 'g' as const, g, min: g.start })),
+                        ].sort((a, b) => a.min - b.min)
+                        return (
+                          <div className="border border-line/40 bg-cream-soft rounded-sm divide-y divide-line/30">
+                            {sorted.map((item, i) => item.t === 'to' ? (
+                              <div key={item.to.id} className="px-3.5 py-2 text-xs text-stone flex items-center gap-2"><Ban size={12} strokeWidth={1.75} /> {timeLabel(item.to.starts_at)} to {timeLabel(item.to.ends_at)} &nbsp;·&nbsp; {item.to.reason || 'Blocked'}</div>
+                            ) : item.t === 'g' ? (
+                              <div key={`gap-${i}`} className="px-3.5 py-1.5 flex items-center gap-1.5 select-none">
+                                <span className="text-[11px] text-stone/50 tabular-nums whitespace-nowrap">{gapClock(item.g.start)}</span>
+                                <span className="flex-1 border-t border-dashed border-stone/25" />
+                                <span className="text-[11px] text-stone/50 whitespace-nowrap">{gapLabel(item.g.end - item.g.start)}</span>
+                              </div>
+                            ) : (
+                              <div key={item.b.id} className="px-3.5 py-2.5 flex items-center justify-between gap-2">
+                                <span className="text-sm text-charcoal truncate min-w-0"><span className="text-stone">{timeLabel(item.b.starts_at)}</span> &nbsp; {item.b.client_name}</span>
+                                <span className="text-xs text-stone truncate shrink-0 ml-2">{item.b.service_name}</span>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
+                        )
+                      })()}
                     </div>
                   )
                 })}
@@ -240,19 +294,32 @@ export default function Diary() {
                     <span className={`text-sm font-medium ${isToday ? 'text-gold-deep' : 'text-charcoal'}`}>{shortDay(day)}{isToday ? ' · today' : ''}</span>
                     <span className="text-xs text-stone">{dayB.length ? `${dayB.length} in` : ''}</span>
                   </button>
-                  {dayB.length || dayT.length ? (
-                    <div className="border border-line/40 bg-cream-soft rounded-sm divide-y divide-line/30">
-                      {dayT.map((t) => (
-                        <div key={t.id} className="px-3.5 py-2 text-xs text-stone flex items-center gap-2"><Ban size={12} strokeWidth={1.75} /> {timeLabel(t.starts_at)} to {timeLabel(t.ends_at)} &nbsp;·&nbsp; {t.reason || 'Blocked'}</div>
-                      ))}
-                      {dayB.map((b) => (
-                        <div key={b.id} className="px-3.5 py-2.5 flex items-center justify-between gap-2">
-                          <span className="text-sm text-charcoal truncate min-w-0"><span className="text-stone">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>
-                          <span className="text-xs text-stone truncate shrink-0 ml-2">{b.service_name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
+                  {dayB.length || dayT.length ? (() => {
+                    const gaps = dayFreeGaps(day, live, timeOff, businessHours)
+                    const sorted = [
+                      ...dayB.map((b) => ({ t: 'b' as const, b, min: toLocalMin(b.starts_at) })),
+                      ...dayT.map((t) => ({ t: 'to' as const, to: t, min: toLocalMin(t.starts_at) })),
+                      ...gaps.map((g) => ({ t: 'g' as const, g, min: g.start })),
+                    ].sort((a, b) => a.min - b.min)
+                    return (
+                      <div className="border border-line/40 bg-cream-soft rounded-sm divide-y divide-line/30">
+                        {sorted.map((item, i) => item.t === 'to' ? (
+                          <div key={item.to.id} className="px-3.5 py-2 text-xs text-stone flex items-center gap-2"><Ban size={12} strokeWidth={1.75} /> {timeLabel(item.to.starts_at)} to {timeLabel(item.to.ends_at)} &nbsp;·&nbsp; {item.to.reason || 'Blocked'}</div>
+                        ) : item.t === 'g' ? (
+                          <div key={`gap-${i}`} className="px-3.5 py-1.5 flex items-center gap-1.5 select-none">
+                            <span className="text-[11px] text-stone/50 tabular-nums whitespace-nowrap">{gapClock(item.g.start)}</span>
+                            <span className="flex-1 border-t border-dashed border-stone/25" />
+                            <span className="text-[11px] text-stone/50 whitespace-nowrap">{gapLabel(item.g.end - item.g.start)}</span>
+                          </div>
+                        ) : (
+                          <div key={item.b.id} className="px-3.5 py-2.5 flex items-center justify-between gap-2">
+                            <span className="text-sm text-charcoal truncate min-w-0"><span className="text-stone">{timeLabel(item.b.starts_at)}</span> &nbsp; {item.b.client_name}</span>
+                            <span className="text-xs text-stone truncate shrink-0 ml-2">{item.b.service_name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  })() : (
                     <div className="text-xs text-stone/60 pb-0.5">Nothing booked</div>
                   )}
                 </div>
@@ -263,29 +330,43 @@ export default function Diary() {
           <p className="text-sm text-ink-soft border border-line/40 rounded-sm bg-cream-soft px-4 py-5 text-center">Nothing booked this day.</p>
         ) : (
           <div className="space-y-2.5">
-            {timeOff.map((t) => (
-              <div key={t.id} className="flex items-center gap-3 border border-line/40 bg-cream-deep/40 rounded-sm px-4 py-3 text-sm text-stone">
-                <Ban size={14} strokeWidth={1.75} /> {timeLabel(t.starts_at)} to {timeLabel(t.ends_at)} &nbsp;·&nbsp; {t.reason || 'Blocked'}
-              </div>
-            ))}
-            {live.map((b) => (
-              <div key={b.id} className="border border-line/40 bg-cream-soft rounded-sm p-4">
-                <div className="flex items-start justify-between gap-3">
+            {(() => {
+              const gaps = dayFreeGaps(date, live, timeOff, businessHours)
+              const sorted = [
+                ...live.map((b) => ({ t: 'b' as const, b, min: toLocalMin(b.starts_at) })),
+                ...timeOff.map((t) => ({ t: 'to' as const, to: t, min: toLocalMin(t.starts_at) })),
+                ...gaps.map((g) => ({ t: 'g' as const, g, min: g.start })),
+              ].sort((a, b) => a.min - b.min)
+              return sorted.map((item, i) => item.t === 'to' ? (
+                <div key={item.to.id} className="flex items-center gap-3 border border-line/40 bg-cream-deep/40 rounded-sm px-4 py-3 text-sm text-stone">
+                  <Ban size={14} strokeWidth={1.75} /> {timeLabel(item.to.starts_at)} to {timeLabel(item.to.ends_at)} &nbsp;·&nbsp; {item.to.reason || 'Blocked'}
+                </div>
+              ) : item.t === 'g' ? (
+                <div key={`gap-${i}`} className="border border-dashed border-line/40 rounded-sm px-4 py-2.5 flex items-center justify-between opacity-60">
                   <div>
-                    <div className="text-charcoal"><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</div>
-                    <div className="text-sm text-stone mt-0.5">{b.service_name}{b.source === 'online' ? ' · online' : ''}{b.client_phone ? ` · ${b.client_phone}` : ''}</div>
-                    {b.notes && <div className="text-xs text-ink-soft mt-1">{b.notes}</div>}
+                    <div className="text-sm text-stone"><span className="font-medium">{gapClock(item.g.start)}</span> &nbsp; Free</div>
+                    <div className="text-xs text-stone/70 mt-0.5">Until {gapClock(item.g.end)} · {gapLabel(item.g.end - item.g.start)}</div>
                   </div>
-                  <span className={`text-xs capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>
                 </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {b.status !== 'completed' && <button onClick={() => setStatus(b.id, 'completed')} className="text-xs rounded-full border border-line/50 px-3 py-1.5 text-charcoal hover:border-gold/60">Completed</button>}
-                  {b.status !== 'no_show' && <button onClick={() => setStatus(b.id, 'no_show')} className="text-xs rounded-full border border-line/50 px-3 py-1.5 text-charcoal hover:border-gold/60">No show</button>}
-                  {b.status === 'pending' && <button onClick={() => setStatus(b.id, 'confirmed')} className="text-xs rounded-full border border-line/50 px-3 py-1.5 text-charcoal hover:border-gold/60">Confirm</button>}
-                  <button onClick={() => setStatus(b.id, 'cancelled')} className="text-xs rounded-full border border-clay/40 px-3 py-1.5 text-clay hover:bg-clay/5 ml-auto">Cancel</button>
+              ) : (
+                <div key={item.b.id} className="border border-line/40 bg-cream-soft rounded-sm p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="text-charcoal"><span className="font-medium">{timeLabel(item.b.starts_at)}</span> &nbsp; {item.b.client_name}</div>
+                      <div className="text-sm text-stone mt-0.5">{item.b.service_name}{item.b.source === 'online' ? ' · online' : ''}{item.b.client_phone ? ` · ${item.b.client_phone}` : ''}</div>
+                      {item.b.notes && <div className="text-xs text-ink-soft mt-1">{item.b.notes}</div>}
+                    </div>
+                    <span className={`text-xs capitalize ${statusTone[item.b.status] ?? 'text-stone'}`}>{item.b.status.replace('_', ' ')}</span>
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {item.b.status !== 'completed' && <button onClick={() => setStatus(item.b.id, 'completed')} className="text-xs rounded-full border border-line/50 px-3 py-1.5 text-charcoal hover:border-gold/60">Completed</button>}
+                    {item.b.status !== 'no_show' && <button onClick={() => setStatus(item.b.id, 'no_show')} className="text-xs rounded-full border border-line/50 px-3 py-1.5 text-charcoal hover:border-gold/60">No show</button>}
+                    {item.b.status === 'pending' && <button onClick={() => setStatus(item.b.id, 'confirmed')} className="text-xs rounded-full border border-line/50 px-3 py-1.5 text-charcoal hover:border-gold/60">Confirm</button>}
+                    <button onClick={() => setStatus(item.b.id, 'cancelled')} className="text-xs rounded-full border border-clay/40 px-3 py-1.5 text-clay hover:bg-clay/5 ml-auto">Cancel</button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            })()}
           </div>
         )}
 
