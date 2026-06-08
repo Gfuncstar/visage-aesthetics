@@ -8,8 +8,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Copy,
+  Eye,
   LogOut,
   Mail,
+  Pencil,
   Plus,
   Save,
   Send,
@@ -18,7 +20,7 @@ import {
 } from 'lucide-react'
 import { TREATMENT_TYPES, getTreatmentType, matchTreatmentType } from '@/lib/assistant/treatment-types'
 import { ukDate } from '@/lib/assistant/format'
-import { bodyToText } from '@/lib/broadcast-email'
+import { bodyToText, buildBroadcastHtml } from '@/lib/broadcast-email'
 import DictateButton from '@/components/ui/DictateButton'
 import {
   buildClientEmail,
@@ -95,6 +97,7 @@ export default function TreatmentTool() {
   const [copied, setCopied] = useState(false)
   const [sending, setSending] = useState(false)
   const [sendResult, setSendResult] = useState<{ ok: boolean; message: string } | null>(null)
+  const [emailPreview, setEmailPreview] = useState(false)
 
   const [aiEnhancing, setAiEnhancing] = useState(false)
   const [aiNextSteps, setAiNextSteps] = useState<string[]>([])
@@ -351,6 +354,22 @@ export default function TreatmentTool() {
   // used for copy-to-clipboard and the "open in email app" link.
   const emailPlain = useMemo(() => bodyToText(emailBody), [emailBody])
   const mailtoHref = `mailto:${clientEmail ?? ''}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailPlain)}`
+
+  // Styled HTML the client actually receives — same builder the send route uses,
+  // so the preview is faithful. The headline is rebuilt from the write-up just as
+  // the server does (the edited subject/body are the clinician's overrides).
+  const emailHtml = useMemo(
+    () =>
+      buildBroadcastHtml({
+        headline: buildClientEmail(currentInput()).headline,
+        body: emailBody,
+        cta: 'none',
+        recipientEmail: clientEmail ?? undefined,
+      }),
+    // currentInput() is derived from these fields; rebuild when any change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [emailBody, typeId, clientName, date, interest, clientEmail],
+  )
 
   async function copyEmail() {
     try {
@@ -816,8 +835,8 @@ export default function TreatmentTool() {
               </div>
               <p className="text-xs text-ink-soft mb-3">
                 {isConsult
-                  ? 'Written in Bernadette’s voice from their name, the date, what they came in for and what you discussed. Edit it, then copy, open in your email app, or send.'
-                  : 'A warm aftercare email for the client. Edit it, then copy, open in your email app, or send.'}
+                  ? 'Written in Bernadette’s voice from their name, the date, what they came in for and what you discussed. Edit it, switch to Preview to see the styled email, then copy, open in your email app, or send.'
+                  : 'A warm aftercare email for the client. Edit it, switch to Preview to see the styled email, then copy, open in your email app, or send.'}
               </p>
 
               <label htmlFor="email-subject" className="text-eyebrow text-ink-soft mb-2 block">Subject</label>
@@ -840,14 +859,42 @@ export default function TreatmentTool() {
                 </button>
               )}
 
-              <label htmlFor="email-body" className="text-eyebrow text-ink-soft mb-2 mt-4 block">Message</label>
-              <textarea
-                id="email-body"
-                rows={14}
-                className={`${textareaClass} font-body`}
-                value={emailBody}
-                onChange={(e) => setEmailBody(e.target.value)}
-              />
+              <div className="flex items-center justify-between gap-3 mb-2 mt-4">
+                <label htmlFor="email-body" className="text-eyebrow text-ink-soft">Message</label>
+                <div className="grid grid-cols-2 gap-1" role="group" aria-label="Message view">
+                  <button
+                    type="button"
+                    onClick={() => setEmailPreview(false)}
+                    aria-pressed={!emailPreview}
+                    className={`text-xs rounded-sm border px-2.5 py-1 transition-colors inline-flex items-center gap-1.5 ${!emailPreview ? 'border-gold bg-gold/10 text-charcoal' : 'border-line/40 text-ink-soft hover:border-gold/60'}`}
+                  >
+                    <Pencil size={12} strokeWidth={1.75} /> Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEmailPreview(true)}
+                    aria-pressed={emailPreview}
+                    className={`text-xs rounded-sm border px-2.5 py-1 transition-colors inline-flex items-center gap-1.5 ${emailPreview ? 'border-gold bg-gold/10 text-charcoal' : 'border-line/40 text-ink-soft hover:border-gold/60'}`}
+                  >
+                    <Eye size={12} strokeWidth={1.75} /> Preview
+                  </button>
+                </div>
+              </div>
+              {emailPreview ? (
+                <iframe
+                  title="Email preview"
+                  srcDoc={emailHtml}
+                  className="w-full h-[560px] border border-line/40 rounded-sm bg-white"
+                />
+              ) : (
+                <textarea
+                  id="email-body"
+                  rows={14}
+                  className={`${textareaClass} font-body`}
+                  value={emailBody}
+                  onChange={(e) => setEmailBody(e.target.value)}
+                />
+              )}
 
               {clientEmail ? (
                 <p className="text-xs text-stone mt-2">To: {clientEmail}</p>
