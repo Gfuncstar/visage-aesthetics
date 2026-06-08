@@ -7,6 +7,7 @@ import { assistantConfigured } from '@/lib/assistant/db'
 import { endOfDaySummary } from '@/lib/assistant/end-of-day'
 import { stockReview } from '@/lib/assistant/stock'
 import { consentReview } from '@/lib/assistant/consent'
+import StaffLandingHub from './StaffLandingHub'
 
 export const metadata: Metadata = {
   title: 'Staff',
@@ -140,6 +141,8 @@ export default async function StaffIndex() {
           {greeting}.
         </h1>
 
+        <StaffLandingHub />
+
         <div className="mt-9">
           <div className="eyebrow text-gold mb-3">Needs your attention</div>
 
@@ -158,23 +161,22 @@ export default async function StaffIndex() {
               </div>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {items.map(({ key, href, Icon, tone, title, detail }) => {
                 const s = toneStyles[tone]
                 return (
                   <Link
                     key={key}
                     href={href}
-                    className={`group flex items-center gap-4 border rounded-sm px-4 py-4 transition-colors ${s.card}`}
+                    className={`group flex items-start gap-3 border rounded-sm px-3.5 py-3.5 transition-colors ${s.card}`}
                   >
-                    <span className={`inline-flex w-10 h-10 rounded-full items-center justify-center shrink-0 ${s.badge}`}>
-                      <Icon size={17} strokeWidth={1.75} />
+                    <span className={`inline-flex w-8 h-8 rounded-full items-center justify-center shrink-0 mt-0.5 ${s.badge}`}>
+                      <Icon size={15} strokeWidth={1.75} />
                     </span>
-                    <span className="min-w-0">
-                      <span className="block font-display italic text-lg text-charcoal leading-tight">{title}</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-display italic text-base text-charcoal leading-tight">{title}</span>
                       <span className="block text-xs text-ink-soft mt-0.5 leading-snug">{detail}</span>
                     </span>
-                    <span className="ml-auto text-gold-deep shrink-0 transition-transform group-hover:translate-x-1">→</span>
                   </Link>
                 )
               })}
