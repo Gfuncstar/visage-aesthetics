@@ -51,12 +51,16 @@ the developer who steps in.
 
 ## Emergency access — step by step
 
-> Fill these blanks in once, then leave them.
+> Password manager: **Bitwarden** (Premium — ~£10/year, the tier that includes
+> emergency access). Full setup steps are in `docs/VAULT_SETUP.md`.
+> Fill the personal blanks below in once, then leave them.
 
-- **Password manager used:** `[TODO: e.g. 1Password / Bitwarden]`
-- **Emergency-access waiting period:** `[TODO: e.g. 48 hours]`
-- **To open the vault:** go to `[TODO: link]`, sign in, choose *Emergency
-  Access → Request*. After the waiting period it unlocks automatically.
+- **Emergency-access waiting period:** `[TODO: the wait Giles set, e.g. 7 days]`
+- **To open the vault:** go to **https://vault.bitwarden.com**, sign in to
+  your own free Bitwarden account, open **Settings → Emergency Access**, find
+  Giles's name and choose **Request access**. After the waiting period above
+  passes with no response from Giles, it unlocks automatically and you (or the
+  backup developer) can read every login.
 - **Break-glass card location:** `[TODO: e.g. home safe / with accountant]`
 
 ### Who to call (the backup developer)
