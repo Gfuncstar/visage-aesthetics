@@ -769,10 +769,12 @@ export default function TreatmentTool() {
             </span>
             <span className="btn-arrow">→</span>
           </button>
-          {isConsult && (
+          {isConsult ? (
             <p className="text-xs text-ink-soft mt-2 text-center leading-snug">
               Drafts the follow-up email in Bernadette’s voice from your notes — you can review, edit and send it below.
             </p>
+          ) : (
+            <p className="text-xs text-ink-soft mt-1.5 leading-snug text-center">Produces a clinical note and client email.</p>
           )}
         </div>
 
@@ -829,15 +831,18 @@ export default function TreatmentTool() {
               />
 
               {isConsult && (
-                <button
-                  type="button"
-                  onClick={enhanceConsultationEmail}
-                  disabled={aiEnhancing}
-                  className="mb-4 inline-flex items-center gap-2 text-sm text-gold-deep hover:text-charcoal border border-gold/40 hover:border-gold rounded-sm px-3 py-2 transition-colors disabled:opacity-50"
-                >
-                  <Sparkles size={14} strokeWidth={1.75} />
-                  {aiEnhancing ? 'Writing in Bernadette’s voice…' : 'Rewrite in Bernadette’s voice'}
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={enhanceConsultationEmail}
+                    disabled={aiEnhancing}
+                    className="mb-2 inline-flex items-center gap-2 text-sm text-gold-deep hover:text-charcoal border border-gold/40 hover:border-gold rounded-sm px-3 py-2 transition-colors disabled:opacity-50"
+                  >
+                    <Sparkles size={14} strokeWidth={1.75} />
+                    {aiEnhancing ? "Writing in Bernadette’s voice…" : "Rewrite in Bernadette’s voice"}
+                  </button>
+                  <p className="text-xs text-ink-soft mt-1.5 leading-snug mb-4">Adds suggested aftercare and follow-up notes.</p>
+                </>
               )}
 
               <label htmlFor="email-body" className="text-eyebrow text-ink-soft mb-2 mt-4 block">Message</label>
@@ -878,6 +883,10 @@ export default function TreatmentTool() {
                     </span>
                   </button>
                 )}
+              </div>
+              <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1">
+                <p className="text-xs text-ink-soft leading-snug">Copy email — paste into records or messages.</p>
+                {clientEmail && <p className="text-xs text-ink-soft leading-snug">Send — delivers to client&apos;s email on file.</p>}
               </div>
               {sendResult && (
                 <div className={`mt-3 border rounded-sm px-4 py-3 text-sm flex items-start gap-3 ${sendResult.ok ? 'border-sage/50 bg-sage/10' : 'border-gold/40 bg-gold/10'}`}>

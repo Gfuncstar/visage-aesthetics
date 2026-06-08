@@ -35,6 +35,7 @@ type AgentDef = {
   name: string
   schedule: string
   description: string
+  hint: string
   Icon: LucideIcon
   output: 'email' | 'dashboard' | 'both'
 }
@@ -45,6 +46,7 @@ const AGENTS: AgentDef[] = [
     name: 'Stock expiry',
     schedule: 'Daily 08:00',
     description: 'Flags batches expiring within 30 days.',
+    hint: 'Flags products expiring within 30 days',
     Icon: Package,
     output: 'email',
   },
@@ -53,6 +55,7 @@ const AGENTS: AgentDef[] = [
     name: 'Financial summary',
     schedule: 'Mondays 07:00',
     description: 'Week and month P&L summary.',
+    hint: 'Generates a monthly revenue and margin snapshot',
     Icon: TrendingUp,
     output: 'email',
   },
@@ -61,6 +64,7 @@ const AGENTS: AgentDef[] = [
     name: 'Clinical audit',
     schedule: '1st of month',
     description: 'NMC compliance report for the previous month.',
+    hint: 'Checks treatments against protocol, flags gaps',
     Icon: FileText,
     output: 'email',
   },
@@ -69,6 +73,7 @@ const AGENTS: AgentDef[] = [
     name: 'Social content',
     schedule: 'Tuesdays 09:00',
     description: 'Instagram and Facebook captions from recent blog posts.',
+    hint: 'Drafts social posts from treatments and season',
     Icon: Image,
     output: 'dashboard',
   },
@@ -77,6 +82,7 @@ const AGENTS: AgentDef[] = [
     name: 'Seasonal campaigns',
     schedule: 'Daily check',
     description: 'Drafts a campaign email 6 weeks before key dates.',
+    hint: 'Suggests promotions timed to next seasonal event',
     Icon: Calendar,
     output: 'dashboard',
   },
@@ -85,6 +91,7 @@ const AGENTS: AgentDef[] = [
     name: 'Review sentiment',
     schedule: 'Mondays 08:15',
     description: 'Weekly analysis of Google review themes.',
+    hint: 'Summarises tone of recent Google reviews',
     Icon: Star,
     output: 'both',
   },
@@ -93,6 +100,7 @@ const AGENTS: AgentDef[] = [
     name: 'FAQ updater',
     schedule: '1st of month',
     description: 'Clusters contact enquiries into FAQ gap suggestions.',
+    hint: 'Refreshes website FAQ from recent client questions',
     Icon: HelpCircle,
     output: 'dashboard',
   },
@@ -101,6 +109,7 @@ const AGENTS: AgentDef[] = [
     name: 'SEO competitor monitor',
     schedule: 'Thursdays 07:00',
     description: 'Tracks Essex competitor rankings for 12 keywords. Finds gaps, competitor threats, and award citation opportunities.',
+    hint: 'Checks clinic rankings for key local search terms',
     Icon: Search,
     output: 'both',
   },
@@ -411,7 +420,7 @@ export default function AgentsDashboard() {
         )}
 
         <div className="space-y-2">
-          {AGENTS.map(({ id, name, schedule, description, Icon, output }) => {
+          {AGENTS.map(({ id, name, schedule, description, hint, Icon, output }) => {
             const isRunning = running[id]
             const result = results[id]
             return (
@@ -449,23 +458,26 @@ export default function AgentsDashboard() {
                   )}
                 </div>
 
-                <button
-                  onClick={() => void runAgent(id)}
-                  disabled={Boolean(isRunning)}
-                  className="shrink-0 inline-flex items-center gap-1.5 text-xs text-charcoal hover:text-gold-deep border border-line/60 hover:border-gold/40 rounded px-3 py-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  {isRunning ? (
-                    <>
-                      <RefreshCw size={11} className="animate-spin" />
-                      Running
-                    </>
-                  ) : (
-                    <>
-                      <Play size={11} />
-                      Run now
-                    </>
-                  )}
-                </button>
+                <div className="shrink-0 flex flex-col items-end gap-1.5">
+                  <button
+                    onClick={() => void runAgent(id)}
+                    disabled={Boolean(isRunning)}
+                    className="inline-flex items-center gap-1.5 text-xs text-charcoal hover:text-gold-deep border border-line/60 hover:border-gold/40 rounded px-3 py-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {isRunning ? (
+                      <>
+                        <RefreshCw size={11} className="animate-spin" />
+                        Running
+                      </>
+                    ) : (
+                      <>
+                        <Play size={11} />
+                        Run now
+                      </>
+                    )}
+                  </button>
+                  <p className="text-xs text-ink-soft mt-1.5 leading-snug text-right">{hint}</p>
+                </div>
               </div>
             )
           })}

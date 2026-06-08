@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { ChevronLeft, ChevronRight, LogOut, Plus, Ban } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Clock, LogOut, Plus, Ban } from 'lucide-react'
 import MicButton, { appendText } from '@/components/ui/MicButton'
 
 type Booking = {
@@ -18,6 +18,7 @@ type Booking = {
 type TimeOff = { id: string; starts_at: string; ends_at: string; reason: string | null }
 type Service = { slug: string; name: string; duration_min: number }
 type WaitlistEntry = { id: string; client_name: string; service_name: string | null; client_phone: string | null; preferred_note: string | null }
+type BusinessHours = { weekday: number; is_open: boolean; open_min: number; close_min: number }
 
 const TZ = 'Europe/London'
 
@@ -35,6 +36,9 @@ function timeLabel(iso: string): string {
 }
 function dayHeading(ds: string): string {
   return new Intl.DateTimeFormat('en-GB', { timeZone: TZ, weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(`${ds}T12:00:00Z`))
+}
+function minToTime(m: number): string {
+  return `${Math.floor(m / 60).toString().padStart(2, '0')}:${(m % 60).toString().padStart(2, '0')}`
 }
 function timeToMinutes(t: string): number {
   const [h, m] = t.split(':').map(Number)
@@ -95,7 +99,8 @@ export default function Diary() {
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([])
   const [services, setServices] = useState<Service[]>([])
   const [loading, setLoading] = useState(true)
-  const [adding, setAdding] = useState<'booking' | 'time_off' | null>(null)
+  const [businessHours, setBusinessHours] = useState<BusinessHours[]>([])
+  const [adding, setAdding] = useState<'booking' | 'time_off' | 'hours' | null>(null)
 
   const load = useCallback(async (from: string, to: string) => {
     setLoading(true)
@@ -105,6 +110,7 @@ export default function Diary() {
       setBookings(d.bookings ?? [])
       setTimeOff(d.timeOff ?? [])
       setWaitlist(d.waitlist ?? [])
+      if (d.businessHours) setBusinessHours(d.businessHours)
     }
     setLoading(false)
   }, [])
@@ -176,10 +182,15 @@ export default function Diary() {
           <button onClick={() => setAdding(adding === 'time_off' ? null : 'time_off')} className="btn btn-secondary" style={{ minHeight: 38 }}>
             <span className="inline-flex items-center gap-2"><Ban size={14} strokeWidth={1.75} /> Block time</span>
           </button>
+          <button onClick={() => setAdding(adding === 'hours' ? null : 'hours')} className="btn btn-secondary" style={{ minHeight: 38 }}>
+            <span className="inline-flex items-center gap-2"><Clock size={14} strokeWidth={1.75} /> Edit hours</span>
+          </button>
         </div>
+        <p className="text-xs text-ink-soft -mt-3 mb-4 leading-snug">Add a booking · block a slot · change when the clinic is open</p>
 
         {adding === 'booking' && <AddBooking date={date} services={services} onDone={() => { setAdding(null); reload() }} />}
         {adding === 'time_off' && <BlockTime date={date} onDone={() => { setAdding(null); reload() }} />}
+        {adding === 'hours' && <EditHours initialHours={businessHours} onDone={() => { setAdding(null); reload() }} />}
 
         {loading ? (
           <p className="text-sm text-ink-soft">Loading…</p>
@@ -338,6 +349,89 @@ function AddBooking({ date, services, onDone }: { date: string; services: Servic
       </div>
       {err && <p className="text-xs text-clay">{err}</p>}
       <button onClick={save} disabled={busy} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 38 }}>{busy ? 'Saving…' : 'Add to diary'}</button>
+    </div>
+  )
+}
+
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0]
+
+function EditHours({ initialHours, onDone }: { initialHours: BusinessHours[]; onDone: () => void }) {
+  const [rows, setRows] = useState<BusinessHours[]>(() =>
+    Array.from({ length: 7 }, (_, i) => initialHours.find((h) => h.weekday === i) ?? { weekday: i, is_open: false, open_min: 540, close_min: 1020 })
+  )
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+  const [saved, setSaved] = useState(false)
+
+  function patch(weekday: number, changes: Partial<BusinessHours>) {
+    setRows((prev) => prev.map((r) => (r.weekday === weekday ? { ...r, ...changes } : r)))
+  }
+
+  async function save() {
+    setBusy(true); setErr(null)
+    try {
+      await Promise.all(
+        rows.map((r) =>
+          fetch('/api/staff/assistant/business-hours', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(r),
+          })
+        )
+      )
+      setSaved(true)
+      setTimeout(() => { setSaved(false); onDone() }, 900)
+    } catch {
+      setErr('Could not save. Please try again.')
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="border border-gold/40 bg-gold/5 rounded-sm p-4 mb-5">
+      <div className="eyebrow text-gold mb-3">Working hours</div>
+      <div className="space-y-2">
+        {WEEK_ORDER.map((wd) => {
+          const row = rows[wd]
+          return (
+            <div key={wd} className="flex items-center gap-2.5 flex-wrap">
+              <span className="text-sm text-charcoal w-24 shrink-0">{DAY_NAMES[wd]}</span>
+              <button
+                onClick={() => patch(wd, { is_open: !row.is_open })}
+                className={`text-xs rounded-full px-3 py-1 border transition-colors shrink-0 ${row.is_open ? 'border-sage/60 bg-sage/10 text-sage' : 'border-line/50 bg-cream text-stone hover:border-gold/50'}`}
+              >
+                {row.is_open ? 'Open' : 'Closed'}
+              </button>
+              {row.is_open && (
+                <>
+                  <input
+                    type="time"
+                    value={minToTime(row.open_min)}
+                    onChange={(e) => patch(wd, { open_min: timeToMinutes(e.target.value) })}
+                    className="bg-cream border border-line rounded-sm px-2.5 py-1.5 text-sm w-28"
+                  />
+                  <span className="text-xs text-stone">to</span>
+                  <input
+                    type="time"
+                    value={minToTime(row.close_min)}
+                    onChange={(e) => patch(wd, { close_min: timeToMinutes(e.target.value) })}
+                    className="bg-cream border border-line rounded-sm px-2.5 py-1.5 text-sm w-28"
+                  />
+                </>
+              )}
+            </div>
+          )
+        })}
+      </div>
+      {err && <p className="text-xs text-clay mt-2">{err}</p>}
+      <div className="flex items-center gap-2 mt-4">
+        <button onClick={save} disabled={busy || saved} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 38 }}>
+          {saved ? 'Saved ✓' : busy ? 'Saving…' : 'Save working hours'}
+        </button>
+        <button onClick={onDone} className="btn btn-secondary" style={{ minHeight: 38 }}>Cancel</button>
+      </div>
+      <p className="text-xs text-ink-soft mt-1.5 leading-snug">Changes take effect immediately — clients will see the updated availability.</p>
     </div>
   )
 }

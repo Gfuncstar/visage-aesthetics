@@ -189,6 +189,7 @@ export default function ClientRecord() {
             </button>
           ))}
         </div>
+        <p className="text-xs text-ink-soft mt-1.5 leading-snug">Recent = last visit · Spend = lifetime value · Visits = frequency</p>
 
         <div className="relative mb-6">
           <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-stone" />
@@ -268,30 +269,39 @@ function Detail({
         )}
 
         <div className="space-y-2 mb-6">
-          <FlagToggle
-            on={doNotContact}
-            onToggle={onToggleDnc}
-            Icon={BellOff}
-            title="Do not contact"
-            onText="No emails, WhatsApp or broadcasts will be sent to this client."
-            offText="Outreach is allowed for this client."
-          />
-          <FlagToggle
-            on={requiresDeposit}
-            onToggle={(v) => onToggleFlag('requires_deposit', v)}
-            Icon={CreditCard}
-            title="Require deposit to book"
-            onText="This client must pay a deposit online before a booking is confirmed."
-            offText="No deposit required to book."
-          />
-          <FlagToggle
-            on={blocked}
-            onToggle={(v) => onToggleFlag('blocked', v)}
-            Icon={Ban}
-            title="Block online booking"
-            onText="This client discreetly sees no availability when booking online."
-            offText="This client can book online normally."
-          />
+          <div>
+            <FlagToggle
+              on={doNotContact}
+              onToggle={onToggleDnc}
+              Icon={BellOff}
+              title="Do not contact"
+              onText="No emails, WhatsApp or broadcasts will be sent to this client."
+              offText="Outreach is allowed for this client."
+            />
+            <p className="text-xs text-ink-soft mt-1.5 leading-snug">Prevents any automated messages being sent</p>
+          </div>
+          <div>
+            <FlagToggle
+              on={requiresDeposit}
+              onToggle={(v) => onToggleFlag('requires_deposit', v)}
+              Icon={CreditCard}
+              title="Require deposit to book"
+              onText="This client must pay a deposit online before a booking is confirmed."
+              offText="No deposit required to book."
+            />
+            <p className="text-xs text-ink-soft mt-1.5 leading-snug">Client must pay a deposit when booking online</p>
+          </div>
+          <div>
+            <FlagToggle
+              on={blocked}
+              onToggle={(v) => onToggleFlag('blocked', v)}
+              Icon={Ban}
+              title="Block online booking"
+              onText="This client discreetly sees no availability when booking online."
+              offText="This client can book online normally."
+            />
+            <p className="text-xs text-ink-soft mt-1.5 leading-snug">Client can only be booked in by staff</p>
+          </div>
         </div>
 
         {summary && (
@@ -558,6 +568,7 @@ function PhotoVault({ name, photos, onRefresh, onLightbox }: { name: string; pho
         <button onClick={() => fileRef.current?.click()} disabled={busy} className="btn btn-secondary disabled:opacity-50">
           <span className="inline-flex items-center gap-2"><ImagePlus size={15} strokeWidth={1.75} /> {busy ? 'Uploading…' : `Add ${type} photo`}</span>
         </button>
+        <p className="text-xs text-ink-soft mt-1.5 leading-snug">Visible on this client record only</p>
         {err && <p className="text-xs text-clay mt-2">{err}</p>}
         <p className="text-xs text-ink-soft mt-2 leading-relaxed">Only store photos with the client&apos;s consent. Stored against this client, with the consent recorded.</p>
       </div>
