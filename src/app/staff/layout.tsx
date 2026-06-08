@@ -4,6 +4,7 @@ import { isSimpleView } from '@/lib/staff-prefs'
 import StaffNav from './StaffNav'
 import StaffTopBar from './StaffTopBar'
 import SimpleViewToggle from './SimpleViewToggle'
+import StaffToaster from './StaffToaster'
 
 // The staff area is installable as a home-screen app (PWA): "Add to Home
 // Screen" gives a Visage icon that opens straight onto the home staff landing
@@ -38,6 +39,7 @@ export default async function StaffLayout({ children }: { children: React.ReactN
         <StaffTopBar />
         {children}
       </div>
+      <StaffToaster />
     </>
   )
 }

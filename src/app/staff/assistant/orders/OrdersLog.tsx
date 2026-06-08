@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Camera, Check, Inbox, Link2, LogOut, Plus, RefreshCw, Trash2 } from 'lucide-react'
 import { ORDER_CATEGORIES, type Order, type OrderCategory } from '@/lib/assistant/types'
 import { gbp, ukDate, currentMonthKey, monthLabel, recentMonthKeys } from '@/lib/assistant/format'
+import { notifyDone } from '@/lib/staff-toast'
 
 const inputClass =
   'w-full bg-cream border border-line/40 rounded-sm px-3 py-2.5 text-sm text-charcoal placeholder:text-ink-soft/60 focus:outline-none focus:border-gold'
@@ -87,6 +88,7 @@ export default function OrdersLog() {
     if (!window.confirm('Delete this line?')) return
     setOrders((prev) => prev.filter((o) => o.id !== id))
     await fetch(`/api/staff/assistant/orders/${id}`, { method: 'DELETE' })
+    notifyDone('Line deleted')
   }
 
   async function signOut() {
@@ -231,13 +233,13 @@ function OrderRow({
         {order.order_number && <span>#{order.order_number}</span>}
         <span>Net {gbp(Number(order.net))} · VAT {gbp(Number(order.vat))}</span>
         {order.parse_confidence != null && <span>Parsed {(order.parse_confidence * 100).toFixed(0)}% confident</span>}
-        <button onClick={() => onPatch(order.id, { paid: !order.paid })} className={`inline-flex items-center gap-1 ${order.paid ? 'text-sage' : 'text-clay'}`}>
+        <button onClick={() => { onPatch(order.id, { paid: !order.paid }); notifyDone(order.paid ? 'Marked as unpaid' : 'Marked as paid') }} className={`inline-flex items-center gap-1 ${order.paid ? 'text-sage' : 'text-clay'}`}>
           <span className={`inline-block w-2 h-2 rounded-full ${order.paid ? 'bg-sage' : 'bg-clay'}`} />
           {order.paid ? 'Paid' : 'Unpaid'}
         </button>
         {queue && (
           <div className="ml-auto flex flex-col items-end gap-1">
-            <button onClick={() => onPatch(order.id, { status: 'confirmed' })} className="btn btn-primary" style={{ minHeight: 34, padding: '0 16px' }}>
+            <button onClick={() => { onPatch(order.id, { status: 'confirmed' }); notifyDone('Added to the log') }} className="btn btn-primary" style={{ minHeight: 34, padding: '0 16px' }}>
               <span className="inline-flex items-center gap-1.5"><Check size={13} strokeWidth={2} /> Confirm</span>
             </button>
             <p className="text-xs text-ink-soft leading-snug">Adds this to the log</p>
@@ -352,7 +354,7 @@ function PasteOrder({ disabled, onAdded }: { disabled: boolean; onAdded: () => v
         <button onClick={() => setOpen(true)} disabled={disabled} className="btn btn-secondary disabled:opacity-50">
           <span className="inline-flex items-center gap-2"><Plus size={15} strokeWidth={1.75} /> Paste an order email</span>
         </button>
-        <p className="text-xs text-ink-soft mt-1.5 leading-snug basis-full">Paste the supplier email — it reads the figures out</p>
+        <p className="text-xs text-ink-soft mt-1.5 leading-snug basis-full">Paste the supplier email and it reads the figures out</p>
       </>
     )
   }

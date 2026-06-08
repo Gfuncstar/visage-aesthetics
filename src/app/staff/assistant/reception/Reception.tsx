@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { BellRing, CalendarDays, Check, Clock, ListPlus, LogOut, Mic, Phone, Sparkles, X } from 'lucide-react'
+import { notifyDone } from '@/lib/staff-toast'
 
 type Lite = { id: string; service_name: string; client_name: string; client_phone: string | null; starts_at: string; ends_at?: string; status: string; source: string; created_at: string }
 type WaitRow = { id: string; client_name: string; service_name: string | null; client_phone: string | null }
@@ -570,6 +571,7 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
       const d = await res.json().catch(() => ({}))
       if (!res.ok || d.ok === false) { setError(d.message || d.error || 'Could not do that.'); return }
       setDone(d.message || 'Done.')
+      notifyDone(d.message || 'Done.')
       setProposal(null); setText('')
       onActioned()
     } catch { setError('Network error.') } finally { setBusy(false) }
