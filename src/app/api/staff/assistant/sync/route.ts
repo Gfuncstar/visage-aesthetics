@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, insertMany, audit } from '@/lib/assistant/db'
 import { ovatuConfigured, fetchClients, fetchAppointments } from '@/lib/assistant/ovatu'
+import { cutoverLive } from '@/lib/assistant/go-live'
 import type { Appointment, Client } from '@/lib/assistant/types'
 
 export const runtime = 'nodejs'
@@ -22,6 +23,16 @@ async function authorised(req: Request): Promise<boolean> {
 }
 
 async function run() {
+  // The single cutover switch. While running in parallel with Ovatu this stays
+  // on. Once CUTOVER=go is set (see src/lib/assistant/go-live.ts), the Ovatu
+  // import becomes a no-op so the in-house system is the sole source of truth.
+  if (cutoverLive()) {
+    return NextResponse.json({
+      ok: true,
+      skipped: true,
+      reason: 'Cutover is live (CUTOVER=go). Ovatu sync is off; the in-house system is the source of truth.',
+    })
+  }
   if (!assistantConfigured()) {
     return NextResponse.json({ error: 'Clinic database not configured.' }, { status: 503 })
   }

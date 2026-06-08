@@ -2,8 +2,11 @@ import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { assistantConfigured, select, update, audit } from '@/lib/assistant/db'
 import { checkoutSessionPaid } from '@/lib/booking-engine/stripe'
+import { getService } from '@/lib/booking-engine/availability'
+import { mirrorBookingAppointment } from '@/lib/booking-engine/appointments-mirror'
 import { bookingConfirmationEmail } from '@/lib/booking-email'
 import { consentFormForService } from '@/lib/consent/forms'
+import { consentAtBooking } from '@/lib/assistant/go-live'
 import { isSuppressed } from '@/lib/assistant/suppression'
 import type { Booking } from '@/lib/booking-engine/types'
 
@@ -43,11 +46,22 @@ export async function POST(req: Request) {
     await update('bookings', { id: booking.id }, { status: 'confirmed' })
     await audit('confirm', 'booking', booking.id, { via: 'deposit' })
 
+    // Now that it is paid and confirmed, mirror it into the reporting table.
+    const svc = await getService(booking.service_slug ?? '')
+    await mirrorBookingAppointment({
+      bookingId: booking.id,
+      clientName: booking.client_name,
+      startsAt: booking.starts_at,
+      serviceName: booking.service_name,
+      status: 'confirmed',
+      price: svc?.price_from,
+    })
+
     if (booking.client_email && !(await isSuppressed(booking.client_name, booking.client_email))) {
       const apiKey = process.env.RESEND_API_KEY
       if (apiKey) {
         const consentUrl =
-          process.env.CONSENT_FORMS_ENABLED === 'true' && consentFormForService(booking.service_slug, booking.service_name)
+          consentAtBooking() && consentFormForService(booking.service_slug, booking.service_name)
             ? `${SITE}/consent/${booking.manage_token}`
             : undefined
         const mail = bookingConfirmationEmail({

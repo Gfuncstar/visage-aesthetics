@@ -6,6 +6,7 @@ import { isSuppressed } from '@/lib/assistant/suppression'
 import { recordMessage } from '@/lib/assistant/messages'
 import { fillGap } from '@/lib/booking-engine/notify'
 import { getService, computeDay } from '@/lib/booking-engine/availability'
+import { mirrorBookingAppointment } from '@/lib/booking-engine/appointments-mirror'
 import { londonParts } from '@/lib/booking-engine/time'
 import type { Booking } from '@/lib/booking-engine/types'
 
@@ -108,6 +109,14 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
         reminded_at: null, // let a fresh reminder fire for the new time
       })
       await audit('reschedule', 'booking', booking.id, { to: slot.startsAtIso })
+      await mirrorBookingAppointment({
+        bookingId: booking.id,
+        clientName: booking.client_name,
+        startsAt: slot.startsAtIso,
+        serviceName: booking.service_name,
+        status: booking.status === 'pending' ? 'pending' : 'confirmed',
+        price: service.price_from,
+      })
       await sendConfirmation(booking, slot.startsAtIso)
       // Offer the vacated slot to the waitlist and clients due that treatment.
       await fillGap({ service_slug: booking.service_slug, service_name: booking.service_name, starts_at: vacated, client_name: booking.client_name })
@@ -118,6 +127,13 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
     if (booking.status === 'cancelled') return NextResponse.json({ ok: true, status: 'cancelled' })
     await update('bookings', { id: booking.id }, { status: 'cancelled' })
     await audit('cancel', 'booking', booking.id, { via: 'manage-link' })
+    await mirrorBookingAppointment({
+      bookingId: booking.id,
+      clientName: booking.client_name,
+      startsAt: booking.starts_at,
+      serviceName: booking.service_name,
+      status: 'cancelled',
+    })
 
     if (booking.client_email && !(await isSuppressed(booking.client_name, booking.client_email))) {
       const apiKey = process.env.RESEND_API_KEY

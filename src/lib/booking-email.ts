@@ -44,10 +44,30 @@ ${ADDRESS}${consentLine}
 
 If you need to change or cancel, you can [manage your booking here](${manageUrl}).
 
+You can also see all your appointments any time at ${SITE}/account (we email you a private link, no password needed).
+
 Looking forward to seeing you in clinic.`
   const opts = { preheader: 'Your appointment is confirmed.', headline: 'You are booked in', body, cta: 'none' as const }
   return {
     subject: `Your booking is confirmed: ${input.serviceName}`,
+    html: buildBroadcastHtml(opts),
+    text: buildBroadcastText({ headline: opts.headline, body, cta: 'none' }),
+  }
+}
+
+export function portalLoginEmail(input: { name: string; url: string }): { subject: string; html: string; text: string } {
+  const body = `Hi ${firstName(input.name)},
+
+Here is your private link to see your appointments at Visage Aesthetics:
+
+[See my appointments](${input.url})
+
+From there you can view everything booked, change or cancel a time, and update your details. There is no password to remember. The link is just for you, so please do not forward it.
+
+If you did not ask for this, you can ignore this email.`
+  const opts = { preheader: 'Your link to manage your appointments.', headline: 'Your appointments', body, cta: 'none' as const }
+  return {
+    subject: 'Your link to manage your appointments',
     html: buildBroadcastHtml(opts),
     text: buildBroadcastText({ headline: opts.headline, body, cta: 'none' }),
   }

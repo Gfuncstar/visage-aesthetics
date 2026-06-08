@@ -25,6 +25,12 @@ export async function GET(req: Request) {
   const key = url.searchParams.get('key') ?? ''
   const isStaff = await isStaffAuthed()
 
+  // Vercel cron calls this with an Authorization: Bearer <CRON_SECRET> header
+  // (same pattern as the agent crons). Also accept the app_config push secret
+  // via ?key=, or a signed-in staff session.
+  const cronSecret = process.env.CRON_SECRET
+  const bearerOk = Boolean(cronSecret) && req.headers.get('authorization') === `Bearer ${cronSecret}`
+
   let secretOk = false
   try {
     const rows = await select<{ value: string }>('app_config', { key: 'eq.push_cron_secret', limit: 1 })
@@ -32,7 +38,7 @@ export async function GET(req: Request) {
   } catch {
     /* ignore */
   }
-  if (!secretOk && !isStaff) return NextResponse.json({ error: 'Not authorised' }, { status: 401 })
+  if (!bearerOk && !secretOk && !isStaff) return NextResponse.json({ error: 'Not authorised' }, { status: 401 })
 
   const now = new Date()
   const windowEnd = new Date(now.getTime() + 24 * 3600_000)
