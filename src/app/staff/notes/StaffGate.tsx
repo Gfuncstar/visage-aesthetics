@@ -40,7 +40,9 @@ export default function StaffGate() {
       } else {
         localStorage.removeItem(STORAGE_KEY)
       }
-      window.location.reload()
+      // Always land on the home staff hub after signing in, whichever page the
+      // login was reached from (Home, Assistant, Notes, or the installed PWA).
+      window.location.assign('/staff')
     } catch {
       setError('Could not reach the server')
       setBusy(false)
