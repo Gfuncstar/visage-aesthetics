@@ -236,9 +236,12 @@ function OrderRow({
           {order.paid ? 'Paid' : 'Unpaid'}
         </button>
         {queue && (
-          <button onClick={() => onPatch(order.id, { status: 'confirmed' })} className="ml-auto btn btn-primary" style={{ minHeight: 34, padding: '0 16px' }}>
-            <span className="inline-flex items-center gap-1.5"><Check size={13} strokeWidth={2} /> Confirm</span>
-          </button>
+          <div className="ml-auto flex flex-col items-end gap-1">
+            <button onClick={() => onPatch(order.id, { status: 'confirmed' })} className="btn btn-primary" style={{ minHeight: 34, padding: '0 16px' }}>
+              <span className="inline-flex items-center gap-1.5"><Check size={13} strokeWidth={2} /> Confirm</span>
+            </button>
+            <p className="text-xs text-ink-soft leading-snug">Adds this to the log</p>
+          </div>
         )}
       </div>
     </div>
@@ -296,6 +299,7 @@ function ScanOrder({ disabled, onAdded }: { disabled: boolean; onAdded: () => vo
           {busy ? 'Reading…' : 'Photograph an order'}
         </span>
       </button>
+      <p className="text-xs text-ink-soft mt-1.5 leading-snug basis-full">Point your camera at a delivery note or invoice</p>
       {msg && <span className="text-xs text-ink-soft self-center basis-full">{msg}</span>}
     </>
   )
@@ -344,9 +348,12 @@ function PasteOrder({ disabled, onAdded }: { disabled: boolean; onAdded: () => v
 
   if (!open) {
     return (
-      <button onClick={() => setOpen(true)} disabled={disabled} className="btn btn-secondary disabled:opacity-50">
-        <span className="inline-flex items-center gap-2"><Plus size={15} strokeWidth={1.75} /> Paste an order email</span>
-      </button>
+      <>
+        <button onClick={() => setOpen(true)} disabled={disabled} className="btn btn-secondary disabled:opacity-50">
+          <span className="inline-flex items-center gap-2"><Plus size={15} strokeWidth={1.75} /> Paste an order email</span>
+        </button>
+        <p className="text-xs text-ink-soft mt-1.5 leading-snug basis-full">Paste the supplier email — it reads the figures out</p>
+      </>
     )
   }
 
@@ -417,9 +424,12 @@ function ManualAdd({ month, disabled, onAdded }: { month: string; disabled: bool
 
   if (!open) {
     return (
-      <button onClick={() => setOpen(true)} disabled={disabled} className="btn btn-secondary disabled:opacity-50">
-        <span className="inline-flex items-center gap-2"><Plus size={15} strokeWidth={1.75} /> Add an order or expense</span>
-      </button>
+      <>
+        <button onClick={() => setOpen(true)} disabled={disabled} className="btn btn-secondary disabled:opacity-50">
+          <span className="inline-flex items-center gap-2"><Plus size={15} strokeWidth={1.75} /> Add an order or expense</span>
+        </button>
+        <p className="text-xs text-ink-soft mt-1.5 leading-snug basis-full">Enter totals manually if you don't have a photo or email</p>
+      </>
     )
   }
 
