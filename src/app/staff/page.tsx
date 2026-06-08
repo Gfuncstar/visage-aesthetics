@@ -127,21 +127,12 @@ export default async function StaffIndex() {
 
   return (
     <section className="bg-cream text-charcoal min-h-screen">
-      <div className="max-w-3xl mx-auto px-5 md:px-8 pt-10 md:pt-14 pb-24">
-        <header className="flex items-center justify-between gap-4 pb-5 mb-8 border-b border-line/50">
-          <div className="flex flex-col">
-            <span className="font-display text-charcoal" style={{ fontSize: 20, letterSpacing: '0.01em' }}>Visage Aesthetics</span>
-            <span className="eyebrow text-stone" style={{ fontSize: 9.5, marginTop: 2 }}>Private clinic &nbsp;·&nbsp; Braintree</span>
-          </div>
-          <span className="eyebrow text-gold text-right" style={{ fontSize: 9.5 }}>{dateLabel}</span>
-        </header>
-
-        <div className="eyebrow text-gold mb-2">Clinic staff</div>
+      <div className="max-w-3xl mx-auto px-5 md:px-8 pt-6 pb-24">
         <h1 className="font-display italic text-charcoal text-4xl md:text-5xl leading-tight">
           {greeting}.
         </h1>
 
-        <StaffLandingHub />
+        <StaffLandingHub dateLabel={dateLabel} />
 
         <div className="mt-9">
           <div className="eyebrow text-gold mb-3">Needs your attention</div>

@@ -1,5 +1,6 @@
 'use client'
 
+import type React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ConciergeBell, Home, Megaphone, Sparkles } from 'lucide-react'
@@ -25,7 +26,7 @@ const tabs = [
   },
 ]
 
-export default function StaffNav() {
+export default function StaffNav({ viewToggle }: { viewToggle?: React.ReactNode }) {
   const pathname = usePathname() || ''
   return (
     <nav
@@ -33,21 +34,28 @@ export default function StaffNav() {
       style={{ paddingTop: 'env(safe-area-inset-top)' }}
       aria-label="Staff sections"
     >
-      <div className="max-w-3xl mx-auto grid grid-cols-4">
-        {tabs.map(({ href, label, Icon, match }) => {
-          const active = match(pathname)
-          return (
-            <Link
-              key={href}
-              href={href}
-              aria-current={active ? 'page' : undefined}
-              className={`flex flex-col items-center justify-center gap-1 py-3 min-h-[60px] transition-colors ${active ? 'text-gold' : 'text-cream/65 hover:text-cream'}`}
-            >
-              <Icon size={23} strokeWidth={active ? 2 : 1.6} />
-              <span className="text-[11px] tracking-[0.04em]" style={{ fontWeight: active ? 600 : 400 }}>{label}</span>
-            </Link>
-          )
-        })}
+      <div className="max-w-3xl mx-auto flex items-stretch">
+        <div className="flex-1 grid grid-cols-4">
+          {tabs.map(({ href, label, Icon, match }) => {
+            const active = match(pathname)
+            return (
+              <Link
+                key={href}
+                href={href}
+                aria-current={active ? 'page' : undefined}
+                className={`flex flex-col items-center justify-center gap-1 py-3 min-h-[60px] transition-colors ${active ? 'text-gold' : 'text-cream/65 hover:text-cream'}`}
+              >
+                <Icon size={23} strokeWidth={active ? 2 : 1.6} />
+                <span className="text-[11px] tracking-[0.04em]" style={{ fontWeight: active ? 600 : 400 }}>{label}</span>
+              </Link>
+            )
+          })}
+        </div>
+        {viewToggle && (
+          <div className="flex items-center px-3 border-l border-cream/10 shrink-0">
+            {viewToggle}
+          </div>
+        )}
       </div>
     </nav>
   )
