@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { isStaffAuthed } from '@/lib/staff-auth'
-import { assistantConfigured, select, insert, audit } from '@/lib/assistant/db'
+import { assistantConfigured, select, insert, update, audit } from '@/lib/assistant/db'
 import { getService } from '@/lib/booking-engine/availability'
 import { londonWallToUtc, londonToday } from '@/lib/booking-engine/time'
 import { mirrorBookingAppointment } from '@/lib/booking-engine/appointments-mirror'
@@ -108,4 +108,28 @@ export async function POST(req: Request) {
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : 'Save failed' }, { status: 502 })
   }
+}
+
+// PATCH { kind: 'hours', weekday: 0-6, isOpen, openMin, closeMin }
+export async function PATCH(req: Request) {
+  if (!(await isStaffAuthed())) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+  if (!assistantConfigured()) return NextResponse.json({ error: 'Not configured' }, { status: 503 })
+  let body: Record<string, unknown>
+  try { body = await req.json() } catch { return NextResponse.json({ error: 'Invalid request' }, { status: 400 }) }
+  if (body.kind !== 'hours') return NextResponse.json({ error: 'Unknown kind' }, { status: 400 })
+  const weekday = Number(body.weekday)
+  if (!Number.isInteger(weekday) || weekday < 0 || weekday > 6) return NextResponse.json({ error: 'Bad weekday' }, { status: 400 })
+  const isOpen = Boolean(body.isOpen)
+  const patch: Record<string, unknown> = { is_open: isOpen }
+  if (isOpen) {
+    const openMin = Number(body.openMin)
+    const closeMin = Number(body.closeMin)
+    if (!Number.isFinite(openMin) || !Number.isFinite(closeMin) || openMin < 0 || closeMin > 1440 || closeMin <= openMin) {
+      return NextResponse.json({ error: 'Bad times' }, { status: 400 })
+    }
+    patch.open_min = openMin
+    patch.close_min = closeMin
+  }
+  await update('business_hours', { weekday: String(weekday) }, patch)
+  return NextResponse.json({ ok: true })
 }

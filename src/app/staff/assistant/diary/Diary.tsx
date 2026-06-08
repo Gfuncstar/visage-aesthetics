@@ -1,8 +1,10 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { ChevronLeft, ChevronRight, LogOut, Plus, Ban } from 'lucide-react'
+import { ChevronLeft, ChevronRight, LogOut, Plus, Ban, Clock } from 'lucide-react'
 import MicButton, { appendText } from '@/components/ui/MicButton'
+
+type BusinessHours = { weekday: number; is_open: boolean; open_min: number; close_min: number }
 
 type Booking = {
   id: string
@@ -95,7 +97,8 @@ export default function Diary() {
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([])
   const [services, setServices] = useState<Service[]>([])
   const [loading, setLoading] = useState(true)
-  const [adding, setAdding] = useState<'booking' | 'time_off' | null>(null)
+  const [adding, setAdding] = useState<'booking' | 'time_off' | 'hours' | null>(null)
+  const [businessHours, setBusinessHours] = useState<BusinessHours[]>([])
 
   const load = useCallback(async (from: string, to: string) => {
     setLoading(true)
@@ -105,6 +108,7 @@ export default function Diary() {
       setBookings(d.bookings ?? [])
       setTimeOff(d.timeOff ?? [])
       setWaitlist(d.waitlist ?? [])
+      setBusinessHours(d.businessHours ?? [])
     }
     setLoading(false)
   }, [])
@@ -169,17 +173,26 @@ export default function Diary() {
           <button onClick={() => setDate(view === 'month' ? addMonths(date, 1) : addDays(date, view === 'week' ? 7 : 1))} className="w-10 h-10 inline-flex items-center justify-center rounded-sm border border-line/50 bg-cream-soft hover:border-gold/60"><ChevronRight size={18} /></button>
         </div>
 
-        <div className="flex gap-2 mb-5">
+        <div className="flex gap-2 mb-5 flex-wrap">
           <button onClick={() => setAdding(adding === 'booking' ? null : 'booking')} className="btn btn-secondary" style={{ minHeight: 38 }}>
             <span className="inline-flex items-center gap-2"><Plus size={14} strokeWidth={1.75} /> Add booking</span>
           </button>
           <button onClick={() => setAdding(adding === 'time_off' ? null : 'time_off')} className="btn btn-secondary" style={{ minHeight: 38 }}>
             <span className="inline-flex items-center gap-2"><Ban size={14} strokeWidth={1.75} /> Block time</span>
           </button>
+          <button onClick={() => setAdding(adding === 'hours' ? null : 'hours')} className="btn btn-secondary" style={{ minHeight: 38 }}>
+            <span className="inline-flex items-center gap-2"><Clock size={14} strokeWidth={1.75} /> Hours</span>
+          </button>
         </div>
 
         {adding === 'booking' && <AddBooking date={date} services={services} onDone={() => { setAdding(null); reload() }} />}
         {adding === 'time_off' && <BlockTime date={date} onDone={() => { setAdding(null); reload() }} />}
+        {adding === 'hours' && (
+          <ManageHours
+            hours={businessHours}
+            onChange={(h) => setBusinessHours((prev) => prev.map((x) => x.weekday === h.weekday ? h : x))}
+          />
+        )}
 
         {loading ? (
           <p className="text-sm text-ink-soft">Loading…</p>
@@ -338,6 +351,69 @@ function AddBooking({ date, services, onDone }: { date: string; services: Servic
       </div>
       {err && <p className="text-xs text-clay">{err}</p>}
       <button onClick={save} disabled={busy} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 38 }}>{busy ? 'Saving…' : 'Add to diary'}</button>
+    </div>
+  )
+}
+
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+function fmtMin(min: number): string {
+  return `${Math.floor(min / 60)}:${String(min % 60).padStart(2, '0')}`
+}
+
+function ManageHours({ hours, onChange }: { hours: BusinessHours[]; onChange: (h: BusinessHours) => void }) {
+  const [saving, setSaving] = useState<number | null>(null)
+  const map = new Map(hours.map((h) => [h.weekday, h]))
+
+  async function save(h: BusinessHours) {
+    setSaving(h.weekday)
+    onChange(h)
+    await fetch('/api/staff/assistant/diary', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kind: 'hours', weekday: h.weekday, isOpen: h.is_open, openMin: h.open_min, closeMin: h.close_min }),
+    })
+    setSaving(null)
+  }
+
+  return (
+    <div className="border border-line/50 bg-cream-soft rounded-sm p-4 mb-5">
+      <div className="eyebrow text-gold mb-3">Opening hours</div>
+      <div className="space-y-2.5">
+        {DAYS.map((name, wd) => {
+          const h = map.get(wd) ?? { weekday: wd, is_open: false, open_min: 540, close_min: 1020 }
+          const isSaving = saving === wd
+          return (
+            <div key={wd} className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-stone w-7 shrink-0">{name}</span>
+              <button
+                onClick={() => save({ ...h, is_open: !h.is_open })}
+                disabled={isSaving}
+                className={`text-xs rounded-full px-2.5 py-1 border transition-colors shrink-0 ${h.is_open ? 'border-sage/50 text-sage bg-sage/10' : 'border-line/50 text-stone bg-cream'}`}
+              >
+                {h.is_open ? 'open' : 'closed'}
+              </button>
+              {h.is_open && (
+                <>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => save({ ...h, open_min: Math.max(0, h.open_min - 30) })} disabled={isSaving} className="w-6 h-6 text-sm rounded border border-line/50 hover:border-gold/60 text-stone flex items-center justify-center">−</button>
+                    <span className="text-xs text-charcoal w-9 text-center tabular-nums">{fmtMin(h.open_min)}</span>
+                    <button onClick={() => save({ ...h, open_min: Math.min(h.close_min - 30, h.open_min + 30) })} disabled={isSaving} className="w-6 h-6 text-sm rounded border border-line/50 hover:border-gold/60 text-stone flex items-center justify-center">+</button>
+                  </div>
+                  <span className="text-xs text-stone">–</span>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => save({ ...h, close_min: Math.max(h.open_min + 30, h.close_min - 30) })} disabled={isSaving} className="w-6 h-6 text-sm rounded border border-line/50 hover:border-gold/60 text-stone flex items-center justify-center">−</button>
+                    <span className="text-xs text-charcoal w-9 text-center tabular-nums">{fmtMin(h.close_min)}</span>
+                    <button onClick={() => save({ ...h, close_min: Math.min(1440, h.close_min + 30) })} disabled={isSaving} className="w-6 h-6 text-sm rounded border border-line/50 hover:border-gold/60 text-stone flex items-center justify-center">+</button>
+                  </div>
+                  {isSaving && <span className="text-xs text-stone">saving…</span>}
+                </>
+              )}
+            </div>
+          )
+        })}
+      </div>
+      <p className="text-xs text-ink-soft mt-3">Changes affect all future weeks. Use &ldquo;Block time&rdquo; above for a one-off closure.</p>
     </div>
   )
 }
