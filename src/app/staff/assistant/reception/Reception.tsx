@@ -176,9 +176,8 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
       <div className="max-w-3xl mx-auto px-5 md:px-8 pt-12 md:pt-20 pb-24">
         <div className="flex items-start justify-between gap-4 mb-8">
           <div>
-            <div className="eyebrow text-gold mb-2 inline-flex items-center gap-2">
+            <div className="eyebrow text-gold mb-2">
               Front desk
-              <span className="text-[10px] tracking-[0.18em] uppercase rounded-full px-2 py-0.5 bg-gold/15 text-gold-deep border border-gold/40">Paused</span>
             </div>
             <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight">The front desk.</h1>
             <p className="text-ink-soft mt-3 max-w-xl leading-relaxed">Everything happening around the chair, in one place. The clinical side stays with you.</p>
@@ -186,10 +185,6 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
           <button onClick={signOut} className="eyebrow text-stone hover:text-gold-deep transition-colors flex items-center gap-2 shrink-0 mt-2">
             <LogOut size={14} strokeWidth={1.75} /><span className="hidden sm:inline">Sign out</span>
           </button>
-        </div>
-
-        <div className="border border-gold/40 bg-gold/5 rounded-sm px-4 py-3 mb-6 text-sm text-charcoal leading-relaxed">
-          <span className="font-medium text-gold-deep">Paused, in standby.</span> This mirrors the live Ovatu diary so you can see it working. It is not taking real bookings yet, and nothing is sent to clients. It goes live only on your say-so.
         </div>
 
         <CommandBar onActioned={load} />
