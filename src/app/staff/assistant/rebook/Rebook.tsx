@@ -154,6 +154,7 @@ function RebookCard({
         setEmailing(false)
         return
       }
+      notifyDone('Rebook email sent')
       onSent(i.markKey)
     } catch {
       setEmailErr('Network error.')

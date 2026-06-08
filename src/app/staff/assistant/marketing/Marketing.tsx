@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { FileText, LogOut, Mail, Megaphone, Send, Share2 } from 'lucide-react'
 import MicButton, { appendText } from '@/components/ui/MicButton'
+import { notifyDone } from '@/lib/staff-toast'
 
 type Activity = { id: string; channel: string; title: string | null; detail: string | null; url: string | null; count: number | null; status: string; created_at: string }
 type Blog = { slug: string; title: string; category: string; datePublished: string }
@@ -184,7 +185,7 @@ function AdLogger({ onLogged }: { onLogged: () => void }) {
     const res = await fetch('/api/staff/assistant/marketing', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind: 'ad', title, detail }),
     })
-    if (res.ok) { setTitle(''); setDetail(''); onLogged() }
+    if (res.ok) { setTitle(''); setDetail(''); notifyDone('Advert logged'); onLogged() }
     setBusy(false)
   }
 

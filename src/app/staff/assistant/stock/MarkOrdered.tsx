@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Check, ShoppingCart } from 'lucide-react'
+import { notifyDone } from '@/lib/staff-toast'
 
 export default function MarkOrdered({ itemKey, ordered }: { itemKey: string; ordered: boolean }) {
   const router = useRouter()
@@ -16,6 +17,7 @@ export default function MarkOrdered({ itemKey, ordered }: { itemKey: string; ord
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ item: itemKey }),
       })
+      notifyDone(method === 'POST' ? 'Marked as ordered' : 'Marked as not ordered')
       router.refresh()
     } finally {
       setBusy(false)
