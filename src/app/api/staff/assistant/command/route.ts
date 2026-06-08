@@ -46,6 +46,7 @@ Return ONLY a JSON object, one of:
 {"type":"waitlist","clientName":string,"service":<slug>|null,"phone":string|null}
 {"type":"flag","clientName":string,"flag":"block"|"deposit"|"do_not_contact","value":true|false}
 {"type":"set_hours","weekday":0-6,"isOpen":true|false,"openMin":number|null,"closeMin":number|null}
+{"type":"block_until","clientName":string,"until":"YYYY-MM-DD"}
 {"type":"unknown","reason":string}
 
 Rules:
@@ -53,6 +54,7 @@ Rules:
 - "block out", "I'm away", "lunch", "day off" -> block_time (for a whole day use startTime 09:00 endTime 17:00 unless stated).
 - "difficult", "block this client", "stop them booking" -> flag block true. "needs to pay a deposit" -> flag deposit true. "do not contact" -> flag do_not_contact true.
 - set_hours: use for changing opening hours or days. weekday is 0=Sunday,1=Monday,...,6=Saturday. openMin/closeMin are minutes from midnight (e.g. 600=10:00am, 660=11:00am, 780=1:00pm, 840=2:00pm, 1020=5:00pm, 1140=7:00pm). "Open on Thursdays 9 to 5" -> set_hours weekday 4 isOpen true openMin 540 closeMin 1020. "Close on Saturdays" or "no more Saturdays" -> set_hours weekday 6 isOpen false. "Change Tuesday to 10 to 2" -> set_hours weekday 2 isOpen true openMin 600 closeMin 840.
+- block_until: use when a specific client should see "fully booked" for a period. "block [name] for 3 months", "[name] is clinic full for 6 months", "don't let [name] book until September", "red flag [name] for 3 months" -> block_until. Calculate the "until" date as today + stated duration (default 3 months if unspecified). "unblock [name]" -> flag block false.
 - If you are missing something essential (no name, no time for a booking), use "unknown" with a short reason saying what is missing.
 - Output the JSON only, no prose.`
 

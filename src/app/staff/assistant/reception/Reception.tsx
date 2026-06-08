@@ -1,11 +1,14 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { BellRing, CalendarDays, Check, Clock, ListPlus, LogOut, Mic, Sparkles, X } from 'lucide-react'
 
-type Lite = { id: string; service_name: string; client_name: string; client_phone: string | null; starts_at: string; status: string; source: string; created_at: string }
+type Lite = { id: string; service_name: string; client_name: string; client_phone: string | null; starts_at: string; ends_at?: string; status: string; source: string; created_at: string }
 type WaitRow = { id: string; client_name: string; service_name: string | null; client_phone: string | null }
+type BusinessHour = { weekday: number; is_open: boolean; open_min: number; close_min: number }
+type TimeOffRow = { id: string; starts_at: string; ends_at: string; reason: string | null }
+type DayDiary = { bookings: Lite[]; timeOff: TimeOffRow[]; businessHours: BusinessHour[] }
 type Data = {
   configured: boolean
   today: string
@@ -13,6 +16,28 @@ type Data = {
   todaysBookings: Lite[]
   justBooked: Lite[]
   waitlist: WaitRow[]
+}
+
+// ---- gap helpers -----------------------------------------------------------
+function toLocalMin(iso: string): number {
+  const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(new Date(iso))
+  const h = Number(parts.find((p) => p.type === 'hour')?.value ?? '0')
+  const m = Number(parts.find((p) => p.type === 'minute')?.value ?? '0')
+  return h * 60 + m
+}
+type Interval = { start: number; end: number }
+function subtractIntervals(free: Interval[], busy: Interval[]): Interval[] {
+  let result = [...free]
+  for (const b of busy) {
+    result = result.flatMap((f) => {
+      if (b.end <= f.start || b.start >= f.end) return [f]
+      const parts: Interval[] = []
+      if (b.start > f.start) parts.push({ start: f.start, end: b.start })
+      if (b.end < f.end) parts.push({ start: b.end, end: f.end })
+      return parts
+    })
+  }
+  return result
 }
 
 const TZ = 'Europe/London'
@@ -66,14 +91,36 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
   const [view, setView] = useState<'day' | 'week' | 'month'>('day')
   const [range, setRange] = useState<Lite[]>([])
   const [rangeLoading, setRangeLoading] = useState(false)
+  const [dayDiary, setDayDiary] = useState<DayDiary | null>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
-    const res = await fetch('/api/staff/assistant/reception')
-    if (res.ok) setData(await res.json())
+    const [recRes, diaryRes] = await Promise.all([
+      fetch('/api/staff/assistant/reception'),
+      fetch(`/api/staff/assistant/diary?date=${todayStr()}`),
+    ])
+    if (recRes.ok) setData(await recRes.json())
+    if (diaryRes.ok) setDayDiary(await diaryRes.json())
     setLoading(false)
   }, [])
   useEffect(() => { void load() }, [load])
+
+  // Compute free gaps for the day view
+  const dayGaps = useMemo<Interval[]>(() => {
+    if (!dayDiary) return []
+    const today = todayStr()
+    const wday = new Date(`${today}T12:00:00Z`).getUTCDay()
+    const bh = dayDiary.businessHours?.find((h) => h.weekday === wday)
+    if (!bh?.is_open) return []
+    const busySlots: Interval[] = [
+      ...(dayDiary.bookings ?? [])
+        .filter((b) => b.status !== 'cancelled' && b.ends_at)
+        .map((b) => ({ start: toLocalMin(b.starts_at), end: toLocalMin(b.ends_at!) })),
+      ...(dayDiary.timeOff ?? [])
+        .map((t) => ({ start: toLocalMin(t.starts_at), end: toLocalMin(t.ends_at) })),
+    ]
+    return subtractIntervals([{ start: bh.open_min, end: bh.close_min }], busySlots).filter((g) => g.end - g.start >= 15)
+  }, [dayDiary])
 
   useEffect(() => {
     if (view === 'day') return
@@ -147,15 +194,30 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
                 </div>
               </div>
               {view === 'day' ? (
-                data.todaysBookings.length === 0 ? (
-                  <Empty>Nothing booked today.</Empty>
-                ) : (
-                  <div className="space-y-2">
-                    {data.todaysBookings.map((b) => (
-                      <Row key={b.id} left={<span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>} sub={b.service_name} right={<span className={`capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>} />
-                    ))}
-                  </div>
-                )
+                (() => {
+                  // Merge bookings and free gaps into a single sorted timeline
+                  type TItem = { kind: 'booking'; b: Lite } | { kind: 'gap'; start: number; end: number }
+                  const items: TItem[] = [
+                    ...data.todaysBookings.map((b) => ({ kind: 'booking' as const, b })),
+                    ...dayGaps.map((g) => ({ kind: 'gap' as const, ...g })),
+                  ].sort((a, b) => {
+                    const ta = a.kind === 'booking' ? toLocalMin(a.b.starts_at) : a.start
+                    const tb = b.kind === 'booking' ? toLocalMin(b.b.starts_at) : b.start
+                    return ta - tb
+                  })
+                  if (items.length === 0) return <Empty>Nothing booked today.</Empty>
+                  return (
+                    <div className="space-y-2">
+                      {items.map((item, i) =>
+                        item.kind === 'booking' ? (
+                          <Row key={item.b.id} left={<span><span className="font-medium">{timeLabel(item.b.starts_at)}</span> &nbsp; {item.b.client_name}</span>} sub={item.b.service_name} right={<span className={`capitalize ${statusTone[item.b.status] ?? 'text-stone'}`}>{item.b.status.replace('_', ' ')}</span>} />
+                        ) : (
+                          <GapRow key={`gap-${i}`} startMin={item.start} endMin={item.end} />
+                        )
+                      )}
+                    </div>
+                  )
+                })()
               ) : rangeLoading ? (
                 <p className="text-sm text-ink-soft">Loading…</p>
               ) : range.length === 0 ? (
@@ -383,4 +445,27 @@ function Row({ left, sub, right }: { left: React.ReactNode; sub: string | null; 
 
 function Empty({ children }: { children: React.ReactNode }) {
   return <p className="text-sm text-ink-soft border border-line/40 rounded-sm bg-cream-soft px-4 py-3">{children}</p>
+}
+
+function gapClock(min: number): string {
+  const h = Math.floor(min / 60)
+  const m = min % 60
+  const suffix = h < 12 ? 'am' : 'pm'
+  const h12 = h % 12 || 12
+  return m === 0 ? `${h12}${suffix}` : `${h12}:${String(m).padStart(2, '0')}${suffix}`
+}
+
+function GapRow({ startMin, endMin }: { startMin: number; endMin: number }) {
+  const duration = endMin - startMin
+  const hrs = Math.floor(duration / 60)
+  const mins = duration % 60
+  const label = [hrs > 0 ? `${hrs}h` : null, mins > 0 ? `${mins}m` : null].filter(Boolean).join(' ')
+  return (
+    <div className="flex items-center justify-between gap-3 border border-dashed border-line/40 rounded-sm px-4 py-2.5 opacity-60">
+      <div className="min-w-0">
+        <div className="text-sm text-stone truncate"><span className="font-medium">{gapClock(startMin)}</span> &nbsp; Free</div>
+        <div className="text-xs text-stone/70 mt-0.5">Until {gapClock(endMin)} · {label}</div>
+      </div>
+    </div>
+  )
 }

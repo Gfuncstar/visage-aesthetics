@@ -4,7 +4,7 @@ import { assistantConfigured, select, insert, audit } from '@/lib/assistant/db'
 import { getService } from '@/lib/booking-engine/availability'
 import { londonWallToUtc, londonToday } from '@/lib/booking-engine/time'
 import { mirrorBookingAppointment } from '@/lib/booking-engine/appointments-mirror'
-import type { Booking, TimeOff } from '@/lib/booking-engine/types'
+import type { Booking, TimeOff, BusinessHours } from '@/lib/booking-engine/types'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -27,12 +27,13 @@ export async function GET(req: Request) {
   const start = dayBounds(from).start
   const end = dayBounds(to).end
   try {
-    const [bookings, timeOff, waitlist] = await Promise.all([
+    const [bookings, timeOff, waitlist, businessHours] = await Promise.all([
       select<Booking>('bookings', { and: `(starts_at.gte.${start},starts_at.lte.${end})`, order: 'starts_at.asc', limit: 200 }),
       select<TimeOff>('time_off', { and: `(starts_at.lte.${end},ends_at.gte.${start})`, order: 'starts_at.asc', limit: 100 }),
       select<Record<string, unknown>>('waitlist', { status: 'eq.waiting', order: 'created_at.asc', limit: 50 }),
+      select<BusinessHours>('business_hours', { limit: 7 }),
     ])
-    return NextResponse.json({ bookings, timeOff, waitlist, configured: true })
+    return NextResponse.json({ bookings, timeOff, waitlist, businessHours, configured: true })
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : 'Load failed' }, { status: 502 })
   }
