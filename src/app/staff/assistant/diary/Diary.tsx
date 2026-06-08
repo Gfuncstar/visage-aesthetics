@@ -432,7 +432,7 @@ function AddBooking({ date, services, onDone }: { date: string; services: Servic
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ kind: 'booking', service: slug, date, startMinutes: timeToMinutes(time), name, phone }),
     })
-    if (res.ok) onDone()
+    if (res.ok) { notifyDone('Added to the diary'); onDone() }
     else { const d = await res.json().catch(() => ({})); setErr(d.error || 'Could not save.'); setBusy(false) }
   }
 
@@ -556,7 +556,7 @@ function BlockTime({ date, onDone }: { date: string; onDone: () => void }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ kind: 'time_off', date, startMinutes: timeToMinutes(start), endMinutes: timeToMinutes(end), reason }),
     })
-    if (res.ok) onDone()
+    if (res.ok) { notifyDone('Time blocked off'); onDone() }
     else { const d = await res.json().catch(() => ({})); setErr(d.error || 'Could not save.'); setBusy(false) }
   }
 
