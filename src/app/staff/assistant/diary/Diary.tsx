@@ -278,7 +278,7 @@ export default function Diary() {
                             {sorted.map((item, i) => item.t === 'to' ? (
                               <div key={item.to.id} className="px-3.5 py-2 text-xs text-stone flex items-center gap-2"><Ban size={12} strokeWidth={1.75} /> {timeLabel(item.to.starts_at)} to {timeLabel(item.to.ends_at)} &nbsp;·&nbsp; {item.to.reason || 'Blocked'}</div>
                             ) : item.t === 'g' ? (
-                              <div key={`gap-${i}`} className="px-3.5 py-1.5 flex items-center gap-1.5 select-none">
+                              <div key={`gap-${i}`} className="px-3.5 py-1.5 flex items-center gap-1.5 select-none opacity-30">
                                 <span className="text-[11px] text-stone/50 tabular-nums whitespace-nowrap">{gapClock(item.g.start)}</span>
                                 <span className="flex-1 border-t border-dashed border-stone/25" />
                                 <span className="text-[11px] text-stone/50 whitespace-nowrap">{gapLabel(item.g.end - item.g.start)}</span>
@@ -358,7 +358,7 @@ export default function Diary() {
                   <Ban size={14} strokeWidth={1.75} /> {timeLabel(item.to.starts_at)} to {timeLabel(item.to.ends_at)} &nbsp;·&nbsp; {item.to.reason || 'Blocked'}
                 </div>
               ) : item.t === 'g' ? (
-                <div key={`gap-${i}`} className="border border-dashed border-line/40 rounded-sm px-4 py-2.5 flex items-center justify-between opacity-60">
+                <div key={`gap-${i}`} className="border border-dashed border-line/40 rounded-sm px-4 py-2.5 flex items-center justify-between opacity-30">
                   <div>
                     <div className="text-sm text-stone"><span className="font-medium">{gapClock(item.g.start)}</span> &nbsp; Free</div>
                     <div className="text-xs text-stone/70 mt-0.5">Until {gapClock(item.g.end)} · {gapLabel(item.g.end - item.g.start)}</div>
