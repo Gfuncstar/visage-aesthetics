@@ -128,11 +128,7 @@ export default async function StaffIndex() {
   return (
     <section className="bg-cream text-charcoal min-h-screen">
       <div className="max-w-3xl mx-auto px-5 md:px-8 pt-6 pb-24">
-        <h1 className="font-display italic text-charcoal text-4xl md:text-5xl leading-tight">
-          {greeting}.
-        </h1>
-
-        <StaffLandingHub dateLabel={dateLabel} />
+        <StaffLandingHub greeting={greeting} dateLabel={dateLabel} />
 
         <div className="mt-9">
           <div className="eyebrow text-gold mb-3">Needs your attention</div>
