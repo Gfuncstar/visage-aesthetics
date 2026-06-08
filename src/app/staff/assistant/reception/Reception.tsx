@@ -371,7 +371,16 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
       })
       const d = await res.json().catch(() => ({}))
       if (!res.ok) { setError(d.error || 'Could not read that.'); return }
-      if (d.action?.type === 'unknown') { setError(d.summary || 'I could not work out what to do.'); return }
+      if (d.action?.type === 'unknown') {
+        // Looks like a question — fall through to the ask endpoint automatically
+        const qRes = await fetch('/api/staff/assistant/ask', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }),
+        })
+        const qd = await qRes.json().catch(() => ({}))
+        if (!qRes.ok) { setError(qd.error || 'Could not answer that.'); return }
+        setAnswer(qd.answer || 'No answer.')
+        return
+      }
       setProposal({ action: d.action, summary: d.summary })
     } catch { setError('Network error.') } finally { setBusy(false) }
   }
