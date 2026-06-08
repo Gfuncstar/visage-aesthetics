@@ -33,11 +33,6 @@ export default async function ReceptionHub() {
       title="The front desk."
       intro="Online booking, the diary, reminders, the waitlist and rebooking, all in one place."
       cards={visible}
-      banner={
-        <div className="border border-gold/40 bg-gold/5 rounded-sm px-4 py-3 text-sm text-charcoal leading-relaxed">
-          <span className="font-medium text-gold-deep">Paused, in standby.</span> This mirrors the live Ovatu diary so you can see it working. It is not taking real bookings yet, and nothing is sent to clients. It goes live only on your say-so.
-        </div>
-      }
     />
   )
 }

@@ -24,6 +24,8 @@ function dayChipLabel(dateStr: string): { weekday: string; rest: string } {
 
 type Step = 'details' | 'service' | 'time' | 'done'
 
+const STORAGE_KEY = 'visage_booking_me'
+
 export default function BookingFlow() {
   const [step, setStep] = useState<Step>('details')
   const [name, setName] = useState('')
@@ -31,6 +33,7 @@ export default function BookingFlow() {
   const [phone, setPhone] = useState('')
   const [notes, setNotes] = useState('')
   const [voucherCode, setVoucherCode] = useState('')
+  const [rememberMe, setRememberMe] = useState(false)
 
   const [services, setServices] = useState<Service[]>([])
   const [service, setService] = useState<Service | null>(null)
@@ -43,6 +46,18 @@ export default function BookingFlow() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<'confirmed' | 'deposit' | 'waitlist' | null>(null)
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? 'null')
+      if (saved) {
+        setName(saved.name ?? '')
+        setEmail(saved.email ?? '')
+        setPhone(saved.phone ?? '')
+        setRememberMe(true)
+      }
+    } catch {}
+  }, [])
 
   useEffect(() => {
     void (async () => {
@@ -137,6 +152,15 @@ export default function BookingFlow() {
     }
   }
 
+  function handleContinue() {
+    if (rememberMe) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ name, email, phone }))
+    } else {
+      localStorage.removeItem(STORAGE_KEY)
+    }
+    setStep('service')
+  }
+
   const availableDays = Object.keys(calendar).filter((d) => calendar[d] > 0).sort()
   const detailsValid = name.trim().length > 1 && (email.trim().length > 3 || phone.trim().length > 6)
 
@@ -178,7 +202,16 @@ export default function BookingFlow() {
               </div>
             </div>
             <p className="text-xs text-ink-soft">Leave at least an email or a mobile number so we can reach you.</p>
-            <button onClick={() => setStep('service')} disabled={!detailsValid} className="btn btn-primary disabled:opacity-50">
+            <label className="inline-flex items-center gap-2.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 rounded-sm border border-line accent-gold cursor-pointer"
+              />
+              <span className="text-sm text-ink-soft">Remember me on this device</span>
+            </label>
+            <button onClick={handleContinue} disabled={!detailsValid} className="btn btn-primary disabled:opacity-50">
               <span className="inline-flex items-center gap-2">Continue <span className="btn-arrow">→</span></span>
             </button>
           </div>
