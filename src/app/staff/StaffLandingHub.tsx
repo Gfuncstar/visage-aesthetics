@@ -60,7 +60,7 @@ function useNowMin(): number {
   return nowMin
 }
 
-export default function StaffLandingHub() {
+export default function StaffLandingHub({ dateLabel }: { dateLabel: string }) {
   const clock = useLiveClock()
   const nowMin = useNowMin()
   const [bookings, setBookings] = useState<Booking[] | null>(null)
@@ -103,13 +103,15 @@ export default function StaffLandingHub() {
   )
 
   return (
-    <div className="mt-6 space-y-6">
-      {/* Live clock */}
-      <div className="flex items-center gap-3">
-        <span className="font-display italic text-2xl text-charcoal tabular-nums">{clock}</span>
-        <span className="inline-flex items-center gap-1.5 text-xs text-stone">
+    <div className="mt-3 space-y-5">
+      {/* Date + live clock — single compact line */}
+      <div className="flex items-center gap-2 text-sm text-stone flex-wrap">
+        <span>{dateLabel}</span>
+        <span className="text-stone/40">·</span>
+        <span className="tabular-nums font-medium text-charcoal">{clock}</span>
+        <span className="inline-flex items-center gap-1.5">
           <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage animate-pulse" />
-          Live
+          <span className="text-xs">Live</span>
         </span>
       </div>
 
