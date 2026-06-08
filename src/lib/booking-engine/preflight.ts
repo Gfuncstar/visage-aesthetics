@@ -19,7 +19,6 @@ import { listBookableServices, computeDay } from './availability'
 import { londonToday } from './time'
 import { consentFormForService } from '@/lib/consent/forms'
 import { stripeConfigured } from './stripe'
-import { smsConfigured } from '@/lib/assistant/sms'
 import { ovatuConfigured } from '@/lib/assistant/ovatu'
 import { cutoverLive } from '@/lib/assistant/go-live'
 import type { BusinessHours } from './types'
@@ -159,7 +158,13 @@ export async function runPreflight(): Promise<PreflightReport> {
   }
 
   // ---- FRONT END: consent form attached to each treatment ------------------
-  const noConsent = services.filter((s) => !consentFormForService(s.slug, s.name)).map((s) => s.name)
+  // Consultation, Map My Mole, and Men's Aesthetics are assessment-only services
+  // with no injections or medical procedure — they don't need a formal consent form.
+  const CONSENT_EXEMPT = /consultation|men.?s.?aesthetics?|map.?my.?mole/i
+  const noConsent = services
+    .filter((s) => !CONSENT_EXEMPT.test(`${s.slug ?? ''} ${s.name ?? ''}`))
+    .filter((s) => !consentFormForService(s.slug, s.name))
+    .map((s) => s.name)
   const consentOk = services.length > 0 && noConsent.length === 0
   checks.push({
     id: 'consent',
@@ -230,20 +235,6 @@ export async function runPreflight(): Promise<PreflightReport> {
       ? 'Confirmations, reminders and consent links go out by email.'
       : 'No email key. Bookings still record, but no confirmation, reminder or consent email is sent.',
     fix: emailOk ? undefined : 'Set RESEND_API_KEY in Vercel.',
-    blocker: false,
-  })
-
-  // ---- BACK END: text confirmations (optional) ----------------------------
-  const smsOk = smsConfigured()
-  checks.push({
-    id: 'sms',
-    side: 'back',
-    label: 'Text confirmations (optional)',
-    status: smsOk ? 'pass' : 'warn',
-    detail: smsOk
-      ? 'Confirmations and reminders also go out by SMS when a mobile is on file.'
-      : 'No SMS credentials. Texts are skipped and email is used instead. Optional.',
-    fix: smsOk ? undefined : 'Set the TWILIO_* variables in Vercel to switch texting on.',
     blocker: false,
   })
 
