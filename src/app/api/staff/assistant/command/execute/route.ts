@@ -7,7 +7,7 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
-const TYPES = new Set(['book', 'cancel', 'block_time', 'waitlist', 'flag'])
+const TYPES = new Set(['book', 'cancel', 'block_time', 'waitlist', 'flag', 'set_hours'])
 
 // POST { action } — execute a confirmed action from the command bar.
 export async function POST(req: Request) {

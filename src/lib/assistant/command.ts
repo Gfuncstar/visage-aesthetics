@@ -16,6 +16,7 @@ export type Action =
   | { type: 'block_time'; date: string; startTime: string; endTime: string; reason?: string | null }
   | { type: 'waitlist'; clientName: string; service?: string | null; phone?: string | null }
   | { type: 'flag'; clientName: string; flag: 'block' | 'deposit' | 'do_not_contact'; value: boolean }
+  | { type: 'set_hours'; weekday: number; isOpen: boolean; openMin?: number | null; closeMin?: number | null }
   | { type: 'unknown'; reason: string }
 
 function minutesOf(t: string): number | null {
@@ -28,6 +29,8 @@ function minutesOf(t: string): number | null {
 function norm(s: string): string {
   return s.trim().toLowerCase().replace(/\s+/g, ' ')
 }
+
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
 /** A plain-English summary of what the action will do, for confirmation. */
 export function summariseAction(a: Action): string {
@@ -43,6 +46,13 @@ export function summariseAction(a: Action): string {
     case 'flag': {
       const f = a.flag === 'block' ? 'block online booking' : a.flag === 'deposit' ? 'require a deposit' : 'do not contact'
       return `Turn ${a.value ? 'on' : 'off'} "${f}" for ${a.clientName}.`
+    }
+    case 'set_hours': {
+      const day = DAY_NAMES[a.weekday] ?? `day ${a.weekday}`
+      if (!a.isOpen) return `Close ${day}s.`
+      const o = a.openMin != null ? clockLabel(a.openMin) : '?'
+      const c = a.closeMin != null ? clockLabel(a.closeMin) : '?'
+      return `Set ${day}s to open ${o}–${c}.`
     }
     default:
       return a.reason || 'I could not work out what to do.'
@@ -157,6 +167,23 @@ export async function executeAction(a: Action): Promise<{ ok: boolean; message: 
       if (existing.length) await update('client_flags', { name_normalised: normalised }, { [col]: a.value })
       else await insert('client_flags', { name_normalised: normalised, full_name: a.clientName, [col]: a.value })
       return { ok: true, message: `${a.value ? 'Turned on' : 'Turned off'} ${a.flag === 'block' ? 'online-booking block' : 'deposit requirement'} for ${a.clientName}.` }
+    }
+
+    case 'set_hours': {
+      if (a.weekday < 0 || a.weekday > 6) return { ok: false, message: 'Invalid day of week.' }
+      const patch: Record<string, unknown> = { is_open: a.isOpen }
+      if (a.isOpen) {
+        if (a.openMin == null || a.closeMin == null) return { ok: false, message: 'I need both an opening and closing time.' }
+        if (a.openMin < 0 || a.openMin >= 1440 || a.closeMin <= a.openMin || a.closeMin > 1440) {
+          return { ok: false, message: 'Those times don\'t make sense — check open is before close.' }
+        }
+        patch.open_min = a.openMin
+        patch.close_min = a.closeMin
+      }
+      await update('business_hours', { weekday: String(a.weekday) }, patch)
+      const day = DAY_NAMES[a.weekday]!
+      if (!a.isOpen) return { ok: true, message: `Closed ${day}s.` }
+      return { ok: true, message: `Set ${day}s to open ${clockLabel(a.openMin!)}–${clockLabel(a.closeMin!)}.` }
     }
 
     default:
