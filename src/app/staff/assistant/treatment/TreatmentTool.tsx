@@ -98,6 +98,8 @@ export default function TreatmentTool() {
   const [sending, setSending] = useState(false)
   const [sendResult, setSendResult] = useState<{ ok: boolean; message: string } | null>(null)
   const [emailPreview, setEmailPreview] = useState(false)
+  const previewFrameRef = useRef<HTMLIFrameElement | null>(null)
+  const [previewHeight, setPreviewHeight] = useState(640)
 
   const [aiEnhancing, setAiEnhancing] = useState(false)
   const [aiNextSteps, setAiNextSteps] = useState<string[]>([])
@@ -370,6 +372,15 @@ export default function TreatmentTool() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [emailBody, typeId, clientName, date, interest, clientEmail],
   )
+
+  // Size the preview iframe to its content so the whole email — header through
+  // footer — is visible, the same as the html the client receives (no inner
+  // scroll cutting the footer off). srcDoc is same-origin, so we can measure it.
+  function sizePreview() {
+    const doc = previewFrameRef.current?.contentDocument
+    const h = doc?.documentElement?.scrollHeight || doc?.body?.scrollHeight
+    if (h) setPreviewHeight(h)
+  }
 
   async function copyEmail() {
     try {
@@ -882,9 +893,13 @@ export default function TreatmentTool() {
               </div>
               {emailPreview ? (
                 <iframe
+                  ref={previewFrameRef}
                   title="Email preview"
                   srcDoc={emailHtml}
-                  className="w-full h-[560px] border border-line/40 rounded-sm bg-white"
+                  onLoad={sizePreview}
+                  sandbox="allow-same-origin"
+                  style={{ height: previewHeight }}
+                  className="w-full border border-line/40 rounded-sm bg-white"
                 />
               ) : (
                 <textarea
