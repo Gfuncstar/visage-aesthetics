@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ArrowLeft, BellOff, Ban, Camera, Check, ChevronRight, CreditCard, ImagePlus, LogOut, Search, Trash2, X } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, BellOff, Ban, Camera, Check, ChevronRight, CreditCard, ImagePlus, LogOut, Search, Trash2, X } from 'lucide-react'
 import MicButton, { appendText } from '@/components/ui/MicButton'
 import { gbp, ukDate } from '@/lib/assistant/format'
 
@@ -39,6 +39,7 @@ export default function ClientRecord() {
   const [vouchers, setVouchers] = useState<Voucher[]>([])
   const [doNotContact, setDoNotContact] = useState(false)
   const [blocked, setBlocked] = useState(false)
+  const [blockedUntil, setBlockedUntil] = useState<string | null>(null)
   const [requiresDeposit, setRequiresDeposit] = useState(false)
   const [loading, setLoading] = useState(false)
   const [lightbox, setLightbox] = useState<string | null>(null)
@@ -77,6 +78,7 @@ export default function ClientRecord() {
       setVouchers(d.vouchers ?? [])
       setDoNotContact(Boolean(d.doNotContact))
       setBlocked(Boolean(d.blocked))
+      setBlockedUntil(typeof d.blockedUntil === 'string' ? d.blockedUntil : null)
       setRequiresDeposit(Boolean(d.requiresDeposit))
     } finally {
       setLoading(false)
@@ -112,6 +114,20 @@ export default function ClientRecord() {
     }
   }
 
+  async function clearBlockUntil() {
+    setBlockedUntil(null) // optimistic
+    try {
+      const res = await fetch('/api/staff/assistant/client-flags', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: selected, blockedUntil: null }),
+      })
+      if (!res.ok && selected) openClient(selected) // revert on failure
+    } catch {
+      if (selected) openClient(selected)
+    }
+  }
+
   async function signOut() {
     await fetch('/api/staff/logout', { method: 'POST' })
     window.location.reload()
@@ -132,6 +148,8 @@ export default function ClientRecord() {
         doNotContact={doNotContact}
         onToggleDnc={toggleDnc}
         blocked={blocked}
+        blockedUntil={blockedUntil}
+        onClearBlockUntil={clearBlockUntil}
         requiresDeposit={requiresDeposit}
         onToggleFlag={toggleFlag}
         onBack={() => { setSelected(null); setSummary(null) }}
@@ -209,13 +227,15 @@ export default function ClientRecord() {
 }
 
 function Detail({
-  name, summary, appts, records, photos, messages, consentForms, vouchers, loading, doNotContact, onToggleDnc, blocked, requiresDeposit, onToggleFlag, onBack, onRefresh, onLightbox, lightbox, onCloseLightbox, onSignOut,
+  name, summary, appts, records, photos, messages, consentForms, vouchers, loading, doNotContact, onToggleDnc, blocked, blockedUntil, onClearBlockUntil, requiresDeposit, onToggleFlag, onBack, onRefresh, onLightbox, lightbox, onCloseLightbox, onSignOut,
 }: {
   name: string; summary: Summary | null; appts: Appt[]; records: TRecord[]; photos: Photo[]; messages: Message[]; consentForms: ConsentFormRecord[]; vouchers: Voucher[]; loading: boolean
   doNotContact: boolean; onToggleDnc: (next: boolean) => void
-  blocked: boolean; requiresDeposit: boolean; onToggleFlag: (flag: 'blocked' | 'requires_deposit', next: boolean) => void
+  blocked: boolean; blockedUntil: string | null; onClearBlockUntil: () => void
+  requiresDeposit: boolean; onToggleFlag: (flag: 'blocked' | 'requires_deposit', next: boolean) => void
   onBack: () => void; onRefresh: () => void; onLightbox: (url: string) => void; lightbox: string | null; onCloseLightbox: () => void; onSignOut: () => void
 }) {
+  const today = new Date().toISOString().slice(0, 10)
   return (
     <section className="bg-cream text-charcoal min-h-screen">
       <div className="max-w-3xl mx-auto px-5 md:px-8 pt-12 md:pt-20 pb-24">
@@ -229,6 +249,23 @@ function Detail({
         </div>
 
         <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight mb-4">{name}</h1>
+
+        {blockedUntil && blockedUntil >= today && (
+          <div className="flex items-start gap-3 rounded-sm border border-clay/40 bg-clay/5 px-4 py-3 mb-4">
+            <AlertTriangle size={16} strokeWidth={1.75} className="text-clay shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-clay">Clinic-full until {ukDate(blockedUntil)}</div>
+              <div className="text-xs text-stone mt-0.5">This client sees no availability when booking online until this date passes.</div>
+            </div>
+            <button
+              type="button"
+              onClick={onClearBlockUntil}
+              className="text-xs text-clay border border-clay/40 rounded-sm px-2.5 py-1 hover:bg-clay/10 transition-colors shrink-0"
+            >
+              Clear
+            </button>
+          </div>
+        )}
 
         <div className="space-y-2 mb-6">
           <FlagToggle
