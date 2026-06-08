@@ -12,6 +12,7 @@
 // never throws into the booking flow.
 
 import { insertMany } from '@/lib/assistant/db'
+import { londonParts } from './time'
 import type { BookingStatus } from './types'
 
 const STATUS_MAP: Record<BookingStatus, 'completed' | 'cancelled' | 'no_show' | 'booked' | null> = {
@@ -26,6 +27,7 @@ export async function mirrorBookingAppointment(input: {
   bookingId: string
   clientName: string
   startsAt: string // ISO timestamp
+  endsAt?: string // ISO timestamp
   serviceName: string
   status: BookingStatus
   price?: number
@@ -36,11 +38,15 @@ export async function mirrorBookingAppointment(input: {
     const row: Record<string, unknown> = {
       ovatu_id: `booking:${input.bookingId}`,
       client_name: input.clientName,
-      date: input.startsAt.slice(0, 10),
+      // Group by the London calendar day, not the raw UTC slice — otherwise a
+      // late-evening booking can land on the wrong reporting date.
+      date: londonParts(new Date(input.startsAt)).dateStr,
+      starts_at: input.startsAt,
       service_name: input.serviceName,
       status: mapped,
       import_batch: 'in-house',
     }
+    if (input.endsAt) row.ends_at = input.endsAt
     // Only set price when we know it, so a later status change (e.g. cancel)
     // does not overwrite the real booked price with 0.
     if (typeof input.price === 'number') row.price = input.price
