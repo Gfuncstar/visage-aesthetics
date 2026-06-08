@@ -36,7 +36,7 @@ export async function POST(req: Request) {
 async function parse(text: string, apiKey: string): Promise<ReportQuery> {
   const { default: Anthropic } = await import('@anthropic-ai/sdk')
   const client = new Anthropic({ apiKey })
-  const system = `You turn a clinic owner's question into ONE structured report query over their appointment history. Today is ${londonToday()} (UK clinic). Resolve relative dates ("last month", "this year", "since January") to YYYY-MM-DD from/to.
+  const system = `You turn a clinic receptionist's question into ONE structured report query over their appointment data. Today is ${londonToday()} (UK clinic). Resolve relative dates ("last month", "this year", "since January") to YYYY-MM-DD from/to.
 
 Return ONLY a JSON object, one of:
 {"intent":"count_treatments","service":<treatment name or null>,"from":"YYYY-MM-DD"|null,"to":"YYYY-MM-DD"|null}
@@ -46,12 +46,20 @@ Return ONLY a JSON object, one of:
 {"intent":"top_clients","by":"spend"|"visits","limit":number|null}
 {"intent":"no_show_rate","from":"YYYY-MM-DD"|null,"to":"YYYY-MM-DD"|null}
 {"intent":"count_upcoming"}
+{"intent":"last_visit","clientName":string}
+{"intent":"client_history","clientName":string,"limit":number|null}
+{"intent":"next_appointment","clientName":string}
+{"intent":"waitlist_check","service":string|null}
 {"intent":"unknown","reason":string}
 
 Rules:
 - "service" is a treatment name like "Botox", "filler", "Profhilo", or null for all treatments.
-- Use "unknown" with a short reason if the question is not about appointments, revenue, clients, no-shows or the schedule.
-- Output the JSON only.`
+- last_visit: "when did [name] last come in?", "when was [name]'s last appointment?", "has [name] been before?" → last_visit with clientName.
+- client_history: "what has [name] had done?", "show me [name]'s history", "what treatments has [name] had?" → client_history.
+- next_appointment: "when is [name] coming in?", "when is [name]'s next appointment?", "what time is [name]?" → next_appointment.
+- waitlist_check: "who's on the waitlist?", "is anyone waiting for Profhilo?", "show me the waitlist" → waitlist_check.
+- Use "unknown" with a short reason if the question cannot be answered from appointment data.
+- Output the JSON only, no prose.`
 
   try {
     const res = await client.messages.create({
