@@ -112,9 +112,12 @@ If you're reading this in an emergency, here's the short version:
 3. The site runs on **Vercel** (#2) — that's where every API key/env var lives,
    and where deploys happen. The code is on **GitHub** (#4).
 4. **Supabase** (#3) is the client database — treat as confidential patient data.
-5. Day-to-day operational notes (deploys, the Google-reviews refresh, the staff
-   assistant) are in `AGENTS.md`, `docs/ASSISTANT_SETUP.md`, and the other
-   markdown files in this repo.
+5. **Full developer handover docs are in [`docs/handover/`](docs/handover/)** —
+   start at `docs/handover/README.md`. They give a detailed, project-by-project
+   outline of the whole system (architecture, public site, booking engine, staff
+   assistant, the autonomous agents, and every integration).
+6. Day-to-day operational notes (deploys, the Google-reviews refresh) are in
+   `AGENTS.md`, `docs/ASSISTANT_SETUP.md`, and the other markdown files.
 
 ---
 
