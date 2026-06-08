@@ -1,8 +1,10 @@
 // Per-client booking flags, matched at booking time by name, email or phone.
 //   blocked         -> the client silently sees no availability (fully booked)
+//   blocked_until   -> temporary block: sees "fully booked" until this date
 //   requiresDeposit -> the client must pay a deposit to confirm
 
 import { select } from '../assistant/db'
+import { londonToday } from './time'
 
 export type ClientFlags = { blocked: boolean; requiresDeposit: boolean }
 
@@ -13,7 +15,7 @@ export function normPhone(s: string): string {
   return (s ?? '').replace(/\D/g, '')
 }
 
-type Row = { blocked: boolean; requires_deposit: boolean }
+type Row = { blocked: boolean; requires_deposit: boolean; blocked_until: string | null }
 
 /** Look up flags for a client identity. Any matching row contributes its flags. */
 export async function lookupClientFlags(identity: {
@@ -32,8 +34,10 @@ export async function lookupClientFlags(identity: {
   if (queries.length === 0) return { blocked: false, requiresDeposit: false }
 
   const rows = (await Promise.all(queries)).flat()
+  const today = londonToday()
   return {
-    blocked: rows.some((r) => r.blocked),
+    // blocked=true permanently, OR blocked_until is set and hasn't passed yet
+    blocked: rows.some((r) => r.blocked || (r.blocked_until != null && r.blocked_until >= today)),
     requiresDeposit: rows.some((r) => r.requires_deposit),
   }
 }

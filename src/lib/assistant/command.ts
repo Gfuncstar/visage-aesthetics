@@ -17,6 +17,7 @@ export type Action =
   | { type: 'waitlist'; clientName: string; service?: string | null; phone?: string | null }
   | { type: 'flag'; clientName: string; flag: 'block' | 'deposit' | 'do_not_contact'; value: boolean }
   | { type: 'set_hours'; weekday: number; isOpen: boolean; openMin?: number | null; closeMin?: number | null }
+  | { type: 'block_until'; clientName: string; until: string }
   | { type: 'unknown'; reason: string }
 
 function minutesOf(t: string): number | null {
@@ -53,6 +54,12 @@ export function summariseAction(a: Action): string {
       const o = a.openMin != null ? clockLabel(a.openMin) : '?'
       const c = a.closeMin != null ? clockLabel(a.closeMin) : '?'
       return `Set ${day}s to open ${o}–${c}.`
+    }
+    case 'block_until': {
+      const label = /^\d{4}-\d{2}-\d{2}$/.test(a.until)
+        ? new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(`${a.until}T12:00:00Z`))
+        : a.until
+      return `Mark ${a.clientName} as clinic-full until ${label} — they will see no availability when trying to book.`
     }
     default:
       return a.reason || 'I could not work out what to do.'
@@ -163,10 +170,26 @@ export async function executeAction(a: Action): Promise<{ ok: boolean; message: 
         return { ok: true, message: `${a.value ? 'Marked' : 'Cleared'} do-not-contact for ${a.clientName}.` }
       }
       const col = a.flag === 'block' ? 'blocked' : 'requires_deposit'
+      // When unblocking, also clear any temporary blocked_until date
+      const patch: Record<string, unknown> = { [col]: a.value }
+      if (a.flag === 'block' && !a.value) patch.blocked_until = null
       const existing = await select<{ id: string }>('client_flags', { name_normalised: `eq.${normalised}`, limit: 1 })
-      if (existing.length) await update('client_flags', { name_normalised: normalised }, { [col]: a.value })
-      else await insert('client_flags', { name_normalised: normalised, full_name: a.clientName, [col]: a.value })
+      if (existing.length) await update('client_flags', { name_normalised: normalised }, patch)
+      else await insert('client_flags', { name_normalised: normalised, full_name: a.clientName, ...patch })
       return { ok: true, message: `${a.value ? 'Turned on' : 'Turned off'} ${a.flag === 'block' ? 'online-booking block' : 'deposit requirement'} for ${a.clientName}.` }
+    }
+
+    case 'block_until': {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(a.until)) return { ok: false, message: 'I could not parse the date.' }
+      const normalised = norm(a.clientName)
+      const existing = await select<{ id: string }>('client_flags', { name_normalised: `eq.${normalised}`, limit: 1 })
+      if (existing.length) {
+        await update('client_flags', { name_normalised: normalised }, { blocked_until: a.until })
+      } else {
+        await insert('client_flags', { name_normalised: normalised, full_name: a.clientName, blocked: false, requires_deposit: false, blocked_until: a.until })
+      }
+      const label = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(`${a.until}T12:00:00Z`))
+      return { ok: true, message: `${a.clientName} is clinic-full until ${label}. They will see no availability when trying to book.` }
     }
 
     case 'set_hours': {
