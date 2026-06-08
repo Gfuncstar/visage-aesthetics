@@ -4,6 +4,7 @@
 
 import { select } from './db'
 import { matchTreatmentType } from './treatment-types'
+import { goLiveTimestamp } from './go-live'
 
 // The injectable items that come from the supplier and need reordering.
 // `match` is matched (case-insensitively) against logged batch product names.
@@ -51,8 +52,12 @@ export async function stockReview(horizonDays = 14): Promise<StockReview | null>
   const todayISO = now.toISOString().slice(0, 10)
 
   try {
-    // Ordered marks (whole-item or per-client) within the booking horizon.
-    const since = new Date(now.getTime() - 16 * 86400000).toISOString()
+    // Ordered marks (whole-item or per-client) within the booking horizon, but
+    // never from before go-live so a previous system's "ordered" marks don't
+    // linger as "awaiting delivery" after a switch (see go-live.ts).
+    const rollingSince = new Date(now.getTime() - 16 * 86400000).toISOString()
+    const goLive = goLiveTimestamp()
+    const since = goLive > rollingSince ? goLive : rollingSince
     const [appts, batches, marks] = await Promise.all([
       select<ApptRow>('appointments', {
         status: 'eq.booked',

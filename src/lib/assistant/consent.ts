@@ -11,6 +11,7 @@
 // the imported diary against what's been recorded.
 
 import { select } from './db'
+import { goLiveTimestamp } from './go-live'
 
 const HORIZON_DAYS = 14
 const CONSENT_LOOKBACK_DAYS = 180
@@ -18,8 +19,10 @@ const DAY_MS = 24 * 60 * 60 * 1000
 
 // Grandfather: only flag appointments BOOKED on/after go-live, so the existing
 // diary (consented in person the old way) isn't chased — only new bookings from
-// launch onward. Override with CONSENT_ENFORCE_FROM (ISO timestamp).
-const CONSENT_ENFORCE_FROM = process.env.CONSENT_ENFORCE_FROM || '2026-06-05T00:00:00Z'
+// launch onward. Driven by the shared GO_LIVE_DATE so a system switch resets
+// this with everything else (see go-live.ts). CONSENT_ENFORCE_FROM (ISO
+// timestamp) overrides it for a one-off if needed.
+const CONSENT_ENFORCE_FROM = process.env.CONSENT_ENFORCE_FROM || goLiveTimestamp()
 
 type SubRow = { client_name: string; submitted_at: string }
 type ReqRow = { id: string; client_name: string }
