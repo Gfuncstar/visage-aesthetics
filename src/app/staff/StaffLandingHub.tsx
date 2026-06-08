@@ -60,7 +60,7 @@ function useNowMin(): number {
   return nowMin
 }
 
-export default function StaffLandingHub({ dateLabel }: { dateLabel: string }) {
+export default function StaffLandingHub({ greeting, dateLabel }: { greeting: string; dateLabel: string }) {
   const clock = useLiveClock()
   const nowMin = useNowMin()
   const [bookings, setBookings] = useState<Booking[] | null>(null)
@@ -104,15 +104,20 @@ export default function StaffLandingHub({ dateLabel }: { dateLabel: string }) {
 
   return (
     <div className="mt-3 space-y-5">
-      {/* Date + live clock — single compact line */}
-      <div className="flex items-center gap-2 text-sm text-stone flex-wrap">
-        <span>{dateLabel}</span>
-        <span className="text-stone/40">·</span>
-        <span className="tabular-nums font-medium text-charcoal">{clock}</span>
-        <span className="inline-flex items-center gap-1.5">
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage animate-pulse" />
-          <span className="text-xs">Live</span>
-        </span>
+      {/* Greeting + date/clock on one line */}
+      <div className="flex items-baseline justify-between gap-3">
+        <h1 className="font-display italic text-charcoal text-4xl md:text-5xl leading-tight shrink-0">
+          {greeting}.
+        </h1>
+        <div className="flex items-center gap-1.5 text-xs text-stone text-right flex-wrap justify-end">
+          <span className="whitespace-nowrap">{dateLabel}</span>
+          <span className="text-stone/40">·</span>
+          <span className="tabular-nums font-medium text-charcoal whitespace-nowrap">{clock}</span>
+          <span className="inline-flex items-center gap-1">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage animate-pulse" />
+            <span>Live</span>
+          </span>
+        </div>
       </div>
 
       {/* Command bar */}
