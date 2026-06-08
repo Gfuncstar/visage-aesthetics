@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowLeft, Bot, Boxes, ClipboardPen, FileCheck2, ReceiptText, Rocket, ShieldCheck, TrendingUp, Upload, Users } from 'lucide-react'
+import { ArrowLeft, Bot, Boxes, ClipboardPen, FileCheck2, ReceiptText, ShieldCheck, TrendingUp, Users } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { isSimpleView } from '@/lib/staff-prefs'
 import StaffGate from '../notes/StaffGate'
@@ -40,20 +40,6 @@ const tools = [
     title: 'Insurance check',
     description: 'Check a new treatment against the clinic policy before you offer it.',
     Icon: ShieldCheck,
-  },
-  {
-    href: '/staff/assistant/preflight',
-    title: 'Go-live readiness',
-    description: 'Check the Ovatu swap is ready, front to back, before you flip the switch.',
-    Icon: Rocket,
-    advanced: true,
-  },
-  {
-    href: '/staff/assistant/migrate',
-    title: 'Bring bookings across',
-    description: 'Import upcoming Ovatu bookings so already-booked clients can change them here.',
-    Icon: Upload,
-    advanced: true,
   },
   {
     href: '/staff/assistant/stock',
