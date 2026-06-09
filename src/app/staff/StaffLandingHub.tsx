@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { Check, Clock, Mic, Phone, Sparkles, X } from 'lucide-react'
+import { CalendarPlus, Check, Clock, Mic, Phone, Sparkles, X } from 'lucide-react'
 
 type Booking = {
   id: string
@@ -12,6 +12,14 @@ type Booking = {
   starts_at: string
   ends_at?: string
   status: string
+}
+
+type JustBooked = {
+  id: string
+  client_name: string
+  service_name: string
+  starts_at: string
+  created_at: string
 }
 
 const TZ = 'Europe/London'
@@ -40,6 +48,22 @@ function todayStr(): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date())
 }
 
+function agoLabel(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime()
+  const diffMins = Math.floor(diffMs / 60_000)
+  if (diffMins < 60) return `${diffMins}m ago`
+  const diffHours = Math.floor(diffMins / 60)
+  if (diffHours < 24) return `${diffHours}h ago`
+  return `${Math.floor(diffHours / 24)}d ago`
+}
+
+function apptLabel(iso: string): string {
+  return new Intl.DateTimeFormat('en-GB', {
+    timeZone: TZ, weekday: 'short', day: 'numeric', month: 'short',
+    hour: 'numeric', minute: '2-digit', hour12: true,
+  }).format(new Date(iso))
+}
+
 function useLiveClock(): string {
   const fmt = () =>
     new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hour: 'numeric', minute: '2-digit', hour12: true }).format(new Date())
@@ -64,6 +88,7 @@ export default function StaffLandingHub({ greeting, dateLabel }: { greeting: str
   const clock = useLiveClock()
   const nowMin = useNowMin()
   const [bookings, setBookings] = useState<Booking[] | null>(null)
+  const [justBooked, setJustBooked] = useState<JustBooked[] | null>(null)
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/staff/assistant/diary?date=${todayStr()}`)
@@ -78,6 +103,13 @@ export default function StaffLandingHub({ greeting, dateLabel }: { greeting: str
     const id = setInterval(() => void load(), 45_000)
     return () => clearInterval(id)
   }, [load])
+
+  useEffect(() => {
+    fetch('/api/staff/assistant/just-booked')
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d) setJustBooked(d.bookings ?? []) })
+      .catch(() => {})
+  }, [])
 
   const live = useMemo(
     () =>
@@ -214,6 +246,30 @@ export default function StaffLandingHub({ greeting, dateLabel }: { greeting: str
           <p className="text-sm text-stone/60 px-1">Loading today…</p>
         )}
       </div>
+
+      {/* Just booked — online bookings in the last 48 h */}
+      {justBooked !== null && justBooked.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <div className="eyebrow text-gold flex items-center gap-2">
+              <CalendarPlus size={13} strokeWidth={1.75} /> Just booked
+            </div>
+            <span className="text-xs text-stone">Last 48 hours · online</span>
+          </div>
+          <div className="border border-line/40 rounded-sm bg-cream-soft divide-y divide-line/30">
+            {justBooked.map((b) => (
+              <div key={b.id} className="flex items-start gap-3 px-4 py-3">
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-medium text-charcoal">{b.client_name}</div>
+                  <div className="text-xs text-stone mt-0.5">{b.service_name}</div>
+                  <div className="text-xs text-stone/70 mt-1">{apptLabel(b.starts_at)}</div>
+                </div>
+                <span className="text-xs text-stone/60 shrink-0 pt-0.5">{agoLabel(b.created_at)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
