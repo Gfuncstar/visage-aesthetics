@@ -122,6 +122,7 @@ export default function StaffLandingHub({ greeting, dateLabel }: { greeting: str
 
   const today = todayStr()
 
+
   const live = useMemo(
     () =>
       (bookings ?? [])
@@ -292,6 +293,7 @@ export default function StaffLandingHub({ greeting, dateLabel }: { greeting: str
           </div>
         </div>
       )}
+
 
       {/* Just booked — online bookings in the last 48 h */}
       {justBooked !== null && justBooked.length > 0 && (
