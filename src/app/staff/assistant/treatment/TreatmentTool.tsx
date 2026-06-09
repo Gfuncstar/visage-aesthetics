@@ -17,6 +17,7 @@ import {
   X,
 } from 'lucide-react'
 import { TREATMENT_TYPES, getTreatmentType, matchTreatmentType } from '@/lib/assistant/treatment-types'
+import { notifyDone } from '@/lib/staff-toast'
 import { ukDate } from '@/lib/assistant/format'
 import { bodyToText } from '@/lib/broadcast-email'
 import DictateButton from '@/components/ui/DictateButton'
@@ -93,6 +94,7 @@ export default function TreatmentTool() {
   const [saveResult, setSaveResult] = useState<{ ok: boolean; message: string } | null>(null)
 
   const [copied, setCopied] = useState(false)
+  const [confirmSend, setConfirmSend] = useState(false)
   const [sending, setSending] = useState(false)
   const [sendResult, setSendResult] = useState<{ ok: boolean; message: string } | null>(null)
 
@@ -365,6 +367,7 @@ export default function TreatmentTool() {
   async function sendEmail() {
     setSending(true)
     setSendResult(null)
+    setConfirmSend(false)
     try {
       const res = await fetch('/api/staff/assistant/client-email', {
         method: 'POST',
@@ -386,6 +389,7 @@ export default function TreatmentTool() {
         return
       }
       setSendResult({ ok: true, message: `Sent to ${clientEmail}.` })
+      notifyDone(`Email sent to ${clientEmail}`)
     } catch {
       setSendResult({ ok: false, message: 'Network error while sending.' })
     } finally {
@@ -875,11 +879,10 @@ export default function TreatmentTool() {
                     Open in email app
                   </span>
                 </a>
-                {clientEmail && (
-                  <button type="button" onClick={sendEmail} disabled={sending} className="btn btn-primary disabled:opacity-50">
+                {clientEmail && !confirmSend && (
+                  <button type="button" onClick={() => { setConfirmSend(true); setSendResult(null) }} disabled={sending} className="btn btn-primary disabled:opacity-50">
                     <span className="inline-flex items-center gap-2">
-                      <Send size={15} strokeWidth={1.75} />
-                      {sending ? 'Sending…' : 'Send from clinic'}
+                      <Send size={15} strokeWidth={1.75} /> Send from clinic
                     </span>
                   </button>
                 )}
@@ -888,6 +891,26 @@ export default function TreatmentTool() {
                 <p className="text-xs text-ink-soft leading-snug">Copy email — paste into records or messages.</p>
                 {clientEmail && <p className="text-xs text-ink-soft leading-snug">Send — delivers to client&apos;s email on file.</p>}
               </div>
+
+              {confirmSend && (
+                <div className="mt-3 border border-gold/50 bg-gold/8 rounded-sm px-4 py-3 flex items-center justify-between gap-3">
+                  <p className="text-sm text-charcoal">
+                    Send <span className="font-medium">{emailSubject}</span> to <span className="font-medium">{clientEmail}</span>?
+                  </p>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button type="button" onClick={sendEmail} disabled={sending} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 36 }}>
+                      <span className="inline-flex items-center gap-1.5">
+                        <Send size={13} strokeWidth={1.75} />
+                        {sending ? 'Sending…' : 'Confirm send'}
+                      </span>
+                    </button>
+                    <button type="button" onClick={() => setConfirmSend(false)} className="inline-flex items-center justify-center w-8 h-8 rounded-sm border border-line/40 text-ink-soft hover:text-charcoal transition-colors">
+                      <X size={14} strokeWidth={1.75} />
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {sendResult && (
                 <div className={`mt-3 border rounded-sm px-4 py-3 text-sm flex items-start gap-3 ${sendResult.ok ? 'border-sage/50 bg-sage/10' : 'border-gold/40 bg-gold/10'}`}>
                   <Check size={16} strokeWidth={1.75} className="text-gold-deep mt-0.5 shrink-0" />
