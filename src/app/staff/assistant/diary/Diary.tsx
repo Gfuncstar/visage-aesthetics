@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { ChevronLeft, ChevronRight, Clock, LogOut, Plus, Ban, ShieldAlert } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Check, Clock, LogOut, Plus, Ban, X } from 'lucide-react'
 import MicButton, { appendText } from '@/components/ui/MicButton'
 import { notifyDone } from '@/lib/staff-toast'
 
@@ -108,9 +108,20 @@ function ConfirmedDot({ status, confirmedAt }: { status: string; confirmedAt: st
   return null
 }
 
-function ConsentFlag({ name, missing }: { name: string; missing: Set<string> }) {
-  if (!missing.has(name.trim().toLowerCase())) return null
-  return <span title="No consent form on file"><ShieldAlert size={13} strokeWidth={1.75} className="text-clay shrink-0" /></span>
+function ConsentFlag({ name, missing }: { name: string; missing: Set<string> | null }) {
+  if (missing === null) return null
+  if (missing.has(name.trim().toLowerCase())) {
+    return (
+      <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-clay shrink-0 whitespace-nowrap">
+        <X size={9} strokeWidth={2.5} /> Consent
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-sage shrink-0 whitespace-nowrap">
+      <Check size={9} strokeWidth={2.5} /> Consent
+    </span>
+  )
 }
 
 function toLocalMin(iso: string): number {
@@ -177,7 +188,7 @@ export default function Diary() {
   const [loading, setLoading] = useState(true)
   const [businessHours, setBusinessHours] = useState<BusinessHours[]>([])
   const [adding, setAdding] = useState<'booking' | 'time_off' | 'hours' | null>(null)
-  const [consentMissing, setConsentMissing] = useState<Set<string>>(new Set())
+  const [consentMissing, setConsentMissing] = useState<Set<string> | null>(null)
 
 
   const load = useCallback(async (from: string, to: string) => {
@@ -203,7 +214,7 @@ export default function Diary() {
   useEffect(() => {
     fetch('/api/staff/assistant/consent/flags')
       .then((r) => r.ok ? r.json() : null)
-      .then((d) => { if (d?.missing) setConsentMissing(new Set(d.missing as string[])) })
+      .then((d) => { setConsentMissing(new Set((d?.missing ?? []) as string[])) })
       .catch(() => {})
   }, [])
   useEffect(() => {
