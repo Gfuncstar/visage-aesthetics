@@ -302,11 +302,11 @@ export default function StaffLandingHub({ greeting, dateLabel }: { greeting: str
 
           {/* Just booked */}
           {justBooked !== null && justBooked.length > 0 && (
-            <div>
+            <Link href="/staff/assistant/reception" className="block group">
               <div className="eyebrow text-gold mb-3 flex items-center gap-2">
                 <CalendarPlus size={13} strokeWidth={1.75} /> Just booked
               </div>
-              <div className="border border-line/40 rounded-sm bg-cream-soft divide-y divide-line/30">
+              <div className="border border-line/40 rounded-sm bg-cream-soft divide-y divide-line/30 group-hover:border-gold/50 transition-colors">
                 {justBooked.map((b) => (
                   <div key={b.id} className="flex items-start gap-3 px-4 py-3">
                     <div className="min-w-0 flex-1">
@@ -318,7 +318,7 @@ export default function StaffLandingHub({ greeting, dateLabel }: { greeting: str
                   </div>
                 ))}
               </div>
-            </div>
+            </Link>
           )}
         </div>
       )}
