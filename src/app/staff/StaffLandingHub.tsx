@@ -275,12 +275,12 @@ export default function StaffLandingHub({ greeting, dateLabel }: { greeting: str
         <div className="grid grid-cols-2 gap-3 items-start">
           {/* Next 24 hours */}
           {next24h.length > 0 && (
-            <div>
+            <Link href="/staff/assistant/diary" className="block group">
               <div className="eyebrow text-stone mb-3 flex items-center gap-2">
                 <Clock size={13} strokeWidth={1.75} />
                 Next 24 h · {next24h.length} {next24h.length === 1 ? 'appt' : 'appts'}
               </div>
-              <div className="border border-line/40 rounded-sm bg-cream-soft divide-y divide-line/30">
+              <div className="border border-line/40 rounded-sm bg-cream-soft divide-y divide-line/30 group-hover:border-gold/50 transition-colors">
                 {next24h.map((b) => {
                   const isToday = b.starts_at.startsWith(today)
                   return (
@@ -297,7 +297,7 @@ export default function StaffLandingHub({ greeting, dateLabel }: { greeting: str
                   )
                 })}
               </div>
-            </div>
+            </Link>
           )}
 
           {/* Just booked */}
