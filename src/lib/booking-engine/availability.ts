@@ -41,6 +41,28 @@ function busyFromBookings(bookings: Booking[], dateStr: string): Interval[] {
   return out
 }
 
+// During (and after) the Ovatu cutover the diary of record is `appointments`.
+// Native bookings mirror into it, but Ovatu-origin appointments may exist there
+// without a matching `bookings` row if a migration missed them. Treat any
+// booked appointment with a real start/end as busy too, so we never offer a
+// slot that is already taken in the Ovatu diary. Cancelled / no-show and
+// time-less rows are ignored; double-counting a mirrored booking is harmless.
+type ApptInterval = { starts_at: string | null; ends_at: string | null; status: string }
+
+function busyFromAppointments(appts: ApptInterval[], dateStr: string): Interval[] {
+  const out: Interval[] = []
+  for (const a of appts) {
+    if (!a.starts_at || !a.ends_at) continue
+    if (a.status === 'cancelled' || a.status === 'no_show') continue
+    const s = londonParts(new Date(a.starts_at))
+    const e = londonParts(new Date(a.ends_at))
+    const start = s.dateStr === dateStr ? s.minutes : 0
+    const end = e.dateStr === dateStr ? e.minutes : 24 * 60
+    if (s.dateStr === dateStr || e.dateStr === dateStr) out.push({ start, end })
+  }
+  return out
+}
+
 function busyFromTimeOff(timeOff: TimeOff[], dateStr: string): Interval[] {
   const out: Interval[] = []
   for (const t of timeOff) {
@@ -71,10 +93,15 @@ export function slotsForDay(
   bookings: Booking[],
   timeOff: TimeOff[],
   now: Date,
+  appts: ApptInterval[] = [],
 ): Slot[] {
   if (!hours || !hours.is_open) return []
   const total = service.duration_min + service.buffer_min
-  const busy = [...busyFromBookings(bookings, dateStr), ...busyFromTimeOff(timeOff, dateStr)]
+  const busy = [
+    ...busyFromBookings(bookings, dateStr),
+    ...busyFromAppointments(appts, dateStr),
+    ...busyFromTimeOff(timeOff, dateStr),
+  ]
 
   // Earliest allowed start (lead time), in London minutes for this date.
   const nowParts = londonParts(now)
@@ -102,19 +129,27 @@ export function slotsForDay(
 export async function computeDay(service: Service, dateStr: string): Promise<Slot[]> {
   const now = new Date()
   if (dateStr < londonToday()) return []
-  const [hoursRows, bookings, timeOff] = await Promise.all([
+  const [hoursRows, bookings, appts, timeOff] = await Promise.all([
     select<BusinessHours>('business_hours', { weekday: `eq.${weekdayOf(dateStr)}`, limit: 1 }),
     select<Booking>('bookings', {
       and: `(starts_at.gte.${dayStartIso(dateStr)},starts_at.lt.${dayEndIso(dateStr)})`,
       status: 'neq.cancelled',
       limit: 200,
     }),
+    // Ovatu diary safety net — booked appointments with a real time. Tolerant of
+    // older databases without the time columns (returns nothing then).
+    select<ApptInterval>('appointments', {
+      select: 'starts_at,ends_at,status',
+      and: `(starts_at.gte.${dayStartIso(dateStr)},starts_at.lt.${dayEndIso(dateStr)})`,
+      status: 'eq.booked',
+      limit: 200,
+    }).catch(() => [] as ApptInterval[]),
     select<TimeOff>('time_off', {
       and: `(starts_at.lt.${dayEndIso(dateStr)},ends_at.gt.${dayStartIso(dateStr)})`,
       limit: 100,
     }),
   ])
-  return slotsForDay(service, dateStr, hoursRows[0], bookings, timeOff, now)
+  return slotsForDay(service, dateStr, hoursRows[0], bookings, timeOff, now, appts)
 }
 
 /** Which London weekday a date falls on. */
