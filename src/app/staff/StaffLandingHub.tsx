@@ -125,17 +125,25 @@ export default function StaffLandingHub({ greeting, dateLabel }: { greeting: str
   const live = useMemo(
     () =>
       (bookings ?? [])
-        .filter((b) => b.status !== 'cancelled' && b.starts_at.startsWith(today))
-        .sort((a, b) => a.starts_at.localeCompare(b.starts_at)),
+        .filter((b) => {
+          if (b.status === 'cancelled') return false
+          const localD = new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date(b.starts_at))
+          return localD === today
+        })
+        .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime()),
     [bookings, today],
   )
 
   const next24h = useMemo(() => {
-    const nowIso = new Date().toISOString()
-    const cutoff = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+    const now = Date.now()
+    const cutoff = now + 24 * 60 * 60 * 1000
     return (bookings ?? [])
-      .filter((b) => b.status !== 'cancelled' && b.starts_at > nowIso && b.starts_at <= cutoff)
-      .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
+      .filter((b) => {
+        if (b.status === 'cancelled') return false
+        const t = new Date(b.starts_at).getTime()
+        return t > now && t <= cutoff
+      })
+      .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())
   }, [bookings])
 
   const current = useMemo(
@@ -293,6 +301,10 @@ export default function StaffLandingHub({ greeting, dateLabel }: { greeting: str
         </div>
       )}
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> 77faee0 (Add 24h booking summary, end-of-clinic H&S compliance agent)
       {/* Just booked — online bookings in the last 48 h */}
       {justBooked !== null && justBooked.length > 0 && (
         <div>

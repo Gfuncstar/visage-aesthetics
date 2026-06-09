@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { ChevronLeft, ChevronRight, Clock, LogOut, Plus, Ban } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Clock, LogOut, Plus, Ban, ShieldAlert } from 'lucide-react'
 import MicButton, { appendText } from '@/components/ui/MicButton'
 import { notifyDone } from '@/lib/staff-toast'
 
@@ -108,6 +108,11 @@ function ConfirmedDot({ status, confirmedAt }: { status: string; confirmedAt: st
   return null
 }
 
+function ConsentFlag({ name, missing }: { name: string; missing: Set<string> }) {
+  if (!missing.has(name.trim().toLowerCase())) return null
+  return <span title="No consent form on file"><ShieldAlert size={13} strokeWidth={1.75} className="text-clay shrink-0" /></span>
+}
+
 function toLocalMin(iso: string): number {
   const parts = new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(new Date(iso))
   return Number(parts.find((p) => p.type === 'hour')?.value ?? '0') * 60 + Number(parts.find((p) => p.type === 'minute')?.value ?? '0')
@@ -172,6 +177,8 @@ export default function Diary() {
   const [loading, setLoading] = useState(true)
   const [businessHours, setBusinessHours] = useState<BusinessHours[]>([])
   const [adding, setAdding] = useState<'booking' | 'time_off' | 'hours' | null>(null)
+  const [consentMissing, setConsentMissing] = useState<Set<string>>(new Set())
+
 
   const load = useCallback(async (from: string, to: string) => {
     setLoading(true)
@@ -193,6 +200,12 @@ export default function Diary() {
   }, [view, date, load])
 
   useEffect(() => { reload() }, [reload])
+  useEffect(() => {
+    fetch('/api/staff/assistant/consent/flags')
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d?.missing) setConsentMissing(new Set(d.missing as string[])) })
+      .catch(() => {})
+  }, [])
   useEffect(() => {
     void (async () => {
       const res = await fetch('/api/book/services')
@@ -305,6 +318,7 @@ export default function Diary() {
                                 <span className="text-sm text-charcoal truncate min-w-0"><span className="text-stone">{timeLabel(item.b.starts_at)}</span> &nbsp; {item.b.client_name}</span>
                                 <div className="shrink-0 flex items-center gap-2 ml-2">
                                   <span className="text-xs text-stone truncate">{item.b.service_name}</span>
+                                  <ConsentFlag name={item.b.client_name} missing={consentMissing} />
                                   <ConfirmedDot status={item.b.status} confirmedAt={item.b.confirmed_at} />
                                 </div>
                               </div>
@@ -352,6 +366,7 @@ export default function Diary() {
                             <span className="text-sm text-charcoal truncate min-w-0"><span className="text-stone">{timeLabel(item.b.starts_at)}</span> &nbsp; {item.b.client_name}</span>
                             <div className="shrink-0 flex items-center gap-2 ml-2">
                               <span className="text-xs text-stone truncate">{item.b.service_name}</span>
+                              <ConsentFlag name={item.b.client_name} missing={consentMissing} />
                               <ConfirmedDot status={item.b.status} confirmedAt={item.b.confirmed_at} />
                             </div>
                           </div>
@@ -396,6 +411,7 @@ export default function Diary() {
                       {item.b.notes && <div className="text-xs text-ink-soft mt-1">{item.b.notes}</div>}
                     </div>
                     <span className="inline-flex items-center gap-1.5">
+                      <ConsentFlag name={item.b.client_name} missing={consentMissing} />
                       <ConfirmedDot status={item.b.status} confirmedAt={item.b.confirmed_at} />
                       <span className={`text-xs capitalize ${statusTone[item.b.status] ?? 'text-stone'}`}>{item.b.status.replace('_', ' ')}</span>
                     </span>
