@@ -1,6 +1,4 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
-import { type LucideIcon, AlertTriangle, Boxes, CalendarClock, Check, ClipboardPen, ShieldAlert } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import StaffGate from './notes/StaffGate'
 import { assistantConfigured } from '@/lib/assistant/db'
@@ -8,6 +6,7 @@ import { endOfDaySummary } from '@/lib/assistant/end-of-day'
 import { stockReview } from '@/lib/assistant/stock'
 import { consentReview } from '@/lib/assistant/consent'
 import StaffLandingHub from './StaffLandingHub'
+import AttentionList, { type AttentionItem } from './AttentionList'
 
 export const metadata: Metadata = {
   title: 'Staff',
@@ -15,14 +14,6 @@ export const metadata: Metadata = {
 }
 
 export const dynamic = 'force-dynamic'
-
-type Tone = 'urgent' | 'attention'
-type AttentionItem = { key: string; href: string; Icon: LucideIcon; tone: Tone; title: string; detail: string }
-
-const toneStyles: Record<Tone, { card: string; badge: string }> = {
-  urgent: { card: 'border-clay/50 bg-clay/10 hover:border-clay', badge: 'bg-clay text-cream' },
-  attention: { card: 'border-gold/50 bg-gold/10 hover:border-gold', badge: 'bg-gold-deep text-cream' },
-}
 
 export default async function StaffIndex() {
   const authed = await isStaffAuthed()
@@ -57,7 +48,7 @@ export default async function StaffIndex() {
     items.push({
       key: 'consent-missing',
       href: '/staff/assistant/consent',
-      Icon: ShieldAlert,
+      icon: 'shield',
       tone: 'urgent',
       title: n === 1 ? '1 booked client has no consent form' : `${n} booked clients have no consent form`,
       detail: `Nothing on file yet for ${names}${n > 3 ? `, +${n - 3} more` : ''}. Send a form before they come in.`,
@@ -69,7 +60,7 @@ export default async function StaffIndex() {
     items.push({
       key: 'overdue',
       href: '/staff/assistant/treatment',
-      Icon: AlertTriangle,
+      icon: 'alert',
       tone: 'urgent',
       title: n === 1 ? 'A write-up is overdue' : `${n} write-ups are overdue`,
       detail: 'Clinical notes over 24 hours old. Tap to write them up.',
@@ -82,7 +73,7 @@ export default async function StaffIndex() {
     items.push({
       key: 'to-write',
       href: '/staff/assistant/treatment',
-      Icon: ClipboardPen,
+      icon: 'clipboard',
       tone: 'attention',
       title: n === 1 ? '1 treatment to write up' : `${n} treatments to write up`,
       detail: `Seen today: ${names}${n > 3 ? `, +${n - 3} more` : ''}.`,
@@ -95,7 +86,7 @@ export default async function StaffIndex() {
       items.push({
         key: 'order-urgent',
         href: '/staff/assistant/stock',
-        Icon: Boxes,
+        icon: 'boxes',
         tone: 'urgent',
         title: 'Order before 3pm today',
         detail: `${stock.urgentItems.join(', ')} — needed for tomorrow’s bookings.`,
@@ -105,7 +96,7 @@ export default async function StaffIndex() {
       items.push({
         key: 'order',
         href: '/staff/assistant/stock',
-        Icon: Boxes,
+        icon: 'boxes',
         tone: 'attention',
         title: n === 1 ? '1 item to order' : `${n} items to order`,
         detail: `${toOrder.map((l) => l.item).slice(0, 3).join(', ')} for upcoming bookings.`,
@@ -118,7 +109,7 @@ export default async function StaffIndex() {
     items.push({
       key: 'squeeze',
       href: '/staff/assistant/squeeze-in',
-      Icon: CalendarClock,
+      icon: 'calendar',
       tone: 'attention',
       title: n === 1 ? '1 person to fit in' : `${n} people to fit in`,
       detail: 'Find the best gap and get them booked.',
@@ -132,43 +123,7 @@ export default async function StaffIndex() {
 
         <div className="mt-9">
           <div className="eyebrow text-gold mb-3">Needs your attention</div>
-
-          {items.length === 0 ? (
-            <div className="flex items-center gap-3 border border-sage/40 bg-sage/10 rounded-sm px-5 py-5">
-              <span className="inline-flex w-9 h-9 rounded-full bg-sage/20 text-sage items-center justify-center shrink-0">
-                <Check size={16} strokeWidth={2} />
-              </span>
-              <div>
-                <p className="text-charcoal font-medium leading-snug">All caught up.</p>
-                <p className="text-sm text-ink-soft leading-snug mt-0.5">
-                  {configured
-                    ? 'Nothing needs you right now.'
-                    : 'Connect the clinic database to see write-ups and stock that need you.'}
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {items.map(({ key, href, Icon, tone, title, detail }) => {
-                const s = toneStyles[tone]
-                return (
-                  <Link
-                    key={key}
-                    href={href}
-                    className={`group flex items-start gap-3 border rounded-sm px-3.5 py-3.5 transition-colors ${s.card}`}
-                  >
-                    <span className={`inline-flex w-8 h-8 rounded-full items-center justify-center shrink-0 mt-0.5 ${s.badge}`}>
-                      <Icon size={15} strokeWidth={1.75} />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block font-display italic text-base text-charcoal leading-tight">{title}</span>
-                      <span className="block text-xs text-ink-soft mt-0.5 leading-snug">{detail}</span>
-                    </span>
-                  </Link>
-                )
-              })}
-            </div>
-          )}
+          <AttentionList items={items} configured={configured} />
         </div>
       </div>
     </section>
