@@ -9,7 +9,8 @@ export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
 const FROM_EMAIL = process.env.BOOKING_FROM_EMAIL ?? 'Visage Aesthetics <enquiries@vaclinic.co.uk>'
-const ALERT_TO = process.env.INTEGRITY_ALERT_EMAIL ?? process.env.BROADCAST_REPLY_TO ?? 'info@vaclinic.co.uk'
+// Drift alerts go to Giles by default; override with INTEGRITY_ALERT_EMAIL.
+const ALERT_TO = process.env.INTEGRITY_ALERT_EMAIL ?? 'giles@hieb.co.uk'
 
 // Daily booking-integrity check. Emails an alert ONLY when something has drifted
 // out of line (an Ovatu appointment with no matching booking, a duplicate, or two
