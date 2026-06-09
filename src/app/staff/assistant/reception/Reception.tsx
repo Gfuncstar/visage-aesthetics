@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { BellRing, CalendarDays, Check, Clock, ListPlus, LogOut, Mic, Phone, Sparkles, X } from 'lucide-react'
 import { notifyDone } from '@/lib/staff-toast'
 
-type Lite = { id: string; service_name: string; client_name: string; client_phone: string | null; starts_at: string; ends_at?: string; status: string; source: string; created_at: string }
+type Lite = { id: string; service_name: string; client_name: string; client_phone: string | null; starts_at: string; ends_at?: string; status: string; source: string; created_at: string; confirmed_at: string | null }
 type WaitRow = { id: string; client_name: string; service_name: string | null; client_phone: string | null }
 type BusinessHour = { weekday: number; is_open: boolean; open_min: number; close_min: number }
 type TimeOffRow = { id: string; starts_at: string; ends_at: string; reason: string | null }
@@ -345,7 +345,7 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
                         </div>
                         <div className="space-y-2">
                           {dayB.map((b) => (
-                            <Row key={b.id} left={<span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>} sub={b.service_name} right={<span className={`capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>} phone={b.client_phone} />
+                            <Row key={b.id} left={<span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>} sub={b.service_name} right={<span className="inline-flex items-center gap-1.5"><ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} /><span className={`capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span></span>} phone={b.client_phone} />
                           ))}
                         </div>
                       </div>
@@ -672,6 +672,13 @@ function Section({ title, icon: Icon, href, cta, children }: { title: string; ic
   )
 }
 
+function ConfirmedDot({ status, confirmedAt }: { status: string; confirmedAt: string | null }) {
+  if (status === 'confirmed' && confirmedAt) return <span title="Client confirmed" className="w-2 h-2 rounded-full bg-sage inline-block shrink-0" />
+  if (status === 'confirmed' && !confirmedAt) return <span title="Awaiting confirmation" className="w-2 h-2 rounded-full bg-gold inline-block shrink-0" />
+  if (status === 'pending') return <span title="Deposit pending" className="w-2 h-2 rounded-full bg-gold-deep inline-block shrink-0" />
+  return null
+}
+
 // Generic row (week/month views, just-booked, waitlist)
 function Row({ left, sub, right, phone }: { left: React.ReactNode; sub: string | null; right: React.ReactNode; phone?: string | null }) {
   return (
@@ -712,7 +719,10 @@ function BookingRow({ booking: b, nowMin }: { booking: Lite; nowMin: number }) {
             <Phone size={14} strokeWidth={1.75} />
           </a>
         )}
-        <span className={`text-sm capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>
+        <span className="inline-flex items-center gap-1.5">
+          <ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} />
+          <span className={`text-sm capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>
+        </span>
       </div>
     </div>
   )

@@ -22,6 +22,7 @@ type Booking = {
   status: string
   source: string
   notes: string | null
+  confirmed_at: string | null
 }
 type TimeOff = { id: string; starts_at: string; ends_at: string; reason: string | null }
 type Service = { slug: string; name: string; duration_min: number }
@@ -98,6 +99,13 @@ const statusTone: Record<string, string> = {
   completed: 'text-stone',
   cancelled: 'text-clay line-through',
   no_show: 'text-clay',
+}
+
+function ConfirmedDot({ status, confirmedAt }: { status: string; confirmedAt: string | null }) {
+  if (status === 'confirmed' && confirmedAt) return <span title="Client confirmed" className="w-2 h-2 rounded-full bg-sage inline-block shrink-0" />
+  if (status === 'confirmed' && !confirmedAt) return <span title="Awaiting confirmation" className="w-2 h-2 rounded-full bg-gold inline-block shrink-0" />
+  if (status === 'pending') return <span title="Deposit pending" className="w-2 h-2 rounded-full bg-gold-deep inline-block shrink-0" />
+  return null
 }
 
 function toLocalMin(iso: string): number {
@@ -295,7 +303,10 @@ export default function Diary() {
                             ) : (
                               <div key={item.b.id} className="px-3.5 py-2.5 flex items-center justify-between gap-2 bg-gold/[0.07]">
                                 <span className="text-sm text-charcoal truncate min-w-0"><span className="text-stone">{timeLabel(item.b.starts_at)}</span> &nbsp; {item.b.client_name}</span>
-                                <span className="text-xs text-stone truncate shrink-0 ml-2">{item.b.service_name}</span>
+                                <div className="shrink-0 flex items-center gap-2 ml-2">
+                                  <span className="text-xs text-stone truncate">{item.b.service_name}</span>
+                                  <ConfirmedDot status={item.b.status} confirmedAt={item.b.confirmed_at} />
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -339,7 +350,10 @@ export default function Diary() {
                         ) : (
                           <div key={item.b.id} className="px-3.5 py-2.5 flex items-center justify-between gap-2 bg-gold/[0.07]">
                             <span className="text-sm text-charcoal truncate min-w-0"><span className="text-stone">{timeLabel(item.b.starts_at)}</span> &nbsp; {item.b.client_name}</span>
-                            <span className="text-xs text-stone truncate shrink-0 ml-2">{item.b.service_name}</span>
+                            <div className="shrink-0 flex items-center gap-2 ml-2">
+                              <span className="text-xs text-stone truncate">{item.b.service_name}</span>
+                              <ConfirmedDot status={item.b.status} confirmedAt={item.b.confirmed_at} />
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -381,7 +395,10 @@ export default function Diary() {
                       <div className="text-sm text-stone mt-0.5">{item.b.service_name}{item.b.source === 'online' ? ' · online' : ''}{item.b.client_phone ? ` · ${item.b.client_phone}` : ''}</div>
                       {item.b.notes && <div className="text-xs text-ink-soft mt-1">{item.b.notes}</div>}
                     </div>
-                    <span className={`text-xs capitalize ${statusTone[item.b.status] ?? 'text-stone'}`}>{item.b.status.replace('_', ' ')}</span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <ConfirmedDot status={item.b.status} confirmedAt={item.b.confirmed_at} />
+                      <span className={`text-xs capitalize ${statusTone[item.b.status] ?? 'text-stone'}`}>{item.b.status.replace('_', ' ')}</span>
+                    </span>
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {item.b.status !== 'completed' && <button onClick={() => setStatus(item.b.id, 'completed')} className="text-xs rounded-full border border-line/50 px-3 py-1.5 text-charcoal hover:border-gold/60">Completed</button>}

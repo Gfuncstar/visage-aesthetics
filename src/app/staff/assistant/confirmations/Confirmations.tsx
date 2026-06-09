@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, MailQuestion, Send } from 'lucide-react'
+import { Check, MailQuestion, Send, X } from 'lucide-react'
+import { notifyDone } from '@/lib/staff-toast'
 
 type Item = { id: string; name: string; service: string; startsAt: string; phone: string | null; email: string | null }
 
@@ -17,12 +18,16 @@ function whenLabel(iso: string): string {
   }).format(new Date(iso))
 }
 
+function firstName(name: string): string {
+  return name.trim().split(/\s+/)[0] || 'there'
+}
+
 export default function Confirmations({ items }: { items: Item[] }) {
-  // Locally hide rows once they've been confirmed, and remember per-row status.
   const [busy, setBusy] = useState<string | null>(null)
   const [done, setDone] = useState<Record<string, string>>({})
   const [confirmed, setConfirmed] = useState<Record<string, boolean>>({})
   const [err, setErr] = useState<Record<string, string>>({})
+  const [previewing, setPreviewing] = useState<string | null>(null)
 
   const remaining = items.filter((i) => !confirmed[i.id])
 
@@ -33,7 +38,7 @@ export default function Confirmations({ items }: { items: Item[] }) {
           <Check size={16} strokeWidth={2} />
         </span>
         <div>
-          <p className="text-charcoal font-medium leading-snug">Everyone’s confirmed.</p>
+          <p className="text-charcoal font-medium leading-snug">Everyone&apos;s confirmed.</p>
           <p className="text-sm text-ink-soft leading-snug mt-0.5">
             No one booked in the next day or so is still waiting to confirm.
           </p>
@@ -42,25 +47,46 @@ export default function Confirmations({ items }: { items: Item[] }) {
     )
   }
 
-  async function act(id: string, action: 'remind' | 'confirm') {
-    setBusy(`${id}:${action}`)
+  async function sendReminder(id: string) {
+    setPreviewing(null)
+    setBusy(`${id}:remind`)
     setErr((p) => ({ ...p, [id]: '' }))
     try {
       const res = await fetch('/api/staff/assistant/confirmations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId: id, action }),
+        body: JSON.stringify({ bookingId: id, action: 'remind' }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
         setErr((p) => ({ ...p, [id]: data.error || 'Could not do that.' }))
         return
       }
-      if (action === 'confirm') {
-        setConfirmed((p) => ({ ...p, [id]: true }))
-      } else {
-        setDone((p) => ({ ...p, [id]: data.channel === 'sms' ? 'Text sent' : 'Email sent' }))
+      const label = data.channel === 'sms' ? 'Text sent' : 'Email sent'
+      setDone((p) => ({ ...p, [id]: label }))
+      notifyDone(label)
+    } catch {
+      setErr((p) => ({ ...p, [id]: 'Network error.' }))
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function markConfirmed(id: string) {
+    setBusy(`${id}:confirm`)
+    setErr((p) => ({ ...p, [id]: '' }))
+    try {
+      const res = await fetch('/api/staff/assistant/confirmations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId: id, action: 'confirm' }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setErr((p) => ({ ...p, [id]: data.error || 'Could not do that.' }))
+        return
       }
+      setConfirmed((p) => ({ ...p, [id]: true }))
     } catch {
       setErr((p) => ({ ...p, [id]: 'Network error.' }))
     } finally {
@@ -72,6 +98,9 @@ export default function Confirmations({ items }: { items: Item[] }) {
     <div className="space-y-2">
       {remaining.map((m) => {
         const sent = done[m.id]
+        const isPreview = previewing === m.id
+        const channel = m.email ? 'email' : m.phone ? 'text' : null
+        const contact = m.email || m.phone
         return (
           <div key={m.id} className="border border-line/40 bg-cream rounded-sm px-4 py-3">
             <div className="flex items-center justify-between gap-3">
@@ -89,20 +118,40 @@ export default function Confirmations({ items }: { items: Item[] }) {
                   <span className="text-xs text-sage inline-flex items-center gap-1.5">
                     <Check size={13} strokeWidth={2} /> {sent}
                   </span>
+                ) : isPreview ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => sendReminder(m.id)}
+                      disabled={busy === `${m.id}:remind`}
+                      className="inline-flex items-center gap-1.5 text-xs rounded-sm px-3 py-2 min-h-[40px] border border-gold bg-gold/10 text-charcoal hover:bg-gold/20 transition-colors disabled:opacity-50"
+                    >
+                      <Send size={13} strokeWidth={1.75} />
+                      {busy === `${m.id}:remind` ? 'Sending…' : 'Send now'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewing(null)}
+                      className="text-stone hover:text-clay"
+                      aria-label="Cancel"
+                    >
+                      <X size={15} strokeWidth={1.75} />
+                    </button>
+                  </>
                 ) : (
                   <button
                     type="button"
-                    onClick={() => act(m.id, 'remind')}
-                    disabled={busy === `${m.id}:remind`}
+                    onClick={() => { setPreviewing(m.id); setErr((p) => ({ ...p, [m.id]: '' })) }}
+                    disabled={!channel || busy !== null}
                     className="inline-flex items-center gap-1.5 text-xs rounded-sm px-3 py-2 min-h-[40px] border border-line/50 text-charcoal hover:border-gold transition-colors disabled:opacity-50"
                   >
                     <Send size={13} strokeWidth={1.75} />
-                    {busy === `${m.id}:remind` ? 'Sending…' : 'Message again'}
+                    Message again
                   </button>
                 )}
                 <button
                   type="button"
-                  onClick={() => act(m.id, 'confirm')}
+                  onClick={() => markConfirmed(m.id)}
                   disabled={busy === `${m.id}:confirm`}
                   className="inline-flex items-center gap-1.5 text-xs rounded-sm px-3 py-2 min-h-[40px] border border-sage/50 text-sage hover:bg-sage/10 transition-colors disabled:opacity-50"
                 >
@@ -111,6 +160,13 @@ export default function Confirmations({ items }: { items: Item[] }) {
                 </button>
               </div>
             </div>
+
+            {isPreview && channel && contact && (
+              <div className="mt-2.5 pt-2.5 border-t border-line/30 text-xs text-stone leading-relaxed">
+                Will send {firstName(m.name)} a confirmation reminder for their {m.service} on {whenLabel(m.startsAt)}{' '}
+                by {channel} to <span className="text-charcoal">{contact}</span>.
+              </div>
+            )}
             {err[m.id] && <p className="text-sm text-clay mt-2">{err[m.id]}</p>}
           </div>
         )
@@ -118,8 +174,8 @@ export default function Confirmations({ items }: { items: Item[] }) {
 
       <p className="flex items-center gap-2 text-xs text-stone pt-2">
         <MailQuestion size={13} strokeWidth={1.75} />
-        “Message again” re-sends the confirm email (or a text if there’s no email). “Mark confirmed” clears them if
-        they’ve told you another way.
+        &ldquo;Message again&rdquo; re-sends the confirm email (or a text if there&apos;s no email). &ldquo;Mark confirmed&rdquo; clears them if
+        they&apos;ve told you another way.
       </p>
     </div>
   )

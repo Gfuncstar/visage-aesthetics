@@ -126,6 +126,8 @@ function RebookCard({
   const [copied, setCopied] = useState(false)
   const [emailing, setEmailing] = useState(false)
   const [emailErr, setEmailErr] = useState<string | null>(null)
+  const [confirmEmail, setConfirmEmail] = useState(false)
+  const [emailSent, setEmailSent] = useState(false)
   const wa = waLink(i.phone, msg)
   const due = dueLabel(i.overdueDays)
 
@@ -140,6 +142,7 @@ function RebookCard({
   }
 
   async function sendEmail() {
+    setConfirmEmail(false)
     setEmailing(true)
     setEmailErr(null)
     try {
@@ -154,8 +157,9 @@ function RebookCard({
         setEmailing(false)
         return
       }
+      setEmailSent(true)
       notifyDone('Rebook email sent')
-      onSent(i.markKey)
+      setTimeout(() => onSent(i.markKey), 1500)
     } catch {
       setEmailErr('Network error.')
       setEmailing(false)
@@ -196,9 +200,20 @@ function RebookCard({
           </a>
         )}
         {i.email && (
-          <button onClick={sendEmail} disabled={emailing} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 38 }}>
-            <span className="inline-flex items-center gap-2"><Mail size={14} strokeWidth={1.75} /> {emailing ? 'Sending…' : 'Send email'}</span>
-          </button>
+          emailSent ? (
+            <span className="inline-flex items-center gap-1.5 text-xs text-sage px-1" style={{ minHeight: 38 }}>
+              <Check size={14} strokeWidth={2} /> Email sent
+            </span>
+          ) : (
+            <button
+              onClick={() => setConfirmEmail((v) => !v)}
+              disabled={emailing}
+              className={`btn btn-primary disabled:opacity-50 ${confirmEmail ? 'ring-2 ring-gold ring-offset-1' : ''}`}
+              style={{ minHeight: 38 }}
+            >
+              <span className="inline-flex items-center gap-2"><Mail size={14} strokeWidth={1.75} /> Send email</span>
+            </button>
+          )
         )}
         <button onClick={copyMsg} className="btn btn-secondary" style={{ minHeight: 38 }}>
           <span className="inline-flex items-center gap-2"><Copy size={14} strokeWidth={1.75} /> {copied ? 'Copied' : 'Copy message'}</span>
@@ -207,13 +222,36 @@ function RebookCard({
           <span className="inline-flex items-center gap-2"><Check size={14} strokeWidth={2} /> Contacted</span>
         </button>
       </div>
+
+      {i.email && confirmEmail && !emailSent && (
+        <div className="mt-2 flex items-center gap-3 bg-gold/10 border border-gold/30 rounded-sm px-3 py-2.5">
+          <span className="text-xs text-charcoal flex-1">Send branded rebook email to <span className="font-medium">{i.email}</span>?</span>
+          <button
+            onClick={sendEmail}
+            disabled={emailing}
+            className="text-xs font-medium text-charcoal border border-gold rounded-sm px-3 py-1.5 hover:bg-gold/20 transition-colors disabled:opacity-50"
+          >
+            {emailing ? 'Sending…' : 'Confirm send'}
+          </button>
+          <button
+            onClick={() => setConfirmEmail(false)}
+            className="text-stone hover:text-clay"
+            aria-label="Cancel"
+          >
+            <X size={14} strokeWidth={1.75} />
+          </button>
+        </div>
+      )}
+
       <div className="mt-2 min-h-[16px]">
-        {i.email ? (
-          <span className="text-xs text-stone">Branded email goes to {i.email}</span>
-        ) : (
-          <span className="text-xs text-stone">No email on file, use WhatsApp or copy</span>
+        {!confirmEmail && (
+          i.email ? (
+            <span className="text-xs text-stone">Branded email goes to {i.email}</span>
+          ) : (
+            <span className="text-xs text-stone">No email on file, use WhatsApp or copy</span>
+          )
         )}
-        {emailErr && <span className="text-xs text-clay ml-2">{emailErr}</span>}
+        {emailErr && <span className="text-xs text-clay">{emailErr}</span>}
       </div>
     </div>
   )

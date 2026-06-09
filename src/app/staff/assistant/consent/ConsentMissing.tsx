@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Send, ShieldAlert } from 'lucide-react'
+import { Check, Send, ShieldAlert, X } from 'lucide-react'
+import { notifyDone } from '@/lib/staff-toast'
 
 type Missing = { name: string; service: string; date: string }
 type FormOption = { id: string; name: string }
@@ -25,8 +26,24 @@ export default function ConsentMissing({ missing, forms }: { missing: Missing[];
   const [sending, setSending] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const [done, setDone] = useState<Record<string, string>>({})
+  const [dismissed, setDismissed] = useState<Record<string, boolean>>({})
 
-  if (missing.length === 0) return null
+  const visible = missing.filter((m) => !dismissed[`${m.name}-${m.date}`])
+  if (visible.length === 0) return null
+
+  async function waive(name: string, key: string) {
+    setDismissed((prev) => ({ ...prev, [key]: true }))
+    if (openKey === key) setOpenKey(null)
+    try {
+      await fetch('/api/staff/assistant/consent/waive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clientName: name }),
+      })
+    } catch {
+      // best-effort — UI already dismissed
+    }
+  }
 
   async function send(key: string, name: string) {
     if (!email.trim() || !formId) return
@@ -43,6 +60,7 @@ export default function ConsentMissing({ missing, forms }: { missing: Missing[];
       setDone((prev) => ({ ...prev, [key]: `Sent to ${email}` }))
       setOpenKey(null)
       setEmail('')
+      notifyDone(`Consent form sent to ${email}`)
     } catch {
       setErr('Network error while sending.')
     } finally {
@@ -57,12 +75,12 @@ export default function ConsentMissing({ missing, forms }: { missing: Missing[];
         <span className="text-eyebrow text-clay">No consent on file · booked in the next 2 weeks</span>
       </div>
       <p className="text-sm text-ink-soft mb-4">
-        {missing.length} {missing.length === 1 ? 'client has' : 'clients have'} an upcoming appointment with no
+        {visible.length} {visible.length === 1 ? 'client has' : 'clients have'} an upcoming appointment with no
         consent form completed or sent. Send each one their form before they come in.
       </p>
 
       <div className="space-y-2">
-        {missing.map((m) => {
+        {visible.map((m) => {
           const key = `${m.name}-${m.date}`
           const sent = done[key]
           const open = openKey === key
@@ -78,13 +96,23 @@ export default function ConsentMissing({ missing, forms }: { missing: Missing[];
                     <Check size={13} strokeWidth={2} /> {sent}
                   </span>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => { setOpenKey(open ? null : key); setEmail(''); setErr(null) }}
-                    className={`inline-flex items-center gap-1.5 text-xs rounded-sm px-3 py-2 min-h-[40px] border shrink-0 transition-colors ${open ? 'border-gold bg-gold/10 text-charcoal' : 'border-line/50 text-charcoal hover:border-gold'}`}
-                  >
-                    <Send size={13} strokeWidth={1.75} /> Send form
-                  </button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => { setOpenKey(open ? null : key); setEmail(''); setErr(null) }}
+                      className={`inline-flex items-center gap-1.5 text-xs rounded-sm px-3 py-2 min-h-[40px] border transition-colors ${open ? 'border-gold bg-gold/10 text-charcoal' : 'border-line/50 text-charcoal hover:border-gold'}`}
+                    >
+                      <Send size={13} strokeWidth={1.75} /> Send form
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => waive(m.name, key)}
+                      title="Dismiss — consent not required"
+                      className="inline-flex items-center justify-center w-8 h-8 rounded-sm border border-line/40 text-ink-soft hover:border-clay hover:text-clay transition-colors"
+                    >
+                      <X size={14} strokeWidth={1.75} />
+                    </button>
+                  </div>
                 )}
               </div>
 

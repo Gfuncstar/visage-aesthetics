@@ -26,6 +26,7 @@ const CONSENT_ENFORCE_FROM = process.env.CONSENT_ENFORCE_FROM || goLiveTimestamp
 
 type SubRow = { client_name: string; submitted_at: string }
 type ReqRow = { id: string; client_name: string }
+type WaiverRow = { client_name_norm: string }
 type ApptRow = { client_name: string; service_name: string; date: string }
 
 export type ConsentReview = {
@@ -42,9 +43,10 @@ export async function consentReview(): Promise<ConsentReview | null> {
   const since = new Date(Date.now() - CONSENT_LOOKBACK_DAYS * DAY_MS).toISOString()
 
   try {
-    const [requests, submissions, appts] = await Promise.all([
+    const [requests, waivers, submissions, appts] = await Promise.all([
       // consent_requests may not exist on older databases — treat as empty.
-      select<ReqRow>('consent_requests', { status: 'eq.sent', select: 'id,client_name', limit: 300 }).catch(() => [] as ReqRow[]),
+      select<ReqRow>('consent_requests', { status: 'in.(sent,waived)', select: 'id,client_name', limit: 300 }).catch(() => [] as ReqRow[]),
+      select<WaiverRow>('consent_waivers', { select: 'client_name_norm', limit: 500 }).catch(() => [] as WaiverRow[]),
       select<SubRow>('consent_submissions', { submitted_at: `gte.${since}`, select: 'client_name,submitted_at', limit: 1000 }),
       select<ApptRow>('appointments', {
         and: `(date.gte.${today},date.lte.${horizon},status.neq.cancelled,created_at.gte.${CONSENT_ENFORCE_FROM})`,
@@ -56,6 +58,7 @@ export async function consentReview(): Promise<ConsentReview | null> {
 
     const consented = new Set(submissions.map((s) => norm(s.client_name ?? '')).filter(Boolean))
     const requested = new Set(requests.map((r) => norm(r.client_name ?? '')).filter(Boolean))
+    const waived = new Set(waivers.map((w) => w.client_name_norm).filter(Boolean))
 
     // Booked soon (and newly booked), nothing on file and no form sent yet.
     const seenBM = new Set<string>()
@@ -64,7 +67,7 @@ export async function consentReview(): Promise<ConsentReview | null> {
       const name = (a.client_name ?? '').trim()
       if (!name) continue
       const k = norm(name)
-      if (consented.has(k) || requested.has(k) || seenBM.has(k)) continue
+      if (consented.has(k) || requested.has(k) || waived.has(k) || seenBM.has(k)) continue
       seenBM.add(k)
       bookedMissing.push({ name, service: a.service_name || 'Appointment', date: a.date })
     }

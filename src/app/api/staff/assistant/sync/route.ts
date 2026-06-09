@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server'
 import { isStaffAuthed } from '@/lib/staff-auth'
-import { assistantConfigured, insertMany, audit } from '@/lib/assistant/db'
+import { assistantConfigured, insertMany, select, audit } from '@/lib/assistant/db'
 import { ovatuConfigured, fetchClients, fetchAppointments } from '@/lib/assistant/ovatu'
 import { cutoverLive } from '@/lib/assistant/go-live'
 import type { Appointment, Client } from '@/lib/assistant/types'
+
+const FALLBACK_DAYS = 400
+const SYNC_KEY = 'last_ovatu_sync'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -44,8 +47,19 @@ async function run() {
   }
 
   try {
+    // Incremental: use the last successful sync timestamp so each run only
+    // fetches what Ovatu has changed since then. Falls back to FALLBACK_DAYS
+    // on the very first run (or if the key is missing).
+    const configRows = await select<{ value: string }>('app_config', {
+      key: `eq.${SYNC_KEY}`, limit: 1,
+    }).catch(() => [] as { value: string }[])
+    const lastSync = configRows[0]?.value
+    const since = lastSync
+      ? new Date(lastSync).toISOString().slice(0, 10)
+      : new Date(Date.now() - FALLBACK_DAYS * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+    const syncStarted = new Date().toISOString()
+
     const clients = await fetchClients()
-    const since = new Date(Date.now() - 400 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
     const appointments = await fetchAppointments(since)
 
     let clientsUpserted = 0
@@ -76,8 +90,11 @@ async function run() {
       apptsUpserted = rows.length
     }
 
-    await audit('sync', 'ovatu', undefined, { clients: clientsUpserted, appointments: apptsUpserted })
-    return NextResponse.json({ ok: true, clients: clientsUpserted, appointments: apptsUpserted })
+    // Stamp successful sync time so the next run picks up only new changes.
+    await insertMany('app_config', [{ key: SYNC_KEY, value: syncStarted }], { onConflict: 'key' }).catch(() => {})
+
+    await audit('sync', 'ovatu', undefined, { clients: clientsUpserted, appointments: apptsUpserted, since })
+    return NextResponse.json({ ok: true, clients: clientsUpserted, appointments: apptsUpserted, since })
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Sync failed'
     return NextResponse.json({ error: msg }, { status: 502 })
