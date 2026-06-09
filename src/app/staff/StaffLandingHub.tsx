@@ -57,6 +57,10 @@ function shortDayLabel(iso: string): string {
   return new Intl.DateTimeFormat('en-GB', { timeZone: TZ, weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(iso))
 }
 
+function localDate(iso: string): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date(iso))
+}
+
 function agoLabel(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime()
   const diffMins = Math.floor(diffMs / 60_000)
@@ -275,16 +279,16 @@ export default function StaffLandingHub({ greeting, dateLabel }: { greeting: str
         <div className="grid grid-cols-2 gap-3 items-start">
           {/* Next 24 hours */}
           {next24h.length > 0 && (
-            <Link href="/staff/assistant/diary" className="block group">
+            <div>
               <div className="eyebrow text-stone mb-3 flex items-center gap-2">
                 <Clock size={13} strokeWidth={1.75} />
                 Next 24 h · {next24h.length} {next24h.length === 1 ? 'appt' : 'appts'}
               </div>
-              <div className="border border-line/40 rounded-sm bg-cream-soft divide-y divide-line/30 group-hover:border-gold/50 transition-colors">
+              <div className="border border-line/40 rounded-sm bg-cream-soft divide-y divide-line/30 overflow-hidden">
                 {next24h.map((b) => {
                   const isToday = b.starts_at.startsWith(today)
                   return (
-                    <div key={b.id} className="flex items-center gap-3 px-4 py-2">
+                    <Link key={b.id} href={`/staff/assistant/diary?date=${localDate(b.starts_at)}`} className="flex items-center gap-3 px-4 py-2 hover:bg-gold/5 transition-colors">
                       <div className="min-w-[72px] shrink-0">
                         <div className="text-xs font-medium text-charcoal tabular-nums">{timeLabel(b.starts_at)}</div>
                         {!isToday && <div className="text-[10px] text-stone/70">{shortDayLabel(b.starts_at)}</div>}
@@ -293,32 +297,32 @@ export default function StaffLandingHub({ greeting, dateLabel }: { greeting: str
                         <div className="text-xs text-charcoal truncate">{b.client_name}</div>
                         <div className="text-[10px] text-stone/60 truncate">{b.service_name}</div>
                       </div>
-                    </div>
+                    </Link>
                   )
                 })}
               </div>
-            </Link>
+            </div>
           )}
 
           {/* Just booked */}
           {justBooked !== null && justBooked.length > 0 && (
-            <Link href="/staff/assistant/reception" className="block group">
+            <div>
               <div className="eyebrow text-gold mb-3 flex items-center gap-2">
                 <CalendarPlus size={13} strokeWidth={1.75} /> Just booked
               </div>
-              <div className="border border-line/40 rounded-sm bg-cream-soft divide-y divide-line/30 group-hover:border-gold/50 transition-colors">
+              <div className="border border-line/40 rounded-sm bg-cream-soft divide-y divide-line/30 overflow-hidden">
                 {justBooked.map((b) => (
-                  <div key={b.id} className="flex items-start gap-3 px-4 py-3">
+                  <Link key={b.id} href={`/staff/assistant/diary?date=${localDate(b.starts_at)}`} className="flex items-start gap-3 px-4 py-3 hover:bg-gold/5 transition-colors">
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-medium text-charcoal truncate">{b.client_name}</div>
                       <div className="text-xs text-stone truncate">{b.service_name}</div>
                       <div className="text-xs text-stone/70 mt-0.5">{apptLabel(b.starts_at)}</div>
                     </div>
                     <span className="text-xs text-stone/60 shrink-0 pt-0.5">{agoLabel(b.created_at)}</span>
-                  </div>
+                  </Link>
                 ))}
               </div>
-            </Link>
+            </div>
           )}
         </div>
       )}

@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { ChevronLeft, ChevronRight, Check, Clock, LogOut, Plus, Ban, X } from 'lucide-react'
 import MicButton, { appendText } from '@/components/ui/MicButton'
 import { notifyDone } from '@/lib/staff-toast'
@@ -179,7 +180,8 @@ function gapLabel(mins: number): string {
 }
 
 export default function Diary() {
-  const [date, setDate] = useState(todayStr())
+  const searchParams = useSearchParams()
+  const [date, setDate] = useState(() => searchParams.get('date') ?? todayStr())
   const [view, setView] = useState<'day' | 'week' | 'month'>('week')
   const [bookings, setBookings] = useState<Booking[]>([])
   const [timeOff, setTimeOff] = useState<TimeOff[]>([])
