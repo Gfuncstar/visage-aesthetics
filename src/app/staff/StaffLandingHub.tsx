@@ -483,7 +483,7 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
             >
               <span className="inline-flex items-center gap-2">
                 <Sparkles size={14} strokeWidth={1.75} />
-                {busy ? 'Working…' : 'Action this'}
+                {busy ? 'Working…' : 'Action'}
               </span>
             </button>
             <p className="text-xs text-ink-soft leading-snug">Book · cancel · block time · change hours · flag a client</p>
@@ -495,7 +495,7 @@ function CommandBar({ onActioned }: { onActioned: () => void }) {
               className="btn btn-secondary w-full disabled:opacity-50 mb-2"
               style={{ minHeight: 40 }}
             >
-              Ask a question
+              Question
             </button>
             <p className="text-xs text-ink-soft leading-snug">Last visit · treatment history · who&apos;s due · waitlist · stats</p>
           </div>
