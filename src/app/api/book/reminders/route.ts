@@ -1,24 +1,20 @@
 import { NextResponse } from 'next/server'
-import { Resend } from 'resend'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, select, update } from '@/lib/assistant/db'
-import { londonParts, dayLabel, clockLabel } from '@/lib/booking-engine/time'
-import { sendSms, smsConfigured } from '@/lib/assistant/sms'
-import { recordMessage } from '@/lib/assistant/messages'
-import { isSuppressed } from '@/lib/assistant/suppression'
+import { sendConfirmRequest } from '@/lib/booking-engine/confirm-request'
+import { smsConfigured } from '@/lib/assistant/sms'
 import type { Booking } from '@/lib/booking-engine/types'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
-const SITE = 'https://www.vaclinic.co.uk'
-const FROM_EMAIL = process.env.BOOKING_FROM_EMAIL ?? 'Visage Aesthetics <enquiries@vaclinic.co.uk>'
-const REPLY_TO = process.env.BROADCAST_REPLY_TO ?? 'info@vaclinic.co.uk'
-
-// Sends appointment reminders for confirmed bookings starting in the next ~24h
-// that have not been reminded yet. Called hourly by the scheduler with
-// ?key=<push_cron_secret>, or by signed-in staff (?test=1 reports the count).
+// Sends the "please confirm you're coming" request for confirmed bookings
+// starting in the next ~24h that have not been reminded yet. The client gets a
+// branded email with a one-click "Confirm your appointment" button (or an SMS
+// with the same link if there's no email on file). Called hourly by the
+// scheduler with ?key=<push_cron_secret>, or by signed-in staff (?test=1
+// reports the count).
 export async function GET(req: Request) {
   if (!assistantConfigured()) return NextResponse.json({ error: 'Not configured' }, { status: 503 })
   const url = new URL(req.url)
@@ -55,41 +51,13 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: true, test: true, dueCount: due.length, smsConfigured: smsConfigured() })
   }
 
-  const apiKey = process.env.RESEND_API_KEY
-  const resend = apiKey ? new Resend(apiKey) : null
   let sms = 0
   let email = 0
 
   for (const b of due) {
-    const p = londonParts(new Date(b.starts_at))
-    const when = `${dayLabel(p.dateStr)} at ${clockLabel(p.minutes)}`
-    const first = b.client_name.trim().split(/\s+/)[0] || 'there'
-    const manageUrl = `${SITE}/book/manage/${b.manage_token}`
-
-    // Honour the do-not-contact marker even for reminders.
-    const suppressed = await isSuppressed(b.client_name, b.client_email)
-
-    if (!suppressed) {
-      const text = `Hi ${first}, a reminder of your ${b.service_name} at Visage Aesthetics on ${when}. To change it: ${manageUrl}`
-      let delivered = false
-      if (b.client_phone && smsConfigured()) {
-        delivered = await sendSms(b.client_phone, text)
-        if (delivered) {
-          sms++
-          await recordMessage({ clientName: b.client_name, phone: b.client_phone, channel: 'sms', kind: 'reminder', body: text, bookingId: b.id })
-        }
-      }
-      if (!delivered && b.client_email && resend) {
-        const subject = `Reminder: your ${b.service_name} on ${dayLabel(p.dateStr)}`
-        try {
-          await resend.emails.send({ from: FROM_EMAIL, to: [b.client_email], replyTo: REPLY_TO, subject, text })
-          email++
-          await recordMessage({ clientName: b.client_name, email: b.client_email, channel: 'email', kind: 'reminder', subject, body: text, bookingId: b.id })
-        } catch (err) {
-          console.error('[reminders] email failed', err)
-        }
-      }
-    }
+    const result = await sendConfirmRequest(b)
+    if (result.channel === 'sms') sms++
+    if (result.channel === 'email') email++
 
     // Mark reminded regardless, so we never double-send.
     await update('bookings', { id: b.id }, { reminded_at: now.toISOString() })

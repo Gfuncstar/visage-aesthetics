@@ -55,6 +55,38 @@ Looking forward to seeing you in clinic.`
   }
 }
 
+export function appointmentConfirmEmail(input: {
+  name: string
+  serviceName: string
+  startsAtIso: string
+  manageToken: string
+}): { subject: string; html: string; text: string } {
+  const confirmUrl = `${SITE}/book/confirm/${input.manageToken}`
+  const manageUrl = `${SITE}/book/manage/${input.manageToken}`
+  const body = `Hi ${firstName(input.name)},
+
+This is a reminder that you have an appointment with us tomorrow:
+
+**${input.serviceName}**
+${whenLine(input.startsAtIso)}
+${ADDRESS}
+
+Please tap the button below to confirm you are still coming. It only takes a second, and lets us know to expect you.
+
+If you need to change or cancel, you can [manage your booking here](${manageUrl}) instead.`
+  const opts = {
+    preheader: 'Please confirm your appointment tomorrow.',
+    headline: 'Please confirm your appointment',
+    body,
+    ctaCustom: { label: 'Confirm your appointment', url: confirmUrl },
+  }
+  return {
+    subject: `Please confirm your appointment: ${input.serviceName}`,
+    html: buildBroadcastHtml(opts),
+    text: buildBroadcastText({ headline: opts.headline, body, ctaCustom: opts.ctaCustom }),
+  }
+}
+
 export function portalLoginEmail(input: { name: string; url: string }): { subject: string; html: string; text: string } {
   const body = `Hi ${firstName(input.name)},
 

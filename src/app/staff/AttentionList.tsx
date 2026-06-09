@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { type LucideIcon, AlertTriangle, Boxes, CalendarClock, Check, ClipboardPen, ShieldAlert, X } from 'lucide-react'
+import { type LucideIcon, AlertTriangle, Boxes, CalendarCheck, CalendarClock, Check, ClipboardPen, ShieldAlert, X } from 'lucide-react'
 
 type Tone = 'urgent' | 'attention'
-type IconName = 'shield' | 'alert' | 'clipboard' | 'boxes' | 'calendar'
+type IconName = 'shield' | 'alert' | 'clipboard' | 'boxes' | 'calendar' | 'confirm'
 
 export type AttentionItem = {
   key: string
@@ -22,6 +22,7 @@ const icons: Record<IconName, LucideIcon> = {
   clipboard: ClipboardPen,
   boxes: Boxes,
   calendar: CalendarClock,
+  confirm: CalendarCheck,
 }
 
 const toneStyles: Record<Tone, { card: string; badge: string }> = {

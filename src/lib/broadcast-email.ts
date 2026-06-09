@@ -108,6 +108,8 @@ export type BuildEmailInput = {
   headline?: string
   body: string
   cta?: CtaKind
+  /** A custom CTA button (label + url). Takes precedence over `cta` when set. */
+  ctaCustom?: { label: string; url: string }
   recipientEmail?: string
   /** Optional pre-built table-row HTML inserted above the body (e.g. a voucher). */
   featureHtml?: string
@@ -120,10 +122,11 @@ export function buildBroadcastHtml({
   headline,
   body,
   cta = 'none',
+  ctaCustom,
   recipientEmail,
   featureHtml,
 }: BuildEmailInput): string {
-  const ctaInfo = ctaPreset(cta)
+  const ctaInfo = ctaCustom && isSafeHref(ctaCustom.url) ? ctaCustom : ctaPreset(cta)
   const ctaBlock = ctaInfo
     ? `
       <tr><td style="padding:32px 0 8px;">
@@ -235,9 +238,10 @@ export function buildBroadcastText({
   headline,
   body,
   cta = 'none',
+  ctaCustom,
   recipientEmail,
 }: BuildEmailInput): string {
-  const ctaInfo = ctaPreset(cta)
+  const ctaInfo = ctaCustom && isSafeHref(ctaCustom.url) ? ctaCustom : ctaPreset(cta)
   const lines = [
     CLINIC_NAME,
     CLINIC_TAGLINE,

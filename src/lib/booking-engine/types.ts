@@ -46,6 +46,7 @@ export type Booking = {
   source: 'online' | 'staff'
   manage_token: string
   reminded_at: string | null
+  confirmed_at: string | null
   review_requested_at: string | null
   created_at: string
   updated_at: string
