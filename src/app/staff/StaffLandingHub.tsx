@@ -48,6 +48,15 @@ function todayStr(): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date())
 }
 
+function tomorrowStr(): string {
+  const d = new Date(Date.now() + 24 * 60 * 60 * 1000)
+  return new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(d)
+}
+
+function shortDayLabel(iso: string): string {
+  return new Intl.DateTimeFormat('en-GB', { timeZone: TZ, weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(iso))
+}
+
 function agoLabel(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime()
   const diffMins = Math.floor(diffMs / 60_000)
@@ -91,7 +100,7 @@ export default function StaffLandingHub({ greeting, dateLabel }: { greeting: str
   const [justBooked, setJustBooked] = useState<JustBooked[] | null>(null)
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/staff/assistant/diary?date=${todayStr()}`)
+    const res = await fetch(`/api/staff/assistant/diary?from=${todayStr()}&to=${tomorrowStr()}`)
     if (res.ok) {
       const d = await res.json()
       setBookings(d.bookings ?? [])
@@ -111,13 +120,23 @@ export default function StaffLandingHub({ greeting, dateLabel }: { greeting: str
       .catch(() => {})
   }, [])
 
+  const today = todayStr()
+
   const live = useMemo(
     () =>
       (bookings ?? [])
-        .filter((b) => b.status !== 'cancelled')
+        .filter((b) => b.status !== 'cancelled' && b.starts_at.startsWith(today))
         .sort((a, b) => a.starts_at.localeCompare(b.starts_at)),
-    [bookings],
+    [bookings, today],
   )
+
+  const next24h = useMemo(() => {
+    const nowIso = new Date().toISOString()
+    const cutoff = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+    return (bookings ?? [])
+      .filter((b) => b.status !== 'cancelled' && b.starts_at > nowIso && b.starts_at <= cutoff)
+      .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
+  }, [bookings])
 
   const current = useMemo(
     () =>
@@ -246,6 +265,33 @@ export default function StaffLandingHub({ greeting, dateLabel }: { greeting: str
           <p className="text-sm text-stone/60 px-1">Loading today…</p>
         )}
       </div>
+
+      {/* Next 24h — brief upcoming summary */}
+      {next24h.length > 0 && (
+        <div>
+          <div className="eyebrow text-stone mb-3 flex items-center gap-2">
+            <Clock size={13} strokeWidth={1.75} />
+            Next 24 hours · {next24h.length} {next24h.length === 1 ? 'appointment' : 'appointments'}
+          </div>
+          <div className="border border-line/40 rounded-sm bg-cream-soft divide-y divide-line/30">
+            {next24h.map((b) => {
+              const isToday = b.starts_at.startsWith(today)
+              return (
+                <div key={b.id} className="flex items-center gap-3 px-4 py-2">
+                  <div className="min-w-[80px] shrink-0">
+                    <div className="text-xs font-medium text-charcoal tabular-nums">{timeLabel(b.starts_at)}</div>
+                    {!isToday && <div className="text-[10px] text-stone/70">{shortDayLabel(b.starts_at)}</div>}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="text-xs text-charcoal truncate">{b.client_name}</span>
+                    <span className="text-xs text-stone/60 ml-2 truncate">{b.service_name}</span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Just booked — online bookings in the last 48 h */}
       {justBooked !== null && justBooked.length > 0 && (

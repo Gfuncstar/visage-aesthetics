@@ -12,6 +12,7 @@
     { "path": "/api/staff/assistant/agents/seasonal-campaign", "schedule": "30 8 * * *" },
     { "path": "/api/staff/assistant/agents/review-sentiment", "schedule": "15 8 * * 1" },
     { "path": "/api/staff/assistant/agents/faq-updater", "schedule": "0 10 1 * *" },
-    { "path": "/api/staff/assistant/weekly-summary", "schedule": "0 8 * * 2" }
+    { "path": "/api/staff/assistant/weekly-summary", "schedule": "0 8 * * 2" },
+    { "path": "/api/staff/assistant/agents/health-safety", "schedule": "30 19 * * *" }
   ]
 }
