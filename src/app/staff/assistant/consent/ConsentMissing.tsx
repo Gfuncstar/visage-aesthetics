@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Check, Send, ShieldAlert } from 'lucide-react'
+import { notifyDone } from '@/lib/staff-toast'
 
 type Missing = { name: string; service: string; date: string }
 type FormOption = { id: string; name: string }
@@ -43,6 +44,7 @@ export default function ConsentMissing({ missing, forms }: { missing: Missing[];
       setDone((prev) => ({ ...prev, [key]: `Sent to ${email}` }))
       setOpenKey(null)
       setEmail('')
+      notifyDone(`Consent form sent to ${email}`)
     } catch {
       setErr('Network error while sending.')
     } finally {

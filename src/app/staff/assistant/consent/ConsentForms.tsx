@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Check, Copy, Eye, FileText, Send, X } from 'lucide-react'
+import { notifyDone } from '@/lib/staff-toast'
 
 const inputClass =
   'w-full bg-cream border border-line/40 rounded-sm px-4 py-3 text-base text-charcoal placeholder:text-ink-soft/60 focus:outline-none focus:border-gold min-h-[48px]'
@@ -59,6 +60,7 @@ export default function ConsentForms({ forms }: { forms: FormOption[] }) {
       setResult({ ok: true, message: `Sent to ${email}.`, link: data.link })
       setName('')
       setEmail('')
+      notifyDone(`Consent form sent to ${email}`)
     } catch {
       setResult({ ok: false, message: 'Network error while sending.' })
     } finally {
