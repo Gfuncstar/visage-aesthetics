@@ -270,9 +270,9 @@ export default function StaffLandingHub({ greeting, dateLabel }: { greeting: str
         </div>
       )}
 
-      {/* Next 24h + Just booked — side by side on sm+ */}
+      {/* Next 24h + Just booked — always side by side including mobile */}
       {(next24h.length > 0 || (justBooked !== null && justBooked.length > 0)) && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+        <div className="grid grid-cols-2 gap-3 items-start">
           {/* Next 24 hours */}
           {next24h.length > 0 && (
             <div>
