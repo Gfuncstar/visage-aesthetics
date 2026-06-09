@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { BellRing, CalendarDays, Check, Clock, ListPlus, LogOut, Mic, Phone, ShieldAlert, Sparkles, X } from 'lucide-react'
+import { BellRing, CalendarDays, Check, Clock, ListPlus, LogOut, Mic, Phone, Sparkles, X } from 'lucide-react'
 import { notifyDone } from '@/lib/staff-toast'
 
 type Lite = { id: string; service_name: string; client_name: string; client_phone: string | null; starts_at: string; ends_at?: string; status: string; source: string; created_at: string; confirmed_at: string | null }
@@ -165,11 +165,11 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
 
   useEffect(() => { void load() }, [load])
 
-  const [consentMissing, setConsentMissing] = useState<Set<string>>(new Set())
+  const [consentMissing, setConsentMissing] = useState<Set<string> | null>(null)
   useEffect(() => {
     fetch('/api/staff/assistant/consent/flags')
       .then((r) => r.ok ? r.json() : null)
-      .then((d) => { if (d?.missing) setConsentMissing(new Set(d.missing as string[])) })
+      .then((d) => { setConsentMissing(new Set((d?.missing ?? []) as string[])) })
       .catch(() => {})
   }, [])
 
@@ -687,9 +687,20 @@ function ConfirmedDot({ status, confirmedAt }: { status: string; confirmedAt: st
   return null
 }
 
-function ConsentFlag({ name, missing }: { name: string; missing: Set<string> }) {
-  if (!missing.has(name.trim().toLowerCase())) return null
-  return <span title="No consent form on file"><ShieldAlert size={13} strokeWidth={1.75} className="text-clay shrink-0" /></span>
+function ConsentFlag({ name, missing }: { name: string; missing: Set<string> | null }) {
+  if (missing === null) return null
+  if (missing.has(name.trim().toLowerCase())) {
+    return (
+      <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-clay shrink-0 whitespace-nowrap">
+        <X size={9} strokeWidth={2.5} /> Consent
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-sage shrink-0 whitespace-nowrap">
+      <Check size={9} strokeWidth={2.5} /> Consent
+    </span>
+  )
 }
 
 // Generic row (week/month views, just-booked, waitlist)
@@ -713,7 +724,7 @@ function Row({ left, sub, right, phone }: { left: React.ReactNode; sub: string |
 }
 
 // Booking row for day view — highlights the current appointment
-function BookingRow({ booking: b, nowMin, missing }: { booking: Lite; nowMin: number; missing: Set<string> }) {
+function BookingRow({ booking: b, nowMin, missing }: { booking: Lite; nowMin: number; missing: Set<string> | null }) {
   const start = toLocalMin(b.starts_at)
   const end = b.ends_at ? toLocalMin(b.ends_at) : start + 60
   const isCurrent = nowMin >= start && nowMin < end

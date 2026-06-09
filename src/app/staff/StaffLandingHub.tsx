@@ -182,150 +182,144 @@ export default function StaffLandingHub({ greeting, dateLabel }: { greeting: str
       {/* Command bar */}
       <CommandBar onActioned={load} />
 
-      {/* Today's diary mirror */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <div className="eyebrow text-gold flex items-center gap-2">
-            <Clock size={13} strokeWidth={1.75} /> Today
-          </div>
-          <Link href="/staff/assistant/reception" className="text-xs text-gold-deep hover:underline">
-            Full front desk →
-          </Link>
-        </div>
-
-        {/* Now / Next */}
-        {(current || next) && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-            <div className={`rounded-sm border px-4 py-3 ${current ? 'border-sage/40 bg-sage/5' : 'border-line/40 bg-cream-soft'}`}>
-              <div className={`eyebrow mb-1.5 flex items-center gap-2 ${current ? 'text-sage' : 'text-stone'}`}>
-                {current && <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage animate-pulse" />}
-                {current ? 'In chair now' : 'Chair is free'}
-              </div>
-              {current ? (
-                <>
-                  <div className="text-sm font-medium text-charcoal">{current.client_name}</div>
-                  <div className="text-xs text-stone mt-0.5">{current.service_name}</div>
-                  <div className="text-xs text-stone/70 mt-1.5">
-                    {timeLabel(current.starts_at)} · {minLabel(nowMin - toLocalMin(current.starts_at))} in
-                    {current.ends_at && ` · until ${timeLabel(current.ends_at)}`}
-                  </div>
-                  {current.client_phone && (
-                    <a href={`tel:${current.client_phone}`} className="inline-flex items-center gap-1.5 text-xs text-gold-deep mt-2 hover:underline">
-                      <Phone size={11} strokeWidth={2} /> {current.client_phone}
-                    </a>
-                  )}
-                </>
-              ) : (
-                <div className="text-xs text-stone mt-1">
-                  {next ? `Free until ${timeLabel(next.starts_at)}.` : 'Nothing more today.'}
-                </div>
-              )}
-            </div>
-
-            {next && (
-              <div className="rounded-sm border border-line/40 bg-cream-soft px-4 py-3">
-                <div className="eyebrow text-gold mb-1.5">Up next · {timeLabel(next.starts_at)}</div>
-                <div className="text-sm font-medium text-charcoal">{next.client_name}</div>
-                <div className="text-xs text-stone mt-0.5">{next.service_name}</div>
-                <div className="text-xs text-stone/70 mt-1.5">In {minLabel(toLocalMin(next.starts_at) - nowMin)}</div>
-                {next.client_phone && (
-                  <a href={`tel:${next.client_phone}`} className="inline-flex items-center gap-1.5 text-xs text-gold-deep mt-2 hover:underline">
-                    <Phone size={11} strokeWidth={2} /> {next.client_phone}
-                  </a>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Today's full list */}
-        {live.length > 0 ? (
-          <div className="border border-line/40 rounded-sm bg-cream-soft divide-y divide-line/30">
-            {live.map((b) => {
-              const s = toLocalMin(b.starts_at)
-              const e = b.ends_at ? toLocalMin(b.ends_at) : s + 60
-              const isCurrent = nowMin >= s && nowMin < e
-              return (
-                <div key={b.id} className={`flex items-center gap-3 px-4 py-2.5 ${isCurrent ? 'bg-sage/5' : ''}`}>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-sm text-charcoal flex items-center gap-2">
-                      {isCurrent && <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage shrink-0" />}
-                      <span>
-                        <span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}
-                      </span>
-                    </div>
-                    <div className="text-xs text-stone truncate">{b.service_name}</div>
-                  </div>
-                  {b.client_phone && (
-                    <a href={`tel:${b.client_phone}`} className="text-stone hover:text-gold-deep shrink-0" title={`Call ${b.client_name}`}>
-                      <Phone size={13} strokeWidth={1.75} />
-                    </a>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        ) : bookings !== null ? (
-          <p className="text-sm text-stone/70 border border-line/40 rounded-sm bg-cream-soft px-4 py-3 text-center">
-            Nothing booked today.
-          </p>
-        ) : (
-          <p className="text-sm text-stone/60 px-1">Loading today…</p>
-        )}
-      </div>
-
-      {/* Next 24h — brief upcoming summary */}
-      {next24h.length > 0 && (
-        <div>
-          <div className="eyebrow text-stone mb-3 flex items-center gap-2">
-            <Clock size={13} strokeWidth={1.75} />
-            Next 24 hours · {next24h.length} {next24h.length === 1 ? 'appointment' : 'appointments'}
-          </div>
-          <div className="border border-line/40 rounded-sm bg-cream-soft divide-y divide-line/30">
-            {next24h.map((b) => {
-              const isToday = b.starts_at.startsWith(today)
-              return (
-                <div key={b.id} className="flex items-center gap-3 px-4 py-2">
-                  <div className="min-w-[80px] shrink-0">
-                    <div className="text-xs font-medium text-charcoal tabular-nums">{timeLabel(b.starts_at)}</div>
-                    {!isToday && <div className="text-[10px] text-stone/70">{shortDayLabel(b.starts_at)}</div>}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <span className="text-xs text-charcoal truncate">{b.client_name}</span>
-                    <span className="text-xs text-stone/60 ml-2 truncate">{b.service_name}</span>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
-
-<<<<<<< HEAD
-
-=======
->>>>>>> 77faee0 (Add 24h booking summary, end-of-clinic H&S compliance agent)
-      {/* Just booked — online bookings in the last 48 h */}
-      {justBooked !== null && justBooked.length > 0 && (
+      {/* Today — only shown when there are live bookings */}
+      {(live.length > 0 || current || next) && (
         <div>
           <div className="flex items-center justify-between mb-3">
             <div className="eyebrow text-gold flex items-center gap-2">
-              <CalendarPlus size={13} strokeWidth={1.75} /> Just booked
+              <Clock size={13} strokeWidth={1.75} /> Today
             </div>
-            <span className="text-xs text-stone">Last 48 hours · online</span>
+            <Link href="/staff/assistant/reception" className="text-xs text-gold-deep hover:underline">
+              Full front desk →
+            </Link>
           </div>
-          <div className="border border-line/40 rounded-sm bg-cream-soft divide-y divide-line/30">
-            {justBooked.map((b) => (
-              <div key={b.id} className="flex items-start gap-3 px-4 py-3">
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-medium text-charcoal">{b.client_name}</div>
-                  <div className="text-xs text-stone mt-0.5">{b.service_name}</div>
-                  <div className="text-xs text-stone/70 mt-1">{apptLabel(b.starts_at)}</div>
+
+          {/* Now / Next */}
+          {(current || next) && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+              <div className={`rounded-sm border px-4 py-3 ${current ? 'border-sage/40 bg-sage/5' : 'border-line/40 bg-cream-soft'}`}>
+                <div className={`eyebrow mb-1.5 flex items-center gap-2 ${current ? 'text-sage' : 'text-stone'}`}>
+                  {current && <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage animate-pulse" />}
+                  {current ? 'In chair now' : 'Chair is free'}
                 </div>
-                <span className="text-xs text-stone/60 shrink-0 pt-0.5">{agoLabel(b.created_at)}</span>
+                {current ? (
+                  <>
+                    <div className="text-sm font-medium text-charcoal">{current.client_name}</div>
+                    <div className="text-xs text-stone mt-0.5">{current.service_name}</div>
+                    <div className="text-xs text-stone/70 mt-1.5">
+                      {timeLabel(current.starts_at)} · {minLabel(nowMin - toLocalMin(current.starts_at))} in
+                      {current.ends_at && ` · until ${timeLabel(current.ends_at)}`}
+                    </div>
+                    {current.client_phone && (
+                      <a href={`tel:${current.client_phone}`} className="inline-flex items-center gap-1.5 text-xs text-gold-deep mt-2 hover:underline">
+                        <Phone size={11} strokeWidth={2} /> {current.client_phone}
+                      </a>
+                    )}
+                  </>
+                ) : (
+                  <div className="text-xs text-stone mt-1">
+                    {next ? `Free until ${timeLabel(next.starts_at)}.` : 'Nothing more today.'}
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
+
+              {next && (
+                <div className="rounded-sm border border-line/40 bg-cream-soft px-4 py-3">
+                  <div className="eyebrow text-gold mb-1.5">Up next · {timeLabel(next.starts_at)}</div>
+                  <div className="text-sm font-medium text-charcoal">{next.client_name}</div>
+                  <div className="text-xs text-stone mt-0.5">{next.service_name}</div>
+                  <div className="text-xs text-stone/70 mt-1.5">In {minLabel(toLocalMin(next.starts_at) - nowMin)}</div>
+                  {next.client_phone && (
+                    <a href={`tel:${next.client_phone}`} className="inline-flex items-center gap-1.5 text-xs text-gold-deep mt-2 hover:underline">
+                      <Phone size={11} strokeWidth={2} /> {next.client_phone}
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Today's full list */}
+          {live.length > 0 && (
+            <div className="border border-line/40 rounded-sm bg-cream-soft divide-y divide-line/30">
+              {live.map((b) => {
+                const s = toLocalMin(b.starts_at)
+                const e = b.ends_at ? toLocalMin(b.ends_at) : s + 60
+                const isCurrent = nowMin >= s && nowMin < e
+                return (
+                  <div key={b.id} className={`flex items-center gap-3 px-4 py-2.5 ${isCurrent ? 'bg-sage/5' : ''}`}>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm text-charcoal flex items-center gap-2">
+                        {isCurrent && <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage shrink-0" />}
+                        <span>
+                          <span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}
+                        </span>
+                      </div>
+                      <div className="text-xs text-stone truncate">{b.service_name}</div>
+                    </div>
+                    {b.client_phone && (
+                      <a href={`tel:${b.client_phone}`} className="text-stone hover:text-gold-deep shrink-0" title={`Call ${b.client_name}`}>
+                        <Phone size={13} strokeWidth={1.75} />
+                      </a>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Next 24h + Just booked — side by side on sm+ */}
+      {(next24h.length > 0 || (justBooked !== null && justBooked.length > 0)) && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+          {/* Next 24 hours */}
+          {next24h.length > 0 && (
+            <div>
+              <div className="eyebrow text-stone mb-3 flex items-center gap-2">
+                <Clock size={13} strokeWidth={1.75} />
+                Next 24 h · {next24h.length} {next24h.length === 1 ? 'appt' : 'appts'}
+              </div>
+              <div className="border border-line/40 rounded-sm bg-cream-soft divide-y divide-line/30">
+                {next24h.map((b) => {
+                  const isToday = b.starts_at.startsWith(today)
+                  return (
+                    <div key={b.id} className="flex items-center gap-3 px-4 py-2">
+                      <div className="min-w-[72px] shrink-0">
+                        <div className="text-xs font-medium text-charcoal tabular-nums">{timeLabel(b.starts_at)}</div>
+                        {!isToday && <div className="text-[10px] text-stone/70">{shortDayLabel(b.starts_at)}</div>}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs text-charcoal truncate">{b.client_name}</div>
+                        <div className="text-[10px] text-stone/60 truncate">{b.service_name}</div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Just booked */}
+          {justBooked !== null && justBooked.length > 0 && (
+            <div>
+              <div className="eyebrow text-gold mb-3 flex items-center gap-2">
+                <CalendarPlus size={13} strokeWidth={1.75} /> Just booked
+              </div>
+              <div className="border border-line/40 rounded-sm bg-cream-soft divide-y divide-line/30">
+                {justBooked.map((b) => (
+                  <div key={b.id} className="flex items-start gap-3 px-4 py-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-medium text-charcoal truncate">{b.client_name}</div>
+                      <div className="text-xs text-stone truncate">{b.service_name}</div>
+                      <div className="text-xs text-stone/70 mt-0.5">{apptLabel(b.starts_at)}</div>
+                    </div>
+                    <span className="text-xs text-stone/60 shrink-0 pt-0.5">{agoLabel(b.created_at)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
