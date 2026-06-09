@@ -102,6 +102,7 @@ export default function StaffLandingHub({ greeting, dateLabel }: { greeting: str
   const nowMin = useNowMin()
   const [bookings, setBookings] = useState<Booking[] | null>(null)
   const [justBooked, setJustBooked] = useState<JustBooked[] | null>(null)
+  const [dismissedBookings, setDismissedBookings] = useState<Set<string>>(new Set())
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/staff/assistant/diary?from=${todayStr()}&to=${tomorrowStr()}`)
@@ -305,21 +306,30 @@ export default function StaffLandingHub({ greeting, dateLabel }: { greeting: str
           )}
 
           {/* Just booked */}
-          {justBooked !== null && justBooked.length > 0 && (
+          {justBooked !== null && justBooked.filter((b) => !dismissedBookings.has(b.id)).length > 0 && (
             <div>
               <div className="eyebrow text-gold mb-3 flex items-center gap-2">
                 <CalendarPlus size={13} strokeWidth={1.75} /> Just booked
               </div>
               <div className="border border-line/40 rounded-sm bg-cream-soft divide-y divide-line/30 overflow-hidden">
-                {justBooked.map((b) => (
-                  <Link key={b.id} href={`/staff/assistant/diary?date=${localDate(b.starts_at)}`} className="flex items-start gap-3 px-4 py-3 hover:bg-gold/5 transition-colors">
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-medium text-charcoal truncate">{b.client_name}</div>
-                      <div className="text-xs text-stone truncate">{b.service_name}</div>
-                      <div className="text-xs text-stone/70 mt-0.5">{apptLabel(b.starts_at)}</div>
-                    </div>
-                    <span className="text-xs text-stone/60 shrink-0 pt-0.5">{agoLabel(b.created_at)}</span>
-                  </Link>
+                {justBooked.filter((b) => !dismissedBookings.has(b.id)).map((b) => (
+                  <div key={b.id} className="relative flex items-start">
+                    <Link href={`/staff/assistant/diary?date=${localDate(b.starts_at)}`} className="flex items-start gap-3 px-4 py-3 hover:bg-gold/5 transition-colors flex-1 min-w-0 pr-10">
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-medium text-charcoal truncate">{b.client_name}</div>
+                        <div className="text-xs text-stone truncate">{b.service_name}</div>
+                        <div className="text-xs text-stone/70 mt-0.5">{apptLabel(b.starts_at)}</div>
+                      </div>
+                      <span className="text-xs text-stone/60 shrink-0 pt-0.5">{agoLabel(b.created_at)}</span>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => setDismissedBookings((prev) => new Set([...prev, b.id]))}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-sm text-ink-soft hover:text-clay transition-colors"
+                    >
+                      <X size={13} strokeWidth={1.75} />
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>
