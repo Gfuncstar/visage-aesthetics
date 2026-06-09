@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { BellRing, CalendarDays, Check, Clock, ListPlus, LogOut, Mic, Phone, Sparkles, X } from 'lucide-react'
+import { BellRing, CalendarDays, Check, Clock, ListPlus, LogOut, Mic, Phone, ShieldAlert, Sparkles, X } from 'lucide-react'
 import { notifyDone } from '@/lib/staff-toast'
 
 type Lite = { id: string; service_name: string; client_name: string; client_phone: string | null; starts_at: string; ends_at?: string; status: string; source: string; created_at: string; confirmed_at: string | null }
@@ -165,6 +165,14 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
 
   useEffect(() => { void load() }, [load])
 
+  const [consentMissing, setConsentMissing] = useState<Set<string>>(new Set())
+  useEffect(() => {
+    fetch('/api/staff/assistant/consent/flags')
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d?.missing) setConsentMissing(new Set(d.missing as string[])) })
+      .catch(() => {})
+  }, [])
+
   // Silent auto-refresh every 45 seconds
   useEffect(() => {
     const id = setInterval(() => void load(true), 45_000)
@@ -316,7 +324,7 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
                     <div className="space-y-2">
                       {items.map((item, i) =>
                         item.kind === 'booking' ? (
-                          <BookingRow key={item.b.id} booking={item.b} nowMin={nowMin} />
+                          <BookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={consentMissing} />
                         ) : (
                           <GapRow key={`gap-${i}`} startMin={item.start} endMin={item.end} />
                         )
@@ -345,7 +353,7 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
                         </div>
                         <div className="space-y-2">
                           {dayB.map((b) => (
-                            <Row key={b.id} left={<span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>} sub={b.service_name} right={<span className="inline-flex items-center gap-1.5"><ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} /><span className={`capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span></span>} phone={b.client_phone} />
+                            <Row key={b.id} left={<span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>} sub={b.service_name} right={<span className="inline-flex items-center gap-1.5"><ConsentFlag name={b.client_name} missing={consentMissing} /><ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} /><span className={`capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span></span>} phone={b.client_phone} />
                           ))}
                         </div>
                       </div>
@@ -679,6 +687,11 @@ function ConfirmedDot({ status, confirmedAt }: { status: string; confirmedAt: st
   return null
 }
 
+function ConsentFlag({ name, missing }: { name: string; missing: Set<string> }) {
+  if (!missing.has(name.trim().toLowerCase())) return null
+  return <span title="No consent form on file"><ShieldAlert size={13} strokeWidth={1.75} className="text-clay shrink-0" /></span>
+}
+
 // Generic row (week/month views, just-booked, waitlist)
 function Row({ left, sub, right, phone }: { left: React.ReactNode; sub: string | null; right: React.ReactNode; phone?: string | null }) {
   return (
@@ -700,7 +713,7 @@ function Row({ left, sub, right, phone }: { left: React.ReactNode; sub: string |
 }
 
 // Booking row for day view — highlights the current appointment
-function BookingRow({ booking: b, nowMin }: { booking: Lite; nowMin: number }) {
+function BookingRow({ booking: b, nowMin, missing }: { booking: Lite; nowMin: number; missing: Set<string> }) {
   const start = toLocalMin(b.starts_at)
   const end = b.ends_at ? toLocalMin(b.ends_at) : start + 60
   const isCurrent = nowMin >= start && nowMin < end
@@ -720,6 +733,7 @@ function BookingRow({ booking: b, nowMin }: { booking: Lite; nowMin: number }) {
           </a>
         )}
         <span className="inline-flex items-center gap-1.5">
+          <ConsentFlag name={b.client_name} missing={missing} />
           <ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} />
           <span className={`text-sm capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>
         </span>
