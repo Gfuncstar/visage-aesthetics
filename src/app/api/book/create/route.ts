@@ -3,7 +3,7 @@ import { Resend } from 'resend'
 import { assistantConfigured, insert, select, audit } from '@/lib/assistant/db'
 import { getService, computeDay } from '@/lib/booking-engine/availability'
 import { londonParts, dayLabel, clockLabel } from '@/lib/booking-engine/time'
-import { bookingConfirmationEmail } from '@/lib/booking-email'
+import { bookingConfirmationEmail, staffNewBookingEmail } from '@/lib/booking-email'
 import { consentFormForService } from '@/lib/consent/forms'
 import { consentAtBooking } from '@/lib/assistant/go-live'
 import { isSuppressed } from '@/lib/assistant/suppression'
@@ -24,6 +24,7 @@ export const maxDuration = 60
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const FROM_EMAIL = process.env.BOOKING_FROM_EMAIL ?? 'Visage Aesthetics <enquiries@vaclinic.co.uk>'
 const REPLY_TO = process.env.BROADCAST_REPLY_TO ?? 'info@vaclinic.co.uk'
+const BOOKING_NOTIFY_EMAIL = process.env.BOOKING_NOTIFY_EMAIL ?? 'bernadette.parsons@outlook.com'
 
 // Public: create a booking. The chosen slot is re-validated against live
 // availability so a stale page cannot double-book or pick an arbitrary time.
@@ -133,6 +134,29 @@ export async function POST(req: Request) {
       })
     } catch {
       /* push is best effort */
+    }
+
+    // Email Bernadette: who booked, what, when.
+    const staffAlert = staffNewBookingEmail({
+      clientName: name,
+      serviceName: service.name,
+      startsAtIso: slot.startsAtIso,
+      notes: finalNotes || null,
+    })
+    try {
+      const alertKey = process.env.RESEND_API_KEY
+      if (alertKey) {
+        await new Resend(alertKey).emails.send({
+          from: FROM_EMAIL,
+          to: [BOOKING_NOTIFY_EMAIL],
+          replyTo: REPLY_TO,
+          subject: staffAlert.subject,
+          html: staffAlert.html,
+          text: staffAlert.text,
+        })
+      }
+    } catch (err) {
+      console.error('[book] staff alert email failed', err)
     }
 
     if (needsDeposit) {

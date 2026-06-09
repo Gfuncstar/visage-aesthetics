@@ -105,6 +105,30 @@ If you did not ask for this, you can ignore this email.`
   }
 }
 
+export function staffNewBookingEmail(input: {
+  clientName: string
+  serviceName: string
+  startsAtIso: string
+  notes?: string | null
+}): { subject: string; html: string; text: string } {
+  const when = whenLine(input.startsAtIso)
+  const lines = [
+    `**${input.clientName}** has just booked online.`,
+    '',
+    `**Treatment:** ${input.serviceName}`,
+    `**When:** ${when}`,
+  ]
+  if (input.notes) lines.push(`**Notes:** ${input.notes}`)
+  const body = lines.join('\n')
+  const subject = `New booking: ${input.clientName} — ${input.serviceName}, ${when}`
+  const opts = { preheader: `${input.clientName} booked ${input.serviceName}.`, headline: 'New booking', body, cta: 'none' as const }
+  return {
+    subject,
+    html: buildBroadcastHtml(opts),
+    text: buildBroadcastText({ headline: opts.headline, body, cta: 'none' }),
+  }
+}
+
 export function bookingCancellationEmail(input: {
   name: string
   serviceName: string

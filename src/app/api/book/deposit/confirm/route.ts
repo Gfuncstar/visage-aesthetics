@@ -4,7 +4,7 @@ import { assistantConfigured, select, update, audit } from '@/lib/assistant/db'
 import { checkoutSessionPaid } from '@/lib/booking-engine/stripe'
 import { getService } from '@/lib/booking-engine/availability'
 import { mirrorBookingAppointment } from '@/lib/booking-engine/appointments-mirror'
-import { bookingConfirmationEmail } from '@/lib/booking-email'
+import { bookingConfirmationEmail, staffNewBookingEmail } from '@/lib/booking-email'
 import { consentFormForService } from '@/lib/consent/forms'
 import { consentAtBooking } from '@/lib/assistant/go-live'
 import { isSuppressed } from '@/lib/assistant/suppression'
@@ -18,6 +18,7 @@ export const dynamic = 'force-dynamic'
 const UUID_RE = /^[0-9a-f-]{36}$/i
 const FROM_EMAIL = process.env.BOOKING_FROM_EMAIL ?? 'Visage Aesthetics <enquiries@vaclinic.co.uk>'
 const REPLY_TO = process.env.BROADCAST_REPLY_TO ?? 'info@vaclinic.co.uk'
+const BOOKING_NOTIFY_EMAIL = process.env.BOOKING_NOTIFY_EMAIL ?? 'bernadette.parsons@outlook.com'
 
 // Public: called on return from Stripe Checkout. Confirms the booking if the
 // deposit session is paid.
@@ -56,6 +57,28 @@ export async function POST(req: Request) {
       status: 'confirmed',
       price: svc?.price_from,
     })
+
+    // Email Bernadette: who booked, what, when.
+    const staffAlert = staffNewBookingEmail({
+      clientName: booking.client_name,
+      serviceName: booking.service_name,
+      startsAtIso: booking.starts_at,
+    })
+    try {
+      const alertKey = process.env.RESEND_API_KEY
+      if (alertKey) {
+        await new Resend(alertKey).emails.send({
+          from: FROM_EMAIL,
+          to: [BOOKING_NOTIFY_EMAIL],
+          replyTo: REPLY_TO,
+          subject: staffAlert.subject,
+          html: staffAlert.html,
+          text: staffAlert.text,
+        })
+      }
+    } catch (err) {
+      console.error('[book] staff alert email failed', err)
+    }
 
     if (booking.client_email && !(await isSuppressed(booking.client_name, booking.client_email))) {
       const apiKey = process.env.RESEND_API_KEY
