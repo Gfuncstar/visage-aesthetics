@@ -52,6 +52,7 @@ const PAGE_DATES: Record<string, string> = {
   '/great-dunmow-profhilo': '2026-05-14',
   '/about/qualifications': '2026-04-26',
   '/author/bernadette-tobin': '2026-04-26',
+  '/course/rags-to-reputation': '2026-06-10',
   '/blog/botox-vs-filler': '2026-04-26',
   '/blog/how-long-does-profhilo-last': '2026-04-26',
   '/blog/what-is-a-nurse-led-clinic': '2026-04-26',
@@ -124,6 +125,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // Authority pages
     { url: `${SITE}/about/qualifications`, changeFrequency: 'yearly',  priority: 0.7,  lastModified: dateOf('/about/qualifications') },
     { url: `${SITE}/author/bernadette-tobin`, changeFrequency: 'monthly', priority: 0.75, lastModified: dateOf('/author/bernadette-tobin') },
+    { url: `${SITE}/course/rags-to-reputation`, changeFrequency: 'monthly', priority: 0.7, lastModified: dateOf('/course/rags-to-reputation') },
     // Long-form blog posts
     { url: `${SITE}/blog/botox-vs-filler`,             changeFrequency: 'monthly', priority: 0.7, lastModified: dateOf('/blog/botox-vs-filler') },
     { url: `${SITE}/blog/how-long-does-profhilo-last`, changeFrequency: 'monthly', priority: 0.7, lastModified: dateOf('/blog/how-long-does-profhilo-last') },
