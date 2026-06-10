@@ -352,6 +352,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-06-07',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'platysmal-bands-neck-botox',
+    category: "Anti-wrinkle",
+    title: "Neck bands and Botox: what works on the platysma",
+    excerpt: "Botox reliably softens vertical neck bands by relaxing the overactive platysma muscle, but horizontal lines and loose skin require different approaches.",
+    readTime: "8 min read",
+    datePublished: '2026-06-10',
+    dateModified: '2026-06-10',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
