@@ -126,6 +126,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE}/about/qualifications`, changeFrequency: 'yearly',  priority: 0.7,  lastModified: dateOf('/about/qualifications') },
     { url: `${SITE}/author/bernadette-tobin`, changeFrequency: 'monthly', priority: 0.75, lastModified: dateOf('/author/bernadette-tobin') },
     { url: `${SITE}/course/rags-to-reputation`, changeFrequency: 'monthly', priority: 0.7, lastModified: dateOf('/course/rags-to-reputation') },
+    { url: `${SITE}/course/rags-to-reputation/quiz`, changeFrequency: 'monthly', priority: 0.5, lastModified: dateOf('/course/rags-to-reputation') },
     // Long-form blog posts
     { url: `${SITE}/blog/botox-vs-filler`,             changeFrequency: 'monthly', priority: 0.7, lastModified: dateOf('/blog/botox-vs-filler') },
     { url: `${SITE}/blog/how-long-does-profhilo-last`, changeFrequency: 'monthly', priority: 0.7, lastModified: dateOf('/blog/how-long-does-profhilo-last') },

@@ -641,10 +641,14 @@ export default function RagsToReputationCourse() {
           <div>
             <p className="eyebrow text-gold mb-3 flex items-center gap-2"><GraduationCap size={14} strokeWidth={1.6} /> Assessment & certification</p>
             <h2 className="font-display italic text-h2 text-charcoal mb-5">Finish it, prove it, record it.</h2>
-            <p className="text-body-lg text-ink-soft leading-relaxed">
+            <p className="text-body-lg text-ink-soft leading-relaxed mb-6">
               The course is designed to leave a paper trail you can use — for your own revalidation, and
               as evidence of the standards your clinic works to when the licensing scheme arrives.
             </p>
+            <Link href={`${PATH}/quiz`} className="btn btn-secondary btn-md:auto">
+              <span>Try the free knowledge check</span>
+              <span className="btn-arrow">→</span>
+            </Link>
           </div>
           <ul className="space-y-4">
             {assessment.map((a) => (
