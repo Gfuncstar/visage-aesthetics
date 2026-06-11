@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { CalendarDays, CalendarPlus, Check, ChevronLeft, ChevronRight, Phone, X } from 'lucide-react'
+import { CalendarDays, CalendarPlus, Check, ChevronLeft, ChevronRight, Clock, Phone, X } from 'lucide-react'
 import { notifyDone } from '@/lib/staff-toast'
 
 // A self-contained "see the gaps, tap one, book someone in" calendar for the
@@ -146,6 +146,7 @@ export default function GapCalendar() {
   const [schedData, setSchedData] = useState<SchedData>({ bookings: [], timeOff: [], businessHours: [] })
   const [schedLoading, setSchedLoading] = useState(true)
   const [prefill, setPrefill] = useState<{ date: string; time: string } | null>(null)
+  const [nextOpen, setNextOpen] = useState(false)
   const [consentMissing, setConsentMissing] = useState<Set<string> | null>(null)
   const bookingRef = useRef<HTMLDivElement | null>(null)
   const nowMin = useNowMin()
@@ -214,9 +215,17 @@ export default function GapCalendar() {
             onDone={() => { setPrefill(null); void loadSchedule(true) }}
           />
         ) : (
-          <button onClick={() => bookSlot(todayStr(), 600)} className="btn btn-primary mb-5" style={{ minHeight: 40 }}>
-            <span className="inline-flex items-center gap-2"><CalendarPlus size={15} strokeWidth={1.75} /> New booking</span>
-          </button>
+          <div className="mb-5">
+            <div className="flex flex-wrap gap-2">
+              <button onClick={() => bookSlot(todayStr(), 600)} className="btn btn-primary" style={{ minHeight: 40 }}>
+                <span className="inline-flex items-center gap-2"><CalendarPlus size={15} strokeWidth={1.75} /> New booking</span>
+              </button>
+              <button onClick={() => setNextOpen((o) => !o)} className="btn btn-secondary" style={{ minHeight: 40 }}>
+                <span className="inline-flex items-center gap-2"><Clock size={15} strokeWidth={1.75} /> Next available booking</span>
+              </button>
+            </div>
+            {nextOpen && <NextAvailable onPick={(d, m) => { setNextOpen(false); bookSlot(d, m) }} onClose={() => setNextOpen(false)} />}
+          </div>
         )}
       </div>
 
@@ -258,6 +267,7 @@ function DaySchedule({ day, data, nowMin, missing, onBook, heading = false }: { 
   const free = freeMinsForDay(day, data.bookings, data.timeOff, data.businessHours)
   const wday = new Date(`${day}T12:00:00Z`).getUTCDay()
   const isOpen = data.businessHours.find((h) => h.weekday === wday)?.is_open ?? false
+  const fullyBooked = isOpen && gaps.length === 0 && dayB.length > 0
   type TItem = { kind: 'booking'; b: Lite } | { kind: 'gap'; start: number; end: number }
   const items: TItem[] = [
     ...dayB.map((b) => ({ kind: 'booking' as const, b })),
@@ -275,17 +285,86 @@ function DaySchedule({ day, data, nowMin, missing, onBook, heading = false }: { 
       </div>
     )
 
-  if (!heading) return body
+  if (!heading) return (
+    <>
+      {fullyBooked && <p className="text-xs text-stone/70 mb-2">Fully booked — every slot is taken, no gaps on this day.</p>}
+      {body}
+    </>
+  )
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
         <span className={`text-sm font-medium ${day === todayStr() ? 'text-gold-deep' : 'text-charcoal'}`}>{dayLabelShort(day)}{day === todayStr() ? ' · today' : ''}</span>
         <div className="flex items-center gap-2">
-          {free > 0 && <span className="text-xs text-sage border border-sage/30 rounded-full px-2 py-0.5">{freeShort(free)} free</span>}
+          {free > 0 ? <span className="text-xs text-sage border border-sage/30 rounded-full px-2 py-0.5">{freeShort(free)} free</span>
+            : fullyBooked ? <span className="text-xs text-stone/70 border border-line/50 rounded-full px-2 py-0.5">Fully booked</span>
+            : null}
           <span className="text-xs text-stone">{dayB.length} in</span>
         </div>
       </div>
       {body}
+    </div>
+  )
+}
+
+// ---- Next available · slots across the next six weeks ----------------------
+function NextAvailable({ onPick, onClose }: { onPick: (date: string, startMin: number) => void; onClose: () => void }) {
+  const [data, setData] = useState<SchedData | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const from = todayStr(), to = addDays(from, 42)
+    fetch(`/api/staff/assistant/diary?from=${from}&to=${to}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d) setData({ bookings: (d.bookings ?? []).filter((b: Lite) => b.status !== 'cancelled'), timeOff: d.timeOff ?? [], businessHours: d.businessHours ?? [] })
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
+
+  const today = todayStr()
+  const nowMin = toLocalMin(new Date().toISOString())
+  // Walk the next six weeks; turn each free gap into 30-minute start slots.
+  const days: { day: string; slots: number[] }[] = []
+  if (data) {
+    for (let i = 0; i <= 42 && days.length < 14; i++) {
+      const day = addDays(today, i)
+      let gaps = gapsForDay(day, data.bookings, data.timeOff, data.businessHours)
+      if (i === 0) gaps = gaps.map((g) => ({ start: Math.max(g.start, nowMin), end: g.end })).filter((g) => g.end - g.start >= 15)
+      const slots: number[] = []
+      for (const g of gaps) for (let m = g.start; m <= g.end - 15 && slots.length < 16; m += 30) slots.push(m)
+      if (slots.length) days.push({ day, slots })
+    }
+  }
+
+  return (
+    <div className="mt-3 border border-gold/45 bg-gold/5 rounded-sm p-4">
+      <div className="flex items-center justify-between gap-3 mb-1">
+        <span className="text-eyebrow text-gold-deep inline-flex items-center gap-2"><Clock size={14} strokeWidth={1.75} /> Next available · next 6 weeks</span>
+        <button onClick={onClose} className="text-stone hover:text-clay" title="Close"><X size={16} strokeWidth={1.75} /></button>
+      </div>
+      {loading ? (
+        <p className="text-sm text-ink-soft">Finding free slots…</p>
+      ) : days.length === 0 ? (
+        <p className="text-sm text-ink-soft">No free slots in the next 6 weeks — the diary is fully booked.</p>
+      ) : (
+        <>
+          <p className="text-xs text-ink-soft mb-3">Soonest first. Tap a time to book the client straight in.</p>
+          <div className="space-y-3 max-h-[22rem] overflow-y-auto pr-1">
+            {days.map(({ day, slots }) => (
+              <div key={day}>
+                <div className="text-sm font-medium text-charcoal mb-1.5">{dayLabelShort(day)}{day === today ? ' · today' : ''}</div>
+                <div className="flex flex-wrap gap-1.5">
+                  {slots.map((m) => (
+                    <button key={m} onClick={() => onPick(day, m)} className="text-sm rounded-sm border border-gold/40 bg-cream px-3 py-1.5 text-charcoal hover:border-gold hover:bg-gold/10 active:bg-gold/15 transition-colors">{gapClock(m)}</button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   )
 }
