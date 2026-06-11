@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { CalendarDays, CalendarPlus, Check, ChevronLeft, ChevronRight, Clock, Phone, Sparkles, X } from 'lucide-react'
 import { notifyDone } from '@/lib/staff-toast'
+import { recordUndo, UNDO_DONE_EVENT } from '@/lib/staff-undo'
 
 // A self-contained "see the gaps, tap one, book someone in" calendar for the
 // landing page. Mirrors the front-desk schedule so the desk can rebook a client
@@ -146,6 +147,7 @@ export default function GapCalendar() {
   const [nextOpen, setNextOpen] = useState(false)
   const [consentMissing, setConsentMissing] = useState<Set<string> | null>(null)
   const [justBooked, setJustBooked] = useState<JustBookedRow[]>([])
+  const [pendingCancel, setPendingCancel] = useState<Lite | null>(null)
   const bookingRef = useRef<HTMLDivElement | null>(null)
   const nowMin = useNowMin()
   const justIds = new Set(justBooked.map((b) => b.id))
@@ -204,20 +206,31 @@ export default function GapCalendar() {
 
   // X off a booking — someone has cancelled (usually verbally). Drop it from the
   // schedule straight away so the slot reopens as a free gap, then tell the
-  // server, which texts anyone on the waitlist for that treatment.
-  const cancelBooking = useCallback(async (id: string) => {
-    setSchedData((prev) => ({ ...prev, bookings: prev.bookings.filter((b) => b.id !== id) }))
+  // server, which texts anyone on the waitlist for that treatment. The original
+  // status is stashed so the top-nav Undo can put the booking straight back.
+  const cancelBooking = useCallback(async (booking: Lite) => {
+    setSchedData((prev) => ({ ...prev, bookings: prev.bookings.filter((b) => b.id !== booking.id) }))
     try {
-      await fetch(`/api/staff/assistant/diary/${id}`, {
+      const res = await fetch(`/api/staff/assistant/diary/${booking.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'cancelled' }),
       })
-      notifyDone('Booking cancelled — slot released')
+      if (res.ok) {
+        notifyDone('Booking cancelled — slot released')
+        recordUndo({ kind: 'restore-booking', bookingId: booking.id, status: booking.status, label: `Restore ${booking.client_name}'s booking` })
+      }
     } catch {
       /* server unreachable — pull a fresh copy so the row reappears */
     }
     void loadSchedule(true)
+  }, [loadSchedule])
+
+  // When the top-nav Undo restores a booking, pull the schedule back in.
+  useEffect(() => {
+    const onUndo = () => void loadSchedule(true)
+    window.addEventListener(UNDO_DONE_EVENT, onUndo)
+    return () => window.removeEventListener(UNDO_DONE_EVENT, onUndo)
   }, [loadSchedule])
 
   return (
@@ -260,12 +273,12 @@ export default function GapCalendar() {
           />
         ) : (
           <div className="mb-5">
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <button onClick={() => bookSlot(todayStr(), 600)} className="btn btn-primary" style={{ minHeight: 40 }}>
                 <span className="inline-flex items-center gap-2"><CalendarPlus size={15} strokeWidth={1.75} /> New booking</span>
               </button>
               <button onClick={() => setNextOpen((o) => !o)} className="btn btn-secondary" style={{ minHeight: 40 }}>
-                <span className="inline-flex items-center gap-2"><Clock size={15} strokeWidth={1.75} /> Next available booking</span>
+                <span className="inline-flex items-center gap-2"><Clock size={15} strokeWidth={1.75} /> Next available</span>
               </button>
             </div>
             {nextOpen && <NextAvailable onPick={(d, m) => { setNextOpen(false); bookSlot(d, m) }} onClose={() => setNextOpen(false)} />}
@@ -294,18 +307,26 @@ export default function GapCalendar() {
       ) : schedView === 'week' ? (
         <div className="space-y-4">
           {weekDays(anchor).map((day) => (
-            <DaySchedule key={day} day={day} data={schedData} nowMin={nowMin} missing={consentMissing} justIds={justIds} onBook={bookSlot} onCancel={cancelBooking} heading />
+            <DaySchedule key={day} day={day} data={schedData} nowMin={nowMin} missing={consentMissing} justIds={justIds} onBook={bookSlot} onCancel={setPendingCancel} heading />
           ))}
         </div>
       ) : (
-        <DaySchedule day={anchor} data={schedData} nowMin={nowMin} missing={consentMissing} justIds={justIds} onBook={bookSlot} onCancel={cancelBooking} />
+        <DaySchedule day={anchor} data={schedData} nowMin={nowMin} missing={consentMissing} justIds={justIds} onBook={bookSlot} onCancel={setPendingCancel} />
+      )}
+
+      {pendingCancel && (
+        <CancelConfirmModal
+          booking={pendingCancel}
+          onConfirm={() => { void cancelBooking(pendingCancel); setPendingCancel(null) }}
+          onClose={() => setPendingCancel(null)}
+        />
       )}
     </div>
   )
 }
 
 // ---- One day's bookings + tappable gaps ------------------------------------
-function DaySchedule({ day, data, nowMin, missing, justIds, onBook, onCancel, heading = false }: { day: string; data: SchedData; nowMin: number; missing: Set<string> | null; justIds: Set<string>; onBook: (date: string, startMin: number) => void; onCancel: (id: string) => void; heading?: boolean }) {
+function DaySchedule({ day, data, nowMin, missing, justIds, onBook, onCancel, heading = false }: { day: string; data: SchedData; nowMin: number; missing: Set<string> | null; justIds: Set<string>; onBook: (date: string, startMin: number) => void; onCancel: (booking: Lite) => void; heading?: boolean }) {
   const dayB = data.bookings.filter((b) => localDate(b.starts_at) === day).sort((a, b) => a.starts_at.localeCompare(b.starts_at))
   const gaps = gapsForDay(day, data.bookings, data.timeOff, data.businessHours)
   const free = freeMinsForDay(day, data.bookings, data.timeOff, data.businessHours)
@@ -583,45 +604,94 @@ function GapRow({ date, startMin, endMin, onBook }: { date: string; startMin: nu
   )
 }
 
-function BookingRow({ booking: b, nowMin, missing, justBooked = false, onCancel }: { booking: Lite; nowMin: number; missing: Set<string> | null; justBooked?: boolean; onCancel: (id: string) => void }) {
+function BookingRow({ booking: b, nowMin, missing, justBooked = false, onCancel }: { booking: Lite; nowMin: number; missing: Set<string> | null; justBooked?: boolean; onCancel: (booking: Lite) => void }) {
   const start = toLocalMin(b.starts_at)
   const end = b.ends_at ? toLocalMin(b.ends_at) : start + 60
-  const isCurrent = nowMin >= start && nowMin < end
-  const [confirming, setConfirming] = useState(false)
+  const bookingDay = localDate(b.starts_at)
+  const today = todayStr()
+  // As the day moves on, an appointment whose end time has passed (or any day
+  // already gone) greys out into a quiet "done" card so the eye skips to what's
+  // still ahead. Only the slot happening right now gets the live sage tint.
+  const isPast = bookingDay < today || (bookingDay === today && nowMin >= end)
+  const isCurrent = bookingDay === today && nowMin >= start && nowMin < end
+  // Once the client has actively confirmed (confirmed_at is set), the whole card
+  // turns gold so a locked-in day reads at a glance. Still-unconfirmed bookings
+  // stay light.
+  const isConfirmed = b.status === 'confirmed' && !!b.confirmed_at
   return (
-    <div className={`flex items-center justify-between gap-3 border-2 rounded-sm px-4 py-3 transition-colors ${isCurrent ? 'border-sage/60 bg-sage/5' : justBooked ? 'border-gold/70 bg-gold/[0.10]' : 'border-stone/40 bg-cream-soft'}`}>
+    <div className={`flex items-center justify-between gap-3 border-2 rounded-sm px-4 py-3 transition-colors ${isPast ? 'border-stone/40 bg-stone/20' : isCurrent ? 'border-sage/60 bg-sage/5' : isConfirmed ? 'border-gold bg-gold/20' : justBooked ? 'border-gold/70 bg-gold/[0.10]' : 'border-line/40 bg-cream'}`}>
       <div className="min-w-0 flex-1">
-        <div className="text-sm text-charcoal truncate flex items-center gap-2">
+        <div className={`text-sm truncate flex items-center gap-2 ${isPast ? 'text-stone' : 'text-charcoal'}`}>
           {isCurrent && <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage shrink-0" />}
           <span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>
-          {justBooked && <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-semibold text-gold-deep bg-gold/15 border border-gold/40 rounded-full px-1.5 py-0.5"><Sparkles size={9} strokeWidth={2} /> Just booked</span>}
+          {justBooked && !isPast && <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-semibold text-gold-deep bg-gold/15 border border-gold/40 rounded-full px-1.5 py-0.5"><Sparkles size={9} strokeWidth={2} /> Just booked</span>}
         </div>
         <div className="mt-1 flex items-center gap-1.5">
           <ConsentFlag name={b.client_name} missing={missing} />
           <ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} />
-          <span className={`text-xs capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>
+          <span className={`text-xs capitalize ${isPast ? 'text-stone/70' : statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>
         </div>
       </div>
       <div className="shrink-0 flex items-center gap-3">
-        {confirming ? (
-          <span className="inline-flex items-center gap-2">
-            <span className="text-xs text-stone whitespace-nowrap">Cancel &amp; release?</span>
-            <button onClick={() => { setConfirming(false); onCancel(b.id) }} className="text-xs font-semibold rounded-full border border-clay/50 px-2.5 py-1 text-clay hover:bg-clay/10 transition-colors">Yes, cancel</button>
-            <button onClick={() => setConfirming(false)} className="text-xs rounded-full border border-line/50 px-2.5 py-1 text-stone hover:border-gold/60 transition-colors">Keep</button>
-          </span>
-        ) : (
-          <>
-            <span className="text-sm font-semibold text-gold-deep truncate max-w-[8rem] text-right">{b.service_name}</span>
-            {b.client_phone && (
-              <a href={`tel:${b.client_phone}`} className="text-stone hover:text-gold-deep transition-colors" title={`Call ${b.client_name}`}>
-                <Phone size={14} strokeWidth={1.75} />
-              </a>
-            )}
-            <button onClick={() => setConfirming(true)} className="text-stone/70 hover:text-clay transition-colors" title={`Cancel ${b.client_name}'s booking and release the slot`} aria-label="Cancel booking">
-              <X size={16} strokeWidth={2} />
-            </button>
-          </>
+        <span className={`text-sm font-semibold truncate max-w-[8rem] text-right ${isPast ? 'text-stone/80' : 'text-gold-deep'}`}>{b.service_name}</span>
+        {b.client_phone && (
+          <a href={`tel:${b.client_phone}`} className={`transition-colors ${isPast ? 'text-stone/60 hover:text-gold-deep' : 'text-stone hover:text-gold-deep'}`} title={`Call ${b.client_name}`}>
+            <Phone size={14} strokeWidth={1.75} />
+          </a>
         )}
+        <button onClick={() => onCancel(b)} className={`transition-colors ${isPast ? 'text-stone/50 hover:text-clay' : 'text-stone/70 hover:text-clay'}`} title={`Cancel ${b.client_name}'s booking and release the slot`} aria-label="Cancel booking">
+          <X size={16} strokeWidth={2} />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ---- Cancel confirmation — a dark brand pop-up card ------------------------
+function CancelConfirmModal({ booking, onConfirm, onClose }: { booking: Lite; onConfirm: () => void; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-charcoal/60 px-5"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cancel-booking-title"
+      onClick={onClose}
+    >
+      <div
+        className="bg-charcoal text-cream border border-gold/45 rounded-md shadow-xl max-w-sm w-full p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <span className="inline-flex w-12 h-12 rounded-full bg-clay/20 text-clay items-center justify-center mb-4">
+          <X size={24} strokeWidth={2} />
+        </span>
+        <h2 id="cancel-booking-title" className="font-display italic text-2xl leading-tight">Cancel this booking?</h2>
+        <p className="text-sm text-cream/85 mt-2 leading-relaxed">
+          <span className="font-medium text-cream">{booking.client_name}</span>
+          {' · '}{timeLabel(booking.starts_at)}{' · '}{booking.service_name}
+        </p>
+        <p className="text-xs text-cream/55 mt-2 leading-relaxed">This frees the slot and texts anyone on the waitlist for that treatment.</p>
+        <div className="flex items-center gap-2 mt-5">
+          <button
+            onClick={onConfirm}
+            className="inline-flex items-center justify-center gap-2 rounded-sm bg-clay text-cream font-medium px-4 hover:bg-clay/90 transition-colors"
+            style={{ minHeight: 40 }}
+            autoFocus
+          >
+            <X size={15} strokeWidth={2} /> Yes, cancel
+          </button>
+          <button
+            onClick={onClose}
+            className="inline-flex items-center justify-center rounded-sm border border-cream/30 text-cream px-4 hover:bg-cream/10 transition-colors"
+            style={{ minHeight: 40 }}
+          >
+            Keep booking
+          </button>
+        </div>
       </div>
     </div>
   )

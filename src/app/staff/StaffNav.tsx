@@ -4,6 +4,7 @@ import type React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ConciergeBell, Home, Megaphone, Sparkles } from 'lucide-react'
+import UndoButton from './UndoButton'
 
 // Persistent, mobile-first navigation for the staff back end, pinned to the
 // top so the section you're in — and how to switch — is always obvious. Big
@@ -51,6 +52,7 @@ export default function StaffNav({ viewToggle }: { viewToggle?: React.ReactNode 
             )
           })}
         </div>
+        <UndoButton />
         {viewToggle && (
           <div className="flex items-center px-3 border-l border-cream/10 shrink-0">
             {viewToggle}
