@@ -273,12 +273,12 @@ export default function GapCalendar() {
           />
         ) : (
           <div className="mb-5">
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <button onClick={() => bookSlot(todayStr(), 600)} className="btn btn-primary" style={{ minHeight: 40 }}>
                 <span className="inline-flex items-center gap-2"><CalendarPlus size={15} strokeWidth={1.75} /> New booking</span>
               </button>
               <button onClick={() => setNextOpen((o) => !o)} className="btn btn-secondary" style={{ minHeight: 40 }}>
-                <span className="inline-flex items-center gap-2"><Clock size={15} strokeWidth={1.75} /> Next available booking</span>
+                <span className="inline-flex items-center gap-2"><Clock size={15} strokeWidth={1.75} /> Next available</span>
               </button>
             </div>
             {nextOpen && <NextAvailable onPick={(d, m) => { setNextOpen(false); bookSlot(d, m) }} onClose={() => setNextOpen(false)} />}
@@ -610,14 +610,18 @@ function BookingRow({ booking: b, nowMin, missing, justBooked = false, onCancel 
   const bookingDay = localDate(b.starts_at)
   const today = todayStr()
   // As the day moves on, an appointment whose end time has passed (or any day
-  // already gone) settles into a dark, "done" card so the eye skips to what's
+  // already gone) greys out into a quiet "done" card so the eye skips to what's
   // still ahead. Only the slot happening right now gets the live sage tint.
   const isPast = bookingDay < today || (bookingDay === today && nowMin >= end)
   const isCurrent = bookingDay === today && nowMin >= start && nowMin < end
+  // Once the client has actively confirmed (confirmed_at is set), the whole card
+  // turns gold so a locked-in day reads at a glance. Still-unconfirmed bookings
+  // stay light.
+  const isConfirmed = b.status === 'confirmed' && !!b.confirmed_at
   return (
-    <div className={`flex items-center justify-between gap-3 border-2 rounded-sm px-4 py-3 transition-colors ${isPast ? 'border-graphite bg-graphite text-cream/90' : isCurrent ? 'border-sage/60 bg-sage/5' : justBooked ? 'border-gold/70 bg-gold/[0.10]' : 'border-stone/40 bg-cream-soft'}`}>
+    <div className={`flex items-center justify-between gap-3 border-2 rounded-sm px-4 py-3 transition-colors ${isPast ? 'border-stone/40 bg-stone/20' : isCurrent ? 'border-sage/60 bg-sage/5' : isConfirmed ? 'border-gold bg-gold/20' : justBooked ? 'border-gold/70 bg-gold/[0.10]' : 'border-line/40 bg-cream'}`}>
       <div className="min-w-0 flex-1">
-        <div className={`text-sm truncate flex items-center gap-2 ${isPast ? 'text-cream' : 'text-charcoal'}`}>
+        <div className={`text-sm truncate flex items-center gap-2 ${isPast ? 'text-stone' : 'text-charcoal'}`}>
           {isCurrent && <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage shrink-0" />}
           <span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>
           {justBooked && !isPast && <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-semibold text-gold-deep bg-gold/15 border border-gold/40 rounded-full px-1.5 py-0.5"><Sparkles size={9} strokeWidth={2} /> Just booked</span>}
@@ -625,17 +629,17 @@ function BookingRow({ booking: b, nowMin, missing, justBooked = false, onCancel 
         <div className="mt-1 flex items-center gap-1.5">
           <ConsentFlag name={b.client_name} missing={missing} />
           <ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} />
-          <span className={`text-xs capitalize ${isPast ? 'text-cream/70' : statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>
+          <span className={`text-xs capitalize ${isPast ? 'text-stone/70' : statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>
         </div>
       </div>
       <div className="shrink-0 flex items-center gap-3">
-        <span className={`text-sm font-semibold truncate max-w-[8rem] text-right ${isPast ? 'text-gold-soft' : 'text-gold-deep'}`}>{b.service_name}</span>
+        <span className={`text-sm font-semibold truncate max-w-[8rem] text-right ${isPast ? 'text-stone/80' : 'text-gold-deep'}`}>{b.service_name}</span>
         {b.client_phone && (
-          <a href={`tel:${b.client_phone}`} className={`transition-colors ${isPast ? 'text-cream/70 hover:text-gold-soft' : 'text-stone hover:text-gold-deep'}`} title={`Call ${b.client_name}`}>
+          <a href={`tel:${b.client_phone}`} className={`transition-colors ${isPast ? 'text-stone/60 hover:text-gold-deep' : 'text-stone hover:text-gold-deep'}`} title={`Call ${b.client_name}`}>
             <Phone size={14} strokeWidth={1.75} />
           </a>
         )}
-        <button onClick={() => onCancel(b)} className={`transition-colors ${isPast ? 'text-cream/60 hover:text-clay' : 'text-stone/70 hover:text-clay'}`} title={`Cancel ${b.client_name}'s booking and release the slot`} aria-label="Cancel booking">
+        <button onClick={() => onCancel(b)} className={`transition-colors ${isPast ? 'text-stone/50 hover:text-clay' : 'text-stone/70 hover:text-clay'}`} title={`Cancel ${b.client_name}'s booking and release the slot`} aria-label="Cancel booking">
           <X size={16} strokeWidth={2} />
         </button>
       </div>
