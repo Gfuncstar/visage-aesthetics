@@ -178,6 +178,77 @@ function gapLabel(mins: number): string {
   const h = Math.floor(mins / 60), m = mins % 60
   return [h > 0 ? `${h}h` : null, m > 0 ? `${m}m` : null].filter(Boolean).join(' ') + ' free'
 }
+function freeShort(mins: number): string {
+  const h = Math.floor(mins / 60), m = mins % 60
+  return h > 0 ? `${h}h` : `${m}m`
+}
+// Total open-but-unbooked minutes on a day (≥15-min gaps only).
+function dayFreeMins(day: string, bookings: Booking[], allTimeOff: TimeOff[], bh: BusinessHours[]): number {
+  const wday = new Date(`${day}T12:00:00Z`).getUTCDay()
+  const hours = bh.find((h) => h.weekday === wday)
+  if (!hours?.is_open) return 0
+  const busy: Interval[] = [
+    ...bookings.filter((b) => localDate(b.starts_at) === day).map((b) => ({ start: toLocalMin(b.starts_at), end: toLocalMin(b.ends_at) })),
+    ...allTimeOff.filter((t) => localDate(t.starts_at) === day).map((t) => ({ start: toLocalMin(t.starts_at), end: toLocalMin(t.ends_at) })),
+  ]
+  return subtractIntervals([{ start: hours.open_min, end: hours.close_min }], busy)
+    .filter((g) => g.end - g.start >= 15)
+    .reduce((s, g) => s + (g.end - g.start), 0)
+}
+// Calendar cells for the month: leading blanks (Monday-start) then each day.
+function monthGridDays(ds: string): (string | null)[] {
+  const first = monthStart(ds)
+  const lead = (new Date(`${first}T12:00:00Z`).getUTCDay() + 6) % 7
+  const total = Number(monthEnd(ds).slice(8, 10))
+  const cells: (string | null)[] = Array.from({ length: lead }, () => null)
+  for (let d = 1; d <= total; d++) cells.push(`${first.slice(0, 7)}-${String(d).padStart(2, '0')}`)
+  return cells
+}
+const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+function MonthGrid({ date, bookings, timeOff, businessHours, onPick }: { date: string; bookings: Booking[]; timeOff: TimeOff[]; businessHours: BusinessHours[]; onPick: (day: string) => void }) {
+  const cells = monthGridDays(date)
+  const today = todayStr()
+  return (
+    <div>
+      <div className="grid grid-cols-7 gap-1 sm:gap-1.5 mb-1.5">
+        {WEEKDAY_LABELS.map((d) => (
+          <div key={d} className="text-center text-[10px] uppercase tracking-wide text-stone/60 py-1">{d}</div>
+        ))}
+      </div>
+      <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
+        {cells.map((day, i) => {
+          if (!day) return <div key={`blank-${i}`} />
+          const wday = new Date(`${day}T12:00:00Z`).getUTCDay()
+          const isOpen = businessHours.find((h) => h.weekday === wday)?.is_open ?? false
+          const count = bookings.filter((b) => localDate(b.starts_at) === day).length
+          const free = dayFreeMins(day, bookings, timeOff, businessHours)
+          const isToday = day === today
+          const dayNum = Number(day.slice(8, 10))
+          let tone = 'border-sage/30 bg-sage/[0.05]'
+          if (!isOpen) tone = 'border-line/30 bg-cream-soft opacity-45'
+          else if (count > 0 && free <= 0) tone = 'border-gold/45 bg-gold/15'
+          else if (count > 0) tone = 'border-gold/30 bg-gold/[0.07]'
+          return (
+            <button
+              key={day}
+              onClick={() => onPick(day)}
+              className={`relative rounded-sm border ${tone} ${isToday ? 'ring-2 ring-gold ring-offset-1 ring-offset-cream' : ''} aspect-square p-1.5 flex flex-col text-left transition-colors hover:border-gold/60`}
+            >
+              <span className={`text-xs font-medium ${isToday ? 'text-gold-deep' : 'text-charcoal'}`}>{dayNum}</span>
+              <span className="mt-auto leading-tight w-full">
+                {count > 0 && <span className="block text-[10px] text-charcoal">{count} in</span>}
+                {isOpen && free > 0 && <span className="block text-[9px] text-sage">{freeShort(free)} free</span>}
+                {!isOpen && <span className="block text-[9px] text-stone/50">Closed</span>}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+      <p className="text-xs text-ink-soft mt-3 leading-snug">Tap any day to open it and add a booking. <span className="text-sage">Green</span> = space free · <span className="text-gold-deep">gold</span> = booked.</p>
+    </div>
+  )
+}
 
 export default function Diary() {
   const searchParams = useSearchParams()
@@ -293,58 +364,10 @@ export default function Diary() {
         {loading ? (
           <p className="text-sm text-ink-soft">Loading…</p>
         ) : view === 'month' ? (
-          (() => {
-            const keys = Array.from(new Set([...live.map((b) => localDate(b.starts_at)), ...timeOff.map((t) => localDate(t.starts_at))])).sort()
-            if (keys.length === 0) return <p className="text-sm text-ink-soft border border-line/40 rounded-sm bg-cream-soft px-4 py-5 text-center">Nothing booked this month.</p>
-            return (
-              <div className="space-y-4">
-                <div className="eyebrow text-gold">{live.length} booked this month</div>
-                {keys.map((day) => {
-                  const dayB = live.filter((b) => localDate(b.starts_at) === day).sort((a, b) => a.starts_at.localeCompare(b.starts_at))
-                  const dayT = timeOff.filter((t) => localDate(t.starts_at) === day)
-                  const isToday = day === todayStr()
-                  return (
-                    <div key={day}>
-                      <button onClick={() => { setDate(day); setView('day') }} className="w-full flex items-center justify-between mb-1.5 text-left">
-                        <span className={`text-sm font-medium ${isToday ? 'text-gold-deep' : 'text-charcoal'}`}>{shortDay(day)}{isToday ? ' · today' : ''}</span>
-                        <span className="text-xs text-stone">{dayB.length ? `${dayB.length} in` : ''}</span>
-                      </button>
-                      {(() => {
-                        const gaps = dayFreeGaps(day, live, timeOff, businessHours)
-                        const sorted = [
-                          ...dayB.map((b) => ({ t: 'b' as const, b, min: toLocalMin(b.starts_at) })),
-                          ...dayT.map((t) => ({ t: 'to' as const, to: t, min: toLocalMin(t.starts_at) })),
-                          ...gaps.map((g) => ({ t: 'g' as const, g, min: g.start })),
-                        ].sort((a, b) => a.min - b.min)
-                        return (
-                          <div className="border border-line/40 bg-cream-soft rounded-sm divide-y divide-line/30">
-                            {sorted.map((item, i) => item.t === 'to' ? (
-                              <div key={item.to.id} className="px-3.5 py-2 text-xs text-stone flex items-center gap-2"><Ban size={12} strokeWidth={1.75} /> {timeLabel(item.to.starts_at)} to {timeLabel(item.to.ends_at)} &nbsp;·&nbsp; {item.to.reason || 'Blocked'}</div>
-                            ) : item.t === 'g' ? (
-                              <div key={`gap-${i}`} className="px-3.5 py-1.5 flex items-center gap-1.5 select-none opacity-30">
-                                <span className="text-[11px] text-stone/50 tabular-nums whitespace-nowrap">{gapClock(item.g.start)}</span>
-                                <span className="flex-1 border-t border-dashed border-stone/25" />
-                                <span className="text-[11px] text-stone/50 whitespace-nowrap">{gapLabel(item.g.end - item.g.start)}</span>
-                              </div>
-                            ) : (
-                              <div key={item.b.id} className="px-3.5 py-2.5 flex items-center justify-between gap-2 bg-gold/[0.07]">
-                                <span className="text-sm text-charcoal truncate min-w-0"><span className="text-stone">{timeLabel(item.b.starts_at)}</span> &nbsp; {item.b.client_name}</span>
-                                <div className="shrink-0 flex items-center gap-2 ml-2">
-                                  <span className="text-xs text-stone truncate">{item.b.service_name}</span>
-                                  <ConsentFlag name={item.b.client_name} missing={consentMissing} />
-                                  <ConfirmedDot status={item.b.status} confirmedAt={item.b.confirmed_at} />
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )
-                      })()}
-                    </div>
-                  )
-                })}
-              </div>
-            )
-          })()
+          <div className="space-y-3">
+            <div className="eyebrow text-gold">{live.length} booked this month</div>
+            <MonthGrid date={date} bookings={live} timeOff={timeOff} businessHours={businessHours} onPick={(day) => { setDate(day); setView('day') }} />
+          </div>
         ) : view === 'week' ? (
           <div className="space-y-4">
             {weekDays(date).map((day) => {

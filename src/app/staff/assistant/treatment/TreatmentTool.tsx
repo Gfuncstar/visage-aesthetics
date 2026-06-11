@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Copy,
+  ImagePlus,
   LogOut,
   Mail,
   Plus,
@@ -108,6 +109,7 @@ export default function TreatmentTool() {
   const [photoBusy, setPhotoBusy] = useState(false)
   const [photoErr, setPhotoErr] = useState<string | null>(null)
   const photoRef = useRef<HTMLInputElement | null>(null)
+  const libraryRef = useRef<HTMLInputElement | null>(null)
 
   const sugTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -743,6 +745,7 @@ export default function TreatmentTool() {
               </div>
             </div>
             <input ref={photoRef} type="file" accept="image/jpeg,image/png,image/webp,image/heic" capture="environment" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; if (f) void uploadPhoto(f); e.target.value = '' }} />
+            <input ref={libraryRef} type="file" accept="image/jpeg,image/png,image/webp,image/heic" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; if (f) void uploadPhoto(f); e.target.value = '' }} />
             {txPhotos.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-2">
                 {txPhotos.map((p, i) => (
@@ -754,9 +757,14 @@ export default function TreatmentTool() {
                 ))}
               </div>
             )}
-            <button type="button" onClick={() => photoRef.current?.click()} disabled={photoBusy} className="btn btn-secondary disabled:opacity-50">
-              <span className="inline-flex items-center gap-2"><Camera size={15} strokeWidth={1.75} /> {photoBusy ? 'Uploading…' : `Add ${photoType} photo`}</span>
-            </button>
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => photoRef.current?.click()} disabled={photoBusy} className="btn btn-secondary disabled:opacity-50">
+                <span className="inline-flex items-center gap-2"><Camera size={15} strokeWidth={1.75} /> {photoBusy ? 'Uploading…' : 'Take photo'}</span>
+              </button>
+              <button type="button" onClick={() => libraryRef.current?.click()} disabled={photoBusy} className="btn btn-secondary disabled:opacity-50">
+                <span className="inline-flex items-center gap-2"><ImagePlus size={15} strokeWidth={1.75} /> {photoBusy ? 'Uploading…' : 'Photo library'}</span>
+              </button>
+            </div>
             {photoErr && <p className="text-xs text-clay mt-2">{photoErr}</p>}
             <p className="text-xs text-ink-soft mt-2">Saved to this client&apos;s photo vault, with consent recorded.</p>
           </div>
