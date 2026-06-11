@@ -611,7 +611,7 @@ function BookingRow({ booking: b, nowMin, missing, justBooked = false, onCancel 
           </span>
         ) : (
           <>
-            <span className="text-sm text-stone truncate max-w-[8rem] text-right">{b.service_name}</span>
+            <span className="text-sm font-semibold text-gold-deep truncate max-w-[8rem] text-right">{b.service_name}</span>
             {b.client_phone && (
               <a href={`tel:${b.client_phone}`} className="text-stone hover:text-gold-deep transition-colors" title={`Call ${b.client_name}`}>
                 <Phone size={14} strokeWidth={1.75} />
@@ -636,15 +636,17 @@ function ConfirmedDot({ status, confirmedAt }: { status: string; confirmedAt: st
 
 function ConsentFlag({ name, missing }: { name: string; missing: Set<string> | null }) {
   if (missing === null) return null
+  // Missing consent shouts — darker, bolder red so it can't be missed. Once
+  // consent is in, the tick settles back to a light, quiet green.
   if (missing.has(name.trim().toLowerCase())) {
     return (
-      <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-clay shrink-0 whitespace-nowrap">
-        <X size={9} strokeWidth={2.5} /> Consent
+      <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-avail shrink-0 whitespace-nowrap">
+        <X size={10} strokeWidth={3} /> Consent
       </span>
     )
   }
   return (
-    <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-sage shrink-0 whitespace-nowrap">
+    <span className="inline-flex items-center gap-0.5 text-[10px] font-normal text-sage/70 shrink-0 whitespace-nowrap">
       <Check size={9} strokeWidth={2.5} /> Consent
     </span>
   )
