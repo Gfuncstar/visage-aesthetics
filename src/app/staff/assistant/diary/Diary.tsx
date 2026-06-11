@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { ChevronLeft, ChevronRight, Check, Clock, LogOut, Mail, Phone, Plus, Ban, Send, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Check, Clock, FileCheck2, LogOut, Mail, Phone, Plus, Ban, Send, X } from 'lucide-react'
 import MicButton, { appendText } from '@/components/ui/MicButton'
 import { notifyDone } from '@/lib/staff-toast'
+import { consentFormForService } from '@/lib/consent/forms'
 
 const STATUS_DONE: Record<string, string> = {
   completed: 'Marked as completed',
@@ -483,6 +484,7 @@ export default function Diary() {
         {detail && (
           <DiaryDetailModal
             booking={detail}
+            missing={consentMissing}
             onClose={() => setDetail(null)}
             onStatus={async (id, status) => { await setStatus(id, status); setDetail(null) }}
             onChanged={reload}
@@ -714,8 +716,9 @@ function DiaryBookingRow({ booking: b, nowMin, missing, onOpen, onCancel }: {
 }
 
 // ---- Booking detail modal — charcoal header, diary actions ------------------
-function DiaryDetailModal({ booking: b, onClose, onStatus, onChanged, onCancel }: {
+function DiaryDetailModal({ booking: b, missing, onClose, onStatus, onChanged, onCancel }: {
   booking: Booking
+  missing: Set<string> | null
   onClose: () => void
   onStatus: (id: string, status: string) => Promise<void>
   onChanged: () => void
@@ -726,6 +729,11 @@ function DiaryDetailModal({ booking: b, onClose, onStatus, onChanged, onCancel }
   const [err, setErr] = useState<string | null>(null)
   const isConfirmed = b.status === 'confirmed' && !!b.confirmed_at
   const noContact = !b.client_email && !b.client_phone
+  // The consent form that matches this booking's treatment (e.g. Botox → Botox
+  // Consent Form). Null when the treatment maps to no form (e.g. a plain
+  // consultation). Offer to send it when the client hasn't completed one yet.
+  const consentForm = consentFormForService(null, b.service_name)
+  const needsConsent = missing !== null && missing.has(b.client_name.trim().toLowerCase())
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
@@ -755,6 +763,26 @@ function DiaryDetailModal({ booking: b, onClose, onStatus, onChanged, onCancel }
   async function markStatus(status: string) {
     setBusy(status)
     await onStatus(b.id, status)
+  }
+
+  async function sendConsent() {
+    if (!consentForm) return
+    setBusy('consent'); setErr(null); setNote(null)
+    try {
+      const res = await fetch('/api/staff/assistant/consent/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ formId: consentForm.id, clientName: b.client_name, clientEmail: b.client_email, bookingId: b.id }),
+      })
+      const d = await res.json().catch(() => ({}))
+      if (!res.ok) { setErr(d.error || 'Could not send the consent form.'); return }
+      setNote(`${consentForm.name.replace(/ Consent Form$/i, '').trim()} consent form sent.`)
+      onChanged()
+    } catch {
+      setErr('Network error — please try again.')
+    } finally {
+      setBusy(null)
+    }
   }
 
   const dateLine = `${dayHeading(localDate(b.starts_at))} · ${timeLabel(b.starts_at)}`
@@ -816,6 +844,16 @@ function DiaryDetailModal({ booking: b, onClose, onStatus, onChanged, onCancel }
               <button onClick={() => act('remind')} disabled={busy !== null} className="btn btn-secondary disabled:opacity-50" style={{ minHeight: 40 }}>
                 <span className="inline-flex items-center gap-2"><Send size={14} strokeWidth={1.75} /> {busy === 'remind' ? 'Sending…' : 'Send confirmation request'}</span>
               </button>
+            )}
+            {/* Consent form for this treatment — only when one is mapped and the
+                client hasn't completed it. Needs an email to send to. */}
+            {needsConsent && consentForm && b.status !== 'cancelled' && b.client_email && (
+              <button onClick={sendConsent} disabled={busy !== null} className="btn btn-secondary disabled:opacity-50" style={{ minHeight: 40 }}>
+                <span className="inline-flex items-center gap-2"><FileCheck2 size={14} strokeWidth={1.75} /> {busy === 'consent' ? 'Sending…' : 'Send consent form'}</span>
+              </button>
+            )}
+            {needsConsent && consentForm && b.status !== 'cancelled' && !b.client_email && (
+              <p className="text-xs text-clay leading-snug">Consent form not completed — add an email to send the {consentForm.name.replace(/ Consent Form$/i, '').trim()} form.</p>
             )}
             {noContact && !isConfirmed && b.status !== 'completed' && (
               <p className="text-xs text-clay leading-snug">No contact details — add a phone or email to send a confirmation.</p>

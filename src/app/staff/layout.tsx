@@ -34,7 +34,7 @@ export default async function StaffLayout({ children }: { children: React.ReactN
     <>
       {/* Top nav makes the section you're in obvious, then a slim Simple/Full
           view switch, then the breadcrumb bar for in-section context. */}
-      <div className="bg-cream" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 24px)' }}>
+      <div className="cms-readable bg-cream" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 24px)' }}>
         <StaffNav viewToggle={<SimpleViewToggle initialSimple={simple} compact />} />
         <StaffTopBar />
         {children}

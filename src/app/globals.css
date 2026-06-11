@@ -109,6 +109,18 @@ body {
 }
 .text-body { font-size: 12.5px; line-height: 1.55; color: #5C4F44; }
 
+/* ---------- Staff CMS readability ----------
+   The clinic back office is dense and read on an iPad at arm's length, so the
+   small Tailwind text sizes are nudged up a couple of pixels here. Scoped to
+   the staff area only (.cms-readable wraps the staff layout) — the public
+   marketing site keeps its original type scale. */
+.cms-readable .text-\[9px\]  { font-size: 11px; }
+.cms-readable .text-\[10px\] { font-size: 12px; }
+.cms-readable .text-\[11px\] { font-size: 13px; }
+.cms-readable .text-xs   { font-size: 13.5px; line-height: 1.45; }
+.cms-readable .text-sm   { font-size: 15px;   line-height: 1.5; }
+.cms-readable .text-base { font-size: 17px;   line-height: 1.55; }
+
 /* ---------- Section numbers (brand pattern) ---------- */
 .section-num {
   font-family: var(--font-inter), system-ui, sans-serif;
