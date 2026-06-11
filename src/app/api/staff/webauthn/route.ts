@@ -167,7 +167,7 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  if (!(await isStaffAuthed())) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+  if (!isAuthedFromRequest(req)) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
   if (!assistantConfigured()) return NextResponse.json({ error: 'Database not configured' }, { status: 503 })
 
   const { remove } = await import('@/lib/assistant/db')
