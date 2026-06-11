@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { CalendarDays, CalendarPlus, Check, ChevronLeft, ChevronRight, Clock, Phone, X } from 'lucide-react'
+import { CalendarDays, CalendarPlus, Check, ChevronLeft, ChevronRight, Clock, Phone, Sparkles, X } from 'lucide-react'
 import { notifyDone } from '@/lib/staff-toast'
 
 // A self-contained "see the gaps, tap one, book someone in" calendar for the
@@ -14,6 +14,7 @@ type TimeOffRow = { id: string; starts_at: string; ends_at: string; reason: stri
 type BusinessHour = { weekday: number; is_open: boolean; open_min: number; close_min: number }
 type ServiceLite = { slug: string; name: string; duration_min: number }
 type SchedData = { bookings: Lite[]; timeOff: TimeOffRow[]; businessHours: BusinessHour[] }
+type JustBookedRow = { id: string; client_name: string; service_name: string; starts_at: string }
 type Interval = { start: number; end: number }
 
 const TZ = 'Europe/London'
@@ -148,8 +149,10 @@ export default function GapCalendar() {
   const [prefill, setPrefill] = useState<{ date: string; time: string } | null>(null)
   const [nextOpen, setNextOpen] = useState(false)
   const [consentMissing, setConsentMissing] = useState<Set<string> | null>(null)
+  const [justBooked, setJustBooked] = useState<JustBookedRow[]>([])
   const bookingRef = useRef<HTMLDivElement | null>(null)
   const nowMin = useNowMin()
+  const justIds = new Set(justBooked.map((b) => b.id))
 
   const loadSchedule = useCallback(async (silent = false) => {
     if (!silent) setSchedLoading(true)
@@ -190,6 +193,13 @@ export default function GapCalendar() {
       .catch(() => {})
   }, [])
 
+  useEffect(() => {
+    fetch('/api/staff/assistant/just-booked')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d) setJustBooked(d.bookings ?? []) })
+      .catch(() => {})
+  }, [])
+
   // Seize a gap: open the booking form pre-filled to that slot and scroll to it.
   const bookSlot = useCallback((date: string, startMin: number) => {
     setPrefill({ date, time: minToTime(startMin) })
@@ -198,11 +208,31 @@ export default function GapCalendar() {
 
   return (
     <div>
+      {justBooked.length > 0 && (
+        <div className="mb-4 border border-gold/45 bg-gold/[0.07] rounded-sm px-4 py-3">
+          <div className="eyebrow text-gold-deep mb-2 inline-flex items-center gap-2">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
+            <Sparkles size={13} strokeWidth={1.75} /> Just booked online · {justBooked.length}
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {justBooked.slice(0, 6).map((b) => (
+              <button
+                key={b.id}
+                onClick={() => { setAnchor(localDate(b.starts_at)); setSchedView('day') }}
+                className="text-xs border border-gold/40 bg-cream rounded-full px-2.5 py-1 text-charcoal hover:border-gold hover:bg-gold/10 transition-colors"
+              >
+                <span className="font-medium">{b.client_name}</span> · {dayLabelShort(localDate(b.starts_at))}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-2">
         <div className="eyebrow text-gold flex items-center gap-2"><CalendarDays size={13} strokeWidth={1.75} /> Find a gap &amp; book</div>
         <Link href="/staff/assistant/diary" className="text-xs text-gold-deep hover:underline">Open diary →</Link>
       </div>
-      <p className="text-sm text-ink-soft mb-3 leading-snug">See where there&apos;s space and tap a gap to book the client straight in — day, week or month.</p>
+      <p className="text-sm text-ink-soft mb-3 leading-snug">See where there&apos;s space and tap a <span className="text-avail font-medium">red slot</span> to book the client straight in — day, week or month.</p>
 
       {/* Booking form — opens pre-filled the moment a gap is tapped */}
       <div ref={bookingRef} className="scroll-mt-6">
@@ -250,18 +280,18 @@ export default function GapCalendar() {
       ) : schedView === 'week' ? (
         <div className="space-y-4">
           {weekDays(anchor).map((day) => (
-            <DaySchedule key={day} day={day} data={schedData} nowMin={nowMin} missing={consentMissing} onBook={bookSlot} heading />
+            <DaySchedule key={day} day={day} data={schedData} nowMin={nowMin} missing={consentMissing} justIds={justIds} onBook={bookSlot} heading />
           ))}
         </div>
       ) : (
-        <DaySchedule day={anchor} data={schedData} nowMin={nowMin} missing={consentMissing} onBook={bookSlot} />
+        <DaySchedule day={anchor} data={schedData} nowMin={nowMin} missing={consentMissing} justIds={justIds} onBook={bookSlot} />
       )}
     </div>
   )
 }
 
 // ---- One day's bookings + tappable gaps ------------------------------------
-function DaySchedule({ day, data, nowMin, missing, onBook, heading = false }: { day: string; data: SchedData; nowMin: number; missing: Set<string> | null; onBook: (date: string, startMin: number) => void; heading?: boolean }) {
+function DaySchedule({ day, data, nowMin, missing, justIds, onBook, heading = false }: { day: string; data: SchedData; nowMin: number; missing: Set<string> | null; justIds: Set<string>; onBook: (date: string, startMin: number) => void; heading?: boolean }) {
   const dayB = data.bookings.filter((b) => localDate(b.starts_at) === day).sort((a, b) => a.starts_at.localeCompare(b.starts_at))
   const gaps = gapsForDay(day, data.bookings, data.timeOff, data.businessHours)
   const free = freeMinsForDay(day, data.bookings, data.timeOff, data.businessHours)
@@ -279,7 +309,7 @@ function DaySchedule({ day, data, nowMin, missing, onBook, heading = false }: { 
     : (
       <div className="space-y-2">
         {items.map((item, i) => item.kind === 'booking'
-          ? <BookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={missing} />
+          ? <BookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={missing} justBooked={justIds.has(item.b.id)} />
           : <GapRow key={`gap-${i}`} date={day} startMin={item.start} endMin={item.end} onBook={onBook} />
         )}
       </div>
@@ -296,7 +326,7 @@ function DaySchedule({ day, data, nowMin, missing, onBook, heading = false }: { 
       <div className="flex items-center justify-between mb-1.5">
         <span className={`text-sm font-medium ${day === todayStr() ? 'text-gold-deep' : 'text-charcoal'}`}>{dayLabelShort(day)}{day === todayStr() ? ' · today' : ''}</span>
         <div className="flex items-center gap-2">
-          {free > 0 ? <span className="text-xs text-sage border border-sage/30 rounded-full px-2 py-0.5">{freeShort(free)} free</span>
+          {free > 0 ? <span className="text-xs font-semibold text-avail border border-avail/50 bg-avail/[0.06] rounded-full px-2 py-0.5">{freeShort(free)} free</span>
             : fullyBooked ? <span className="text-xs text-stone/70 border border-line/50 rounded-full px-2 py-0.5">Fully booked</span>
             : null}
           <span className="text-xs text-stone">{dayB.length} in</span>
@@ -357,7 +387,7 @@ function NextAvailable({ onPick, onClose }: { onPick: (date: string, startMin: n
                 <div className="text-sm font-medium text-charcoal mb-1.5">{dayLabelShort(day)}{day === today ? ' · today' : ''}</div>
                 <div className="flex flex-wrap gap-1.5">
                   {slots.map((m) => (
-                    <button key={m} onClick={() => onPick(day, m)} className="text-sm rounded-sm border border-gold/40 bg-cream px-3 py-1.5 text-charcoal hover:border-gold hover:bg-gold/10 active:bg-gold/15 transition-colors">{gapClock(m)}</button>
+                    <button key={m} onClick={() => onPick(day, m)} className="text-sm font-medium rounded-sm border-2 border-avail/50 bg-avail/[0.07] px-3 py-1.5 text-charcoal hover:border-avail hover:bg-avail/15 active:bg-avail/20 transition-colors">{gapClock(m)}</button>
                   ))}
                 </div>
               </div>
@@ -387,23 +417,23 @@ function MonthGrid({ anchor, data, onPick }: { anchor: string; data: SchedData; 
           const free = freeMinsForDay(day, data.bookings, data.timeOff, data.businessHours)
           const isToday = day === today
           const dayNum = Number(day.slice(8, 10))
-          let tone = 'border-sage/30 bg-sage/[0.05]'
+          let tone = 'border-line/30 bg-cream-soft'
           if (!isOpen) tone = 'border-line/30 bg-cream-soft opacity-45'
-          else if (count > 0 && free <= 0) tone = 'border-gold/45 bg-gold/15'
-          else if (count > 0) tone = 'border-gold/30 bg-gold/[0.07]'
+          else if (free > 0) tone = 'border-avail/55 bg-avail/[0.08]'
+          else if (count > 0) tone = 'border-gold/40 bg-gold/15'
           return (
             <button key={day} onClick={() => onPick(day)} className={`relative rounded-sm border ${tone} ${isToday ? 'ring-2 ring-gold ring-offset-1 ring-offset-cream' : ''} aspect-square p-1.5 flex flex-col text-left transition-colors hover:border-gold/60`}>
               <span className={`text-xs font-medium ${isToday ? 'text-gold-deep' : 'text-charcoal'}`}>{dayNum}</span>
               <span className="mt-auto leading-tight w-full">
                 {count > 0 && <span className="block text-[10px] text-charcoal">{count} in</span>}
-                {isOpen && free > 0 && <span className="block text-[9px] text-sage">{freeShort(free)} free</span>}
+                {isOpen && free > 0 && <span className="block text-[9px] font-semibold text-avail">{freeShort(free)} free</span>}
                 {!isOpen && <span className="block text-[9px] text-stone/50">Closed</span>}
               </span>
             </button>
           )
         })}
       </div>
-      <p className="text-xs text-ink-soft mt-3 leading-snug">Tap a day to open it, then tap a gap to book. <span className="text-sage">Green</span> = space free · <span className="text-gold-deep">gold</span> = booked.</p>
+      <p className="text-xs text-ink-soft mt-3 leading-snug">Tap a day to open it, then tap a slot to book. <span className="text-avail font-semibold">Red</span> = space free · <span className="text-gold-deep">gold</span> = fully booked.</p>
     </div>
   )
 }
@@ -471,26 +501,27 @@ function GapRow({ date, startMin, endMin, onBook }: { date: string; startMin: nu
   const hrs = Math.floor(duration / 60), mins = duration % 60
   const label = [hrs > 0 ? `${hrs}h` : null, mins > 0 ? `${mins}m` : null].filter(Boolean).join(' ')
   return (
-    <button onClick={() => onBook(date, startMin)} className="w-full text-left flex items-center justify-between gap-3 border border-dashed border-gold/50 bg-gold/[0.05] rounded-sm px-4 py-2.5 hover:border-gold hover:bg-gold/10 active:bg-gold/15 transition-colors">
+    <button onClick={() => onBook(date, startMin)} className="w-full text-left flex items-center justify-between gap-3 rounded-sm border-2 border-avail/60 bg-avail/[0.08] px-4 py-2.5 hover:bg-avail/15 active:bg-avail/20 transition-colors">
       <div className="min-w-0">
-        <div className="text-sm text-charcoal truncate"><span className="font-medium">{gapClock(startMin)}</span> &nbsp; Free until {gapClock(endMin)} · {label}</div>
-        <div className="text-xs text-gold-deep mt-0.5 inline-flex items-center gap-1"><CalendarPlus size={11} strokeWidth={2} /> Tap to book someone in</div>
+        <div className="text-sm text-charcoal truncate"><span className="font-semibold">{gapClock(startMin)}</span> &nbsp; Free until {gapClock(endMin)} · {label}</div>
+        <div className="text-xs font-semibold text-avail mt-0.5 inline-flex items-center gap-1"><CalendarPlus size={11} strokeWidth={2.5} /> Available — tap to book someone in</div>
       </div>
-      <span className="shrink-0 text-xs text-gold-deep font-medium border border-gold/40 rounded-full px-2.5 py-1">Book</span>
+      <span className="shrink-0 text-xs text-cream font-semibold bg-avail rounded-full px-3 py-1">Book</span>
     </button>
   )
 }
 
-function BookingRow({ booking: b, nowMin, missing }: { booking: Lite; nowMin: number; missing: Set<string> | null }) {
+function BookingRow({ booking: b, nowMin, missing, justBooked = false }: { booking: Lite; nowMin: number; missing: Set<string> | null; justBooked?: boolean }) {
   const start = toLocalMin(b.starts_at)
   const end = b.ends_at ? toLocalMin(b.ends_at) : start + 60
   const isCurrent = nowMin >= start && nowMin < end
   return (
-    <div className={`flex items-center justify-between gap-3 border rounded-sm px-4 py-3 transition-colors ${isCurrent ? 'border-sage/40 bg-sage/5' : 'border-line/40 bg-cream-soft'}`}>
+    <div className={`flex items-center justify-between gap-3 border rounded-sm px-4 py-3 transition-colors ${isCurrent ? 'border-sage/40 bg-sage/5' : justBooked ? 'border-gold/55 bg-gold/[0.10]' : 'border-line/40 bg-cream-soft'}`}>
       <div className="min-w-0 flex-1">
         <div className="text-sm text-charcoal truncate flex items-center gap-2">
           {isCurrent && <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage shrink-0" />}
           <span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>
+          {justBooked && <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-semibold text-gold-deep bg-gold/15 border border-gold/40 rounded-full px-1.5 py-0.5"><Sparkles size={9} strokeWidth={2} /> Just booked</span>}
         </div>
         <div className="text-xs text-stone truncate mt-0.5">{b.service_name}</div>
       </div>
