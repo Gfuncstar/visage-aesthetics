@@ -7,6 +7,7 @@ import { stockReview } from '@/lib/assistant/stock'
 import { consentReview } from '@/lib/assistant/consent'
 import { confirmationReview } from '@/lib/assistant/confirmations'
 import StaffLandingHub from './StaffLandingHub'
+import GapCalendar from './GapCalendar'
 import AttentionList, { type AttentionItem } from './AttentionList'
 
 export const metadata: Metadata = {
@@ -136,6 +137,10 @@ export default async function StaffIndex() {
     <section className="bg-cream text-charcoal min-h-screen">
       <div className="max-w-3xl mx-auto px-5 md:px-8 pt-6 pb-24">
         <StaffLandingHub greeting={greeting} dateLabel={dateLabel} />
+
+        <div className="mt-9">
+          <GapCalendar />
+        </div>
 
         <div className="mt-9">
           <div className="eyebrow text-gold mb-3">Needs your attention</div>
