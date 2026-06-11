@@ -129,6 +129,20 @@ const statusTone: Record<string, string> = {
   no_show: 'text-clay',
 }
 
+// The booking `status` only says the slot is held; whether the *client* has
+// actually confirmed is a separate thing (confirmed_at — set when they tap their
+// confirm link). Keep the label honest: a 'confirmed' booking the client hasn't
+// confirmed yet (e.g. migrated from Ovatu) reads "Unconfirmed", not "Confirmed".
+function statusLabel(status: string, confirmedAt: string | null): string {
+  if (status === 'confirmed') return confirmedAt ? 'Confirmed' : 'Unconfirmed'
+  if (status === 'no_show') return 'No show'
+  return status.charAt(0).toUpperCase() + status.slice(1)
+}
+function statusToneFor(status: string, confirmedAt: string | null): string {
+  if (status === 'confirmed' && !confirmedAt) return 'text-gold-deep'
+  return statusTone[status] ?? 'text-stone'
+}
+
 function useNowMin(): number {
   const [nowMin, setNowMin] = useState(() => toLocalMin(new Date().toISOString()))
   useEffect(() => {
@@ -629,7 +643,7 @@ function BookingRow({ booking: b, nowMin, missing, justBooked = false, onCancel 
         <div className="mt-1 flex items-center gap-1.5">
           <ConsentFlag name={b.client_name} missing={missing} />
           <ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} />
-          <span className={`text-xs capitalize ${isPast ? 'text-stone/70' : statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>
+          <span className={`text-xs ${isPast ? 'text-stone/70' : statusToneFor(b.status, b.confirmed_at)}`}>{statusLabel(b.status, b.confirmed_at)}</span>
         </div>
       </div>
       <div className="shrink-0 flex items-center gap-3">

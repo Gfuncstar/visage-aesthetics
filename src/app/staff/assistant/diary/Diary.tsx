@@ -102,6 +102,18 @@ const statusTone: Record<string, string> = {
   no_show: 'text-clay',
 }
 
+// A booking can be 'confirmed' (slot held) without the client having actually
+// confirmed (confirmed_at). Keep the label honest so the diary reflects reality.
+function statusLabel(status: string, confirmedAt: string | null): string {
+  if (status === 'confirmed') return confirmedAt ? 'Confirmed' : 'Unconfirmed'
+  if (status === 'no_show') return 'No show'
+  return status.charAt(0).toUpperCase() + status.slice(1)
+}
+function statusToneFor(status: string, confirmedAt: string | null): string {
+  if (status === 'confirmed' && !confirmedAt) return 'text-gold-deep'
+  return statusTone[status] ?? 'text-stone'
+}
+
 function ConfirmedDot({ status, confirmedAt }: { status: string; confirmedAt: string | null }) {
   if (status === 'confirmed' && confirmedAt) return <span title="Client confirmed" className="w-2 h-2 rounded-full bg-sage inline-block shrink-0" />
   if (status === 'confirmed' && !confirmedAt) return <span title="Awaiting confirmation" className="w-2 h-2 rounded-full bg-gold inline-block shrink-0" />
@@ -449,7 +461,7 @@ export default function Diary() {
                     <span className="inline-flex items-center gap-1.5">
                       <ConsentFlag name={item.b.client_name} missing={consentMissing} />
                       <ConfirmedDot status={item.b.status} confirmedAt={item.b.confirmed_at} />
-                      <span className={`text-xs capitalize ${statusTone[item.b.status] ?? 'text-stone'}`}>{item.b.status.replace('_', ' ')}</span>
+                      <span className={`text-xs ${statusToneFor(item.b.status, item.b.confirmed_at)}`}>{statusLabel(item.b.status, item.b.confirmed_at)}</span>
                     </span>
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
