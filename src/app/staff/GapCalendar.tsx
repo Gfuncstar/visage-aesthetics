@@ -438,6 +438,64 @@ function MonthGrid({ anchor, data, onPick }: { anchor: string; data: SchedData; 
   )
 }
 
+// ---- Client picker: search existing clients, or type a new walk-in ---------
+type ClientSuggestion = { id: string | null; name: string; email: string | null; source: string }
+
+function ClientField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false)
+  const [sugs, setSugs] = useState<ClientSuggestion[]>([])
+  const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    let cancel = false
+    const t = setTimeout(() => {
+      fetch(`/api/staff/assistant/clients?q=${encodeURIComponent(value.trim())}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => { if (!cancel && d) setSugs(d.clients ?? []) })
+        .catch(() => {})
+    }, 200)
+    return () => { cancel = true; clearTimeout(t) }
+  }, [value])
+
+  const typed = value.trim().toLowerCase()
+  const isNew = typed.length > 0 && !sugs.some((s) => s.name.toLowerCase() === typed)
+
+  return (
+    <div className="relative">
+      <input
+        value={value}
+        onChange={(e) => { onChange(e.target.value); setOpen(true) }}
+        onFocus={() => setOpen(true)}
+        onBlur={() => { blurTimer.current = setTimeout(() => setOpen(false), 150) }}
+        placeholder="Client name — pick from the list or type a new one"
+        autoComplete="off"
+        className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 text-sm"
+      />
+      {open && (sugs.length > 0 || isNew) && (
+        <div className="absolute z-20 left-0 right-0 mt-1 max-h-60 overflow-y-auto border border-line rounded-sm bg-cream shadow-lg">
+          {sugs.map((s, i) => (
+            <button
+              key={`${s.id ?? 'x'}-${i}`}
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => { onChange(s.name); setOpen(false) }}
+              className="w-full text-left px-3 py-2 text-sm text-charcoal hover:bg-gold/10 flex items-center justify-between gap-2"
+            >
+              <span className="truncate">{s.name}</span>
+              {s.email && <span className="text-xs text-stone/60 truncate shrink-0">{s.email}</span>}
+            </button>
+          ))}
+          <div className="px-3 py-2 text-xs border-t border-line/40">
+            {isNew
+              ? <span className="text-avail font-medium">New client — “{value.trim()}” will be added.</span>
+              : <span className="text-ink-soft">Not listed? Just type their name to add a new client.</span>}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ---- Booking form — controlled by the parent (mounts pre-filled) -----------
 function NewBookingPanel({ initialDate, initialTime, onClose, onDone }: { initialDate: string; initialTime: string; onClose: () => void; onDone: () => void }) {
   const [services, setServices] = useState<ServiceLite[]>([])
@@ -487,7 +545,7 @@ function NewBookingPanel({ initialDate, initialTime, onClose, onDone }: { initia
         <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
         <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
       </div>
-      <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Client name" className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
+      <ClientField value={name} onChange={setName} />
       <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Mobile (optional)" className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
       {err && <p className="text-xs text-clay">{err}</p>}
       <button onClick={save} disabled={busy} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 38 }}>{busy ? 'Saving…' : 'Add to diary'}</button>
