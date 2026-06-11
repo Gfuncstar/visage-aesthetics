@@ -21,6 +21,7 @@
   --color-gold-soft: #D4B89A;
   --color-sage: #5E7460;
   --color-clay: #B5836F;
+  --color-avail: #C0392B; /* high-visibility flag for open/available booking slots */
 
   --font-display: var(--font-cormorant), Georgia, serif;
   --font-body: var(--font-cormorant), Georgia, serif;
