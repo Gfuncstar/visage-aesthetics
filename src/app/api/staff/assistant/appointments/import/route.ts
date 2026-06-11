@@ -46,6 +46,11 @@ export async function POST(req: Request) {
     service_name: r.service_name,
     price: r.price,
     status: r.status,
+    // Keep the contact details the export carries — previously these were
+    // parsed and then dropped, leaving migrated bookings with no way to reach
+    // the client.
+    email: r.email,
+    phone: r.phone,
     import_batch: importBatch,
   }))
 

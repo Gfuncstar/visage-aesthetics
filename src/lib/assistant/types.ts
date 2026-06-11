@@ -38,6 +38,8 @@ export type Appointment = {
   service_name: string
   price: number
   status: 'completed' | 'cancelled' | 'no_show' | 'booked'
+  email: string | null
+  phone: string | null
   import_batch: string | null
   created_at: string
 }
