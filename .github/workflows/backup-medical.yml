@@ -1,0 +1,41 @@
+name: Medical Records Backup
+
+on:
+  schedule:
+    - cron: '0 2 * * *'   # 02:00 UTC daily
+  workflow_dispatch:        # manual trigger from GitHub Actions tab
+
+jobs:
+  backup:
+    name: Export to Dropbox
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Run backup
+        run: npx tsx scripts/backup-medical.ts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          BACKUP_DROPBOX_TOKEN: ${{ secrets.BACKUP_DROPBOX_TOKEN }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          CLINIC_EMAIL: ${{ secrets.CLINIC_EMAIL }}
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+
+      - name: Upload backup log as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backup-log-${{ github.run_id }}
+          path: backup-log.json
+          retention-days: 90
+          if-no-files-found: ignore
