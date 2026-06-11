@@ -38,7 +38,6 @@ function sanitiseInput(raw: unknown): WriteUpInput | null {
     unit: t.unit as UnitType,
     technique: '',
     consent: false,
-    reviewDate: '',
     notes: String(b.notes ?? '').trim().slice(0, 4000),
     interest: String(b.interest ?? '').trim().slice(0, 200),
   }
