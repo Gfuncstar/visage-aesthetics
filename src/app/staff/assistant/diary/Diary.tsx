@@ -700,11 +700,6 @@ function DiaryBookingRow({ booking: b, nowMin, missing, onOpen, onCancel }: {
       </div>
       <div className="shrink-0 flex items-center gap-3">
         <span className={`text-sm font-semibold truncate max-w-[8rem] text-right ${isPast ? 'text-stone/80' : 'text-gold-deep'}`}>{b.service_name}</span>
-        {b.client_phone && (
-          <a href={`tel:${b.client_phone}`} onClick={(e) => e.stopPropagation()} className={`transition-colors ${isPast ? 'text-stone/60 hover:text-gold-deep' : 'text-stone hover:text-gold-deep'}`} title={`Call ${b.client_name}`}>
-            <Phone size={14} strokeWidth={1.75} />
-          </a>
-        )}
         <button
           onClick={(e) => { e.stopPropagation(); onCancel(b) }}
           className={`transition-colors ${isPast ? 'text-stone/50 hover:text-clay' : 'text-stone/70 hover:text-clay'}`}
