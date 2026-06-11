@@ -44,14 +44,10 @@ function addDays(ds: string, n: number): string {
   d.setUTCDate(d.getUTCDate() + n)
   return d.toISOString().slice(0, 10)
 }
-function weekStart(ds: string): string {
-  const d = new Date(`${ds}T12:00:00Z`)
-  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7))
-  return d.toISOString().slice(0, 10)
-}
+// "Week" view = a rolling next-seven-days window starting at the anchor day,
+// not a fixed Monday–Sunday calendar week.
 function weekDays(ds: string): string[] {
-  const s = weekStart(ds)
-  return Array.from({ length: 7 }, (_, i) => addDays(s, i))
+  return Array.from({ length: 7 }, (_, i) => addDays(ds, i))
 }
 function monthBounds(ds: string): { from: string; to: string } {
   const [y, m] = ds.split('-').map(Number)
@@ -76,9 +72,9 @@ function dayHeadingFull(ds: string): string {
   return new Intl.DateTimeFormat('en-GB', { timeZone: TZ, weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(`${ds}T12:00:00Z`))
 }
 function weekHeading(ds: string): string {
-  const s = weekStart(ds), e = addDays(s, 6)
+  const e = addDays(ds, 6)
   const f = (x: string) => new Intl.DateTimeFormat('en-GB', { timeZone: TZ, day: 'numeric', month: 'short' }).format(new Date(`${x}T12:00:00Z`))
-  return `${f(s)} – ${f(e)}`
+  return `${f(ds)} – ${f(e)}`
 }
 function monthHeading(ds: string): string {
   return new Intl.DateTimeFormat('en-GB', { timeZone: TZ, month: 'long', year: 'numeric' }).format(new Date(`${ds}T12:00:00Z`))
@@ -161,7 +157,7 @@ export default function GapCalendar() {
       url = `/api/staff/assistant/diary?date=${anchor}`
     } else {
       const { from, to } = schedView === 'week'
-        ? { from: weekStart(anchor), to: addDays(weekStart(anchor), 6) }
+        ? { from: anchor, to: addDays(anchor, 6) }
         : monthBounds(anchor)
       url = `/api/staff/assistant/diary?from=${from}&to=${to}`
     }
