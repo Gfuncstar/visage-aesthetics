@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { CalendarDays, CalendarPlus, Check, ChevronLeft, ChevronRight, Clock, Phone, Sparkles, X } from 'lucide-react'
+import { CalendarDays, CalendarPlus, Check, ChevronLeft, ChevronRight, Clock, Mail, Phone, Send, Sparkles, X } from 'lucide-react'
 import { notifyDone } from '@/lib/staff-toast'
 import { recordUndo, UNDO_DONE_EVENT } from '@/lib/staff-undo'
 
@@ -10,7 +10,7 @@ import { recordUndo, UNDO_DONE_EVENT } from '@/lib/staff-undo'
 // landing page. Mirrors the front-desk schedule so the desk can rebook a client
 // the moment they get up from the chair, without leaving the home screen.
 
-type Lite = { id: string; service_name: string; client_name: string; client_phone: string | null; starts_at: string; ends_at?: string; status: string; confirmed_at: string | null }
+type Lite = { id: string; service_name: string; client_name: string; client_email?: string | null; client_phone: string | null; starts_at: string; ends_at?: string; status: string; confirmed_at: string | null; notes?: string | null; source?: string }
 type TimeOffRow = { id: string; starts_at: string; ends_at: string; reason: string | null }
 type BusinessHour = { weekday: number; is_open: boolean; open_min: number; close_min: number }
 type ServiceLite = { slug: string; name: string; duration_min: number }
@@ -162,6 +162,7 @@ export default function GapCalendar() {
   const [consentMissing, setConsentMissing] = useState<Set<string> | null>(null)
   const [justBooked, setJustBooked] = useState<JustBookedRow[]>([])
   const [pendingCancel, setPendingCancel] = useState<Lite | null>(null)
+  const [detail, setDetail] = useState<Lite | null>(null)
   const bookingRef = useRef<HTMLDivElement | null>(null)
   const nowMin = useNowMin()
   const justIds = new Set(justBooked.map((b) => b.id))
@@ -321,11 +322,20 @@ export default function GapCalendar() {
       ) : schedView === 'week' ? (
         <div className="space-y-4">
           {weekDays(anchor).map((day) => (
-            <DaySchedule key={day} day={day} data={schedData} nowMin={nowMin} missing={consentMissing} justIds={justIds} onBook={bookSlot} onCancel={setPendingCancel} heading />
+            <DaySchedule key={day} day={day} data={schedData} nowMin={nowMin} missing={consentMissing} justIds={justIds} onBook={bookSlot} onCancel={setPendingCancel} onOpen={setDetail} heading />
           ))}
         </div>
       ) : (
-        <DaySchedule day={anchor} data={schedData} nowMin={nowMin} missing={consentMissing} justIds={justIds} onBook={bookSlot} onCancel={setPendingCancel} />
+        <DaySchedule day={anchor} data={schedData} nowMin={nowMin} missing={consentMissing} justIds={justIds} onBook={bookSlot} onCancel={setPendingCancel} onOpen={setDetail} />
+      )}
+
+      {detail && (
+        <BookingDetailModal
+          booking={detail}
+          onClose={() => setDetail(null)}
+          onCancel={(bk) => { setDetail(null); setPendingCancel(bk) }}
+          onChanged={() => void loadSchedule(true)}
+        />
       )}
 
       {pendingCancel && (
@@ -340,7 +350,7 @@ export default function GapCalendar() {
 }
 
 // ---- One day's bookings + tappable gaps ------------------------------------
-function DaySchedule({ day, data, nowMin, missing, justIds, onBook, onCancel, heading = false }: { day: string; data: SchedData; nowMin: number; missing: Set<string> | null; justIds: Set<string>; onBook: (date: string, startMin: number) => void; onCancel: (booking: Lite) => void; heading?: boolean }) {
+function DaySchedule({ day, data, nowMin, missing, justIds, onBook, onCancel, onOpen, heading = false }: { day: string; data: SchedData; nowMin: number; missing: Set<string> | null; justIds: Set<string>; onBook: (date: string, startMin: number) => void; onCancel: (booking: Lite) => void; onOpen: (booking: Lite) => void; heading?: boolean }) {
   const dayB = data.bookings.filter((b) => localDate(b.starts_at) === day).sort((a, b) => a.starts_at.localeCompare(b.starts_at))
   const gaps = gapsForDay(day, data.bookings, data.timeOff, data.businessHours)
   const free = freeMinsForDay(day, data.bookings, data.timeOff, data.businessHours)
@@ -358,7 +368,7 @@ function DaySchedule({ day, data, nowMin, missing, justIds, onBook, onCancel, he
     : (
       <div className="space-y-2">
         {items.map((item, i) => item.kind === 'booking'
-          ? <BookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={missing} justBooked={justIds.has(item.b.id)} onCancel={onCancel} />
+          ? <BookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={missing} justBooked={justIds.has(item.b.id)} onCancel={onCancel} onOpen={onOpen} />
           : <GapRow key={`gap-${i}`} date={day} startMin={item.start} endMin={item.end} onBook={onBook} />
         )}
       </div>
@@ -618,7 +628,7 @@ function GapRow({ date, startMin, endMin, onBook }: { date: string; startMin: nu
   )
 }
 
-function BookingRow({ booking: b, nowMin, missing, justBooked = false, onCancel }: { booking: Lite; nowMin: number; missing: Set<string> | null; justBooked?: boolean; onCancel: (booking: Lite) => void }) {
+function BookingRow({ booking: b, nowMin, missing, justBooked = false, onCancel, onOpen }: { booking: Lite; nowMin: number; missing: Set<string> | null; justBooked?: boolean; onCancel: (booking: Lite) => void; onOpen: (booking: Lite) => void }) {
   const start = toLocalMin(b.starts_at)
   const end = b.ends_at ? toLocalMin(b.ends_at) : start + 60
   const bookingDay = localDate(b.starts_at)
@@ -633,7 +643,14 @@ function BookingRow({ booking: b, nowMin, missing, justBooked = false, onCancel 
   // stay light.
   const isConfirmed = b.status === 'confirmed' && !!b.confirmed_at
   return (
-    <div className={`flex items-center justify-between gap-3 border-2 rounded-sm px-4 py-3 transition-colors ${isPast ? 'border-stone/40 bg-stone/20' : isCurrent ? 'border-sage/60 bg-sage/5' : isConfirmed ? 'border-gold bg-gold/20' : justBooked ? 'border-gold/70 bg-gold/[0.10]' : 'border-line/40 bg-cream'}`}>
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onOpen(b)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(b) } }}
+      title={`Open ${b.client_name}'s booking`}
+      className={`flex items-center justify-between gap-3 border-2 rounded-sm px-4 py-3 transition-colors cursor-pointer hover:border-gold/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold ${isPast ? 'border-stone/40 bg-stone/20' : isCurrent ? 'border-sage/60 bg-sage/5' : isConfirmed ? 'border-gold bg-gold/20' : justBooked ? 'border-gold/70 bg-gold/[0.10]' : 'border-line/40 bg-cream'}`}
+    >
       <div className="min-w-0 flex-1">
         <div className={`text-sm truncate flex items-center gap-2 ${isPast ? 'text-stone' : 'text-charcoal'}`}>
           {isCurrent && <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage shrink-0" />}
@@ -649,11 +666,11 @@ function BookingRow({ booking: b, nowMin, missing, justBooked = false, onCancel 
       <div className="shrink-0 flex items-center gap-3">
         <span className={`text-sm font-semibold truncate max-w-[8rem] text-right ${isPast ? 'text-stone/80' : 'text-gold-deep'}`}>{b.service_name}</span>
         {b.client_phone && (
-          <a href={`tel:${b.client_phone}`} className={`transition-colors ${isPast ? 'text-stone/60 hover:text-gold-deep' : 'text-stone hover:text-gold-deep'}`} title={`Call ${b.client_name}`}>
+          <a href={`tel:${b.client_phone}`} onClick={(e) => e.stopPropagation()} className={`transition-colors ${isPast ? 'text-stone/60 hover:text-gold-deep' : 'text-stone hover:text-gold-deep'}`} title={`Call ${b.client_name}`}>
             <Phone size={14} strokeWidth={1.75} />
           </a>
         )}
-        <button onClick={() => onCancel(b)} className={`transition-colors ${isPast ? 'text-stone/50 hover:text-clay' : 'text-stone/70 hover:text-clay'}`} title={`Cancel ${b.client_name}'s booking and release the slot`} aria-label="Cancel booking">
+        <button onClick={(e) => { e.stopPropagation(); onCancel(b) }} className={`transition-colors ${isPast ? 'text-stone/50 hover:text-clay' : 'text-stone/70 hover:text-clay'}`} title={`Cancel ${b.client_name}'s booking and release the slot`} aria-label="Cancel booking">
           <X size={16} strokeWidth={2} />
         </button>
       </div>
@@ -705,6 +722,105 @@ function CancelConfirmModal({ booking, onConfirm, onClose }: { booking: Lite; on
           >
             Keep booking
           </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---- Booking detail — tap a card to open it, confirm or message the client --
+function BookingDetailModal({ booking: b, onClose, onCancel, onChanged }: { booking: Lite; onClose: () => void; onCancel: (booking: Lite) => void; onChanged: () => void }) {
+  const [busy, setBusy] = useState<null | 'remind' | 'confirm'>(null)
+  const [note, setNote] = useState<string | null>(null)
+  const [err, setErr] = useState<string | null>(null)
+  const isConfirmed = b.status === 'confirmed' && !!b.confirmed_at
+  const noContact = !b.client_email && !b.client_phone
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  async function act(action: 'remind' | 'confirm') {
+    setBusy(action); setErr(null); setNote(null)
+    try {
+      const res = await fetch('/api/staff/assistant/confirmations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId: b.id, action }),
+      })
+      const d = await res.json().catch(() => ({}))
+      if (!res.ok) { setErr(d.error || 'Could not do that.'); return }
+      if (action === 'confirm') { notifyDone('Marked as confirmed'); onChanged(); onClose() }
+      else { setNote(`Confirmation request sent by ${d.channel === 'sms' ? 'text' : 'email'}.`); onChanged() }
+    } catch {
+      setErr('Network error — please try again.')
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  const dateLine = `${dayLabelShort(localDate(b.starts_at))} · ${timeLabel(b.starts_at)}${b.ends_at ? ` – ${timeLabel(b.ends_at)}` : ''}`
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-charcoal/60 px-5"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="booking-detail-title"
+      onClick={onClose}
+    >
+      <div className="bg-cream rounded-md shadow-xl max-w-sm w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
+        <div className="bg-charcoal text-cream px-5 py-4 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-xs text-cream/60">{dateLine}</div>
+            <h2 id="booking-detail-title" className="font-display italic text-2xl leading-tight truncate">{b.client_name}</h2>
+            <div className="text-sm text-gold-soft mt-0.5 truncate">{b.service_name}</div>
+          </div>
+          <button onClick={onClose} className="text-cream/60 hover:text-cream shrink-0" aria-label="Close"><X size={18} /></button>
+        </div>
+
+        <div className="px-5 py-4 space-y-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs ${isConfirmed ? 'bg-gold/20 text-gold-deep border border-gold/40' : 'bg-stone/10 text-stone border border-stone/30'}`}>
+              {isConfirmed ? 'Confirmed by client' : 'Unconfirmed'}
+            </span>
+            {b.source && <span className="text-xs text-stone">via {b.source === 'ovatu' ? 'Ovatu' : b.source === 'online' ? 'online' : 'staff'}</span>}
+          </div>
+
+          <div className="text-sm text-charcoal space-y-1.5">
+            <div className="flex items-center gap-2">
+              <Phone size={13} className="text-stone shrink-0" />
+              {b.client_phone ? <a href={`tel:${b.client_phone}`} className="text-gold-deep hover:underline">{b.client_phone}</a> : <span className="text-stone/60">No phone on file</span>}
+            </div>
+            <div className="flex items-center gap-2 min-w-0">
+              <Mail size={13} className="text-stone shrink-0" />
+              {b.client_email ? <a href={`mailto:${b.client_email}`} className="text-gold-deep hover:underline truncate">{b.client_email}</a> : <span className="text-stone/60">No email on file</span>}
+            </div>
+          </div>
+
+          {b.notes && <div className="text-sm text-ink-soft border border-line/50 bg-cream-soft rounded-sm px-3 py-2 leading-relaxed whitespace-pre-wrap">{b.notes}</div>}
+
+          {noContact && (
+            <p className="text-xs text-clay leading-snug">No contact details on file, so a confirmation can&apos;t be sent yet — add a phone or email first (e.g. from an Ovatu export). You can still mark them confirmed by hand if they&apos;ve told you.</p>
+          )}
+          {note && <p className="text-xs text-sage">{note}</p>}
+          {err && <p className="text-xs text-clay">{err}</p>}
+
+          <div className="flex flex-col gap-2 pt-1">
+            {!isConfirmed && (
+              <button onClick={() => act('confirm')} disabled={busy !== null} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 40 }}>
+                <span className="inline-flex items-center gap-2"><Check size={15} strokeWidth={2} /> {busy === 'confirm' ? 'Marking…' : 'Mark as confirmed'}</span>
+              </button>
+            )}
+            <button onClick={() => act('remind')} disabled={busy !== null || noContact} className="btn btn-secondary disabled:opacity-50" style={{ minHeight: 40 }}>
+              <span className="inline-flex items-center gap-2"><Send size={14} strokeWidth={1.75} /> {busy === 'remind' ? 'Sending…' : 'Send confirmation request'}</span>
+            </button>
+            <button onClick={() => onCancel(b)} className="text-sm text-clay border border-clay/30 hover:bg-clay/5 rounded-sm transition-colors" style={{ minHeight: 40 }}>
+              Cancel &amp; release slot
+            </button>
+          </div>
         </div>
       </div>
     </div>
