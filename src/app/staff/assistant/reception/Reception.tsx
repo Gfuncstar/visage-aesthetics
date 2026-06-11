@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { BellRing, CalendarDays, CalendarPlus, Check, Clock, ListPlus, LogOut, Mic, Phone, Sparkles, X } from 'lucide-react'
+import { CalendarDays, CalendarPlus, Check, ChevronLeft, ChevronRight, Clock, ListPlus, LogOut, Mic, Phone, Sparkles, X } from 'lucide-react'
 import { notifyDone } from '@/lib/staff-toast'
 
 type Lite = { id: string; service_name: string; client_name: string; client_phone: string | null; starts_at: string; ends_at?: string; status: string; source: string; created_at: string; confirmed_at: string | null }
@@ -60,13 +60,6 @@ function freeMinsForDay(
     .reduce((s, g) => s + g.end - g.start, 0)
 }
 
-function freeLabel(mins: number): string {
-  if (mins <= 0) return ''
-  const h = Math.floor(mins / 60)
-  const m = mins % 60
-  return [h > 0 ? `${h}h` : null, m > 0 ? `${m}m` : null].filter(Boolean).join(' ') + ' free'
-}
-
 function minLabel(mins: number): string {
   if (mins <= 0) return '0m'
   const h = Math.floor(mins / 60)
@@ -115,6 +108,55 @@ function localDate(iso: string): string {
 function dayLabelShort(ds: string): string {
   return new Intl.DateTimeFormat('en-GB', { timeZone: TZ, weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(`${ds}T12:00:00Z`))
 }
+function minToTime(m: number): string {
+  return `${Math.floor(m / 60).toString().padStart(2, '0')}:${(m % 60).toString().padStart(2, '0')}`
+}
+function addMonths(ds: string, n: number): string {
+  const d = new Date(`${ds}T12:00:00Z`)
+  d.setUTCDate(1)
+  d.setUTCMonth(d.getUTCMonth() + n)
+  return d.toISOString().slice(0, 10)
+}
+function weekDays(ds: string): string[] {
+  const s = weekStart(ds)
+  return Array.from({ length: 7 }, (_, i) => addDays(s, i))
+}
+function dayHeadingFull(ds: string): string {
+  return new Intl.DateTimeFormat('en-GB', { timeZone: TZ, weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(`${ds}T12:00:00Z`))
+}
+function weekHeading(ds: string): string {
+  const s = weekStart(ds), e = addDays(s, 6)
+  const f = (x: string) => new Intl.DateTimeFormat('en-GB', { timeZone: TZ, day: 'numeric', month: 'short' }).format(new Date(`${x}T12:00:00Z`))
+  return `${f(s)} – ${f(e)}`
+}
+function monthHeading(ds: string): string {
+  return new Intl.DateTimeFormat('en-GB', { timeZone: TZ, month: 'long', year: 'numeric' }).format(new Date(`${ds}T12:00:00Z`))
+}
+function freeShort(mins: number): string {
+  const h = Math.floor(mins / 60), m = mins % 60
+  return h > 0 ? `${h}h` : `${m}m`
+}
+// Open-but-unbooked intervals on a day (≥15 min), each a bookable gap.
+function gapsForDay(day: string, bookings: Lite[], timeOff: TimeOffRow[], businessHours: BusinessHour[]): Interval[] {
+  const wday = new Date(`${day}T12:00:00Z`).getUTCDay()
+  const bh = businessHours.find((h) => h.weekday === wday)
+  if (!bh?.is_open) return []
+  const busy: Interval[] = [
+    ...bookings.filter((b) => localDate(b.starts_at) === day && b.ends_at).map((b) => ({ start: toLocalMin(b.starts_at), end: toLocalMin(b.ends_at!) })),
+    ...timeOff.filter((t) => localDate(t.starts_at) <= day && localDate(t.ends_at) >= day).map((t) => ({ start: toLocalMin(t.starts_at), end: toLocalMin(t.ends_at) })),
+  ]
+  return subtractIntervals([{ start: bh.open_min, end: bh.close_min }], busy).filter((g) => g.end - g.start >= 15)
+}
+// Calendar cells for a month: leading blanks (Monday-start) then each day.
+function monthGridDays(ds: string): (string | null)[] {
+  const { from, to } = monthBounds(ds)
+  const lead = (new Date(`${from}T12:00:00Z`).getUTCDay() + 6) % 7
+  const total = Number(to.slice(8, 10))
+  const cells: (string | null)[] = Array.from({ length: lead }, () => null)
+  for (let d = 1; d <= total; d++) cells.push(`${from.slice(0, 7)}-${String(d).padStart(2, '0')}`)
+  return cells
+}
+const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 const statusTone: Record<string, string> = {
   confirmed: 'text-sage',
@@ -148,11 +190,15 @@ function useNowMin(): number {
 export default function Reception({ simple = false }: { simple?: boolean }) {
   const [data, setData] = useState<Data | null>(null)
   const [loading, setLoading] = useState(true)
-  const [view, setView] = useState<'day' | 'week' | 'month'>('day')
-  const [range, setRange] = useState<Lite[]>([])
-  const [rangeLoading, setRangeLoading] = useState(false)
   const [dayDiary, setDayDiary] = useState<DayDiary | null>(null)
-  const [rangeExtra, setRangeExtra] = useState<{ timeOff: TimeOffRow[]; businessHours: BusinessHour[] } | null>(null)
+  // Navigable schedule — day / week / month anchored on a date the desk can move.
+  const [schedView, setSchedView] = useState<'day' | 'week' | 'month'>('day')
+  const [anchor, setAnchor] = useState<string>(() => todayStr())
+  const [schedData, setSchedData] = useState<{ bookings: Lite[]; timeOff: TimeOffRow[]; businessHours: BusinessHour[] }>({ bookings: [], timeOff: [], businessHours: [] })
+  const [schedLoading, setSchedLoading] = useState(true)
+  // Booking form opened by clicking a gap (seize a slot) or the New booking button.
+  const [prefill, setPrefill] = useState<{ date: string; time: string } | null>(null)
+  const bookingRef = useRef<HTMLDivElement | null>(null)
   const clock = useLiveClock()
   const nowMin = useNowMin()
 
@@ -177,12 +223,6 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
       .catch(() => {})
   }, [])
 
-  // Silent auto-refresh every 45 seconds
-  useEffect(() => {
-    const id = setInterval(() => void load(true), 45_000)
-    return () => clearInterval(id)
-  }, [load])
-
   // Current appointment (in chair right now)
   const currentAppt = useMemo(() => {
     if (!dayDiary?.bookings) return null
@@ -206,37 +246,43 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
     )
   }, [dayDiary, nowMin])
 
-  // Free gaps for the day timeline
-  const dayGaps = useMemo<Interval[]>(() => {
-    if (!dayDiary) return []
-    const today = todayStr()
-    const wday = new Date(`${today}T12:00:00Z`).getUTCDay()
-    const bh = dayDiary.businessHours?.find((h) => h.weekday === wday)
-    if (!bh?.is_open) return []
-    const busySlots: Interval[] = [
-      ...(dayDiary.bookings ?? [])
-        .filter((b) => b.status !== 'cancelled' && b.ends_at)
-        .map((b) => ({ start: toLocalMin(b.starts_at), end: toLocalMin(b.ends_at!) })),
-      ...(dayDiary.timeOff ?? [])
-        .map((t) => ({ start: toLocalMin(t.starts_at), end: toLocalMin(t.ends_at) })),
-    ]
-    return subtractIntervals([{ start: bh.open_min, end: bh.close_min }], busySlots).filter((g) => g.end - g.start >= 15)
-  }, [dayDiary])
-
-  useEffect(() => {
-    if (view === 'day') return
-    const today = todayStr()
-    const { from, to } = view === 'week' ? { from: weekStart(today), to: addDays(weekStart(today), 6) } : monthBounds(today)
-    setRangeLoading(true)
-    fetch(`/api/staff/assistant/diary?from=${from}&to=${to}`)
-      .then((r) => (r.ok ? r.json() : { bookings: [] }))
-      .then((d) => {
-        setRange((d.bookings ?? []).filter((b: Lite) => b.status !== 'cancelled'))
-        setRangeExtra({ timeOff: d.timeOff ?? [], businessHours: d.businessHours ?? [] })
-        setRangeLoading(false)
+  // Load the schedule for the current view + anchor (day / week / month range).
+  const loadSchedule = useCallback(async (silent = false) => {
+    if (!silent) setSchedLoading(true)
+    let url: string
+    if (schedView === 'day') {
+      url = `/api/staff/assistant/diary?date=${anchor}`
+    } else {
+      const { from, to } = schedView === 'week'
+        ? { from: weekStart(anchor), to: addDays(weekStart(anchor), 6) }
+        : monthBounds(anchor)
+      url = `/api/staff/assistant/diary?from=${from}&to=${to}`
+    }
+    try {
+      const r = await fetch(url)
+      const d = r.ok ? await r.json() : { bookings: [], timeOff: [], businessHours: [] }
+      setSchedData({
+        bookings: (d.bookings ?? []).filter((b: Lite) => b.status !== 'cancelled'),
+        timeOff: d.timeOff ?? [],
+        businessHours: d.businessHours ?? [],
       })
-      .catch(() => setRangeLoading(false))
-  }, [view])
+    } catch { /* keep last good data on a transient error */ }
+    if (!silent) setSchedLoading(false)
+  }, [schedView, anchor])
+
+  useEffect(() => { void loadSchedule() }, [loadSchedule])
+
+  // Silent auto-refresh every 45 seconds — keeps the desk and schedule current.
+  useEffect(() => {
+    const id = setInterval(() => { void load(true); void loadSchedule(true) }, 45_000)
+    return () => clearInterval(id)
+  }, [load, loadSchedule])
+
+  // Seize a gap: open the booking form pre-filled to that slot and scroll to it.
+  const bookSlot = useCallback((date: string, startMin: number) => {
+    setPrefill({ date, time: minToTime(startMin) })
+    requestAnimationFrame(() => bookingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }))
+  }, [])
 
   async function signOut() {
     await fetch('/api/staff/logout', { method: 'POST' })
@@ -286,87 +332,57 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
               </div>
             )}
 
-            {/* Take a booking at the desk */}
-            <NewBookingPanel onDone={() => void load(true)} />
-
-            {/* Now / Next — only when relevant */}
+            {/* Now / Next — what's in the chair right now */}
             {(currentAppt || nextAppt) && (
               <NowNextCard current={currentAppt} next={nextAppt} nowMin={nowMin} />
             )}
 
-            {/* Reminders */}
-            <div className={`flex items-center gap-3 rounded-sm border px-4 py-3 mb-8 ${s!.remindersPending > 0 ? 'border-gold/40 bg-gold/5' : 'border-sage/30 bg-sage/5'}`}>
-              <BellRing size={16} strokeWidth={1.75} className={s!.remindersPending > 0 ? 'text-gold-deep' : 'text-sage'} />
-              <div className="text-sm text-charcoal">
-                {s!.remindersSoon === 0
-                  ? 'No appointments in the next 24 hours.'
-                  : `${s!.remindersSoon} appointment${s!.remindersSoon === 1 ? '' : 's'} in the next 24 hours. ${s!.remindersPending} reminder${s!.remindersPending === 1 ? '' : 's'} still to send.`}
-              </div>
+            {/* Booking form — opens pre-filled the moment a gap is tapped */}
+            <div ref={bookingRef} className="scroll-mt-6">
+              {prefill ? (
+                <NewBookingPanel
+                  key={`${prefill.date}T${prefill.time}`}
+                  initialDate={prefill.date}
+                  initialTime={prefill.time}
+                  onClose={() => setPrefill(null)}
+                  onDone={() => { setPrefill(null); void load(true); void loadSchedule(true) }}
+                />
+              ) : (
+                <button onClick={() => bookSlot(todayStr(), 600)} className="btn btn-primary mb-8" style={{ minHeight: 40 }}>
+                  <span className="inline-flex items-center gap-2"><CalendarPlus size={15} strokeWidth={1.75} /> New booking</span>
+                </button>
+              )}
             </div>
 
-            {/* Schedule */}
-            <Section title={view === 'day' ? 'Today' : view === 'week' ? 'This week' : 'This month'} icon={CalendarDays} href="/staff/assistant/diary" cta="Open diary">
-              <div className="flex mb-3">
+            {/* Schedule — find a gap and book straight in */}
+            <Section title="Book someone in" icon={CalendarDays} href="/staff/assistant/diary" cta="Open diary">
+              <p className="text-sm text-ink-soft -mt-1 mb-3 leading-snug">Find a free gap and tap it to book the client in — day, week or month.</p>
+              <div className="flex items-center justify-between gap-3 mb-3">
                 <div className="inline-flex rounded-full border border-line/50 bg-cream-soft p-0.5">
                   {(['day', 'week', 'month'] as const).map((v) => (
-                    <button key={v} onClick={() => setView(v)} className={`text-sm rounded-full px-4 py-1.5 capitalize transition-colors ${view === v ? 'bg-gold text-charcoal' : 'text-ink-soft'}`}>{v}</button>
+                    <button key={v} onClick={() => setSchedView(v)} className={`text-sm rounded-full px-4 py-1.5 capitalize transition-colors ${schedView === v ? 'bg-gold text-charcoal' : 'text-ink-soft'}`}>{v}</button>
                   ))}
                 </div>
+                <button onClick={() => setAnchor(todayStr())} className="text-xs text-gold-deep hover:underline">Today</button>
               </div>
-              {view === 'day' ? (
-                (() => {
-                  // Use dayDiary.bookings so we have ends_at and client_phone
-                  const todayBookings = (dayDiary?.bookings ?? []).filter((b) => b.status !== 'cancelled')
-                  type TItem = { kind: 'booking'; b: Lite } | { kind: 'gap'; start: number; end: number }
-                  const items: TItem[] = [
-                    ...todayBookings.map((b) => ({ kind: 'booking' as const, b })),
-                    ...dayGaps.map((g) => ({ kind: 'gap' as const, ...g })),
-                  ].sort((a, b) => {
-                    const ta = a.kind === 'booking' ? toLocalMin(a.b.starts_at) : a.start
-                    const tb = b.kind === 'booking' ? toLocalMin(b.b.starts_at) : b.start
-                    return ta - tb
-                  })
-                  if (items.length === 0) return <Empty>Nothing booked today.</Empty>
-                  return (
-                    <div className="space-y-2">
-                      {items.map((item, i) =>
-                        item.kind === 'booking' ? (
-                          <BookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={consentMissing} />
-                        ) : (
-                          <GapRow key={`gap-${i}`} startMin={item.start} endMin={item.end} />
-                        )
-                      )}
-                    </div>
-                  )
-                })()
-              ) : rangeLoading ? (
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <button onClick={() => setAnchor(schedView === 'month' ? addMonths(anchor, -1) : addDays(anchor, schedView === 'week' ? -7 : -1))} className="w-9 h-9 inline-flex items-center justify-center rounded-sm border border-line/50 bg-cream-soft hover:border-gold/60"><ChevronLeft size={17} /></button>
+                <div className="font-display italic text-lg text-charcoal text-center">{schedView === 'month' ? monthHeading(anchor) : schedView === 'week' ? weekHeading(anchor) : dayHeadingFull(anchor)}</div>
+                <button onClick={() => setAnchor(schedView === 'month' ? addMonths(anchor, 1) : addDays(anchor, schedView === 'week' ? 7 : 1))} className="w-9 h-9 inline-flex items-center justify-center rounded-sm border border-line/50 bg-cream-soft hover:border-gold/60"><ChevronRight size={17} /></button>
+              </div>
+
+              {schedLoading ? (
                 <p className="text-sm text-ink-soft">Loading…</p>
-              ) : range.length === 0 ? (
-                <Empty>Nothing booked.</Empty>
-              ) : (
+              ) : schedView === 'month' ? (
+                <ReceptionMonthGrid anchor={anchor} data={schedData} onPick={(day) => { setAnchor(day); setSchedView('day') }} />
+              ) : schedView === 'week' ? (
                 <div className="space-y-4">
-                  {[...new Set(range.map((b) => localDate(b.starts_at)))].sort().map((day) => {
-                    const dayB = range.filter((b) => localDate(b.starts_at) === day).sort((a, b) => a.starts_at.localeCompare(b.starts_at))
-                    const free = rangeExtra ? freeMinsForDay(day, range, rangeExtra.timeOff, rangeExtra.businessHours) : 0
-                    const freeStr = freeLabel(free)
-                    return (
-                      <div key={day}>
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className={`text-sm font-medium ${day === todayStr() ? 'text-gold-deep' : 'text-charcoal'}`}>{dayLabelShort(day)}{day === todayStr() ? ' · today' : ''}</span>
-                          <div className="flex items-center gap-2">
-                            {freeStr && <span className="text-xs text-stone/70 border border-dashed border-line/50 rounded-full px-2 py-0.5">{freeStr}</span>}
-                            <span className="text-xs text-stone">{dayB.length} in</span>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          {dayB.map((b) => (
-                            <Row key={b.id} left={<span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>} sub={b.service_name} right={<span className="inline-flex items-center gap-1.5"><ConsentFlag name={b.client_name} missing={consentMissing} /><ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} /><span className={`capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span></span>} phone={b.client_phone} />
-                          ))}
-                        </div>
-                      </div>
-                    )
-                  })}
+                  {weekDays(anchor).map((day) => (
+                    <DaySchedule key={day} day={day} data={schedData} nowMin={nowMin} missing={consentMissing} onBook={bookSlot} heading />
+                  ))}
                 </div>
+              ) : (
+                <DaySchedule day={anchor} data={schedData} nowMin={nowMin} missing={consentMissing} onBook={bookSlot} />
               )}
             </Section>
 
@@ -426,25 +442,26 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
 
 // ---- Take a booking at the desk --------------------------------------------
 type ServiceLite = { slug: string; name: string; duration_min: number }
+type SchedData = { bookings: Lite[]; timeOff: TimeOffRow[]; businessHours: BusinessHour[] }
 
-function NewBookingPanel({ onDone }: { onDone: () => void }) {
-  const [open, setOpen] = useState(false)
+// Controlled by the parent: it mounts this with the slot's date + time already
+// filled (from a tapped gap) and unmounts it on close/done.
+function NewBookingPanel({ initialDate, initialTime, onClose, onDone }: { initialDate: string; initialTime: string; onClose: () => void; onDone: () => void }) {
   const [services, setServices] = useState<ServiceLite[]>([])
   const [slug, setSlug] = useState('')
-  const [date, setDate] = useState(todayStr())
-  const [time, setTime] = useState('10:00')
+  const [date, setDate] = useState(initialDate)
+  const [time, setTime] = useState(initialTime)
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!open || services.length) return
     fetch('/api/book/services')
       .then((r) => (r.ok ? r.json() : { services: [] }))
       .then((d) => setServices(d.services ?? []))
       .catch(() => {})
-  }, [open, services.length])
+  }, [])
 
   async function save() {
     if (!slug || !name.trim()) { setErr('Pick a treatment and enter a name.'); return }
@@ -456,7 +473,6 @@ function NewBookingPanel({ onDone }: { onDone: () => void }) {
     })
     if (res.ok) {
       notifyDone('Added to the diary')
-      setName(''); setPhone(''); setSlug(''); setOpen(false)
       onDone()
     } else {
       const d = await res.json().catch(() => ({}))
@@ -464,19 +480,11 @@ function NewBookingPanel({ onDone }: { onDone: () => void }) {
     }
   }
 
-  if (!open) {
-    return (
-      <button onClick={() => setOpen(true)} className="btn btn-primary mb-8" style={{ minHeight: 40 }}>
-        <span className="inline-flex items-center gap-2"><CalendarPlus size={15} strokeWidth={1.75} /> New booking</span>
-      </button>
-    )
-  }
-
   return (
-    <div className="border border-gold/40 bg-gold/5 rounded-sm p-4 mb-8 space-y-2.5">
+    <div className="border border-gold/45 bg-gold/5 rounded-sm p-4 mb-8 space-y-2.5">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-eyebrow text-gold-deep inline-flex items-center gap-2"><CalendarPlus size={14} strokeWidth={1.75} /> New booking</span>
-        <button onClick={() => setOpen(false)} className="text-stone hover:text-clay" title="Close"><X size={16} strokeWidth={1.75} /></button>
+        <span className="text-eyebrow text-gold-deep inline-flex items-center gap-2"><CalendarPlus size={14} strokeWidth={1.75} /> Booking into {dayLabelShort(date)} · {timeLabel(`${date}T${time}:00`)}</span>
+        <button onClick={onClose} className="text-stone hover:text-clay" title="Close"><X size={16} strokeWidth={1.75} /></button>
       </div>
       <select value={slug} onChange={(e) => setSlug(e.target.value)} className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 text-sm">
         <option value="">Choose a treatment…</option>
@@ -490,6 +498,84 @@ function NewBookingPanel({ onDone }: { onDone: () => void }) {
       <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Mobile (optional)" className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
       {err && <p className="text-xs text-clay">{err}</p>}
       <button onClick={save} disabled={busy} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 38 }}>{busy ? 'Saving…' : 'Add to diary'}</button>
+    </div>
+  )
+}
+
+// ---- One day's bookings + tappable gaps ------------------------------------
+function DaySchedule({ day, data, nowMin, missing, onBook, heading = false }: { day: string; data: SchedData; nowMin: number; missing: Set<string> | null; onBook: (date: string, startMin: number) => void; heading?: boolean }) {
+  const dayB = data.bookings.filter((b) => localDate(b.starts_at) === day).sort((a, b) => a.starts_at.localeCompare(b.starts_at))
+  const gaps = gapsForDay(day, data.bookings, data.timeOff, data.businessHours)
+  const free = freeMinsForDay(day, data.bookings, data.timeOff, data.businessHours)
+  const wday = new Date(`${day}T12:00:00Z`).getUTCDay()
+  const isOpen = data.businessHours.find((h) => h.weekday === wday)?.is_open ?? false
+  type TItem = { kind: 'booking'; b: Lite } | { kind: 'gap'; start: number; end: number }
+  const items: TItem[] = [
+    ...dayB.map((b) => ({ kind: 'booking' as const, b })),
+    ...gaps.map((g) => ({ kind: 'gap' as const, start: g.start, end: g.end })),
+  ].sort((a, b) => (a.kind === 'booking' ? toLocalMin(a.b.starts_at) : a.start) - (b.kind === 'booking' ? toLocalMin(b.b.starts_at) : b.start))
+
+  const body = items.length === 0
+    ? <Empty>{isOpen ? 'No open hours set for this day.' : 'Clinic closed.'}</Empty>
+    : (
+      <div className="space-y-2">
+        {items.map((item, i) => item.kind === 'booking'
+          ? <BookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={missing} />
+          : <GapRow key={`gap-${i}`} date={day} startMin={item.start} endMin={item.end} onBook={onBook} />
+        )}
+      </div>
+    )
+
+  if (!heading) return body
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1.5">
+        <span className={`text-sm font-medium ${day === todayStr() ? 'text-gold-deep' : 'text-charcoal'}`}>{dayLabelShort(day)}{day === todayStr() ? ' · today' : ''}</span>
+        <div className="flex items-center gap-2">
+          {free > 0 && <span className="text-xs text-sage border border-sage/30 rounded-full px-2 py-0.5">{freeShort(free)} free</span>}
+          <span className="text-xs text-stone">{dayB.length} in</span>
+        </div>
+      </div>
+      {body}
+    </div>
+  )
+}
+
+// ---- Month grid: tap a day to open it -------------------------------------
+function ReceptionMonthGrid({ anchor, data, onPick }: { anchor: string; data: SchedData; onPick: (day: string) => void }) {
+  const cells = monthGridDays(anchor)
+  const today = todayStr()
+  return (
+    <div>
+      <div className="grid grid-cols-7 gap-1 sm:gap-1.5 mb-1.5">
+        {WEEKDAY_LABELS.map((d) => <div key={d} className="text-center text-[10px] uppercase tracking-wide text-stone/60 py-1">{d}</div>)}
+      </div>
+      <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
+        {cells.map((day, i) => {
+          if (!day) return <div key={`blank-${i}`} />
+          const wday = new Date(`${day}T12:00:00Z`).getUTCDay()
+          const isOpen = data.businessHours.find((h) => h.weekday === wday)?.is_open ?? false
+          const count = data.bookings.filter((b) => localDate(b.starts_at) === day).length
+          const free = freeMinsForDay(day, data.bookings, data.timeOff, data.businessHours)
+          const isToday = day === today
+          const dayNum = Number(day.slice(8, 10))
+          let tone = 'border-sage/30 bg-sage/[0.05]'
+          if (!isOpen) tone = 'border-line/30 bg-cream-soft opacity-45'
+          else if (count > 0 && free <= 0) tone = 'border-gold/45 bg-gold/15'
+          else if (count > 0) tone = 'border-gold/30 bg-gold/[0.07]'
+          return (
+            <button key={day} onClick={() => onPick(day)} className={`relative rounded-sm border ${tone} ${isToday ? 'ring-2 ring-gold ring-offset-1 ring-offset-cream' : ''} aspect-square p-1.5 flex flex-col text-left transition-colors hover:border-gold/60`}>
+              <span className={`text-xs font-medium ${isToday ? 'text-gold-deep' : 'text-charcoal'}`}>{dayNum}</span>
+              <span className="mt-auto leading-tight w-full">
+                {count > 0 && <span className="block text-[10px] text-charcoal">{count} in</span>}
+                {isOpen && free > 0 && <span className="block text-[9px] text-sage">{freeShort(free)} free</span>}
+                {!isOpen && <span className="block text-[9px] text-stone/50">Closed</span>}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+      <p className="text-xs text-ink-soft mt-3 leading-snug">Tap a day to open it, then tap a gap to book. <span className="text-sage">Green</span> = space free · <span className="text-gold-deep">gold</span> = booked.</p>
     </div>
   )
 }
@@ -842,17 +928,18 @@ function gapClock(min: number): string {
   return m === 0 ? `${h12}${suffix}` : `${h12}:${String(m).padStart(2, '0')}${suffix}`
 }
 
-function GapRow({ startMin, endMin }: { startMin: number; endMin: number }) {
+function GapRow({ date, startMin, endMin, onBook }: { date: string; startMin: number; endMin: number; onBook: (date: string, startMin: number) => void }) {
   const duration = endMin - startMin
   const hrs = Math.floor(duration / 60)
   const mins = duration % 60
   const label = [hrs > 0 ? `${hrs}h` : null, mins > 0 ? `${mins}m` : null].filter(Boolean).join(' ')
   return (
-    <div className="flex items-center justify-between gap-3 border border-dashed border-line/40 rounded-sm px-4 py-2.5 opacity-60">
+    <button onClick={() => onBook(date, startMin)} className="w-full text-left flex items-center justify-between gap-3 border border-dashed border-gold/50 bg-gold/[0.05] rounded-sm px-4 py-2.5 hover:border-gold hover:bg-gold/10 active:bg-gold/15 transition-colors">
       <div className="min-w-0">
-        <div className="text-sm text-stone truncate"><span className="font-medium">{gapClock(startMin)}</span> &nbsp; Free</div>
-        <div className="text-xs text-stone/70 mt-0.5">Until {gapClock(endMin)} · {label}</div>
+        <div className="text-sm text-charcoal truncate"><span className="font-medium">{gapClock(startMin)}</span> &nbsp; Free until {gapClock(endMin)} · {label}</div>
+        <div className="text-xs text-gold-deep mt-0.5 inline-flex items-center gap-1"><CalendarPlus size={11} strokeWidth={2} /> Tap to book someone in</div>
       </div>
-    </div>
+      <span className="shrink-0 text-xs text-gold-deep font-medium border border-gold/40 rounded-full px-2.5 py-1">Book</span>
+    </button>
   )
 }
