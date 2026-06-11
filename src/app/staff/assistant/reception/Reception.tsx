@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { BellRing, CalendarDays, Check, Clock, ListPlus, LogOut, Mic, Phone, Sparkles, X } from 'lucide-react'
+import { BellRing, CalendarDays, CalendarPlus, Check, Clock, ListPlus, LogOut, Mic, Phone, Sparkles, X } from 'lucide-react'
 import { notifyDone } from '@/lib/staff-toast'
 
 type Lite = { id: string; service_name: string; client_name: string; client_phone: string | null; starts_at: string; ends_at?: string; status: string; source: string; created_at: string; confirmed_at: string | null }
@@ -95,6 +95,10 @@ function addDays(ds: string, n: number): string {
   const d = new Date(`${ds}T12:00:00Z`)
   d.setUTCDate(d.getUTCDate() + n)
   return d.toISOString().slice(0, 10)
+}
+function timeToMinutes(t: string): number {
+  const [h, m] = t.split(':').map(Number)
+  return h * 60 + m
 }
 function weekStart(ds: string): string {
   const d = new Date(`${ds}T12:00:00Z`)
@@ -282,6 +286,9 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
               </div>
             )}
 
+            {/* Take a booking at the desk */}
+            <NewBookingPanel onDone={() => void load(true)} />
+
             {/* Now / Next — only when relevant */}
             {(currentAppt || nextAppt) && (
               <NowNextCard current={currentAppt} next={nextAppt} nowMin={nowMin} />
@@ -414,6 +421,76 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
         )}
       </div>
     </section>
+  )
+}
+
+// ---- Take a booking at the desk --------------------------------------------
+type ServiceLite = { slug: string; name: string; duration_min: number }
+
+function NewBookingPanel({ onDone }: { onDone: () => void }) {
+  const [open, setOpen] = useState(false)
+  const [services, setServices] = useState<ServiceLite[]>([])
+  const [slug, setSlug] = useState('')
+  const [date, setDate] = useState(todayStr())
+  const [time, setTime] = useState('10:00')
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!open || services.length) return
+    fetch('/api/book/services')
+      .then((r) => (r.ok ? r.json() : { services: [] }))
+      .then((d) => setServices(d.services ?? []))
+      .catch(() => {})
+  }, [open, services.length])
+
+  async function save() {
+    if (!slug || !name.trim()) { setErr('Pick a treatment and enter a name.'); return }
+    setBusy(true); setErr(null)
+    const res = await fetch('/api/staff/assistant/diary', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kind: 'booking', service: slug, date, startMinutes: timeToMinutes(time), name, phone }),
+    })
+    if (res.ok) {
+      notifyDone('Added to the diary')
+      setName(''); setPhone(''); setSlug(''); setOpen(false)
+      onDone()
+    } else {
+      const d = await res.json().catch(() => ({}))
+      setErr(d.error || 'Could not save.'); setBusy(false)
+    }
+  }
+
+  if (!open) {
+    return (
+      <button onClick={() => setOpen(true)} className="btn btn-primary mb-8" style={{ minHeight: 40 }}>
+        <span className="inline-flex items-center gap-2"><CalendarPlus size={15} strokeWidth={1.75} /> New booking</span>
+      </button>
+    )
+  }
+
+  return (
+    <div className="border border-gold/40 bg-gold/5 rounded-sm p-4 mb-8 space-y-2.5">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-eyebrow text-gold-deep inline-flex items-center gap-2"><CalendarPlus size={14} strokeWidth={1.75} /> New booking</span>
+        <button onClick={() => setOpen(false)} className="text-stone hover:text-clay" title="Close"><X size={16} strokeWidth={1.75} /></button>
+      </div>
+      <select value={slug} onChange={(e) => setSlug(e.target.value)} className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 text-sm">
+        <option value="">Choose a treatment…</option>
+        {services.map((s) => <option key={s.slug} value={s.slug}>{s.name} ({s.duration_min} min)</option>)}
+      </select>
+      <div className="flex gap-2">
+        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
+        <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
+      </div>
+      <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Client name" className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
+      <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Mobile (optional)" className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
+      {err && <p className="text-xs text-clay">{err}</p>}
+      <button onClick={save} disabled={busy} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 38 }}>{busy ? 'Saving…' : 'Add to diary'}</button>
+    </div>
   )
 }
 
