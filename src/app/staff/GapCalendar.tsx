@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { CalendarDays, CalendarPlus, Check, ChevronLeft, ChevronRight, Clock, Phone, Sparkles, X } from 'lucide-react'
 import { notifyDone } from '@/lib/staff-toast'
+import { recordUndo, UNDO_DONE_EVENT } from '@/lib/staff-undo'
 
 // A self-contained "see the gaps, tap one, book someone in" calendar for the
 // landing page. Mirrors the front-desk schedule so the desk can rebook a client
@@ -205,20 +206,31 @@ export default function GapCalendar() {
 
   // X off a booking — someone has cancelled (usually verbally). Drop it from the
   // schedule straight away so the slot reopens as a free gap, then tell the
-  // server, which texts anyone on the waitlist for that treatment.
-  const cancelBooking = useCallback(async (id: string) => {
-    setSchedData((prev) => ({ ...prev, bookings: prev.bookings.filter((b) => b.id !== id) }))
+  // server, which texts anyone on the waitlist for that treatment. The original
+  // status is stashed so the top-nav Undo can put the booking straight back.
+  const cancelBooking = useCallback(async (booking: Lite) => {
+    setSchedData((prev) => ({ ...prev, bookings: prev.bookings.filter((b) => b.id !== booking.id) }))
     try {
-      await fetch(`/api/staff/assistant/diary/${id}`, {
+      const res = await fetch(`/api/staff/assistant/diary/${booking.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'cancelled' }),
       })
-      notifyDone('Booking cancelled — slot released')
+      if (res.ok) {
+        notifyDone('Booking cancelled — slot released')
+        recordUndo({ kind: 'restore-booking', bookingId: booking.id, status: booking.status, label: `Restore ${booking.client_name}'s booking` })
+      }
     } catch {
       /* server unreachable — pull a fresh copy so the row reappears */
     }
     void loadSchedule(true)
+  }, [loadSchedule])
+
+  // When the top-nav Undo restores a booking, pull the schedule back in.
+  useEffect(() => {
+    const onUndo = () => void loadSchedule(true)
+    window.addEventListener(UNDO_DONE_EVENT, onUndo)
+    return () => window.removeEventListener(UNDO_DONE_EVENT, onUndo)
   }, [loadSchedule])
 
   return (
@@ -305,7 +317,7 @@ export default function GapCalendar() {
       {pendingCancel && (
         <CancelConfirmModal
           booking={pendingCancel}
-          onConfirm={() => { void cancelBooking(pendingCancel.id); setPendingCancel(null) }}
+          onConfirm={() => { void cancelBooking(pendingCancel); setPendingCancel(null) }}
           onClose={() => setPendingCancel(null)}
         />
       )}
