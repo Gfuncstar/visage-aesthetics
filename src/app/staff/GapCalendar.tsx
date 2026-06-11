@@ -202,6 +202,24 @@ export default function GapCalendar() {
     requestAnimationFrame(() => bookingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }))
   }, [])
 
+  // X off a booking — someone has cancelled (usually verbally). Drop it from the
+  // schedule straight away so the slot reopens as a free gap, then tell the
+  // server, which texts anyone on the waitlist for that treatment.
+  const cancelBooking = useCallback(async (id: string) => {
+    setSchedData((prev) => ({ ...prev, bookings: prev.bookings.filter((b) => b.id !== id) }))
+    try {
+      await fetch(`/api/staff/assistant/diary/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'cancelled' }),
+      })
+      notifyDone('Booking cancelled — slot released')
+    } catch {
+      /* server unreachable — pull a fresh copy so the row reappears */
+    }
+    void loadSchedule(true)
+  }, [loadSchedule])
+
   return (
     <div>
       {justBooked.length > 0 && (
@@ -276,18 +294,18 @@ export default function GapCalendar() {
       ) : schedView === 'week' ? (
         <div className="space-y-4">
           {weekDays(anchor).map((day) => (
-            <DaySchedule key={day} day={day} data={schedData} nowMin={nowMin} missing={consentMissing} justIds={justIds} onBook={bookSlot} heading />
+            <DaySchedule key={day} day={day} data={schedData} nowMin={nowMin} missing={consentMissing} justIds={justIds} onBook={bookSlot} onCancel={cancelBooking} heading />
           ))}
         </div>
       ) : (
-        <DaySchedule day={anchor} data={schedData} nowMin={nowMin} missing={consentMissing} justIds={justIds} onBook={bookSlot} />
+        <DaySchedule day={anchor} data={schedData} nowMin={nowMin} missing={consentMissing} justIds={justIds} onBook={bookSlot} onCancel={cancelBooking} />
       )}
     </div>
   )
 }
 
 // ---- One day's bookings + tappable gaps ------------------------------------
-function DaySchedule({ day, data, nowMin, missing, justIds, onBook, heading = false }: { day: string; data: SchedData; nowMin: number; missing: Set<string> | null; justIds: Set<string>; onBook: (date: string, startMin: number) => void; heading?: boolean }) {
+function DaySchedule({ day, data, nowMin, missing, justIds, onBook, onCancel, heading = false }: { day: string; data: SchedData; nowMin: number; missing: Set<string> | null; justIds: Set<string>; onBook: (date: string, startMin: number) => void; onCancel: (id: string) => void; heading?: boolean }) {
   const dayB = data.bookings.filter((b) => localDate(b.starts_at) === day).sort((a, b) => a.starts_at.localeCompare(b.starts_at))
   const gaps = gapsForDay(day, data.bookings, data.timeOff, data.businessHours)
   const free = freeMinsForDay(day, data.bookings, data.timeOff, data.businessHours)
@@ -305,7 +323,7 @@ function DaySchedule({ day, data, nowMin, missing, justIds, onBook, heading = fa
     : (
       <div className="space-y-2">
         {items.map((item, i) => item.kind === 'booking'
-          ? <BookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={missing} justBooked={justIds.has(item.b.id)} />
+          ? <BookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={missing} justBooked={justIds.has(item.b.id)} onCancel={onCancel} />
           : <GapRow key={`gap-${i}`} date={day} startMin={item.start} endMin={item.end} onBook={onBook} />
         )}
       </div>
@@ -565,31 +583,45 @@ function GapRow({ date, startMin, endMin, onBook }: { date: string; startMin: nu
   )
 }
 
-function BookingRow({ booking: b, nowMin, missing, justBooked = false }: { booking: Lite; nowMin: number; missing: Set<string> | null; justBooked?: boolean }) {
+function BookingRow({ booking: b, nowMin, missing, justBooked = false, onCancel }: { booking: Lite; nowMin: number; missing: Set<string> | null; justBooked?: boolean; onCancel: (id: string) => void }) {
   const start = toLocalMin(b.starts_at)
   const end = b.ends_at ? toLocalMin(b.ends_at) : start + 60
   const isCurrent = nowMin >= start && nowMin < end
+  const [confirming, setConfirming] = useState(false)
   return (
-    <div className={`flex items-center justify-between gap-3 border rounded-sm px-4 py-3 transition-colors ${isCurrent ? 'border-sage/40 bg-sage/5' : justBooked ? 'border-gold/55 bg-gold/[0.10]' : 'border-line/40 bg-cream-soft'}`}>
+    <div className={`flex items-center justify-between gap-3 border-2 rounded-sm px-4 py-3 transition-colors ${isCurrent ? 'border-sage/60 bg-sage/5' : justBooked ? 'border-gold/70 bg-gold/[0.10]' : 'border-stone/40 bg-cream-soft'}`}>
       <div className="min-w-0 flex-1">
         <div className="text-sm text-charcoal truncate flex items-center gap-2">
           {isCurrent && <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage shrink-0" />}
           <span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>
           {justBooked && <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-semibold text-gold-deep bg-gold/15 border border-gold/40 rounded-full px-1.5 py-0.5"><Sparkles size={9} strokeWidth={2} /> Just booked</span>}
         </div>
-        <div className="text-xs text-stone truncate mt-0.5">{b.service_name}</div>
-      </div>
-      <div className="shrink-0 flex items-center gap-3">
-        {b.client_phone && (
-          <a href={`tel:${b.client_phone}`} className="text-stone hover:text-gold-deep transition-colors" title={`Call ${b.client_name}`}>
-            <Phone size={14} strokeWidth={1.75} />
-          </a>
-        )}
-        <span className="inline-flex items-center gap-1.5">
+        <div className="mt-1 flex items-center gap-1.5">
           <ConsentFlag name={b.client_name} missing={missing} />
           <ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} />
-          <span className={`text-sm capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>
-        </span>
+          <span className={`text-xs capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>
+        </div>
+      </div>
+      <div className="shrink-0 flex items-center gap-3">
+        {confirming ? (
+          <span className="inline-flex items-center gap-2">
+            <span className="text-xs text-stone whitespace-nowrap">Cancel &amp; release?</span>
+            <button onClick={() => { setConfirming(false); onCancel(b.id) }} className="text-xs font-semibold rounded-full border border-clay/50 px-2.5 py-1 text-clay hover:bg-clay/10 transition-colors">Yes, cancel</button>
+            <button onClick={() => setConfirming(false)} className="text-xs rounded-full border border-line/50 px-2.5 py-1 text-stone hover:border-gold/60 transition-colors">Keep</button>
+          </span>
+        ) : (
+          <>
+            <span className="text-sm text-stone truncate max-w-[8rem] text-right">{b.service_name}</span>
+            {b.client_phone && (
+              <a href={`tel:${b.client_phone}`} className="text-stone hover:text-gold-deep transition-colors" title={`Call ${b.client_name}`}>
+                <Phone size={14} strokeWidth={1.75} />
+              </a>
+            )}
+            <button onClick={() => setConfirming(true)} className="text-stone/70 hover:text-clay transition-colors" title={`Cancel ${b.client_name}'s booking and release the slot`} aria-label="Cancel booking">
+              <X size={16} strokeWidth={2} />
+            </button>
+          </>
+        )}
       </div>
     </div>
   )
