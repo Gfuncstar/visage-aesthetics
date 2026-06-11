@@ -59,8 +59,11 @@ export async function GET(req: Request) {
     if (result.channel === 'sms') sms++
     if (result.channel === 'email') email++
 
-    // Mark reminded regardless, so we never double-send.
-    await update('bookings', { id: b.id }, { reminded_at: now.toISOString() })
+    // Only mark reminded if a message was actually sent — don't silently
+    // swallow the slot for bookings with no contact on file.
+    if (result.channel) {
+      await update('bookings', { id: b.id }, { reminded_at: now.toISOString() })
+    }
   }
 
   return NextResponse.json({ ok: true, dueCount: due.length, sms, email })
