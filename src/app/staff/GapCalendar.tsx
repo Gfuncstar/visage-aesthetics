@@ -589,14 +589,18 @@ function BookingRow({ booking: b, nowMin, missing, justBooked = false, onCancel 
   const isCurrent = nowMin >= start && nowMin < end
   const [confirming, setConfirming] = useState(false)
   return (
-    <div className={`flex items-center justify-between gap-3 border rounded-sm px-4 py-3 transition-colors ${isCurrent ? 'border-sage/40 bg-sage/5' : justBooked ? 'border-gold/55 bg-gold/[0.10]' : 'border-line/40 bg-cream-soft'}`}>
+    <div className={`flex items-center justify-between gap-3 border-2 rounded-sm px-4 py-3 transition-colors ${isCurrent ? 'border-sage/60 bg-sage/5' : justBooked ? 'border-gold/70 bg-gold/[0.10]' : 'border-stone/40 bg-cream-soft'}`}>
       <div className="min-w-0 flex-1">
         <div className="text-sm text-charcoal truncate flex items-center gap-2">
           {isCurrent && <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage shrink-0" />}
           <span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>
           {justBooked && <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-semibold text-gold-deep bg-gold/15 border border-gold/40 rounded-full px-1.5 py-0.5"><Sparkles size={9} strokeWidth={2} /> Just booked</span>}
         </div>
-        <div className="text-xs text-stone truncate mt-0.5">{b.service_name}</div>
+        <div className="mt-1 flex items-center gap-1.5">
+          <ConsentFlag name={b.client_name} missing={missing} />
+          <ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} />
+          <span className={`text-xs capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>
+        </div>
       </div>
       <div className="shrink-0 flex items-center gap-3">
         {confirming ? (
@@ -607,16 +611,12 @@ function BookingRow({ booking: b, nowMin, missing, justBooked = false, onCancel 
           </span>
         ) : (
           <>
+            <span className="text-sm text-stone truncate max-w-[8rem] text-right">{b.service_name}</span>
             {b.client_phone && (
               <a href={`tel:${b.client_phone}`} className="text-stone hover:text-gold-deep transition-colors" title={`Call ${b.client_name}`}>
                 <Phone size={14} strokeWidth={1.75} />
               </a>
             )}
-            <span className="inline-flex items-center gap-1.5">
-              <ConsentFlag name={b.client_name} missing={missing} />
-              <ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} />
-              <span className={`text-sm capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>
-            </span>
             <button onClick={() => setConfirming(true)} className="text-stone/70 hover:text-clay transition-colors" title={`Cancel ${b.client_name}'s booking and release the slot`} aria-label="Cancel booking">
               <X size={16} strokeWidth={2} />
             </button>
