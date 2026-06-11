@@ -1,10 +1,19 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AlertTriangle, ArrowLeft, BellOff, Ban, Camera, Check, ChevronRight, CreditCard, ImagePlus, LogOut, Search, Trash2, X } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Bell, BellOff, Ban, Camera, Check, ChevronRight, CreditCard, FileCheck2, ImagePlus, LogOut, Search, Trash2, X } from 'lucide-react'
 import MicButton, { appendText } from '@/components/ui/MicButton'
 import { gbp, ukDate } from '@/lib/assistant/format'
 import { notifyDone } from '@/lib/staff-toast'
+
+// Date + time for "when a message was sent" — the date alone loses the detail
+// of a reminder that fires the day before, so include the time.
+function whenLabel(value: string | null): string {
+  if (!value) return ''
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return ''
+  return `${ukDate(d)}, ${new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/London' }).format(d)}`
+}
 
 const inputClass =
   'w-full bg-cream border border-line/40 rounded-sm px-4 py-3 text-base text-charcoal placeholder:text-ink-soft/60 focus:outline-none focus:border-gold min-h-[48px]'
@@ -25,6 +34,8 @@ type ConsentFormRecord = {
 }
 type Voucher = { id: string; code: string | null; status: string; amount_pence: number; balance_pence: number; created_at: string; expires_at: string | null; buyer_name: string | null }
 type Summary = { name: string; visits: number; totalSpend: number; firstVisit: string | null; lastVisit: string | null; treatments: { service: string; count: number }[] }
+type Reminders = { count: number; lastAt: string | null; lastChannel: string | null }
+type ConsentSends = { count: number; lastAt: string | null; lastForm: string | null; lastStatus: string | null }
 
 export default function ClientRecord() {
   const [q, setQ] = useState('')
@@ -38,6 +49,8 @@ export default function ClientRecord() {
   const [messages, setMessages] = useState<Message[]>([])
   const [consentForms, setConsentForms] = useState<ConsentFormRecord[]>([])
   const [vouchers, setVouchers] = useState<Voucher[]>([])
+  const [reminders, setReminders] = useState<Reminders | null>(null)
+  const [consentSends, setConsentSends] = useState<ConsentSends | null>(null)
   const [doNotContact, setDoNotContact] = useState(false)
   const [blocked, setBlocked] = useState(false)
   const [blockedUntil, setBlockedUntil] = useState<string | null>(null)
@@ -77,6 +90,8 @@ export default function ClientRecord() {
       setMessages(d.messages ?? [])
       setConsentForms(d.consentForms ?? [])
       setVouchers(d.vouchers ?? [])
+      setReminders(d.reminders ?? null)
+      setConsentSends(d.consentSends ?? null)
       setDoNotContact(Boolean(d.doNotContact))
       setBlocked(Boolean(d.blocked))
       setBlockedUntil(typeof d.blockedUntil === 'string' ? d.blockedUntil : null)
@@ -152,6 +167,8 @@ export default function ClientRecord() {
         messages={messages}
         consentForms={consentForms}
         vouchers={vouchers}
+        reminders={reminders}
+        consentSends={consentSends}
         loading={loading}
         doNotContact={doNotContact}
         onToggleDnc={toggleDnc}
@@ -236,9 +253,9 @@ export default function ClientRecord() {
 }
 
 function Detail({
-  name, summary, appts, records, photos, messages, consentForms, vouchers, loading, doNotContact, onToggleDnc, blocked, blockedUntil, onClearBlockUntil, requiresDeposit, onToggleFlag, onBack, onRefresh, onLightbox, lightbox, onCloseLightbox, onSignOut,
+  name, summary, appts, records, photos, messages, consentForms, vouchers, reminders, consentSends, loading, doNotContact, onToggleDnc, blocked, blockedUntil, onClearBlockUntil, requiresDeposit, onToggleFlag, onBack, onRefresh, onLightbox, lightbox, onCloseLightbox, onSignOut,
 }: {
-  name: string; summary: Summary | null; appts: Appt[]; records: TRecord[]; photos: Photo[]; messages: Message[]; consentForms: ConsentFormRecord[]; vouchers: Voucher[]; loading: boolean
+  name: string; summary: Summary | null; appts: Appt[]; records: TRecord[]; photos: Photo[]; messages: Message[]; consentForms: ConsentFormRecord[]; vouchers: Voucher[]; reminders: Reminders | null; consentSends: ConsentSends | null; loading: boolean
   doNotContact: boolean; onToggleDnc: (next: boolean) => void
   blocked: boolean; blockedUntil: string | null; onClearBlockUntil: () => void
   requiresDeposit: boolean; onToggleFlag: (flag: 'blocked' | 'requires_deposit', next: boolean) => void
@@ -328,6 +345,45 @@ function Detail({
                 {t.service} <span className="text-charcoal font-medium">×{t.count}</span>
               </span>
             ))}
+          </div>
+        )}
+
+        {/* Reminders & consent sent — whether each has gone out, when, and how many */}
+        {summary && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+            <div className={`border rounded-sm p-4 ${reminders && reminders.count > 0 ? 'border-sage/40 bg-sage/5' : 'border-line/40 bg-cream-soft'}`}>
+              <div className="text-eyebrow text-ink-soft mb-2 flex items-center gap-2">
+                <Bell size={13} strokeWidth={1.75} /> Confirmation reminder
+              </div>
+              {reminders && reminders.count > 0 ? (
+                <>
+                  <div className="text-sm text-charcoal">Sent <span className="font-medium">×{reminders.count}</span></div>
+                  <div className="text-xs text-stone mt-0.5">
+                    Last {whenLabel(reminders.lastAt)}{reminders.lastChannel ? ` · by ${reminders.lastChannel === 'sms' ? 'text' : 'email'}` : ''}
+                  </div>
+                </>
+              ) : (
+                <div className="text-sm text-stone">None sent yet</div>
+              )}
+            </div>
+            <div className={`border rounded-sm p-4 ${consentSends && consentSends.count > 0 ? 'border-sage/40 bg-sage/5' : 'border-line/40 bg-cream-soft'}`}>
+              <div className="text-eyebrow text-ink-soft mb-2 flex items-center gap-2">
+                <FileCheck2 size={13} strokeWidth={1.75} /> Consent form
+              </div>
+              {consentSends && consentSends.count > 0 ? (
+                <>
+                  <div className="text-sm text-charcoal">
+                    Sent <span className="font-medium">×{consentSends.count}</span>
+                    {consentSends.lastStatus === 'completed' ? <span className="text-sage"> · completed</span> : <span className="text-gold-deep"> · awaiting</span>}
+                  </div>
+                  <div className="text-xs text-stone mt-0.5">
+                    Last {whenLabel(consentSends.lastAt)}{consentSends.lastForm ? ` · ${consentSends.lastForm.replace(/ Consent Form$/i, '').trim()}` : ''}
+                  </div>
+                </>
+              ) : (
+                <div className="text-sm text-stone">None sent yet</div>
+              )}
+            </div>
           </div>
         )}
 

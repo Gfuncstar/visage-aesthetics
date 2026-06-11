@@ -7,6 +7,7 @@ import { insert } from './db'
 export type MessageKind =
   | 'confirmation'
   | 'reminder'
+  | 'consent'
   | 'review'
   | 'waitlist'
   | 'cancellation'

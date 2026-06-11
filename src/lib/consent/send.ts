@@ -80,7 +80,7 @@ If you have any questions, just reply to this email.`
     })
     if (error) return { ok: false, error: error.message || 'Send failed', status: 502 }
 
-    await recordMessage({ clientName, email: clientEmail, channel: 'email', kind: 'other', subject: 'Consent form', body: emailBody })
+    await recordMessage({ clientName, email: clientEmail, channel: 'email', kind: 'consent', subject: 'Consent form', body: emailBody })
     await audit('send', 'consent_request', request.id, { form: opts.form.id, email: clientEmail })
     return { ok: true, link }
   } catch (err) {
