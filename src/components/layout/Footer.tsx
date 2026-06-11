@@ -28,6 +28,7 @@ const links = [
   { label: 'Gift vouchers', href: '/gift' },
   { label: 'About', href: '/about' },
   { label: 'Awards', href: '/awards' },
+  { label: 'Press', href: '/press' },
   { label: 'Blog', href: '/blog' },
   { label: 'Aftercare', href: '/aftercare' },
   { label: 'FAQ', href: '/faq' },

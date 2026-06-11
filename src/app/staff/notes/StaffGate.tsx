@@ -5,7 +5,13 @@ import { Lock } from 'lucide-react'
 
 const STORAGE_KEY = 'visage_staff_pin'
 
-export default function StaffGate() {
+export default function StaffGate({
+  title = 'Staff login',
+  subtitle = 'Enter the staff passcode to record a treatment.',
+}: {
+  title?: string
+  subtitle?: string
+} = {}) {
   const [pin, setPin] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -57,9 +63,9 @@ export default function StaffGate() {
             <Lock size={18} strokeWidth={1.75} />
           </div>
           <div className="eyebrow text-gold mb-2">Clinic staff</div>
-          <h1 className="font-display italic text-charcoal text-3xl md:text-4xl leading-tight">Staff login</h1>
+          <h1 className="font-display italic text-charcoal text-3xl md:text-4xl leading-tight">{title}</h1>
           <p className="text-ink-soft mt-3 leading-relaxed">
-            Enter the staff passcode to record a treatment.
+            {subtitle}
           </p>
 
           <form onSubmit={signIn} className="mt-8 space-y-4" noValidate>

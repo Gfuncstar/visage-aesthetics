@@ -15,6 +15,7 @@ const PAGE_DATES: Record<string, string> = {
   '/about': '2026-04-26',
   '/awards': '2026-04-26',
   '/awards/best-non-surgical-clinic-essex-2026': '2026-05-14',
+  '/press': '2026-05-20',
   '/locations': '2026-05-14',
   '/compare': '2026-05-14',
   '/compare/botox-vs-filler': '2026-05-14',
