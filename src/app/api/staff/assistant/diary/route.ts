@@ -5,24 +5,28 @@ import { getService } from '@/lib/booking-engine/availability'
 import { londonWallToUtc, londonToday } from '@/lib/booking-engine/time'
 import { mirrorBookingAppointment } from '@/lib/booking-engine/appointments-mirror'
 import type { Booking, TimeOff, BusinessHours } from '@/lib/booking-engine/types'
+import type { Appointment } from '@/lib/assistant/types'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+const TZ = 'Europe/London'
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 
 function dayBounds(dateStr: string): { start: string; end: string } {
   return { start: `${dateStr}T00:00:00Z`, end: `${dateStr}T23:59:59Z` }
 }
 
-// One stable identity per client so a returning face isn't flagged as new:
-// email wins, then phone (digits only), then a normalised name.
-function clientKey(b: { client_email?: string | null; client_phone?: string | null; client_name?: string | null }): string {
-  const email = b.client_email?.trim().toLowerCase()
-  if (email) return `e:${email}`
-  const phone = b.client_phone?.replace(/\D/g, '')
-  if (phone) return `p:${phone}`
-  return `n:${(b.client_name ?? '').trim().toLowerCase()}`
+// Names are how the whole app ties a client together (the client record matches
+// appointments by name), so normalise the same way for the first-timer check.
+function normName(name: string | null | undefined): string {
+  return (name ?? '').trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
+// The London calendar day an ISO instant falls on (YYYY-MM-DD), to compare
+// against appointment dates which are already stored as plain calendar days.
+function londonDate(iso: string): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date(iso))
 }
 
 // GET ?date=YYYY-MM-DD (single day) or ?from=&to= (range, e.g. a week) — the
@@ -37,24 +41,33 @@ export async function GET(req: Request) {
   const start = dayBounds(from).start
   const end = dayBounds(to).end
   try {
-    const [bookings, timeOff, waitlist, businessHours, priorClients] = await Promise.all([
+    const [bookings, timeOff, waitlist, businessHours, history] = await Promise.all([
       select<Booking>('bookings', { and: `(starts_at.gte.${start},starts_at.lte.${end})`, order: 'starts_at.asc', limit: 200 }),
       select<TimeOff>('time_off', { and: `(starts_at.lte.${end},ends_at.gte.${start})`, order: 'starts_at.asc', limit: 100 }),
       select<Record<string, unknown>>('waitlist', { status: 'eq.waiting', order: 'created_at.asc', limit: 50 }),
       select<BusinessHours>('business_hours', { limit: 7 }),
-      // Every client we've seen before this window — used to mark first-timers.
-      select<Pick<Booking, 'client_email' | 'client_phone' | 'client_name'>>('bookings', {
-        select: 'client_email,client_phone,client_name', and: `(starts_at.lt.${start},status.neq.cancelled)`, limit: 5000,
+      // The appointment history (Ovatu imports + mirrored bookings) is the app's
+      // source of truth for who's been before — bookings alone would flag every
+      // regular as new. We only need the earliest appointment date per client.
+      select<Pick<Appointment, 'client_name' | 'date'>>('appointments', {
+        select: 'client_name,date', order: 'date.asc', limit: 8000,
       }),
     ])
-    // A booking is the client's first visit if we've never seen that client
-    // before this window and it's their earliest appointment within it. Match on
-    // email, then phone, then name so the same person isn't flagged twice.
-    const seen = new Set(priorClients.map(clientKey))
+    // Earliest appointment date we've ever recorded for each client (by name).
+    const earliest = new Map<string, string>()
+    for (const a of history) {
+      const key = normName(a.client_name)
+      if (!key || !a.date) continue
+      const day = a.date.slice(0, 10)
+      if (!earliest.has(key) || day < earliest.get(key)!) earliest.set(key, day)
+    }
+    // First-timer = no appointment on record before this booking's own day. Their
+    // booking is mirrored into appointments at the same date, so a later booking
+    // for the same person sees that earlier date and is no longer flagged — the
+    // NEW badge lands only on a client's very first appointment.
     const withNew = bookings.map((b) => {
-      const key = clientKey(b)
-      const isNew = b.status !== 'cancelled' && !seen.has(key)
-      seen.add(key)
+      const prior = earliest.get(normName(b.client_name))
+      const isNew = b.status !== 'cancelled' && (!prior || prior >= londonDate(b.starts_at))
       return { ...b, is_new_client: isNew }
     })
     return NextResponse.json({ bookings: withNew, timeOff, waitlist, businessHours, configured: true })
