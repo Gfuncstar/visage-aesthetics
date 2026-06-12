@@ -6,9 +6,15 @@
 
 import { select } from './db'
 import { consentFormForService } from '@/lib/consent/forms'
+import { goLiveTimestamp } from './go-live'
 import type { Booking } from '@/lib/booking-engine/types'
 
 const norm = (s: string) => (s ?? '').trim().toLowerCase()
+
+// Grandfather the Ovatu transition: only count bookings made on/after go-live,
+// so clients who consented in Ovatu (on paper) aren't flagged as missing. Same
+// baseline the home-page consent warnings use.
+const CONSENT_ENFORCE_FROM = process.env.CONSENT_ENFORCE_FROM || goLiveTimestamp()
 
 export type ComplianceItem = {
   bookingId: string
@@ -38,7 +44,7 @@ export async function dayCompliance(date: string): Promise<DayCompliance> {
   const to = new Date(dayStart.getTime() + 30 * 3600_000).toISOString()
 
   const bookings = await select<Booking>('bookings', {
-    and: `(starts_at.gte.${from},starts_at.lte.${to})`,
+    and: `(starts_at.gte.${from},starts_at.lte.${to},created_at.gte.${CONSENT_ENFORCE_FROM})`,
     status: 'neq.cancelled',
     order: 'starts_at.asc',
     limit: 200,
