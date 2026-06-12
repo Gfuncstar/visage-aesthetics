@@ -56,6 +56,21 @@ export async function consentNamesOnFile(): Promise<Set<string>> {
   return set
 }
 
+// Booking ids that already have consent accounted for — a submission or a sent
+// request tied to that booking. Used by the 24h auto-send so consent is chased
+// per treatment: each booking that hasn't got its own consent yet gets the form,
+// even for returning clients who consented for an earlier visit.
+export async function consentBookingIdsOnFile(): Promise<Set<string>> {
+  const [subs, reqs] = await Promise.all([
+    select<{ booking_id: string | null }>('consent_submissions', { select: 'booking_id', limit: 5000 }).catch(() => [] as { booking_id: string | null }[]),
+    select<{ booking_id: string | null }>('consent_requests', { status: 'in.(sent,completed,waived)', select: 'booking_id', limit: 5000 }).catch(() => [] as { booking_id: string | null }[]),
+  ])
+  const set = new Set<string>()
+  for (const s of subs) if (s.booking_id) set.add(s.booking_id)
+  for (const r of reqs) if (r.booking_id) set.add(r.booking_id)
+  return set
+}
+
 export async function consentReview(): Promise<ConsentReview | null> {
   const today = new Date().toISOString().slice(0, 10)
   const horizon = new Date(Date.now() + HORIZON_DAYS * DAY_MS).toISOString().slice(0, 10)

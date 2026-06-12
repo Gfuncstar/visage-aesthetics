@@ -4,7 +4,7 @@ import { assistantConfigured, select, update } from '@/lib/assistant/db'
 import { sendConfirmRequest } from '@/lib/booking-engine/confirm-request'
 import { smsConfigured } from '@/lib/assistant/sms'
 import { consentFormForService } from '@/lib/consent/forms'
-import { consentNamesOnFile } from '@/lib/assistant/consent'
+import { consentBookingIdsOnFile } from '@/lib/assistant/consent'
 import { sendConsentForm } from '@/lib/consent/send'
 import { goLiveTimestamp } from '@/lib/assistant/go-live'
 import type { Booking } from '@/lib/booking-engine/types'
@@ -90,19 +90,18 @@ export async function GET(req: Request) {
     order: 'starts_at.asc',
     limit: 200,
   })
-  const onFile = await consentNamesOnFile()
+  // Per treatment: send if THIS booking has no consent yet, even for returning
+  // clients who consented for an earlier visit.
+  const onFile = await consentBookingIdsOnFile()
   for (const b of consentDue) {
     if (!b.client_email) continue
     const form = consentFormForService(b.service_slug, b.service_name)
     if (!form) continue
-    const key = b.client_name.trim().toLowerCase()
-    if (onFile.has(key)) continue
+    if (onFile.has(b.id)) continue
     const res = await sendConsentForm({ form, clientName: b.client_name, clientEmail: b.client_email, bookingId: b.id })
     if (res.ok) {
       consent++
-      // Guard against sending twice to the same client within this run (e.g.
-      // two bookings); the consent_requests row covers future runs.
-      onFile.add(key)
+      onFile.add(b.id)
     }
   }
 

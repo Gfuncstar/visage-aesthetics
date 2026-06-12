@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { assistantConfigured } from '@/lib/assistant/db'
+import { assistantConfigured, select } from '@/lib/assistant/db'
 import { resolveConsent } from '@/lib/consent/resolve'
 import ConsentFormClient from './ConsentFormClient'
 
@@ -54,12 +54,33 @@ export default async function ConsentPage({ params }: { params: Promise<{ token:
   }
 
   const { context } = resolved
+
+  // Returning client? If they've completed THIS consent form before (for an
+  // earlier visit), we offer a quick "nothing's changed" path instead of the
+  // full form. Consent is still captured for this treatment — just faster.
+  let priorConsentAt: string | null = null
+  try {
+    const enc = context.clientName.replace(/[%,()]/g, ' ')
+    const prior = await select<{ submitted_at: string; booking_id: string | null }>('consent_submissions', {
+      form_id: `eq.${context.form.id}`,
+      client_name: `ilike.${enc}`,
+      order: 'submitted_at.desc',
+      select: 'submitted_at,booking_id',
+      limit: 5,
+    })
+    const p = prior.find((x) => x.booking_id !== context.bookingId) ?? prior[0]
+    if (p?.submitted_at) priorConsentAt = p.submitted_at
+  } catch {
+    /* no prior — show the full form */
+  }
+
   return (
     <ConsentFormClient
       form={context.form}
       submitUrl={`/api/book/consent/${token}`}
       clientName={context.clientName}
       serviceName={context.serviceName ?? context.form.name}
+      priorConsentAt={priorConsentAt}
     />
   )
 }

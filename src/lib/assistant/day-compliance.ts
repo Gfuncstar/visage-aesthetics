@@ -64,19 +64,21 @@ export async function dayCompliance(date: string): Promise<DayCompliance> {
   }
 
   const [subs, waivers, reqs] = await Promise.all([
-    select<{ client_name: string; form_id: string }>('consent_submissions', { select: 'client_name,form_id', limit: 5000 }).catch(() => []),
+    select<{ booking_id: string | null }>('consent_submissions', { select: 'booking_id', limit: 5000 }).catch(() => []),
     select<{ client_name_norm: string }>('consent_waivers', { select: 'client_name_norm', limit: 5000 }).catch(() => []),
-    select<{ client_name: string; form_id: string }>('consent_requests', { status: 'in.(sent,completed,waived)', select: 'client_name,form_id', limit: 5000 }).catch(() => []),
+    select<{ booking_id: string | null }>('consent_requests', { status: 'in.(sent,completed,waived)', select: 'booking_id', limit: 5000 }).catch(() => []),
   ])
-  const completed = new Set(subs.map((s) => `${norm(s.client_name)}|${s.form_id}`))
+  // Consent is per treatment, so compliance keys off THIS booking's own consent —
+  // a past consent for an earlier visit does not cover a new one. The client-level
+  // waiver stays as the manual "handled in clinic" override.
+  const completedBooking = new Set(subs.map((s) => s.booking_id).filter(Boolean) as string[])
   const waived = new Set(waivers.map((w) => w.client_name_norm))
-  const sentSet = new Set(reqs.map((r) => `${norm(r.client_name)}|${r.form_id}`))
+  const sentBooking = new Set(reqs.map((r) => r.booking_id).filter(Boolean) as string[])
 
   let compliant = 0
   const outstanding: ComplianceItem[] = []
   for (const { b, formId, formName } of items) {
-    const k = norm(b.client_name)
-    if (completed.has(`${k}|${formId}`) || waived.has(k)) {
+    if (completedBooking.has(b.id) || waived.has(norm(b.client_name))) {
       compliant++
       continue
     }
@@ -87,7 +89,7 @@ export async function dayCompliance(date: string): Promise<DayCompliance> {
       serviceName: b.service_name,
       formId,
       formName,
-      sent: sentSet.has(`${k}|${formId}`),
+      sent: sentBooking.has(b.id),
     })
   }
 

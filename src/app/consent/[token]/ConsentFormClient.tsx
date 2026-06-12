@@ -22,11 +22,19 @@ function initialAnswers(form: ConsentForm, clientName: string): AnswerMap {
   return out
 }
 
+function prettyDate(iso: string | null | undefined): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(d)
+}
+
 export default function ConsentFormClient({
   form,
   submitUrl,
   clientName = '',
   serviceName,
+  priorConsentAt = null,
 }: {
   form: ConsentForm
   /** Where the completed form is POSTed (per-booking or standalone). */
@@ -34,12 +42,17 @@ export default function ConsentFormClient({
   clientName?: string
   /** The booked treatment, when this form is tied to an appointment. */
   serviceName?: string | null
+  /** When set, this client has consented to this form before — offer the quick path. */
+  priorConsentAt?: string | null
 }) {
   const [answers, setAnswers] = useState<AnswerMap>(() => initialAnswers(form, clientName))
   const [agreed, setAgreed] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState(false)
+  // Returning clients start on the "has anything changed?" review step.
+  const [step, setStep] = useState<'review' | 'confirm' | 'form'>(priorConsentAt ? 'review' : 'form')
+  const treatmentLabel = form.name.replace(/ Consent Form$/i, '').trim()
 
   function setValue(label: string, value: string | string[]) {
     setAnswers((prev) => ({ ...prev, [label]: value }))
@@ -53,10 +66,10 @@ export default function ConsentFormClient({
     })
   }
 
-  async function submit() {
+  async function submit(noChanges = false) {
     setError(null)
     if (!agreed) {
-      setError('Please tick the box at the bottom to confirm before submitting.')
+      setError('Please tick the box to confirm before submitting.')
       return
     }
     setSubmitting(true)
@@ -64,7 +77,7 @@ export default function ConsentFormClient({
       const res = await fetch(submitUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers, agreed: true }),
+        body: JSON.stringify(noChanges ? { agreed: true, noChanges: true } : { answers, agreed: true }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -91,6 +104,81 @@ export default function ConsentFormClient({
           <p className="text-ink-soft mt-3 leading-relaxed">
             Your form has been sent to the clinic. There is nothing more to do before your appointment.
           </p>
+        </div>
+      </section>
+    )
+  }
+
+  // ── Returning client: has anything changed since last time? ────────────────
+  if (step === 'review') {
+    return (
+      <section className="bg-cream text-charcoal min-h-screen">
+        <div className="max-w-xl mx-auto px-5 md:px-8 pt-14 md:pt-20 pb-24">
+          <div className="eyebrow text-gold mb-2">Visage Aesthetics &nbsp;·&nbsp; Before your appointment</div>
+          <h1 className="font-display italic text-charcoal text-3xl md:text-4xl leading-tight">Welcome back.</h1>
+          <p className="text-ink-soft mt-3 leading-relaxed">
+            You completed your {treatmentLabel} consent on {prettyDate(priorConsentAt)}.
+            {serviceName ? <> This is for your <span className="text-charcoal">{serviceName}</span> appointment.</> : null}
+          </p>
+          <div className="mt-8 border border-line/40 bg-cream-soft rounded-sm p-5">
+            <p className="text-charcoal font-medium leading-relaxed">
+              Since then, has anything changed in your medical history, or are you taking any new medications?
+            </p>
+            <div className="mt-5 grid gap-3">
+              <button type="button" onClick={() => { setAgreed(false); setStep('confirm') }} className="btn btn-secondary btn-block">
+                No — nothing has changed
+              </button>
+              <button type="button" onClick={() => setStep('form')} className="btn btn-secondary btn-block">
+                Yes — something has changed
+              </button>
+            </div>
+          </div>
+          <p className="text-xs text-ink-soft mt-4 leading-relaxed">
+            If anything has changed, choose &ldquo;Yes&rdquo; and we&apos;ll take you through the full form so we have the latest information.
+          </p>
+        </div>
+      </section>
+    )
+  }
+
+  // ── Returning client, nothing changed: a quick re-consent ──────────────────
+  if (step === 'confirm') {
+    return (
+      <section className="bg-cream text-charcoal min-h-screen">
+        <div className="max-w-xl mx-auto px-5 md:px-8 pt-14 md:pt-20 pb-24">
+          <div className="eyebrow text-gold mb-2">Visage Aesthetics &nbsp;·&nbsp; Before your appointment</div>
+          <h1 className="font-display italic text-charcoal text-3xl md:text-4xl leading-tight">Confirm your consent.</h1>
+          <p className="text-ink-soft mt-3 leading-relaxed">
+            Thank you — nothing has changed since {prettyDate(priorConsentAt)}. Please confirm below to consent to
+            your {serviceName ?? treatmentLabel} treatment.
+          </p>
+
+          <div className="mt-6 border border-line/40 bg-cream-soft rounded-sm p-4 max-h-60 overflow-y-auto">
+            <p className="text-sm text-ink-soft leading-relaxed whitespace-pre-wrap">{form.intro}</p>
+          </div>
+
+          <div className="mt-8 border-t border-line/40 pt-6">
+            <label className="flex items-start gap-3 cursor-pointer select-none">
+              <span className={`inline-flex w-6 h-6 mt-0.5 rounded-sm border items-center justify-center shrink-0 transition-colors ${agreed ? 'bg-gold border-gold text-charcoal' : 'border-line bg-cream'}`}>
+                {agreed && <Check size={14} strokeWidth={2.5} />}
+              </span>
+              <input type="checkbox" className="sr-only" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
+              <span className="text-sm text-charcoal leading-relaxed">
+                I confirm there are no changes to my medical history and no new medications since my last consent. {form.declaration}
+              </span>
+            </label>
+          </div>
+
+          {error && <div className="mt-4 border border-gold/40 bg-gold/10 text-charcoal text-sm rounded-sm px-4 py-3">{error}</div>}
+
+          <div className="mt-6">
+            <button type="button" onClick={() => submit(true)} disabled={submitting} className="btn btn-primary btn-block disabled:opacity-50">
+              {submitting ? 'Sending…' : 'Confirm consent'}
+            </button>
+            <button type="button" onClick={() => { setError(null); setStep('form') }} className="block mx-auto mt-3 text-xs text-gold-deep underline">
+              Actually, something has changed — open the full form
+            </button>
+          </div>
         </div>
       </section>
     )
@@ -152,7 +240,7 @@ export default function ConsentFormClient({
         )}
 
         <div className="mt-6">
-          <button type="button" onClick={submit} disabled={submitting} className="btn btn-primary btn-block disabled:opacity-50">
+          <button type="button" onClick={() => submit()} disabled={submitting} className="btn btn-primary btn-block disabled:opacity-50">
             {submitting ? 'Sending…' : 'Submit my form'}
           </button>
           <p className="text-xs text-ink-soft text-center mt-3">

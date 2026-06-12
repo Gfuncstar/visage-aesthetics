@@ -53,9 +53,39 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
     if (b.agreed !== true) {
       return NextResponse.json({ error: 'Please tick the box to confirm before submitting.' }, { status: 400 })
     }
-    const { answers, missing } = sanitiseAnswers(context.form, b.answers)
-    if (missing.length > 0) {
-      return NextResponse.json({ error: `Please complete: ${missing.join(', ')}` }, { status: 400 })
+
+    let answers: Record<string, string | string[]>
+    if (b.noChanges === true) {
+      // Returning client confirming nothing has changed — carry their most recent
+      // consent for this form forward, so a full, accurate record is kept for this
+      // treatment without making them re-enter everything.
+      const enc = context.clientName.replace(/[%,()]/g, ' ')
+      let prior: { answers: Record<string, string | string[]>; submitted_at: string; booking_id: string | null }[] = []
+      try {
+        prior = await select('consent_submissions', {
+          form_id: `eq.${context.form.id}`,
+          client_name: `ilike.${enc}`,
+          order: 'submitted_at.desc',
+          select: 'answers,submitted_at,booking_id',
+          limit: 5,
+        })
+      } catch {
+        prior = []
+      }
+      const p = prior.find((x) => x.booking_id !== context.bookingId) ?? prior[0]
+      if (!p) {
+        return NextResponse.json({ error: 'We could not find your previous consent — please complete the full form.' }, { status: 422 })
+      }
+      answers = {
+        ...(p.answers || {}),
+        'Returning client': `Confirmed no changes to medical history or medications since previous consent (${(p.submitted_at || '').slice(0, 10)}).`,
+      }
+    } else {
+      const result = sanitiseAnswers(context.form, b.answers)
+      if (result.missing.length > 0) {
+        return NextResponse.json({ error: `Please complete: ${result.missing.join(', ')}` }, { status: 400 })
+      }
+      answers = result.answers
     }
 
     // Best-effort link to an existing client record by email.
