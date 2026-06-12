@@ -353,21 +353,18 @@ export default function Diary() {
           </button>
         </div>
 
-        <div className="flex justify-center mb-3">
-          <div className="inline-flex rounded-full border border-line/50 bg-cream-soft p-0.5">
+        <div className="flex items-center gap-2 mb-5">
+          <div className="inline-flex rounded-full border border-line/50 bg-cream-soft p-0.5 shrink-0">
             {(['day', 'week', 'month'] as const).map((v) => (
-              <button key={v} onClick={() => setView(v)} className={`text-sm rounded-full px-5 py-1.5 capitalize transition-colors ${view === v ? 'bg-gold text-charcoal' : 'text-ink-soft'}`}>{v}</button>
+              <button key={v} onClick={() => setView(v)} className={`text-xs rounded-full px-2.5 py-1 capitalize transition-colors ${view === v ? 'bg-gold text-charcoal' : 'text-ink-soft'}`}>{v}</button>
             ))}
           </div>
-        </div>
-
-        <div className="flex items-center justify-between gap-3 mb-5">
-          <button onClick={() => setDate(view === 'month' ? addMonths(date, -1) : addDays(date, view === 'week' ? -7 : -1))} className="w-10 h-10 inline-flex items-center justify-center rounded-sm border border-line/50 bg-cream-soft hover:border-gold/60"><ChevronLeft size={18} /></button>
-          <div className="text-center">
-            <div className="font-display italic text-xl text-charcoal">{view === 'month' ? monthHeading(date) : view === 'week' ? weekHeading(date) : dayHeading(date)}</div>
-            <button onClick={() => setDate(todayStr())} className="text-xs text-gold-deep">Jump to today</button>
+          <div className="flex items-center justify-center gap-1 flex-1 min-w-0">
+            <button onClick={() => setDate(view === 'month' ? addMonths(date, -1) : addDays(date, view === 'week' ? -7 : -1))} className="w-7 h-7 inline-flex items-center justify-center rounded-sm border border-line/50 bg-cream-soft hover:border-gold/60 shrink-0"><ChevronLeft size={15} /></button>
+            <div className="font-display italic text-sm text-charcoal text-center truncate">{view === 'month' ? monthHeading(date) : view === 'week' ? weekHeading(date) : dayHeading(date)}</div>
+            <button onClick={() => setDate(view === 'month' ? addMonths(date, 1) : addDays(date, view === 'week' ? 7 : 1))} className="w-7 h-7 inline-flex items-center justify-center rounded-sm border border-line/50 bg-cream-soft hover:border-gold/60 shrink-0"><ChevronRight size={15} /></button>
           </div>
-          <button onClick={() => setDate(view === 'month' ? addMonths(date, 1) : addDays(date, view === 'week' ? 7 : 1))} className="w-10 h-10 inline-flex items-center justify-center rounded-sm border border-line/50 bg-cream-soft hover:border-gold/60"><ChevronRight size={18} /></button>
+          <button onClick={() => setDate(todayStr())} className="text-xs text-gold-deep hover:underline shrink-0">Today</button>
         </div>
 
         <div className="flex gap-2 mb-5">
