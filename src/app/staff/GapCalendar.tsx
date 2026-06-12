@@ -761,7 +761,8 @@ function BookingDetailModal({ booking: b, onClose, onCancel, onChanged }: { book
     }
   }
 
-  const dateLine = `${dayLabelShort(localDate(b.starts_at))} · ${timeLabel(b.starts_at)}${b.ends_at ? ` – ${timeLabel(b.ends_at)}` : ''}`
+  const dayLabel = dayLabelShort(localDate(b.starts_at))
+  const timeRange = `${timeLabel(b.starts_at)}${b.ends_at ? ` – ${timeLabel(b.ends_at)}` : ''}`
 
   return (
     <div
@@ -774,33 +775,36 @@ function BookingDetailModal({ booking: b, onClose, onCancel, onChanged }: { book
       <div className="bg-cream rounded-md shadow-xl max-w-sm w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="bg-charcoal text-cream px-5 py-4 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <div className="text-xs text-cream/60">{dateLine}</div>
-            <h2 id="booking-detail-title" className="font-display italic text-2xl leading-tight truncate">{b.client_name}</h2>
-            <div className="text-sm text-gold-soft mt-0.5 truncate">{b.service_name}</div>
+            <div className="text-[11px] uppercase tracking-[0.16em] text-cream/55">{dayLabel}</div>
+            <div className="text-lg font-medium text-gold-soft leading-tight mt-0.5">{timeRange}</div>
+            <h2 id="booking-detail-title" className="font-display italic text-2xl leading-tight truncate capitalize mt-2">{b.client_name}</h2>
+            <div className="text-sm text-cream/75 mt-0.5 truncate">{b.service_name}</div>
           </div>
           <button onClick={onClose} className="text-cream/60 hover:text-cream shrink-0" aria-label="Close"><X size={18} /></button>
         </div>
 
-        <div className="px-5 py-4 space-y-3">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs ${isConfirmed ? 'bg-gold/20 text-gold-deep border border-gold/40' : 'bg-stone/10 text-stone border border-stone/30'}`}>
-              {isConfirmed ? 'Confirmed by client' : 'Unconfirmed'}
+        <div className="px-5 py-4 space-y-3.5">
+          {/* Status — the at-a-glance line, colour-coded so it reads instantly */}
+          <div className="flex items-center justify-between gap-2">
+            <span className={`inline-flex items-center gap-2 text-sm font-medium ${isConfirmed ? 'text-sage' : 'text-gold-deep'}`}>
+              <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${isConfirmed ? 'bg-sage' : 'bg-gold'}`} />
+              {isConfirmed ? 'Confirmed by client' : 'Awaiting confirmation'}
             </span>
-            {b.source && <span className="text-xs text-stone">via {b.source === 'ovatu' ? 'Ovatu' : b.source === 'online' ? 'online' : 'staff'}</span>}
+            {b.source && <span className="text-xs text-stone shrink-0">via {b.source === 'ovatu' ? 'Ovatu' : b.source === 'online' ? 'online' : 'staff'}</span>}
           </div>
 
-          <div className="text-sm text-charcoal space-y-1.5">
-            <div className="flex items-center gap-2">
-              <Phone size={13} className="text-stone shrink-0" />
+          <div className="text-sm text-charcoal space-y-2 border-t border-line/40 pt-3.5">
+            <div className="flex items-center gap-2.5">
+              <Phone size={14} className="text-stone shrink-0" />
               {b.client_phone ? <a href={`tel:${b.client_phone}`} className="text-gold-deep hover:underline">{b.client_phone}</a> : <span className="text-stone/60">No phone on file</span>}
             </div>
-            <div className="flex items-center gap-2 min-w-0">
-              <Mail size={13} className="text-stone shrink-0" />
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Mail size={14} className="text-stone shrink-0" />
               {b.client_email ? <a href={`mailto:${b.client_email}`} className="text-gold-deep hover:underline truncate">{b.client_email}</a> : <span className="text-stone/60">No email on file</span>}
             </div>
           </div>
 
-          {b.notes && <div className="text-sm text-ink-soft border border-line/50 bg-cream-soft rounded-sm px-3 py-2 leading-relaxed whitespace-pre-wrap">{b.notes}</div>}
+          {b.notes && <div className="text-xs text-stone leading-relaxed whitespace-pre-wrap">{b.notes}</div>}
 
           {noContact && (
             <p className="text-xs text-clay leading-snug">No contact details on file, so a confirmation can&apos;t be sent yet — add a phone or email first (e.g. from an Ovatu export). You can still mark them confirmed by hand if they&apos;ve told you.</p>
