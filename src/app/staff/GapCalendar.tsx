@@ -1,8 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
-import { CalendarDays, CalendarPlus, Check, ChevronLeft, ChevronRight, Clock, Mail, Phone, Send, Sparkles, X } from 'lucide-react'
+import { CalendarPlus, Check, ChevronLeft, ChevronRight, Clock, Mail, Phone, Send, Sparkles, X } from 'lucide-react'
 import { notifyDone } from '@/lib/staff-toast'
 import { recordUndo, UNDO_DONE_EVENT } from '@/lib/staff-undo'
 import ConsentStatus from '@/components/staff/ConsentStatus'
@@ -154,7 +153,7 @@ function useNowMin(): number {
 }
 
 export default function GapCalendar() {
-  const [schedView, setSchedView] = useState<'day' | 'week' | 'month'>('week')
+  const [schedView, setSchedView] = useState<'day' | 'week' | 'month'>('day')
   const [anchor, setAnchor] = useState<string>(() => todayStr())
   const [schedData, setSchedData] = useState<SchedData>({ bookings: [], timeOff: [], businessHours: [] })
   const [schedLoading, setSchedLoading] = useState(true)
@@ -270,12 +269,6 @@ export default function GapCalendar() {
           </div>
         </div>
       )}
-
-      <div className="flex items-center justify-between mb-2">
-        <div className="eyebrow text-gold flex items-center gap-2"><CalendarDays size={13} strokeWidth={1.75} /> Find a gap &amp; book</div>
-        <Link href="/staff/assistant/diary" className="text-xs text-gold-deep hover:underline">Open diary →</Link>
-      </div>
-      <p className="text-sm text-ink-soft mb-3 leading-snug">See where there&apos;s space and tap a <span className="text-avail font-medium">red slot</span> to book the client straight in — day, week or month.</p>
 
       {/* Booking form — opens pre-filled the moment a gap is tapped */}
       <div ref={bookingRef} className="scroll-mt-6">

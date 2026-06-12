@@ -21,17 +21,6 @@ export default async function StaffIndex() {
   const authed = await isStaffAuthed()
   if (!authed) return <StaffGate />
 
-  const hour = Number(
-    new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour: '2-digit', hour12: false }).format(new Date()),
-  )
-  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
-  const dateLabel = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'Europe/London',
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  }).format(new Date())
-
   // The landing page is a "what needs you right now" view, not a menu — moving
   // between the sections is the job of the bottom bar. So we surface only the
   // things that actually need attention today, pulled straight from the clinic
@@ -136,7 +125,7 @@ export default async function StaffIndex() {
   return (
     <section className="bg-cream text-charcoal min-h-screen">
       <div className="max-w-3xl mx-auto px-5 md:px-8 pt-6 pb-24">
-        <StaffLandingHub greeting={greeting} dateLabel={dateLabel} />
+        <StaffLandingHub />
 
         <FaceIdSetup />
 

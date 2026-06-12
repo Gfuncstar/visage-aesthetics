@@ -4,8 +4,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { CalendarDays, CalendarPlus, Check, ChevronLeft, ChevronRight, Clock, ListPlus, LogOut, Mic, Phone, Sparkles, X } from 'lucide-react'
 import { notifyDone } from '@/lib/staff-toast'
+import { BookingRow, BookingDetailModal, CancelConfirmModal, type BookingLite } from '@/components/staff/BookingCard'
 
-type Lite = { id: string; service_name: string; client_name: string; client_phone: string | null; starts_at: string; ends_at?: string; status: string; source: string; created_at: string; confirmed_at: string | null }
+type Lite = { id: string; service_name: string; client_name: string; client_email?: string | null; client_phone: string | null; starts_at: string; ends_at?: string; status: string; source: string; created_at: string; notes?: string | null; confirmed_at: string | null }
 type WaitRow = { id: string; client_name: string; service_name: string | null; client_phone: string | null }
 type BusinessHour = { weekday: number; is_open: boolean; open_min: number; close_min: number }
 type TimeOffRow = { id: string; starts_at: string; ends_at: string; reason: string | null }
@@ -158,13 +159,6 @@ function monthGridDays(ds: string): (string | null)[] {
 }
 const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
-const statusTone: Record<string, string> = {
-  confirmed: 'text-sage',
-  pending: 'text-gold-deep',
-  completed: 'text-stone',
-  no_show: 'text-clay',
-}
-
 // ---- live hooks ------------------------------------------------------------
 function useLiveClock(): string {
   const fmt = () =>
@@ -198,6 +192,9 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
   const [schedLoading, setSchedLoading] = useState(true)
   // Booking form opened by clicking a gap (seize a slot) or the New booking button.
   const [prefill, setPrefill] = useState<{ date: string; time: string } | null>(null)
+  // Tap a card to open its detail; the X / "Cancel & release" opens a confirm.
+  const [detail, setDetail] = useState<BookingLite | null>(null)
+  const [pendingCancel, setPendingCancel] = useState<BookingLite | null>(null)
   const bookingRef = useRef<HTMLDivElement | null>(null)
   const clock = useLiveClock()
   const nowMin = useNowMin()
@@ -378,11 +375,11 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
               ) : schedView === 'week' ? (
                 <div className="space-y-4">
                   {weekDays(anchor).map((day) => (
-                    <DaySchedule key={day} day={day} data={schedData} nowMin={nowMin} missing={consentMissing} onBook={bookSlot} heading />
+                    <DaySchedule key={day} day={day} data={schedData} nowMin={nowMin} missing={consentMissing} onBook={bookSlot} onOpen={setDetail} onCancel={setPendingCancel} heading />
                   ))}
                 </div>
               ) : (
-                <DaySchedule day={anchor} data={schedData} nowMin={nowMin} missing={consentMissing} onBook={bookSlot} />
+                <DaySchedule day={anchor} data={schedData} nowMin={nowMin} missing={consentMissing} onBook={bookSlot} onOpen={setDetail} onCancel={setPendingCancel} />
               )}
             </Section>
 
@@ -436,6 +433,37 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
           </>
         )}
       </div>
+
+      {detail && (
+        <BookingDetailModal
+          booking={detail}
+          onClose={() => setDetail(null)}
+          onCancel={(b) => { setDetail(null); setPendingCancel(b) }}
+          onChanged={() => void loadSchedule(true)}
+        />
+      )}
+      {pendingCancel && (
+        <CancelConfirmModal
+          booking={pendingCancel}
+          onConfirm={async () => {
+            const b = pendingCancel
+            setPendingCancel(null)
+            setSchedData((prev) => ({ ...prev, bookings: prev.bookings.filter((x) => x.id !== b.id) }))
+            try {
+              const res = await fetch(`/api/staff/assistant/diary/${b.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'cancelled' }),
+              })
+              if (res.ok) notifyDone('Booking cancelled — slot released')
+            } catch {
+              /* network error — the reload below restores the row */
+            }
+            void loadSchedule(true)
+          }}
+          onClose={() => setPendingCancel(null)}
+        />
+      )}
     </section>
   )
 }
@@ -503,7 +531,7 @@ function NewBookingPanel({ initialDate, initialTime, onClose, onDone }: { initia
 }
 
 // ---- One day's bookings + tappable gaps ------------------------------------
-function DaySchedule({ day, data, nowMin, missing, onBook, heading = false }: { day: string; data: SchedData; nowMin: number; missing: Set<string> | null; onBook: (date: string, startMin: number) => void; heading?: boolean }) {
+function DaySchedule({ day, data, nowMin, missing, onBook, onOpen, onCancel, heading = false }: { day: string; data: SchedData; nowMin: number; missing: Set<string> | null; onBook: (date: string, startMin: number) => void; onOpen: (b: BookingLite) => void; onCancel: (b: BookingLite) => void; heading?: boolean }) {
   const dayB = data.bookings.filter((b) => localDate(b.starts_at) === day).sort((a, b) => a.starts_at.localeCompare(b.starts_at))
   const gaps = gapsForDay(day, data.bookings, data.timeOff, data.businessHours)
   const free = freeMinsForDay(day, data.bookings, data.timeOff, data.businessHours)
@@ -520,7 +548,7 @@ function DaySchedule({ day, data, nowMin, missing, onBook, heading = false }: { 
     : (
       <div className="space-y-2">
         {items.map((item, i) => item.kind === 'booking'
-          ? <BookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={missing} />
+          ? <BookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={missing} onOpen={onOpen} onCancel={onCancel} />
           : <GapRow key={`gap-${i}`} date={day} startMin={item.start} endMin={item.end} onBook={onBook} />
         )}
       </div>
@@ -843,29 +871,6 @@ function Section({ title, icon: Icon, href, cta, children }: { title: string; ic
   )
 }
 
-function ConfirmedDot({ status, confirmedAt }: { status: string; confirmedAt: string | null }) {
-  if (status === 'confirmed' && confirmedAt) return <span title="Client confirmed" className="w-2 h-2 rounded-full bg-sage inline-block shrink-0" />
-  if (status === 'confirmed' && !confirmedAt) return <span title="Awaiting confirmation" className="w-2 h-2 rounded-full bg-gold inline-block shrink-0" />
-  if (status === 'pending') return <span title="Deposit pending" className="w-2 h-2 rounded-full bg-gold-deep inline-block shrink-0" />
-  return null
-}
-
-function ConsentFlag({ name, missing }: { name: string; missing: Set<string> | null }) {
-  if (missing === null) return null
-  if (missing.has(name.trim().toLowerCase())) {
-    return (
-      <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-clay shrink-0 whitespace-nowrap">
-        <X size={9} strokeWidth={2.5} /> Consent
-      </span>
-    )
-  }
-  return (
-    <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-sage shrink-0 whitespace-nowrap">
-      <Check size={9} strokeWidth={2.5} /> Consent
-    </span>
-  )
-}
-
 // Generic row (week/month views, just-booked, waitlist)
 function Row({ left, sub, right, phone }: { left: React.ReactNode; sub: string | null; right: React.ReactNode; phone?: string | null }) {
   return (
@@ -881,36 +886,6 @@ function Row({ left, sub, right, phone }: { left: React.ReactNode; sub: string |
           </a>
         )}
         {right && <div className="text-sm">{right}</div>}
-      </div>
-    </div>
-  )
-}
-
-// Booking row for day view — highlights the current appointment
-function BookingRow({ booking: b, nowMin, missing }: { booking: Lite; nowMin: number; missing: Set<string> | null }) {
-  const start = toLocalMin(b.starts_at)
-  const end = b.ends_at ? toLocalMin(b.ends_at) : start + 60
-  const isCurrent = nowMin >= start && nowMin < end
-  return (
-    <div className={`flex items-center justify-between gap-3 border rounded-sm px-4 py-3 transition-colors ${isCurrent ? 'border-sage/40 bg-sage/5' : 'border-line/40 bg-cream-soft'}`}>
-      <div className="min-w-0 flex-1">
-        <div className="text-sm text-charcoal truncate flex items-center gap-2">
-          {isCurrent && <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage shrink-0" />}
-          <span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>
-        </div>
-        <div className="text-xs text-stone truncate mt-0.5">{b.service_name}</div>
-      </div>
-      <div className="shrink-0 flex items-center gap-3">
-        {b.client_phone && (
-          <a href={`tel:${b.client_phone}`} className="text-stone hover:text-gold-deep transition-colors" title={`Call ${b.client_name}`}>
-            <Phone size={14} strokeWidth={1.75} />
-          </a>
-        )}
-        <span className="inline-flex items-center gap-1.5">
-          <ConsentFlag name={b.client_name} missing={missing} />
-          <ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} />
-          <span className={`text-sm capitalize ${statusTone[b.status] ?? 'text-stone'}`}>{b.status.replace('_', ' ')}</span>
-        </span>
       </div>
     </div>
   )
