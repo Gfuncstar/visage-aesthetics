@@ -15,6 +15,16 @@ function dayBounds(dateStr: string): { start: string; end: string } {
   return { start: `${dateStr}T00:00:00Z`, end: `${dateStr}T23:59:59Z` }
 }
 
+// One stable identity per client so a returning face isn't flagged as new:
+// email wins, then phone (digits only), then a normalised name.
+function clientKey(b: { client_email?: string | null; client_phone?: string | null; client_name?: string | null }): string {
+  const email = b.client_email?.trim().toLowerCase()
+  if (email) return `e:${email}`
+  const phone = b.client_phone?.replace(/\D/g, '')
+  if (phone) return `p:${phone}`
+  return `n:${(b.client_name ?? '').trim().toLowerCase()}`
+}
+
 // GET ?date=YYYY-MM-DD (single day) or ?from=&to= (range, e.g. a week) — the
 // bookings and blocked time in that window.
 export async function GET(req: Request) {
@@ -27,13 +37,27 @@ export async function GET(req: Request) {
   const start = dayBounds(from).start
   const end = dayBounds(to).end
   try {
-    const [bookings, timeOff, waitlist, businessHours] = await Promise.all([
+    const [bookings, timeOff, waitlist, businessHours, priorClients] = await Promise.all([
       select<Booking>('bookings', { and: `(starts_at.gte.${start},starts_at.lte.${end})`, order: 'starts_at.asc', limit: 200 }),
       select<TimeOff>('time_off', { and: `(starts_at.lte.${end},ends_at.gte.${start})`, order: 'starts_at.asc', limit: 100 }),
       select<Record<string, unknown>>('waitlist', { status: 'eq.waiting', order: 'created_at.asc', limit: 50 }),
       select<BusinessHours>('business_hours', { limit: 7 }),
+      // Every client we've seen before this window — used to mark first-timers.
+      select<Pick<Booking, 'client_email' | 'client_phone' | 'client_name'>>('bookings', {
+        select: 'client_email,client_phone,client_name', and: `(starts_at.lt.${start},status.neq.cancelled)`, limit: 5000,
+      }),
     ])
-    return NextResponse.json({ bookings, timeOff, waitlist, businessHours, configured: true })
+    // A booking is the client's first visit if we've never seen that client
+    // before this window and it's their earliest appointment within it. Match on
+    // email, then phone, then name so the same person isn't flagged twice.
+    const seen = new Set(priorClients.map(clientKey))
+    const withNew = bookings.map((b) => {
+      const key = clientKey(b)
+      const isNew = b.status !== 'cancelled' && !seen.has(key)
+      seen.add(key)
+      return { ...b, is_new_client: isNew }
+    })
+    return NextResponse.json({ bookings: withNew, timeOff, waitlist, businessHours, configured: true })
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : 'Load failed' }, { status: 502 })
   }
