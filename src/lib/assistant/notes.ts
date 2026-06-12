@@ -19,7 +19,6 @@ export type WriteUpInput = {
   unit: UnitType
   technique: string
   consent: boolean
-  reviewDate: string // ISO or ''
   notes: string
   /** What the client came in to discuss (used for the consultation follow-up). */
   interest?: string
@@ -64,7 +63,6 @@ export function buildClinicalNote(input: WriteUpInput): string {
 
   lines.push('')
   lines.push(`Consent: ${input.consent ? 'Obtained and recorded' : 'NOT recorded'}`)
-  if (input.reviewDate) lines.push(`Review / next session: ${ukDate(input.reviewDate)}`)
 
   if (input.notes) {
     lines.push('')

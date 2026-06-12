@@ -124,6 +124,22 @@ export const TREATMENT_TYPES: TreatmentType[] = [
     followUpDays: 28,
   },
   {
+    id: 'aqualyx',
+    name: 'Aqualyx (fat dissolving)',
+    unit: 'ml',
+    products: ['Aqualyx'],
+    areas: ['Chin / submental', 'Jowls (left)', 'Jowls (right)', 'Abdomen', 'Flanks (left)', 'Flanks (right)', 'Thighs (left)', 'Thighs (right)', 'Upper arms', 'Knees', 'Back'],
+    aftercare: [
+      'Swelling, tenderness, warmth and bruising in the treated area are expected and can last several days to a couple of weeks.',
+      'You may feel firmness or small lumps under the skin as the area settles; gentle massage can help if I have advised it.',
+      'Avoid strenuous exercise, alcohol, saunas and very hot environments for 48 hours.',
+      'Stay well hydrated and keep the area clean.',
+      'Results build gradually over the following weeks as the released fat is cleared.',
+    ],
+    followUp: 'Fat dissolving works as a course. I would suggest reviewing the area in around four to six weeks before any further session.',
+    followUpDays: 42,
+  },
+  {
     id: 'consultation',
     name: 'Consultation',
     unit: 'none',
@@ -135,6 +151,20 @@ export const TREATMENT_TYPES: TreatmentType[] = [
       'If you have any questions before deciding, you are welcome to get in touch.',
     ],
     followUp: 'Whenever you are ready to go ahead, get in touch and we will find a time that suits you.',
+    followUpDays: null,
+  },
+  {
+    id: 'review',
+    name: 'Review',
+    unit: 'none',
+    products: [],
+    areas: [],
+    aftercare: [
+      'Thank you for coming in for your review.',
+      'Continue with the aftercare we discussed at your treatment.',
+      'If anything changes or you have any questions, you are welcome to get in touch.',
+    ],
+    followUp: 'If a further review or session is needed, we will arrange it at a time that suits you.',
     followUpDays: null,
   },
 ]
