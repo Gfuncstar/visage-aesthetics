@@ -372,10 +372,10 @@ function DaySchedule({ day, data, nowMin, missing, justIds, onBook, onCancel, on
 
   if (!heading) return (
     <>
-      {fullyBooked && <p className="text-xs text-stone/70 mb-2">Fully booked — every slot is taken, no gaps on this day.</p>}
-      {body}
       <DayTakingsCard day={day} bookings={dayB} nowMin={nowMin} />
       <DayComplianceCard day={day} bookings={dayB} nowMin={nowMin} />
+      {fullyBooked && <p className="text-xs text-stone/70 mb-2">Fully booked — every slot is taken, no gaps on this day.</p>}
+      {body}
     </>
   )
   return (
@@ -389,9 +389,9 @@ function DaySchedule({ day, data, nowMin, missing, justIds, onBook, onCancel, on
           <span className="text-xs text-stone">{dayB.length} in</span>
         </div>
       </div>
-      {body}
       <DayTakingsCard day={day} bookings={dayB} nowMin={nowMin} />
       <DayComplianceCard day={day} bookings={dayB} nowMin={nowMin} />
+      {body}
     </div>
   )
 }

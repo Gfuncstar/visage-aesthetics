@@ -33,7 +33,7 @@ export default function DayTakingsCard({ day, bookings, nowMin }: { day: string;
   if (attended === 0) return null
 
   return (
-    <div className="mt-2 flex items-center justify-between gap-3 rounded-sm border border-gold/45 bg-gold/[0.08] px-4 py-3">
+    <div className="mb-2 flex items-center justify-between gap-3 rounded-sm border border-gold/45 bg-gold/[0.08] px-4 py-3">
       <span className="text-eyebrow text-gold-deep">Day&apos;s takings · {attended} seen</span>
       <span className="font-display italic text-lg text-charcoal">{gbp(total)}</span>
     </div>

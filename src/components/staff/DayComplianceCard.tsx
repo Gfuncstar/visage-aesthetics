@@ -95,7 +95,7 @@ export default function DayComplianceCard({ day, bookings, nowMin }: { day: stri
   }
 
   return (
-    <div className={`mt-2 rounded-sm border ${borderTone}`}>
+    <div className={`mb-2 rounded-sm border ${borderTone}`}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}

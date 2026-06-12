@@ -556,7 +556,13 @@ function DaySchedule({ day, data, nowMin, missing, onBook, onOpen, onCancel, hea
       </div>
     )
 
-  if (!heading) return <>{body}<DayTakingsCard day={day} bookings={dayB} nowMin={nowMin} /></>
+  if (!heading) return (
+    <>
+      <DayTakingsCard day={day} bookings={dayB} nowMin={nowMin} />
+      <DayComplianceCard day={day} bookings={dayB} nowMin={nowMin} />
+      {body}
+    </>
+  )
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
@@ -566,9 +572,9 @@ function DaySchedule({ day, data, nowMin, missing, onBook, onOpen, onCancel, hea
           <span className="text-xs text-stone">{dayB.length} in</span>
         </div>
       </div>
-      {body}
       <DayTakingsCard day={day} bookings={dayB} nowMin={nowMin} />
       <DayComplianceCard day={day} bookings={dayB} nowMin={nowMin} />
+      {body}
     </div>
   )
 }
