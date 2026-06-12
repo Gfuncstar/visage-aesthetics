@@ -477,19 +477,20 @@ export default function TreatmentTool() {
             {appts.length > 0 ? (
               <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
                 {appts.map((a) => (
-                  <button
+                  <div
                     key={a.id}
-                    type="button"
-                    onClick={() => pickAppt(a)}
-                    className={`shrink-0 text-left rounded-sm border px-4 py-3 transition-colors min-w-[190px] max-w-[260px] ${
+                    className={`shrink-0 rounded-sm border px-4 py-3 transition-colors min-w-[190px] max-w-[260px] ${
                       pickedApptId === a.id
                         ? 'border-gold bg-gold/10'
-                        : 'border-line/40 bg-cream-soft hover:border-gold/60'
+                        : 'border-line/40 bg-cream-soft'
                     }`}
                   >
-                    <div className="text-base font-medium text-charcoal truncate">{a.client_name || 'Unnamed'}</div>
-                    <div className="text-sm text-ink-soft truncate mt-0.5">{a.service_name || 'Appointment'}</div>
-                  </button>
+                    <button type="button" onClick={() => pickAppt(a)} className="text-left w-full">
+                      <div className="text-base font-medium text-charcoal truncate">{a.client_name || 'Unnamed'}</div>
+                      <div className="text-sm text-ink-soft truncate mt-0.5">{a.service_name || 'Appointment'}</div>
+                    </button>
+                    <NoShowDeposit name={a.client_name} />
+                  </div>
                 ))}
               </div>
             ) : (
@@ -950,5 +951,53 @@ export default function TreatmentTool() {
         )}
       </div>
     </section>
+  )
+}
+
+// A small, unobtrusive control on each of the day's appointment cards: flag a
+// no-show so that client needs a deposit before booking next time. Rare in
+// practice — the clinic's clients are keen — so it's a quiet tickbox, not a
+// button. Sets the same `requires_deposit` client flag the client record uses,
+// which the online booking flow then enforces via Stripe.
+function NoShowDeposit({ name }: { name: string }) {
+  const [on, setOn] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const clean = (name ?? '').trim()
+  if (!clean) return null
+
+  async function toggle(next: boolean) {
+    setOn(next)
+    setBusy(true)
+    try {
+      const res = await fetch('/api/staff/assistant/client-flags', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: clean, flag: 'requires_deposit', value: next }),
+      })
+      if (!res.ok) {
+        setOn(!next)
+        return
+      }
+      notifyDone(next ? `${clean} will need a deposit next time` : `Deposit requirement removed for ${clean}`)
+    } catch {
+      setOn(!next)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <label className={`mt-2.5 pt-2.5 border-t border-line/40 flex items-start gap-2 cursor-pointer select-none ${busy ? 'opacity-60' : ''}`}>
+      <input
+        type="checkbox"
+        checked={on}
+        disabled={busy}
+        onChange={(e) => toggle(e.target.checked)}
+        className="mt-0.5 w-4 h-4 accent-clay shrink-0"
+      />
+      <span className={`text-xs leading-snug ${on ? 'text-clay font-medium' : 'text-stone'}`}>
+        No-show — deposit next time
+      </span>
+    </label>
   )
 }

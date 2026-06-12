@@ -666,11 +666,6 @@ function BookingRow({ booking: b, nowMin, missing, justBooked = false, onCancel,
       </div>
       <div className="shrink-0 flex items-center gap-3">
         <span className={`text-sm font-semibold truncate max-w-[8rem] text-right ${isPast ? 'text-stone/80' : 'text-gold-deep'}`}>{b.service_name}</span>
-        {b.client_phone && (
-          <a href={`tel:${b.client_phone}`} onClick={(e) => e.stopPropagation()} className={`transition-colors ${isPast ? 'text-stone/60 hover:text-gold-deep' : 'text-stone hover:text-gold-deep'}`} title={`Call ${b.client_name}`}>
-            <Phone size={14} strokeWidth={1.75} />
-          </a>
-        )}
         <button onClick={(e) => { e.stopPropagation(); onCancel(b) }} className={`transition-colors ${isPast ? 'text-stone/50 hover:text-clay' : 'text-stone/70 hover:text-clay'}`} title={`Cancel ${b.client_name}'s booking and release the slot`} aria-label="Cancel booking">
           <X size={16} strokeWidth={2} />
         </button>
@@ -797,7 +792,7 @@ function BookingDetailModal({ booking: b, onClose, onCancel, onChanged }: { book
           <div className="text-sm text-charcoal space-y-2 border-t border-line/40 pt-3.5">
             <div className="flex items-center gap-2.5">
               <Phone size={14} className="text-stone shrink-0" />
-              {b.client_phone ? <a href={`tel:${b.client_phone}`} className="text-gold-deep hover:underline">{b.client_phone}</a> : <span className="text-stone/60">No phone on file</span>}
+              {b.client_phone ? <span className="text-charcoal">{b.client_phone}</span> : <span className="text-stone/60">No phone on file</span>}
             </div>
             <div className="flex items-center gap-2.5 min-w-0">
               <Mail size={14} className="text-stone shrink-0" />
