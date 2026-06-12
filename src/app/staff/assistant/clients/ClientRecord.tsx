@@ -497,20 +497,70 @@ function Detail({
           </div>
         )}
 
-        {/* Appointment history */}
+        {/* Appointment history — tap a visit to see its notes and photos */}
         <div className="mt-10">
           <div className="eyebrow text-gold mb-3">Appointment history</div>
-          <div className="border border-line/40 rounded-sm divide-y divide-line/30 bg-cream-soft">
-            {appts.length === 0 ? <p className="text-sm text-ink-soft p-5 text-center">No appointments.</p>
-              : appts.map((a) => (
-              <div key={a.id} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
-                <span className="text-stone w-24 shrink-0">{ukDate(a.date)}</span>
-                <span className="text-charcoal flex-1">{a.service_name}</span>
-                <span className={`text-xs ${a.status === 'cancelled' ? 'text-clay' : a.status === 'booked' ? 'text-stone' : 'text-sage'}`}>{a.status}</span>
-                <span className="text-charcoal w-16 text-right">{Number(a.price) ? gbp(Number(a.price)) : ''}</span>
-              </div>
-            ))}
-          </div>
+          {appts.length === 0 ? (
+            <p className="text-sm text-ink-soft p-5 text-center border border-line/40 rounded-sm bg-cream-soft">No appointments.</p>
+          ) : (
+            <div className="space-y-2">
+              {appts.map((a) => {
+                const d = (a.date || '').slice(0, 10)
+                const visitNotes = records.filter((r) => (r.date || '').slice(0, 10) === d)
+                const visitPhotos = photos.filter((p) => (p.date || '').slice(0, 10) === d)
+                const tags = [
+                  visitNotes.length ? `${visitNotes.length} note${visitNotes.length === 1 ? '' : 's'}` : null,
+                  visitPhotos.length ? `${visitPhotos.length} photo${visitPhotos.length === 1 ? '' : 's'}` : null,
+                ].filter(Boolean).join(' · ')
+                return (
+                  <details key={a.id} className="group border border-line/40 rounded-sm bg-cream-soft px-4 py-2.5">
+                    <summary className="cursor-pointer flex items-center gap-3 text-sm list-none">
+                      <span className="text-stone w-20 shrink-0">{ukDate(a.date)}</span>
+                      <span className="text-charcoal flex-1 min-w-0 truncate">{a.service_name}</span>
+                      {tags && <span className="text-[10px] text-gold-deep shrink-0 hidden sm:inline">{tags}</span>}
+                      <span className={`text-xs shrink-0 ${a.status === 'cancelled' ? 'text-clay' : a.status === 'booked' ? 'text-stone' : 'text-sage'}`}>{a.status}</span>
+                      <span className="text-charcoal w-14 text-right shrink-0">{Number(a.price) ? gbp(Number(a.price)) : ''}</span>
+                      <ChevronDown size={14} className="text-stone shrink-0 transition-transform group-open:rotate-180" />
+                    </summary>
+
+                    <div className="mt-3 pt-3 border-t border-line/30 space-y-4">
+                      {visitNotes.length === 0 && visitPhotos.length === 0 ? (
+                        <p className="text-xs text-stone">No notes or photos recorded for this visit.</p>
+                      ) : (
+                        <>
+                          {visitNotes.map((r) => (
+                            <div key={r.id} className="text-sm space-y-1">
+                              <div className="text-charcoal font-medium">{r.treatment_label}</div>
+                              {r.product && <div className="text-xs text-ink-soft">Product: <span className="text-charcoal">{r.product}</span>{r.batch_number ? ` · batch ${r.batch_number}` : ''}</div>}
+                              {r.areas?.length > 0 && (
+                                <div className="text-xs text-ink-soft">Areas: <span className="text-charcoal">{r.areas.map((ar) => `${ar.area} ${ar.dose}${r.unit ?? ar.unit ?? ''}`).join(', ')}</span>{r.total_dose ? ` (total ${r.total_dose} ${r.unit ?? ''})` : ''}</div>
+                              )}
+                              {r.clinical_note && <pre className="whitespace-pre-wrap font-body text-sm text-charcoal bg-cream border border-line/30 rounded-sm p-3 mt-1.5">{r.clinical_note}</pre>}
+                            </div>
+                          ))}
+
+                          {visitPhotos.length > 0 && (
+                            <div>
+                              <div className="text-eyebrow text-ink-soft mb-1.5">Photos from this visit</div>
+                              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                                {visitPhotos.map((p) => (
+                                  <div key={p.id} className="relative">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={p.url} alt={`${p.type} ${ukDate(p.date)}`} onClick={() => onLightbox(p.url)} className="w-full aspect-square object-cover rounded-sm border border-line/40 cursor-zoom-in" />
+                                    <span className="absolute bottom-1 left-1 text-[10px] uppercase tracking-wide bg-charcoal/70 text-cream px-1.5 py-0.5 rounded-sm">{p.type}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </details>
+                )
+              })}
+            </div>
+          )}
         </div>
       </div>
 
