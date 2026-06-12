@@ -113,7 +113,7 @@ export function BookingRow({ booking: b, nowMin, missing, justBooked = false, on
   const cardTone = isPastOrCurrent
     ? 'border-charcoal bg-charcoal'
     : isConfirmed
-      ? 'border-gold-deep bg-gold-deep'
+      ? 'border-gold bg-gold'
       : justBooked
         ? 'border-gold/70 bg-gold/[0.10]'
         : 'border-line/40 bg-cream'
