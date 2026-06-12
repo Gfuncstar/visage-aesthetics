@@ -276,7 +276,7 @@ function MonthGrid({ date, bookings, timeOff, businessHours, onPick }: { date: s
 export default function Diary() {
   const searchParams = useSearchParams()
   const [date, setDate] = useState(() => searchParams.get('date') ?? todayStr())
-  const [view, setView] = useState<'day' | 'week' | 'month'>('week')
+  const [view, setView] = useState<'day' | 'week' | 'month'>('day')
   const [bookings, setBookings] = useState<Booking[]>([])
   const [timeOff, setTimeOff] = useState<TimeOff[]>([])
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([])

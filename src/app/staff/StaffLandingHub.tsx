@@ -4,39 +4,9 @@ import { useEffect, useRef, useState } from 'react'
 import { Check, Mic, Sparkles, X } from 'lucide-react'
 import GapCalendar from './GapCalendar'
 
-const TZ = 'Europe/London'
-
-function useLiveClock(): string {
-  const fmt = () =>
-    new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hour: 'numeric', minute: '2-digit', hour12: true }).format(new Date())
-  const [clock, setClock] = useState(fmt)
-  useEffect(() => {
-    const id = setInterval(() => setClock(fmt()), 10_000)
-    return () => clearInterval(id)
-  }, [])
-  return clock
-}
-
-export default function StaffLandingHub({ greeting, dateLabel }: { greeting: string; dateLabel: string }) {
-  const clock = useLiveClock()
+export default function StaffLandingHub() {
   return (
     <div className="mt-3 space-y-6">
-      {/* Greeting + date / clock */}
-      <div className="flex items-baseline justify-between gap-3">
-        <h1 className="font-display italic text-charcoal text-4xl md:text-5xl leading-tight shrink-0">
-          {greeting}.
-        </h1>
-        <div className="flex items-center gap-1.5 text-xs text-stone text-right flex-wrap justify-end">
-          <span className="whitespace-nowrap">{dateLabel}</span>
-          <span className="text-stone/40">·</span>
-          <span className="tabular-nums font-medium text-charcoal whitespace-nowrap">{clock}</span>
-          <span className="inline-flex items-center gap-1">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage animate-pulse" />
-            <span>Live</span>
-          </span>
-        </div>
-      </div>
-
       {/* The diary calendar — the main focus of the page (today's chair, gaps
           and the whole book all live here, so no separate "today" list). */}
       <GapCalendar />
