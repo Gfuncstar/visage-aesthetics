@@ -6,6 +6,7 @@ import { notifyDone } from '@/lib/staff-toast'
 import { recordUndo, UNDO_DONE_EVENT } from '@/lib/staff-undo'
 import ConsentStatus from '@/components/staff/ConsentStatus'
 import DayTakingsCard from '@/components/staff/DayTakingsCard'
+import DayComplianceCard from '@/components/staff/DayComplianceCard'
 
 // A self-contained "see the gaps, tap one, book someone in" calendar for the
 // landing page. Mirrors the front-desk schedule so the desk can rebook a client
@@ -374,6 +375,7 @@ function DaySchedule({ day, data, nowMin, missing, justIds, onBook, onCancel, on
       {fullyBooked && <p className="text-xs text-stone/70 mb-2">Fully booked — every slot is taken, no gaps on this day.</p>}
       {body}
       <DayTakingsCard day={day} bookings={dayB} nowMin={nowMin} />
+      <DayComplianceCard day={day} bookings={dayB} nowMin={nowMin} />
     </>
   )
   return (
@@ -389,6 +391,7 @@ function DaySchedule({ day, data, nowMin, missing, justIds, onBook, onCancel, on
       </div>
       {body}
       <DayTakingsCard day={day} bookings={dayB} nowMin={nowMin} />
+      <DayComplianceCard day={day} bookings={dayB} nowMin={nowMin} />
     </div>
   )
 }
