@@ -6,10 +6,15 @@ import { smsConfigured } from '@/lib/assistant/sms'
 import { consentFormForService } from '@/lib/consent/forms'
 import { consentNamesOnFile } from '@/lib/assistant/consent'
 import { sendConsentForm } from '@/lib/consent/send'
+import { goLiveTimestamp } from '@/lib/assistant/go-live'
 import type { Booking } from '@/lib/booking-engine/types'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+
+// Only auto-send consent for bookings made on/after go-live, so Ovatu-era
+// clients (consented on paper) aren't emailed a form. Matches the home page.
+const CONSENT_ENFORCE_FROM = process.env.CONSENT_ENFORCE_FROM || goLiveTimestamp()
 export const maxDuration = 60
 
 // Sends the "please confirm you're coming" request for confirmed bookings
@@ -81,7 +86,7 @@ export async function GET(req: Request) {
   let consent = 0
   const consentDue = await select<Booking>('bookings', {
     status: 'eq.confirmed',
-    and: `(starts_at.gt.${now.toISOString()},starts_at.lte.${windowEnd.toISOString()})`,
+    and: `(starts_at.gt.${now.toISOString()},starts_at.lte.${windowEnd.toISOString()},created_at.gte.${CONSENT_ENFORCE_FROM})`,
     order: 'starts_at.asc',
     limit: 200,
   })
