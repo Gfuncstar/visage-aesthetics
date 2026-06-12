@@ -127,24 +127,25 @@ function statusToneFor(status: string, confirmedAt: string | null): string {
   return statusTone[status] ?? 'text-stone'
 }
 
-function ConfirmedDot({ status, confirmedAt }: { status: string; confirmedAt: string | null }) {
+function ConfirmedDot({ status, confirmedAt, onDark = false }: { status: string; confirmedAt: string | null; onDark?: boolean }) {
+  if (onDark) return null
   if (status === 'confirmed' && confirmedAt) return <span title="Client confirmed" className="w-2 h-2 rounded-full bg-sage inline-block shrink-0" />
   if (status === 'confirmed' && !confirmedAt) return <span title="Awaiting confirmation" className="w-2 h-2 rounded-full bg-gold inline-block shrink-0" />
   if (status === 'pending') return <span title="Deposit pending" className="w-2 h-2 rounded-full bg-gold-deep inline-block shrink-0" />
   return null
 }
 
-function ConsentFlag({ name, missing }: { name: string; missing: Set<string> | null }) {
+function ConsentFlag({ name, missing, onDark = false }: { name: string; missing: Set<string> | null; onDark?: boolean }) {
   if (missing === null) return null
   if (missing.has(name.trim().toLowerCase())) {
     return (
-      <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-avail shrink-0 whitespace-nowrap">
+      <span className={`inline-flex items-center gap-0.5 text-[10px] font-semibold shrink-0 whitespace-nowrap ${onDark ? 'text-cream' : 'text-avail'}`}>
         <X size={10} strokeWidth={3} /> Consent
       </span>
     )
   }
   return (
-    <span className="inline-flex items-center gap-0.5 text-[10px] font-normal text-sage/70 shrink-0 whitespace-nowrap">
+    <span className={`inline-flex items-center gap-0.5 text-[10px] font-normal shrink-0 whitespace-nowrap ${onDark ? 'text-cream/70' : 'text-sage/70'}`}>
       <Check size={9} strokeWidth={2.5} /> Consent
     </span>
   )
@@ -678,35 +679,36 @@ function DiaryBookingRow({ booking: b, nowMin, missing, onOpen, onCancel }: {
   const isPast = bookingDay < today || (bookingDay === today && nowMin >= end)
   const isCurrent = bookingDay === today && nowMin >= start && nowMin < end
   const isConfirmed = b.status === 'confirmed' && !!b.confirmed_at
+  const solid = isPast || isCurrent || isConfirmed
+  const cardTone = isPast || isCurrent
+    ? 'border-stone bg-stone'
+    : isConfirmed
+      ? 'border-gold bg-gold'
+      : 'border-line/40 bg-cream'
   return (
     <div
       role="button"
       tabIndex={0}
       onClick={() => onOpen(b)}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(b) } }}
-      className={`flex items-center justify-between gap-3 border-2 rounded-sm px-4 py-3 transition-colors cursor-pointer hover:border-gold/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
-        isPast ? 'border-stone/40 bg-stone/20' :
-        isCurrent ? 'border-sage/60 bg-sage/5' :
-        isConfirmed ? 'border-gold bg-gold/20' :
-        'border-line/40 bg-cream'
-      }`}
+      className={`flex items-center justify-between gap-3 border-2 rounded-sm px-4 py-3 transition cursor-pointer hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold ${cardTone}`}
     >
       <div className="min-w-0 flex-1">
-        <div className={`text-sm truncate flex items-center gap-2 ${isPast ? 'text-stone' : 'text-charcoal'}`}>
-          {isCurrent && <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage shrink-0" />}
+        <div className={`text-sm truncate flex items-center gap-2 ${solid ? 'text-cream' : 'text-charcoal'}`}>
+          {isCurrent && <span className="inline-block w-1.5 h-1.5 rounded-full bg-cream shrink-0" />}
           <span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>
         </div>
         <div className="mt-1 flex items-center gap-1.5">
-          <ConsentFlag name={b.client_name} missing={missing} />
-          <ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} />
-          <span className={`text-xs ${isPast ? 'text-stone/70' : statusToneFor(b.status, b.confirmed_at)}`}>{statusLabel(b.status, b.confirmed_at)}</span>
+          <ConsentFlag name={b.client_name} missing={missing} onDark={solid} />
+          <ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} onDark={solid} />
+          <span className={`text-xs ${solid ? 'text-cream/85' : statusToneFor(b.status, b.confirmed_at)}`}>{statusLabel(b.status, b.confirmed_at)}</span>
         </div>
       </div>
       <div className="shrink-0 flex items-center gap-3">
-        <span className={`text-sm font-semibold truncate max-w-[8rem] text-right ${isPast ? 'text-stone/80' : 'text-gold-deep'}`}>{b.service_name}</span>
+        <span className={`text-sm font-semibold truncate max-w-[8rem] text-right ${solid ? 'text-cream' : 'text-gold-deep'}`}>{b.service_name}</span>
         <button
           onClick={(e) => { e.stopPropagation(); onCancel(b) }}
-          className={`transition-colors ${isPast ? 'text-stone/50 hover:text-clay' : 'text-stone/70 hover:text-clay'}`}
+          className={`transition-colors ${solid ? 'text-cream/70 hover:text-cream' : 'text-stone/70 hover:text-clay'}`}
           title={`Cancel ${b.client_name}'s booking`}
           aria-label="Cancel booking"
         >
