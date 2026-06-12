@@ -31,6 +31,13 @@ const nextConfig: NextConfig = {
       { source: '/cryopen', destination: '/treatments/cryopen', permanent: true },
       { source: '/botox-1', destination: '/treatments/harmonyca', permanent: true },
       { source: '/contact-us', destination: '/contact', permanent: true },
+      // Booking safety net — any plausible "book" URL (old links, typed URLs,
+      // shared screenshots) lands on the working booking page instead of a 404.
+      { source: '/book', destination: '/book-online', permanent: false },
+      { source: '/book-now', destination: '/book-online', permanent: false },
+      { source: '/booking', destination: '/book-online', permanent: false },
+      { source: '/consultation', destination: '/book-online', permanent: false },
+      { source: '/free-consultation', destination: '/book-online', permanent: false },
     ]
   },
 }

@@ -252,7 +252,7 @@ export default function PricingPage() {
 
           <div className="mt-12 flex flex-col sm:flex-row gap-3 sm:justify-center">
             <a {...BOOKING_LINK_PROPS} className="btn btn-primary btn-md:auto">
-              <span>Book free consultation</span>
+              <span>Book</span>
               <span className="btn-arrow">→</span>
             </a>
             <Link href="/treatments" className="btn btn-secondary btn-md:auto">

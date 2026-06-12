@@ -182,7 +182,7 @@ export default async function TreatmentTemplate({
             <h1 className="font-display italic text-hero text-charcoal">{treatment.name}.</h1>
             <p className="mt-5 text-body-lg text-ink-soft max-w-xl">{oneLineBenefit}</p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
-              <a {...BOOKING_LINK_PROPS} className="btn btn-primary btn-block sm:btn-md:auto">Book free consultation <ArrowUpRight size={16} /></a>
+              <a {...BOOKING_LINK_PROPS} className="btn btn-primary btn-block sm:btn-md:auto">Book <ArrowUpRight size={16} /></a>
               <span className="btn btn-ghost-dark btn-block sm:btn-md:auto pointer-events-none">
                 {treatment.price}
               </span>
@@ -462,7 +462,7 @@ export default async function TreatmentTemplate({
               <p className="text-body text-ink-soft mb-6">
                 Every treatment begins with a no-obligation consultation. We talk through your goals, your medical history and what&apos;s realistic, before any decision is made.
               </p>
-              <a {...BOOKING_LINK_PROPS} className="btn btn-primary btn-block">Book free consultation <ArrowUpRight size={16} /></a>
+              <a {...BOOKING_LINK_PROPS} className="btn btn-primary btn-block">Book <ArrowUpRight size={16} /></a>
             </div>
           </div>
         </div>

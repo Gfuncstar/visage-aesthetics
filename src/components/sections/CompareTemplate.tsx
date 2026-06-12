@@ -241,7 +241,7 @@ export default function CompareTemplate({
           <p className="mt-6 text-eyebrow text-ink-soft">Bernadette Tobin · RGN, MSc</p>
           <div className="mt-8">
             <a {...BOOKING_LINK_PROPS} className="btn btn-primary">
-              <span>Book a free consultation</span>
+              <span>Book</span>
               <span className="btn-arrow">→</span>
             </a>
           </div>

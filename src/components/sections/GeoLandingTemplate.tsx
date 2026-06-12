@@ -126,7 +126,7 @@ export default async function GeoLandingTemplate({
             <p className="mt-5 text-body-lg text-ink-soft max-w-xl">{positioningLine}</p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <a {...BOOKING_LINK_PROPS} className="btn btn-primary btn-block sm:btn-md:auto">
-                Book free consultation <ArrowUpRight size={16} />
+                Book <ArrowUpRight size={16} />
               </a>
               <span className="btn btn-ghost-dark btn-block sm:btn-md:auto pointer-events-none">{priceFrom}</span>
             </div>
@@ -178,7 +178,7 @@ export default async function GeoLandingTemplate({
         eyebrow={`${travel.toLowerCase().startsWith('less') || /mile|min/i.test(travel) ? travel : `Travelling from ${town}`}`}
         heading={`A short drive for ${town} clients.`}
         subline={`Winner — Best Non-Surgical Aesthetics Clinic 2026, Essex. Free on-site parking, a discreet entrance and only one appointment in the clinic at a time.`}
-        cta={{ label: 'Book free consultation', href: BOOKING_URL }}
+        cta={{ label: 'Book', href: BOOKING_URL }}
         desktopSrc={pickUspVideo(slug)}
         mobileSrc={pickUspVideo(slug)}
       />
