@@ -9,6 +9,10 @@ const inputClass =
 
 type AnswerMap = Record<string, string | string[]>
 
+// Lets clients with nothing to declare answer a required "tick all that apply"
+// question (e.g. medical conditions / allergies) instead of being stuck.
+const NONE_OF_THE_ABOVE = 'None of the above'
+
 function initialAnswers(form: ConsentForm, clientName: string): AnswerMap {
   const out: AnswerMap = {}
   const [first, ...rest] = clientName.trim().split(/\s+/)
@@ -61,7 +65,14 @@ export default function ConsentFormClient({
   function toggleMulti(label: string, option: string) {
     setAnswers((prev) => {
       const current = Array.isArray(prev[label]) ? (prev[label] as string[]) : []
-      const next = current.includes(option) ? current.filter((o) => o !== option) : [...current, option]
+      let next: string[]
+      if (option === NONE_OF_THE_ABOVE) {
+        // "None of the above" is exclusive — picking it clears everything else.
+        next = current.includes(NONE_OF_THE_ABOVE) ? [] : [NONE_OF_THE_ABOVE]
+      } else {
+        const without = current.filter((o) => o !== NONE_OF_THE_ABOVE)
+        next = without.includes(option) ? without.filter((o) => o !== option) : [...without, option]
+      }
       return { ...prev, [label]: next }
     })
   }
@@ -315,11 +326,14 @@ function Field({
 
   if (field.type === 'multi-choice') {
     const selected = Array.isArray(value) ? value : []
+    // Required "tick all that apply" lists get a "None of the above" so a client
+    // with nothing to declare can still answer and move on.
+    const opts = field.required ? [...(field.options ?? []), NONE_OF_THE_ABOVE] : (field.options ?? [])
     return (
       <div>
         {labelEl}
         <div className="flex flex-wrap gap-2">
-          {(field.options ?? []).map((opt) => {
+          {opts.map((opt) => {
             const on = selected.includes(opt)
             return (
               <label
@@ -334,7 +348,7 @@ function Field({
             )
           })}
         </div>
-        {field.helper && <p className="text-xs text-stone mt-1.5">{field.helper}</p>}
+        <p className="text-xs text-stone mt-1.5">{field.helper ?? 'Tick any that apply, or “None of the above”.'}</p>
       </div>
     )
   }
