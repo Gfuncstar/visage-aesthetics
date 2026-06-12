@@ -56,7 +56,6 @@ function sanitiseInput(raw: unknown): WriteUpInput | null {
     unit: t.unit as UnitType,
     technique: String(b.technique ?? '').trim().slice(0, 500),
     consent: Boolean(b.consent),
-    reviewDate: String(b.reviewDate ?? '').slice(0, 10),
     notes: String(b.notes ?? '').trim().slice(0, 4000),
   }
 }
@@ -112,7 +111,7 @@ export async function POST(req: Request) {
         unit: input.unit === 'none' ? null : input.unit,
         technique: input.technique || null,
         consent: input.consent,
-        review_date: input.reviewDate || null,
+        review_date: null,
         notes: input.notes || null,
         clinical_note: clinicalNote,
       })

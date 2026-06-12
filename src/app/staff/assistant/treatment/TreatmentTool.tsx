@@ -81,7 +81,6 @@ export default function TreatmentTool() {
   const [expiry, setExpiry] = useState('')
   const [technique, setTechnique] = useState('')
   const [consent, setConsent] = useState(true)
-  const [reviewDate, setReviewDate] = useState('')
   const [notes, setNotes] = useState('')
   const [interest, setInterest] = useState('')
 
@@ -212,17 +211,6 @@ export default function TreatmentTool() {
     if (matched === 'consultation') setInterest(a.service_name || '')
   }
 
-  // Default the review date when a treatment type with a follow-up gap is chosen.
-  useEffect(() => {
-    if (type.followUpDays && date) {
-      const d = new Date(date)
-      d.setDate(d.getDate() + type.followUpDays)
-      setReviewDate(d.toISOString().slice(0, 10))
-    } else {
-      setReviewDate('')
-    }
-  }, [type, date])
-
   function searchClients(q: string) {
     if (sugTimer.current) clearTimeout(sugTimer.current)
     sugTimer.current = setTimeout(async () => {
@@ -276,7 +264,6 @@ export default function TreatmentTool() {
       unit: type.unit,
       technique,
       consent,
-      reviewDate,
       notes,
       interest,
     }
@@ -566,12 +553,6 @@ export default function TreatmentTool() {
               <label htmlFor="date" className="text-eyebrow text-ink-soft mb-2 block">Date of treatment</label>
               <input id="date" type="date" className={inputClass} value={date} onChange={(e) => setDate(e.target.value)} />
             </div>
-            {type.followUpDays !== null && (
-              <div>
-                <label htmlFor="review" className="text-eyebrow text-ink-soft mb-2 block">Review / next session</label>
-                <input id="review" type="date" className={inputClass} value={reviewDate} onChange={(e) => setReviewDate(e.target.value)} />
-              </div>
-            )}
           </div>
 
           {/* What they came in for — drives the consultation follow-up email */}
