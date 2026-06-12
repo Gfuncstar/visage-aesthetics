@@ -180,7 +180,7 @@ export default function ScrollScrubHero() {
                   className="btn btn-primary !min-h-[24px] !px-3.5 !py-2"
                   style={{ minWidth: 110, fontSize: 9.5, letterSpacing: '0.15em', gap: 8 }}
                 >
-                  <span>Book a free consultation</span>
+                  <span>Book</span>
                   <span className="btn-arrow">→</span>
                 </a>
                 <div className="hidden sm:flex items-center gap-4 lg:gap-6 text-stone">
