@@ -295,18 +295,18 @@ export default function GapCalendar() {
         )}
       </div>
 
-      <div className="flex items-center justify-between gap-3 mb-3">
-        <div className="inline-flex rounded-full border border-line/50 bg-cream-soft p-0.5">
+      <div className="flex items-center gap-2 mb-4">
+        <div className="inline-flex rounded-full border border-line/50 bg-cream-soft p-0.5 shrink-0">
           {(['day', 'week', 'month'] as const).map((v) => (
-            <button key={v} onClick={() => setSchedView(v)} className={`text-sm rounded-full px-4 py-1.5 capitalize transition-colors ${schedView === v ? 'bg-gold text-charcoal' : 'text-ink-soft'}`}>{v}</button>
+            <button key={v} onClick={() => setSchedView(v)} className={`text-xs rounded-full px-2.5 py-1 capitalize transition-colors ${schedView === v ? 'bg-gold text-charcoal' : 'text-ink-soft'}`}>{v}</button>
           ))}
         </div>
-        <button onClick={() => setAnchor(todayStr())} className="text-xs text-gold-deep hover:underline">Today</button>
-      </div>
-      <div className="flex items-center justify-between gap-3 mb-4">
-        <button onClick={() => setAnchor(schedView === 'month' ? addMonths(anchor, -1) : addDays(anchor, schedView === 'week' ? -7 : -1))} className="w-9 h-9 inline-flex items-center justify-center rounded-sm border border-line/50 bg-cream-soft hover:border-gold/60"><ChevronLeft size={17} /></button>
-        <div className="font-display italic text-lg text-charcoal text-center">{schedView === 'month' ? monthHeading(anchor) : schedView === 'week' ? weekHeading(anchor) : dayHeadingFull(anchor)}</div>
-        <button onClick={() => setAnchor(schedView === 'month' ? addMonths(anchor, 1) : addDays(anchor, schedView === 'week' ? 7 : 1))} className="w-9 h-9 inline-flex items-center justify-center rounded-sm border border-line/50 bg-cream-soft hover:border-gold/60"><ChevronRight size={17} /></button>
+        <div className="flex items-center justify-center gap-1 flex-1 min-w-0">
+          <button onClick={() => setAnchor(schedView === 'month' ? addMonths(anchor, -1) : addDays(anchor, schedView === 'week' ? -7 : -1))} className="w-7 h-7 inline-flex items-center justify-center rounded-sm border border-line/50 bg-cream-soft hover:border-gold/60 shrink-0"><ChevronLeft size={15} /></button>
+          <div className="font-display italic text-sm text-charcoal text-center truncate">{schedView === 'month' ? monthHeading(anchor) : schedView === 'week' ? weekHeading(anchor) : dayHeadingFull(anchor)}</div>
+          <button onClick={() => setAnchor(schedView === 'month' ? addMonths(anchor, 1) : addDays(anchor, schedView === 'week' ? 7 : 1))} className="w-7 h-7 inline-flex items-center justify-center rounded-sm border border-line/50 bg-cream-soft hover:border-gold/60 shrink-0"><ChevronRight size={15} /></button>
+        </div>
+        <button onClick={() => setAnchor(todayStr())} className="text-xs text-gold-deep hover:underline shrink-0">Today</button>
       </div>
 
       {schedLoading ? (
