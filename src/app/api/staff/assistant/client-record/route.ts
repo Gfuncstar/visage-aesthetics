@@ -59,7 +59,7 @@ export async function GET(req: Request) {
       // PostgREST equality is case-sensitive; match case-insensitively.
       const enc = name.replace(/[%,()]/g, ' ')
       const norm = name.trim().toLowerCase().replace(/\s+/g, ' ')
-      const [appts, treatments, photos, dnc, flags, messages, consentForms, vouchers] = await Promise.all([
+      const [appts, treatments, photos, dnc, flags, messages, consentForms, vouchers, reminderMsgs, consentReqs] = await Promise.all([
         select<Appointment>('appointments', { client_name: `ilike.${enc}`, order: 'date.desc', limit: 500 }),
         select<TreatmentRecord>('treatment_records', { client_name: `ilike.${enc}`, order: 'date.desc', limit: 500 }),
         select<Photo>('photos', { client_name: `ilike.${enc}`, order: 'date.desc', limit: 200 }),
@@ -72,6 +72,12 @@ export async function GET(req: Request) {
         select<ConsentFormRow>('consent_submissions', { client_name: `ilike.${enc}`, order: 'submitted_at.desc', select: 'id,form_id,form_name,service_name,client_email,answers,declaration,submitted_at,booking_id', limit: 100 }).catch(() => []),
         // Gift vouchers issued to this client (matched by recipient name).
         select<VoucherRow>('gift_vouchers', { recipient_name: `ilike.${enc}`, order: 'created_at.desc', select: 'id,code,status,amount_pence,balance_pence,created_at,expires_at,buyer_name', limit: 50 }).catch(() => []),
+        // Confirmation reminders sent — every reminder send is logged as a message
+        // with kind 'reminder'. Counted here so the record shows how many and when.
+        select<{ channel: string; created_at: string }>('messages', { name_normalised: `eq.${norm}`, kind: 'eq.reminder', order: 'created_at.desc', select: 'channel,created_at', limit: 100 }).catch(() => []),
+        // Consent forms sent — each send creates a consent_requests row. Authoritative
+        // send log, separate from completed submissions above.
+        select<{ id: string; form_name: string; status: string; created_at: string }>('consent_requests', { client_name: `ilike.${enc}`, order: 'created_at.desc', select: 'id,form_name,status,created_at', limit: 100 }).catch(() => []),
       ])
 
       const completed = appts.filter((a) => a.status === 'completed')
@@ -100,6 +106,17 @@ export async function GET(req: Request) {
         messages,
         consentForms,
         vouchers,
+        reminders: {
+          count: reminderMsgs.length,
+          lastAt: reminderMsgs[0]?.created_at ?? null,
+          lastChannel: reminderMsgs[0]?.channel ?? null,
+        },
+        consentSends: {
+          count: consentReqs.length,
+          lastAt: consentReqs[0]?.created_at ?? null,
+          lastForm: consentReqs[0]?.form_name ?? null,
+          lastStatus: consentReqs[0]?.status ?? null,
+        },
         doNotContact: dnc.length > 0,
         blocked: flags[0]?.blocked ?? false,
         requiresDeposit: flags[0]?.requires_deposit ?? false,

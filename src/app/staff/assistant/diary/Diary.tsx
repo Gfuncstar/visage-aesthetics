@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { ChevronLeft, ChevronRight, Check, Clock, LogOut, Plus, Ban, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Check, Clock, FileCheck2, LogOut, Mail, Phone, Plus, Ban, Send, X } from 'lucide-react'
 import MicButton, { appendText } from '@/components/ui/MicButton'
 import { notifyDone } from '@/lib/staff-toast'
+import { consentFormForService } from '@/lib/consent/forms'
 
 const STATUS_DONE: Record<string, string> = {
   completed: 'Marked as completed',
@@ -18,6 +19,7 @@ type Booking = {
   service_name: string
   client_name: string
   client_phone: string | null
+  client_email: string | null
   starts_at: string
   ends_at: string
   status: string
@@ -94,6 +96,15 @@ function monthHeading(ds: string): string {
   return new Intl.DateTimeFormat('en-GB', { timeZone: TZ, month: 'long', year: 'numeric' }).format(new Date(`${ds}T12:00:00Z`))
 }
 
+function useNowMin(): number {
+  const [nowMin, setNowMin] = useState(() => toLocalMin(new Date().toISOString()))
+  useEffect(() => {
+    const id = setInterval(() => setNowMin(toLocalMin(new Date().toISOString())), 30_000)
+    return () => clearInterval(id)
+  }, [])
+  return nowMin
+}
+
 const statusTone: Record<string, string> = {
   confirmed: 'text-sage',
   pending: 'text-gold-deep',
@@ -125,13 +136,13 @@ function ConsentFlag({ name, missing }: { name: string; missing: Set<string> | n
   if (missing === null) return null
   if (missing.has(name.trim().toLowerCase())) {
     return (
-      <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-clay shrink-0 whitespace-nowrap">
-        <X size={9} strokeWidth={2.5} /> Consent
+      <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-avail shrink-0 whitespace-nowrap">
+        <X size={10} strokeWidth={3} /> Consent
       </span>
     )
   }
   return (
-    <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-sage shrink-0 whitespace-nowrap">
+    <span className="inline-flex items-center gap-0.5 text-[10px] font-normal text-sage/70 shrink-0 whitespace-nowrap">
       <Check size={9} strokeWidth={2.5} /> Consent
     </span>
   )
@@ -274,6 +285,9 @@ export default function Diary() {
   const [businessHours, setBusinessHours] = useState<BusinessHours[]>([])
   const [adding, setAdding] = useState<'booking' | 'time_off' | 'hours' | null>(null)
   const [consentMissing, setConsentMissing] = useState<Set<string> | null>(null)
+  const [detail, setDetail] = useState<Booking | null>(null)
+  const [pendingCancel, setPendingCancel] = useState<Booking | null>(null)
+  const nowMin = useNowMin()
 
 
   const load = useCallback(async (from: string, to: string) => {
@@ -400,24 +414,17 @@ export default function Diary() {
                       ...gaps.map((g) => ({ t: 'g' as const, g, min: g.start })),
                     ].sort((a, b) => a.min - b.min)
                     return (
-                      <div className="border border-line/40 bg-cream-soft rounded-sm divide-y divide-line/30">
+                      <div className="space-y-1.5">
                         {sorted.map((item, i) => item.t === 'to' ? (
-                          <div key={item.to.id} className="px-3.5 py-2 text-xs text-stone flex items-center gap-2"><Ban size={12} strokeWidth={1.75} /> {timeLabel(item.to.starts_at)} to {timeLabel(item.to.ends_at)} &nbsp;·&nbsp; {item.to.reason || 'Blocked'}</div>
+                          <div key={item.to.id} className="px-3.5 py-2 text-xs text-stone flex items-center gap-2 border border-line/40 bg-cream-soft rounded-sm"><Ban size={12} strokeWidth={1.75} /> {timeLabel(item.to.starts_at)} to {timeLabel(item.to.ends_at)} &nbsp;·&nbsp; {item.to.reason || 'Blocked'}</div>
                         ) : item.t === 'g' ? (
-                          <div key={`gap-${i}`} className="px-3.5 py-1.5 flex items-center gap-1.5 select-none">
+                          <div key={`gap-${i}`} className="px-3.5 py-1.5 flex items-center gap-1.5 select-none border border-dashed border-line/40 rounded-sm">
                             <span className="text-[11px] text-stone/50 tabular-nums whitespace-nowrap">{gapClock(item.g.start)}</span>
                             <span className="flex-1 border-t border-dashed border-stone/25" />
                             <span className="text-[11px] text-stone/50 whitespace-nowrap">{gapLabel(item.g.end - item.g.start)}</span>
                           </div>
                         ) : (
-                          <div key={item.b.id} className="px-3.5 py-2.5 flex items-center justify-between gap-2 bg-gold/[0.07]">
-                            <span className="text-sm text-charcoal truncate min-w-0"><span className="text-stone">{timeLabel(item.b.starts_at)}</span> &nbsp; {item.b.client_name}</span>
-                            <div className="shrink-0 flex items-center gap-2 ml-2">
-                              <span className="text-xs text-stone truncate">{item.b.service_name}</span>
-                              <ConsentFlag name={item.b.client_name} missing={consentMissing} />
-                              <ConfirmedDot status={item.b.status} confirmedAt={item.b.confirmed_at} />
-                            </div>
-                          </div>
+                          <DiaryBookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={consentMissing} onOpen={setDetail} onCancel={setPendingCancel} />
                         ))}
                       </div>
                     )
@@ -451,26 +458,7 @@ export default function Diary() {
                   </div>
                 </div>
               ) : (
-                <div key={item.b.id} className="border border-gold/35 bg-gold/[0.07] rounded-sm p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-charcoal"><span className="font-medium">{timeLabel(item.b.starts_at)}</span> &nbsp; {item.b.client_name}</div>
-                      <div className="text-sm text-stone mt-0.5">{item.b.service_name}{item.b.source === 'online' ? ' · online' : ''}{item.b.client_phone ? ` · ${item.b.client_phone}` : ''}</div>
-                      {item.b.notes && <div className="text-xs text-ink-soft mt-1">{item.b.notes}</div>}
-                    </div>
-                    <span className="inline-flex items-center gap-1.5">
-                      <ConsentFlag name={item.b.client_name} missing={consentMissing} />
-                      <ConfirmedDot status={item.b.status} confirmedAt={item.b.confirmed_at} />
-                      <span className={`text-xs ${statusToneFor(item.b.status, item.b.confirmed_at)}`}>{statusLabel(item.b.status, item.b.confirmed_at)}</span>
-                    </span>
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {item.b.status !== 'completed' && <button onClick={() => setStatus(item.b.id, 'completed')} className="text-xs rounded-full border border-line/50 px-3 py-1.5 text-charcoal hover:border-gold/60">Completed</button>}
-                    {item.b.status !== 'no_show' && <button onClick={() => setStatus(item.b.id, 'no_show')} className="text-xs rounded-full border border-line/50 px-3 py-1.5 text-charcoal hover:border-gold/60">No show</button>}
-                    {item.b.status === 'pending' && <button onClick={() => setStatus(item.b.id, 'confirmed')} className="text-xs rounded-full border border-line/50 px-3 py-1.5 text-charcoal hover:border-gold/60">Confirm</button>}
-                    <button onClick={() => setStatus(item.b.id, 'cancelled')} className="text-xs rounded-full border border-clay/40 px-3 py-1.5 text-clay hover:bg-clay/5 ml-auto">Cancel</button>
-                  </div>
-                </div>
+                <DiaryBookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={consentMissing} onOpen={setDetail} onCancel={setPendingCancel} />
               ))
             })()}
           </div>
@@ -491,6 +479,24 @@ export default function Diary() {
             </div>
             <p className="text-xs text-ink-soft mt-2">When you cancel a booking, anyone waiting for that treatment is texted automatically.</p>
           </div>
+        )}
+
+        {detail && (
+          <DiaryDetailModal
+            booking={detail}
+            missing={consentMissing}
+            onClose={() => setDetail(null)}
+            onStatus={async (id, status) => { await setStatus(id, status); setDetail(null) }}
+            onChanged={reload}
+            onCancel={(b) => { setDetail(null); setPendingCancel(b) }}
+          />
+        )}
+        {pendingCancel && (
+          <DiaryCancelModal
+            booking={pendingCancel}
+            onConfirm={() => { void setStatus(pendingCancel.id, 'cancelled'); setPendingCancel(null) }}
+            onClose={() => setPendingCancel(null)}
+          />
         )}
       </div>
     </section>
@@ -654,6 +660,257 @@ function BlockTime({ date, onDone }: { date: string; onDone: () => void }) {
       </div>
       {err && <p className="text-xs text-clay">{err}</p>}
       <button onClick={save} disabled={busy} className="btn btn-secondary disabled:opacity-50" style={{ minHeight: 38 }}>{busy ? 'Saving…' : 'Block this time'}</button>
+    </div>
+  )
+}
+
+// ---- Booking card — matches GapCalendar's BookingRow style ------------------
+function DiaryBookingRow({ booking: b, nowMin, missing, onOpen, onCancel }: {
+  booking: Booking; nowMin: number; missing: Set<string> | null
+  onOpen: (b: Booking) => void; onCancel: (b: Booking) => void
+}) {
+  const start = toLocalMin(b.starts_at)
+  const end = toLocalMin(b.ends_at)
+  const bookingDay = localDate(b.starts_at)
+  const today = todayStr()
+  const isPast = bookingDay < today || (bookingDay === today && nowMin >= end)
+  const isCurrent = bookingDay === today && nowMin >= start && nowMin < end
+  const isConfirmed = b.status === 'confirmed' && !!b.confirmed_at
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onOpen(b)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(b) } }}
+      className={`flex items-center justify-between gap-3 border-2 rounded-sm px-4 py-3 transition-colors cursor-pointer hover:border-gold/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
+        isPast ? 'border-stone/40 bg-stone/20' :
+        isCurrent ? 'border-sage/60 bg-sage/5' :
+        isConfirmed ? 'border-gold bg-gold/20' :
+        'border-line/40 bg-cream'
+      }`}
+    >
+      <div className="min-w-0 flex-1">
+        <div className={`text-sm truncate flex items-center gap-2 ${isPast ? 'text-stone' : 'text-charcoal'}`}>
+          {isCurrent && <span className="inline-block w-1.5 h-1.5 rounded-full bg-sage shrink-0" />}
+          <span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>
+        </div>
+        <div className="mt-1 flex items-center gap-1.5">
+          <ConsentFlag name={b.client_name} missing={missing} />
+          <ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} />
+          <span className={`text-xs ${isPast ? 'text-stone/70' : statusToneFor(b.status, b.confirmed_at)}`}>{statusLabel(b.status, b.confirmed_at)}</span>
+        </div>
+      </div>
+      <div className="shrink-0 flex items-center gap-3">
+        <span className={`text-sm font-semibold truncate max-w-[8rem] text-right ${isPast ? 'text-stone/80' : 'text-gold-deep'}`}>{b.service_name}</span>
+        <button
+          onClick={(e) => { e.stopPropagation(); onCancel(b) }}
+          className={`transition-colors ${isPast ? 'text-stone/50 hover:text-clay' : 'text-stone/70 hover:text-clay'}`}
+          title={`Cancel ${b.client_name}'s booking`}
+          aria-label="Cancel booking"
+        >
+          <X size={16} strokeWidth={2} />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ---- Booking detail modal — charcoal header, diary actions ------------------
+function DiaryDetailModal({ booking: b, missing, onClose, onStatus, onChanged, onCancel }: {
+  booking: Booking
+  missing: Set<string> | null
+  onClose: () => void
+  onStatus: (id: string, status: string) => Promise<void>
+  onChanged: () => void
+  onCancel: (b: Booking) => void
+}) {
+  const [busy, setBusy] = useState<string | null>(null)
+  const [note, setNote] = useState<string | null>(null)
+  const [err, setErr] = useState<string | null>(null)
+  const isConfirmed = b.status === 'confirmed' && !!b.confirmed_at
+  const noContact = !b.client_email && !b.client_phone
+  // The consent form that matches this booking's treatment (e.g. Botox → Botox
+  // Consent Form). Null when the treatment maps to no form (e.g. a plain
+  // consultation). Offer to send it when the client hasn't completed one yet.
+  const consentForm = consentFormForService(null, b.service_name)
+  const needsConsent = missing !== null && missing.has(b.client_name.trim().toLowerCase())
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  async function act(action: 'remind' | 'confirm') {
+    setBusy(action); setErr(null); setNote(null)
+    try {
+      const res = await fetch('/api/staff/assistant/confirmations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId: b.id, action }),
+      })
+      const d = await res.json().catch(() => ({}))
+      if (!res.ok) { setErr(d.error || 'Could not do that.'); return }
+      if (action === 'confirm') { notifyDone('Marked as confirmed'); onChanged(); onClose() }
+      else { setNote(`Confirmation request sent by ${d.channel === 'sms' ? 'text' : 'email'}.`); onChanged() }
+    } catch {
+      setErr('Network error — please try again.')
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function markStatus(status: string) {
+    setBusy(status)
+    await onStatus(b.id, status)
+  }
+
+  async function sendConsent() {
+    if (!consentForm) return
+    setBusy('consent'); setErr(null); setNote(null)
+    try {
+      const res = await fetch('/api/staff/assistant/consent/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ formId: consentForm.id, clientName: b.client_name, clientEmail: b.client_email, bookingId: b.id }),
+      })
+      const d = await res.json().catch(() => ({}))
+      if (!res.ok) { setErr(d.error || 'Could not send the consent form.'); return }
+      setNote(`${consentForm.name.replace(/ Consent Form$/i, '').trim()} consent form sent.`)
+      onChanged()
+    } catch {
+      setErr('Network error — please try again.')
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  const dateLine = `${dayHeading(localDate(b.starts_at))} · ${timeLabel(b.starts_at)}`
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-charcoal/60 px-5"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="diary-detail-title"
+      onClick={onClose}
+    >
+      <div className="bg-cream rounded-md shadow-xl max-w-sm w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
+        <div className="bg-charcoal text-cream px-5 py-4 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-xs text-cream/60">{dateLine}</div>
+            <h2 id="diary-detail-title" className="font-display italic text-2xl leading-tight truncate">{b.client_name}</h2>
+            <div className="text-sm text-gold-soft mt-0.5 truncate">{b.service_name}</div>
+          </div>
+          <button onClick={onClose} className="text-cream/60 hover:text-cream shrink-0" aria-label="Close"><X size={18} /></button>
+        </div>
+
+        <div className="px-5 py-4 space-y-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs ${isConfirmed ? 'bg-gold/20 text-gold-deep border border-gold/40' : 'bg-stone/10 text-stone border border-stone/30'}`}>
+              {statusLabel(b.status, b.confirmed_at)}
+            </span>
+            {b.source && <span className="text-xs text-stone">via {b.source === 'ovatu' ? 'Ovatu' : b.source === 'online' ? 'online' : 'staff'}</span>}
+          </div>
+
+          <div className="text-sm text-charcoal space-y-1.5">
+            <div className="flex items-center gap-2">
+              <Phone size={13} className="text-stone shrink-0" />
+              {b.client_phone ? <a href={`tel:${b.client_phone}`} className="text-gold-deep hover:underline">{b.client_phone}</a> : <span className="text-stone/60">No phone on file</span>}
+            </div>
+            <div className="flex items-center gap-2 min-w-0">
+              <Mail size={13} className="text-stone shrink-0" />
+              {b.client_email ? <a href={`mailto:${b.client_email}`} className="text-gold-deep hover:underline truncate">{b.client_email}</a> : <span className="text-stone/60">No email on file</span>}
+            </div>
+          </div>
+
+          {b.notes && <div className="text-sm text-ink-soft border border-line/50 bg-cream-soft rounded-sm px-3 py-2 leading-relaxed whitespace-pre-wrap">{b.notes}</div>}
+
+          {note && <p className="text-xs text-sage">{note}</p>}
+          {err && <p className="text-xs text-clay">{err}</p>}
+
+          <div className="flex flex-col gap-2 pt-1">
+            {b.status !== 'completed' && (
+              <button onClick={() => markStatus('completed')} disabled={busy !== null} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 40 }}>
+                <span className="inline-flex items-center gap-2"><Check size={15} strokeWidth={2} /> {busy === 'completed' ? 'Saving…' : 'Mark as completed'}</span>
+              </button>
+            )}
+            {b.status !== 'no_show' && b.status !== 'completed' && (
+              <button onClick={() => markStatus('no_show')} disabled={busy !== null} className="btn btn-secondary disabled:opacity-50" style={{ minHeight: 40 }}>
+                {busy === 'no_show' ? 'Saving…' : 'No show'}
+              </button>
+            )}
+            {!isConfirmed && b.status !== 'completed' && b.status !== 'cancelled' && !noContact && (
+              <button onClick={() => act('remind')} disabled={busy !== null} className="btn btn-secondary disabled:opacity-50" style={{ minHeight: 40 }}>
+                <span className="inline-flex items-center gap-2"><Send size={14} strokeWidth={1.75} /> {busy === 'remind' ? 'Sending…' : 'Send confirmation request'}</span>
+              </button>
+            )}
+            {/* Consent form for this treatment — only when one is mapped and the
+                client hasn't completed it. Needs an email to send to. */}
+            {needsConsent && consentForm && b.status !== 'cancelled' && b.client_email && (
+              <button onClick={sendConsent} disabled={busy !== null} className="btn btn-secondary disabled:opacity-50" style={{ minHeight: 40 }}>
+                <span className="inline-flex items-center gap-2"><FileCheck2 size={14} strokeWidth={1.75} /> {busy === 'consent' ? 'Sending…' : 'Send consent form'}</span>
+              </button>
+            )}
+            {needsConsent && consentForm && b.status !== 'cancelled' && !b.client_email && (
+              <p className="text-xs text-clay leading-snug">Consent form not completed — add an email to send the {consentForm.name.replace(/ Consent Form$/i, '').trim()} form.</p>
+            )}
+            {noContact && !isConfirmed && b.status !== 'completed' && (
+              <p className="text-xs text-clay leading-snug">No contact details — add a phone or email to send a confirmation.</p>
+            )}
+            <button onClick={() => onCancel(b)} className="text-sm text-clay border border-clay/30 hover:bg-clay/5 rounded-sm transition-colors" style={{ minHeight: 40 }}>
+              Cancel &amp; release slot
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ---- Cancel confirmation — dark brand pop-up --------------------------------
+function DiaryCancelModal({ booking, onConfirm, onClose }: { booking: Booking; onConfirm: () => void; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-charcoal/60 px-5"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="diary-cancel-title"
+      onClick={onClose}
+    >
+      <div className="bg-charcoal text-cream border border-gold/45 rounded-md shadow-xl max-w-sm w-full p-6" onClick={(e) => e.stopPropagation()}>
+        <span className="inline-flex w-12 h-12 rounded-full bg-clay/20 text-clay items-center justify-center mb-4">
+          <X size={24} strokeWidth={2} />
+        </span>
+        <h2 id="diary-cancel-title" className="font-display italic text-2xl leading-tight">Cancel this booking?</h2>
+        <p className="text-sm text-cream/85 mt-2 leading-relaxed">
+          <span className="font-medium text-cream">{booking.client_name}</span>
+          {' · '}{timeLabel(booking.starts_at)}{' · '}{booking.service_name}
+        </p>
+        <p className="text-xs text-cream/55 mt-2 leading-relaxed">This frees the slot and texts anyone on the waitlist for that treatment.</p>
+        <div className="flex items-center gap-2 mt-5">
+          <button
+            onClick={onConfirm}
+            className="inline-flex items-center justify-center gap-2 rounded-sm bg-clay text-cream font-medium px-4 hover:bg-clay/90 transition-colors"
+            style={{ minHeight: 40 }}
+            autoFocus
+          >
+            <X size={15} strokeWidth={2} /> Yes, cancel
+          </button>
+          <button
+            onClick={onClose}
+            className="inline-flex items-center justify-center rounded-sm border border-cream/30 text-cream px-4 hover:bg-cream/10 transition-colors"
+            style={{ minHeight: 40 }}
+          >
+            Keep booking
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

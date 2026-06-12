@@ -109,6 +109,40 @@ body {
 }
 .text-body { font-size: 12.5px; line-height: 1.55; color: #5C4F44; }
 
+/* ---------- Staff CMS readability ----------
+   The clinic back office is dense and read on an iPad at arm's length, so the
+   small Tailwind text sizes are nudged up a couple of pixels here. Scoped to
+   the staff area only (.cms-readable wraps the staff layout) — the public
+   marketing site keeps its original type scale. */
+.cms-readable .text-\[9px\]  { font-size: 11px; }
+.cms-readable .text-\[10px\] { font-size: 12px; }
+.cms-readable .text-\[11px\] { font-size: 13px; }
+.cms-readable .text-xs   { font-size: 13.5px; line-height: 1.45; }
+.cms-readable .text-sm   { font-size: 15px;   line-height: 1.5; }
+.cms-readable .text-base { font-size: 17px;   line-height: 1.55; }
+
+/* The marketing .btn is a large, widely letter-spaced, left-aligned hero CTA
+   (56px tall, justify-content: space-between). In dense staff screens that reads
+   as inconsistent and the labels wrap. Inside the CMS, make buttons compact and
+   evenly sized so every action label sits the same. */
+.cms-readable .btn {
+  gap: 8px;
+  padding: 11px 18px;
+  min-height: 44px;
+  font-size: 13.5px;
+  letter-spacing: 0.08em;
+}
+/* Centre plain single-label buttons (the common case); leave label↔arrow
+   buttons split left/right as the marketing style intends. */
+.cms-readable .btn:not(:has(.btn-arrow)) {
+  justify-content: center;
+  text-align: center;
+}
+/* The marketing hover slides text right by growing left padding — drop that for
+   centred buttons so they don't shift. */
+.cms-readable .btn-secondary:not(:has(.btn-arrow)):hover,
+.cms-readable .btn-ghost-dark:not(:has(.btn-arrow)):hover { padding-left: 18px; }
+
 /* ---------- Section numbers (brand pattern) ---------- */
 .section-num {
   font-family: var(--font-inter), system-ui, sans-serif;

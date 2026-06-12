@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Lock } from 'lucide-react'
+import FaceIdButton from '../FaceIdButton'
 
 const STORAGE_KEY = 'visage_staff_pin'
 
@@ -96,6 +97,8 @@ export default function StaffGate({
               {busy ? 'Checking…' : 'Sign in'}
             </button>
           </form>
+
+          <FaceIdButton />
         </div>
         <p className="text-center text-xs text-ink-soft mt-6">
           For Visage Aesthetics clinic staff only.

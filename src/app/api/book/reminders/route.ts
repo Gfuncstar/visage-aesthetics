@@ -3,6 +3,9 @@ import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, select, update } from '@/lib/assistant/db'
 import { sendConfirmRequest } from '@/lib/booking-engine/confirm-request'
 import { smsConfigured } from '@/lib/assistant/sms'
+import { consentFormForService } from '@/lib/consent/forms'
+import { consentNamesOnFile } from '@/lib/assistant/consent'
+import { sendConsentForm } from '@/lib/consent/send'
 import type { Booking } from '@/lib/booking-engine/types'
 
 export const runtime = 'nodejs'
@@ -15,6 +18,11 @@ export const maxDuration = 60
 // with the same link if there's no email on file). Called hourly by the
 // scheduler with ?key=<push_cron_secret>, or by signed-in staff (?test=1
 // reports the count).
+//
+// In the same pass it also sends the consent form for any booking due in the
+// next 24h whose treatment needs one (e.g. Botox → Botox Consent Form) when the
+// client hasn't already completed, been sent, or been waived one. Dedup is by
+// the consent_requests row this creates, so nobody is emailed twice.
 export async function GET(req: Request) {
   if (!assistantConfigured()) return NextResponse.json({ error: 'Not configured' }, { status: 503 })
   const url = new URL(req.url)
@@ -66,5 +74,32 @@ export async function GET(req: Request) {
     }
   }
 
-  return NextResponse.json({ ok: true, dueCount: due.length, sms, email })
+  // Consent forms — send the matching form to anyone due in the next 24h who
+  // needs one and hasn't completed (or already been sent) it. Evaluated
+  // independently of the confirmation reminder (no reminded_at filter) so a
+  // booking confirmed earlier still gets its consent form.
+  let consent = 0
+  const consentDue = await select<Booking>('bookings', {
+    status: 'eq.confirmed',
+    and: `(starts_at.gt.${now.toISOString()},starts_at.lte.${windowEnd.toISOString()})`,
+    order: 'starts_at.asc',
+    limit: 200,
+  })
+  const onFile = await consentNamesOnFile()
+  for (const b of consentDue) {
+    if (!b.client_email) continue
+    const form = consentFormForService(b.service_slug, b.service_name)
+    if (!form) continue
+    const key = b.client_name.trim().toLowerCase()
+    if (onFile.has(key)) continue
+    const res = await sendConsentForm({ form, clientName: b.client_name, clientEmail: b.client_email, bookingId: b.id })
+    if (res.ok) {
+      consent++
+      // Guard against sending twice to the same client within this run (e.g.
+      // two bookings); the consent_requests row covers future runs.
+      onFile.add(key)
+    }
+  }
+
+  return NextResponse.json({ ok: true, dueCount: due.length, sms, email, consent })
 }

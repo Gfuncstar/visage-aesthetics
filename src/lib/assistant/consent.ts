@@ -37,6 +37,25 @@ function norm(n: string): string {
   return n.trim().toLowerCase()
 }
 
+// Normalised names of every client who already has consent accounted for —
+// a completed submission, a form already sent (consent_requests), or a waiver.
+// Used by the reminder cron to avoid re-sending a consent form to someone who
+// has already completed or been sent one. Matched by normalised name, the same
+// forgiving way as the rest of the consent reconciliation.
+export async function consentNamesOnFile(): Promise<Set<string>> {
+  const since = new Date(Date.now() - CONSENT_LOOKBACK_DAYS * DAY_MS).toISOString()
+  const [requests, waivers, submissions] = await Promise.all([
+    select<ReqRow>('consent_requests', { status: 'in.(sent,waived,completed)', select: 'id,client_name', limit: 2000 }).catch(() => [] as ReqRow[]),
+    select<WaiverRow>('consent_waivers', { select: 'client_name_norm', limit: 2000 }).catch(() => [] as WaiverRow[]),
+    select<SubRow>('consent_submissions', { submitted_at: `gte.${since}`, select: 'client_name,submitted_at', limit: 5000 }).catch(() => [] as SubRow[]),
+  ])
+  const set = new Set<string>()
+  for (const s of submissions) { const k = norm(s.client_name ?? ''); if (k) set.add(k) }
+  for (const r of requests) { const k = norm(r.client_name ?? ''); if (k) set.add(k) }
+  for (const w of waivers) { if (w.client_name_norm) set.add(w.client_name_norm) }
+  return set
+}
+
 export async function consentReview(): Promise<ConsentReview | null> {
   const today = new Date().toISOString().slice(0, 10)
   const horizon = new Date(Date.now() + HORIZON_DAYS * DAY_MS).toISOString().slice(0, 10)
