@@ -405,6 +405,8 @@ export default function Diary() {
                     <span className={`text-sm font-medium ${isToday ? 'text-gold-deep' : 'text-charcoal'}`}>{shortDay(day)}{isToday ? ' · today' : ''}</span>
                     <span className="text-xs text-stone">{dayB.length ? `${dayB.length} in` : ''}</span>
                   </button>
+                  <DayTakingsCard day={day} bookings={dayB} nowMin={nowMin} />
+                  <DayComplianceCard day={day} bookings={dayB} nowMin={nowMin} />
                   {dayB.length || dayT.length ? (() => {
                     const gaps = dayFreeGaps(day, live, timeOff, businessHours)
                     const sorted = [
@@ -430,8 +432,6 @@ export default function Diary() {
                   })() : (
                     <div className="text-xs text-stone/60 pb-0.5">Nothing booked</div>
                   )}
-                  <DayTakingsCard day={day} bookings={dayB} nowMin={nowMin} />
-                  <DayComplianceCard day={day} bookings={dayB} nowMin={nowMin} />
                 </div>
               )
             })}
@@ -440,6 +440,8 @@ export default function Diary() {
           <p className="text-sm text-ink-soft border border-line/40 rounded-sm bg-cream-soft px-4 py-5 text-center">Nothing booked this day.</p>
         ) : (
           <div className="space-y-2.5">
+            <DayTakingsCard day={date} bookings={live} nowMin={nowMin} />
+            <DayComplianceCard day={date} bookings={live} nowMin={nowMin} />
             {(() => {
               const gaps = dayFreeGaps(date, live, timeOff, businessHours)
               const sorted = [
@@ -462,8 +464,6 @@ export default function Diary() {
                 <DiaryBookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={consentMissing} onOpen={setDetail} onCancel={setPendingCancel} />
               ))
             })()}
-            <DayTakingsCard day={date} bookings={live} nowMin={nowMin} />
-            <DayComplianceCard day={date} bookings={live} nowMin={nowMin} />
           </div>
         )}
 
