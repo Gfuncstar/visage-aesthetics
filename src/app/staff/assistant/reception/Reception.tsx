@@ -6,6 +6,7 @@ import { CalendarDays, CalendarPlus, Check, ChevronLeft, ChevronRight, Clock, Li
 import { notifyDone } from '@/lib/staff-toast'
 import { BookingRow, BookingDetailModal, CancelConfirmModal, type BookingLite } from '@/components/staff/BookingCard'
 import DayTakingsCard from '@/components/staff/DayTakingsCard'
+import DayComplianceCard from '@/components/staff/DayComplianceCard'
 
 type Lite = { id: string; service_name: string; client_name: string; client_email?: string | null; client_phone: string | null; starts_at: string; ends_at?: string; status: string; source: string; created_at: string; notes?: string | null; confirmed_at: string | null }
 type WaitRow = { id: string; client_name: string; service_name: string | null; client_phone: string | null }
@@ -567,6 +568,7 @@ function DaySchedule({ day, data, nowMin, missing, onBook, onOpen, onCancel, hea
       </div>
       {body}
       <DayTakingsCard day={day} bookings={dayB} nowMin={nowMin} />
+      <DayComplianceCard day={day} bookings={dayB} nowMin={nowMin} />
     </div>
   )
 }

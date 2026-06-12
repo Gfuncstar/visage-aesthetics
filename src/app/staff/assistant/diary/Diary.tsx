@@ -7,6 +7,7 @@ import MicButton, { appendText } from '@/components/ui/MicButton'
 import { notifyDone } from '@/lib/staff-toast'
 import ConsentStatus from '@/components/staff/ConsentStatus'
 import DayTakingsCard from '@/components/staff/DayTakingsCard'
+import DayComplianceCard from '@/components/staff/DayComplianceCard'
 
 const STATUS_DONE: Record<string, string> = {
   completed: 'Marked as completed',
@@ -430,6 +431,7 @@ export default function Diary() {
                     <div className="text-xs text-stone/60 pb-0.5">Nothing booked</div>
                   )}
                   <DayTakingsCard day={day} bookings={dayB} nowMin={nowMin} />
+                  <DayComplianceCard day={day} bookings={dayB} nowMin={nowMin} />
                 </div>
               )
             })}
@@ -461,6 +463,7 @@ export default function Diary() {
               ))
             })()}
             <DayTakingsCard day={date} bookings={live} nowMin={nowMin} />
+            <DayComplianceCard day={date} bookings={live} nowMin={nowMin} />
           </div>
         )}
 
