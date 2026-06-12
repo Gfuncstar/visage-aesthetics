@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { ChevronLeft, ChevronRight, Check, Clock, LogOut, Mail, Phone, Plus, Ban, Send, X } from 'lucide-react'
+import Link from 'next/link'
+import { ChevronLeft, ChevronRight, Check, Clock, LogOut, Mail, Phone, Plus, Ban, Send, User, X } from 'lucide-react'
 import MicButton, { appendText } from '@/components/ui/MicButton'
 import { notifyDone } from '@/lib/staff-toast'
 import ConsentStatus from '@/components/staff/ConsentStatus'
@@ -817,6 +818,9 @@ function DiaryDetailModal({ booking: b, onClose, onStatus, onChanged, onCancel }
           {err && <p className="text-xs text-clay">{err}</p>}
 
           <div className="flex flex-col gap-2 pt-1">
+            <Link href={`/staff/assistant/clients?client=${encodeURIComponent(b.client_name)}`} className="btn btn-secondary" style={{ minHeight: 40 }}>
+              <span className="inline-flex items-center gap-2"><User size={15} strokeWidth={1.75} /> See client profile</span>
+            </Link>
             {b.status !== 'completed' && (
               <button onClick={() => markStatus('completed')} disabled={busy !== null} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 40 }}>
                 <span className="inline-flex items-center gap-2"><Check size={15} strokeWidth={2} /> {busy === 'completed' ? 'Saving…' : 'Mark as completed'}</span>

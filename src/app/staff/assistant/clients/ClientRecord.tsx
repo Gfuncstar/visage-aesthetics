@@ -101,6 +101,13 @@ export default function ClientRecord() {
     }
   }, [])
 
+  // Deep-link: /staff/assistant/clients?client=<name> opens that client straight
+  // away — used by the "See client profile" button on booking cards.
+  useEffect(() => {
+    const name = new URLSearchParams(window.location.search).get('client')
+    if (name) void openClient(name)
+  }, [openClient])
+
   async function toggleDnc(next: boolean) {
     setDoNotContact(next) // optimistic
     try {

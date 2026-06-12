@@ -6,7 +6,8 @@
 // modal, the past/current/confirmed tinting — are always identical.
 
 import { useEffect, useState } from 'react'
-import { Check, Mail, Phone, Send, Sparkles, X } from 'lucide-react'
+import Link from 'next/link'
+import { Check, Mail, Phone, Send, Sparkles, User, X } from 'lucide-react'
 import { notifyDone } from '@/lib/staff-toast'
 import ConsentStatus from '@/components/staff/ConsentStatus'
 
@@ -272,6 +273,9 @@ export function BookingDetailModal({ booking: b, onClose, onCancel, onChanged }:
           {err && <p className="text-xs text-clay">{err}</p>}
 
           <div className="flex flex-col gap-2 pt-1">
+            <Link href={`/staff/assistant/clients?client=${encodeURIComponent(b.client_name)}`} className="btn btn-secondary" style={{ minHeight: 40 }}>
+              <span className="inline-flex items-center gap-2"><User size={15} strokeWidth={1.75} /> See client profile</span>
+            </Link>
             {!isConfirmed && (
               <button onClick={() => act('confirm')} disabled={busy !== null} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 40 }}>
                 <span className="inline-flex items-center gap-2"><Check size={15} strokeWidth={2} /> {busy === 'confirm' ? 'Marking…' : 'Mark as confirmed'}</span>
