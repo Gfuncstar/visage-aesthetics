@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AlertTriangle, ArrowLeft, Bell, BellOff, Ban, Camera, Check, ChevronRight, CreditCard, FileCheck2, ImagePlus, LogOut, Search, Trash2, X } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Bell, BellOff, Ban, Camera, Check, ChevronDown, ChevronRight, CreditCard, FileCheck2, ImagePlus, LogOut, Search, Trash2, X } from 'lucide-react'
 import MicButton, { appendText } from '@/components/ui/MicButton'
 import { gbp, ukDate } from '@/lib/assistant/format'
 import { notifyDone } from '@/lib/staff-toast'
@@ -430,10 +430,16 @@ function Detail({
           ) : (
             <div className="space-y-3">
               {consentForms.map((c) => (
-                <details key={c.id} className="border border-line/40 rounded-sm bg-cream-soft px-4 py-3">
-                  <summary className="cursor-pointer flex items-center justify-between gap-3">
-                    <span className="text-charcoal font-medium">{c.form_name}</span>
-                    <span className="text-xs text-stone">{ukDate(c.submitted_at)}</span>
+                <details key={c.id} className="group border border-line/40 rounded-sm bg-cream-soft px-4 py-3">
+                  <summary className="cursor-pointer flex items-center justify-between gap-3 list-none">
+                    <span className="min-w-0">
+                      <span className="text-charcoal font-medium block truncate">{c.form_name}</span>
+                      <span className="text-xs text-gold-deep">Tap to view what they filled in</span>
+                    </span>
+                    <span className="flex items-center gap-2 shrink-0 text-xs text-stone">
+                      {ukDate(c.submitted_at)}
+                      <ChevronDown size={15} className="transition-transform group-open:rotate-180" />
+                    </span>
                   </summary>
                   <div className="mt-3 space-y-2">
                     {c.service_name && <AnswerRow label="Appointment" value={c.service_name} />}

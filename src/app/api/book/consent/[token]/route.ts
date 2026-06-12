@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { assistantConfigured, select, insert, update, audit } from '@/lib/assistant/db'
 import { resolveConsent } from '@/lib/consent/resolve'
 import { sanitiseAnswers } from '@/lib/consent/forms'
+import { pushConsentToSheet } from '@/lib/consent/sheet'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -126,6 +127,18 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
     }
 
     await audit('create', 'consent_submission', saved.id, { form: context.form.id, source: context.source })
+
+    // Mirror it to the consent Google Sheet (no-op unless the webhook is set).
+    await pushConsentToSheet({
+      submittedAt: new Date().toISOString(),
+      clientName: context.clientName,
+      email: context.clientEmail,
+      treatment: context.serviceName,
+      formName: context.form.name,
+      answers,
+      declaration: context.form.declaration,
+    })
+
     return NextResponse.json({ ok: true })
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : 'Could not save your form.' }, { status: 502 })

@@ -496,7 +496,8 @@ export function sanitiseAnswers(
     const v = input[field.label]
     if (field.type === 'multi-choice') {
       const arr = Array.isArray(v) ? v.map((x) => String(x).slice(0, 300)).filter(Boolean) : []
-      const allowed = field.options ?? []
+      // 'None of the above' is offered for required lists so it must be accepted.
+      const allowed = [...(field.options ?? []), 'None of the above']
       answers[field.label] = arr.filter((x) => allowed.includes(x))
     } else {
       answers[field.label] = typeof v === 'string' ? v.slice(0, 4000) : ''

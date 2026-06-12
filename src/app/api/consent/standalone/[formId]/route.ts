@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { assistantConfigured, select, insert, audit } from '@/lib/assistant/db'
 import { getConsentForm, sanitiseAnswers } from '@/lib/consent/forms'
+import { pushConsentToSheet } from '@/lib/consent/sheet'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -69,6 +70,16 @@ export async function POST(req: Request, ctx: { params: Promise<{ formId: string
       agreed: true,
     })
     await audit('create', 'consent_submission', saved.id, { form: form.id, standalone: true })
+
+    await pushConsentToSheet({
+      submittedAt: new Date().toISOString(),
+      clientName,
+      email,
+      treatment: null,
+      formName: form.name,
+      answers,
+      declaration: form.declaration,
+    })
 
     return NextResponse.json({ ok: true })
   } catch (err) {
