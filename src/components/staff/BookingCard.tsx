@@ -24,6 +24,7 @@ export type BookingLite = {
   source?: string
   notes?: string | null
   confirmed_at: string | null
+  is_new_client?: boolean
 }
 
 function toLocalMin(iso: string): number {
@@ -89,6 +90,16 @@ export function ConsentFlag({ name, missing, onDark = false }: { name: string; m
   )
 }
 
+// A bold, can't-miss flag on a first-time client's card. Sage green reads as
+// "new" and stands out on cream, charcoal and gold alike.
+export function NewClientBadge({ onSolid = false }: { onSolid?: boolean }) {
+  return (
+    <span className={`shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${onSolid ? 'bg-cream text-sage' : 'bg-sage text-cream'}`}>
+      <Sparkles size={11} strokeWidth={2.5} /> New
+    </span>
+  )
+}
+
 // ---- The tappable appointment card -----------------------------------------
 export function BookingRow({ booking: b, nowMin, missing, justBooked = false, onCancel, onOpen }: {
   booking: BookingLite
@@ -130,6 +141,7 @@ export function BookingRow({ booking: b, nowMin, missing, justBooked = false, on
         <div className={`text-sm truncate flex items-center gap-2 ${solid ? 'text-cream' : 'text-charcoal'}`}>
           {isCurrent && <span className="inline-block w-1.5 h-1.5 rounded-full bg-cream shrink-0" />}
           <span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>
+          {b.is_new_client && <NewClientBadge onSolid={solid} />}
           {justBooked && !solid && <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-semibold text-gold-deep bg-gold/15 border border-gold/40 rounded-full px-1.5 py-0.5"><Sparkles size={9} strokeWidth={2} /> Just booked</span>}
         </div>
         <div className="mt-1 flex items-center gap-1.5">

@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Check, Clock, LogOut, Mail, Phone, Plus, Ban
 import MicButton, { appendText } from '@/components/ui/MicButton'
 import { notifyDone } from '@/lib/staff-toast'
 import ConsentStatus from '@/components/staff/ConsentStatus'
+import { NewClientBadge } from '@/components/staff/BookingCard'
 import DayTakingsCard from '@/components/staff/DayTakingsCard'
 import DayComplianceCard from '@/components/staff/DayComplianceCard'
 
@@ -28,6 +29,7 @@ type Booking = {
   source: string
   notes: string | null
   confirmed_at: string | null
+  is_new_client?: boolean
 }
 type TimeOff = { id: string; starts_at: string; ends_at: string; reason: string | null }
 type Service = { slug: string; name: string; duration_min: number }
@@ -681,7 +683,7 @@ function DiaryBookingRow({ booking: b, nowMin, missing, onOpen, onCancel }: {
   const isConfirmed = b.status === 'confirmed' && !!b.confirmed_at
   const solid = isPast || isCurrent || isConfirmed
   const cardTone = isPast || isCurrent
-    ? 'border-stone bg-stone'
+    ? 'border-charcoal bg-charcoal'
     : isConfirmed
       ? 'border-gold bg-gold'
       : 'border-line/40 bg-cream'
@@ -697,6 +699,7 @@ function DiaryBookingRow({ booking: b, nowMin, missing, onOpen, onCancel }: {
         <div className={`text-sm truncate flex items-center gap-2 ${solid ? 'text-cream' : 'text-charcoal'}`}>
           {isCurrent && <span className="inline-block w-1.5 h-1.5 rounded-full bg-cream shrink-0" />}
           <span><span className="font-medium">{timeLabel(b.starts_at)}</span> &nbsp; {b.client_name}</span>
+          {b.is_new_client && <NewClientBadge onSolid={solid} />}
         </div>
         <div className="mt-1 flex items-center gap-1.5">
           <ConsentFlag name={b.client_name} missing={missing} onDark={solid} />

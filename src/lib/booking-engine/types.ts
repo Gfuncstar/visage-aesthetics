@@ -50,6 +50,8 @@ export type Booking = {
   review_requested_at: string | null
   created_at: string
   updated_at: string
+  // Derived on read by the diary API — true when this is the client's first visit.
+  is_new_client?: boolean
 }
 
 export type Slot = { startMinutes: number; startsAtIso: string; endsAtIso: string; label: string }
