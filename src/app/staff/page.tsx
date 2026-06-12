@@ -138,12 +138,12 @@ export default async function StaffIndex() {
       <div className="max-w-3xl mx-auto px-5 md:px-8 pt-6 pb-24">
         <StaffLandingHub greeting={greeting} dateLabel={dateLabel} />
 
+        <FaceIdSetup />
+
         <div className="mt-9">
           <div className="eyebrow text-gold mb-3">Needs your attention</div>
           <AttentionList items={items} configured={configured} />
         </div>
-
-        <FaceIdSetup />
       </div>
     </section>
   )
