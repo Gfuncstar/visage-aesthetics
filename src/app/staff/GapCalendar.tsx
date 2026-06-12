@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { CalendarDays, CalendarPlus, Check, ChevronLeft, ChevronRight, Clock, Mail, Phone, Send, Sparkles, X } from 'lucide-react'
 import { notifyDone } from '@/lib/staff-toast'
 import { recordUndo, UNDO_DONE_EVENT } from '@/lib/staff-undo'
+import ConsentStatus from '@/components/staff/ConsentStatus'
 
 // A self-contained "see the gaps, tap one, book someone in" calendar for the
 // landing page. Mirrors the front-desk schedule so the desk can rebook a client
@@ -805,6 +806,8 @@ function BookingDetailModal({ booking: b, onClose, onCancel, onChanged }: { book
           </div>
 
           {b.notes && <div className="text-xs text-stone leading-relaxed whitespace-pre-wrap">{b.notes}</div>}
+
+          <ConsentStatus clientName={b.client_name} serviceName={b.service_name} bookingId={b.id} clientEmail={b.client_email} />
 
           {noContact && (
             <p className="text-xs text-clay leading-snug">No contact details on file, so a confirmation can&apos;t be sent yet — add a phone or email first (e.g. from an Ovatu export). You can still mark them confirmed by hand if they&apos;ve told you.</p>
