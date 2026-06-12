@@ -9,8 +9,24 @@ export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
 const FROM_EMAIL = process.env.BOOKING_FROM_EMAIL ?? 'Visage Aesthetics <enquiries@vaclinic.co.uk>'
-// Drift alerts go to Giles by default; override with INTEGRITY_ALERT_EMAIL.
-const ALERT_TO = process.env.INTEGRITY_ALERT_EMAIL ?? 'giles@hieb.co.uk'
+// Drift alerts go to both Giles and Bernadette. Override the whole list with
+// INTEGRITY_ALERT_EMAILS (comma-separated); otherwise it's Giles
+// (INTEGRITY_ALERT_EMAIL) plus Bernadette's clinic inbox (CLINIC_EMAIL, the same
+// inbox the other staff alerts use).
+const ALERT_TO: string[] = Array.from(
+  new Set(
+    (
+      process.env.INTEGRITY_ALERT_EMAILS ??
+      [
+        process.env.INTEGRITY_ALERT_EMAIL ?? 'giles@hieb.co.uk',
+        process.env.CLINIC_EMAIL ?? 'ber.parsons@outlook.com',
+      ].join(',')
+    )
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean),
+  ),
+)
 
 // Daily booking-integrity check. Emails an alert ONLY when something has drifted
 // out of line (an Ovatu appointment with no matching booking, a duplicate, or two
@@ -64,7 +80,7 @@ export async function GET(req: Request) {
       try {
         await new Resend(apiKey).emails.send({
           from: FROM_EMAIL,
-          to: [ALERT_TO],
+          to: ALERT_TO,
           subject,
           text: lines.join('\n'),
         })
