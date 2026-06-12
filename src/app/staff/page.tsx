@@ -8,6 +8,7 @@ import { consentReview } from '@/lib/assistant/consent'
 import { confirmationReview } from '@/lib/assistant/confirmations'
 import StaffLandingHub from './StaffLandingHub'
 import AttentionList, { type AttentionItem } from './AttentionList'
+import FaceIdSetup from './FaceIdSetup'
 
 export const metadata: Metadata = {
   title: 'Staff',
@@ -141,6 +142,8 @@ export default async function StaffIndex() {
           <div className="eyebrow text-gold mb-3">Needs your attention</div>
           <AttentionList items={items} configured={configured} />
         </div>
+
+        <FaceIdSetup />
       </div>
     </section>
   )
