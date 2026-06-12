@@ -105,15 +105,15 @@ export function BookingRow({ booking: b, nowMin, missing, justBooked = false, on
   const isPast = bookingDay < today || (bookingDay === today && nowMin >= end)
   const isCurrent = bookingDay === today && nowMin >= start && nowMin < end
   const isConfirmed = b.status === 'confirmed' && !!b.confirmed_at
-  // Strong, solid states so each card reads at a glance: solid gray once the
-  // client is in the chair or gone, solid gold for confirmed-and-coming. Both
-  // carry white text. Upcoming-but-unconfirmed stays light so it still draws
-  // the eye as "needs a nudge".
-  const solid = isPast || isCurrent || isConfirmed
-  const cardTone = isPast || isCurrent
-    ? 'border-stone bg-stone'
+  const isPastOrCurrent = isPast || isCurrent
+  // Three solid states: charcoal (dark, top-banner) once the client has been
+  // and gone; gold-deep (warm solid, matches the New Booking button) for
+  // confirmed-and-coming; light cream for anything still unconfirmed.
+  const solid = isPastOrCurrent || isConfirmed
+  const cardTone = isPastOrCurrent
+    ? 'border-charcoal bg-charcoal'
     : isConfirmed
-      ? 'border-gold bg-gold'
+      ? 'border-gold-deep bg-gold-deep'
       : justBooked
         ? 'border-gold/70 bg-gold/[0.10]'
         : 'border-line/40 bg-cream'
@@ -139,7 +139,7 @@ export function BookingRow({ booking: b, nowMin, missing, justBooked = false, on
         </div>
       </div>
       <div className="shrink-0 flex items-center gap-3">
-        <span className={`text-sm font-semibold truncate max-w-[8rem] text-right ${solid ? 'text-cream' : 'text-gold-deep'}`}>{b.service_name}</span>
+        <span className={`text-sm font-semibold truncate max-w-[8rem] text-right ${isPastOrCurrent ? 'text-gold' : isConfirmed ? 'text-cream' : 'text-gold-deep'}`}>{b.service_name}</span>
         <button onClick={(e) => { e.stopPropagation(); onCancel(b) }} className={`transition-colors ${solid ? 'text-cream/70 hover:text-cream' : 'text-stone/70 hover:text-clay'}`} title={`Cancel ${b.client_name}'s booking and release the slot`} aria-label="Cancel booking">
           <X size={16} strokeWidth={2} />
         </button>
