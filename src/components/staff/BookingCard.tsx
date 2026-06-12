@@ -139,7 +139,7 @@ export function BookingRow({ booking: b, nowMin, missing, justBooked = false, on
         </div>
       </div>
       <div className="shrink-0 flex items-center gap-3">
-        <span className={`text-sm font-semibold truncate max-w-[8rem] text-right ${isPastOrCurrent ? 'text-gold' : isConfirmed ? 'text-cream' : 'text-gold-deep'}`}>{b.service_name}</span>
+        <span className={`text-sm font-semibold truncate max-w-[8rem] text-right ${solid ? 'text-cream' : 'text-gold-deep'}`}>{b.service_name}</span>
         <button onClick={(e) => { e.stopPropagation(); onCancel(b) }} className={`transition-colors ${solid ? 'text-cream/70 hover:text-cream' : 'text-stone/70 hover:text-clay'}`} title={`Cancel ${b.client_name}'s booking and release the slot`} aria-label="Cancel booking">
           <X size={16} strokeWidth={2} />
         </button>
