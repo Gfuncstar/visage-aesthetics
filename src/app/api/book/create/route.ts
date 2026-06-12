@@ -136,11 +136,14 @@ export async function POST(req: Request) {
       /* push is best effort */
     }
 
-    // Email Bernadette: who booked, what, when.
+    // Email Bernadette: who booked, what, when, how to reach them.
     const staffAlert = staffNewBookingEmail({
       clientName: name,
       serviceName: service.name,
       startsAtIso: slot.startsAtIso,
+      clientEmail: email || null,
+      clientPhone: phone || null,
+      depositPending: needsDeposit,
       notes: finalNotes || null,
     })
     try {

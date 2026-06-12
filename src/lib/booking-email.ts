@@ -109,6 +109,9 @@ export function staffNewBookingEmail(input: {
   clientName: string
   serviceName: string
   startsAtIso: string
+  clientEmail?: string | null
+  clientPhone?: string | null
+  depositPending?: boolean
   notes?: string | null
 }): { subject: string; html: string; text: string } {
   const when = whenLine(input.startsAtIso)
@@ -118,7 +121,11 @@ export function staffNewBookingEmail(input: {
     `**Treatment:** ${input.serviceName}`,
     `**When:** ${when}`,
   ]
+  if (input.clientEmail) lines.push(`**Email:** ${input.clientEmail}`)
+  if (input.clientPhone) lines.push(`**Phone:** ${input.clientPhone}`)
+  if (input.depositPending) lines.push(`**Status:** Awaiting deposit — the slot is held but not confirmed until they pay.`)
   if (input.notes) lines.push(`**Notes:** ${input.notes}`)
+  lines.push('', `[Open the diary](${SITE}/staff/assistant/diary)`)
   const body = lines.join('\n')
   const subject = `New booking: ${input.clientName} — ${input.serviceName}, ${when}`
   const opts = { preheader: `${input.clientName} booked ${input.serviceName}.`, headline: 'New booking', body, cta: 'none' as const }

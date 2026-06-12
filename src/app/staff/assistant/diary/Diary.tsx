@@ -793,7 +793,7 @@ function DiaryDetailModal({ booking: b, onClose, onStatus, onChanged, onCancel }
           <div className="text-sm text-charcoal space-y-2 border-t border-line/40 pt-3.5">
             <div className="flex items-center gap-2.5">
               <Phone size={14} className="text-stone shrink-0" />
-              {b.client_phone ? <a href={`tel:${b.client_phone}`} className="text-gold-deep hover:underline">{b.client_phone}</a> : <span className="text-stone/60">No phone on file</span>}
+              {b.client_phone ? <span className="text-charcoal">{b.client_phone}</span> : <span className="text-stone/60">No phone on file</span>}
             </div>
             <div className="flex items-center gap-2.5 min-w-0">
               <Mail size={14} className="text-stone shrink-0" />
