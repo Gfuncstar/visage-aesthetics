@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Check, Clock, LogOut, Mail, Phone, Plus, Ban
 import MicButton, { appendText } from '@/components/ui/MicButton'
 import { notifyDone } from '@/lib/staff-toast'
 import ConsentStatus from '@/components/staff/ConsentStatus'
+import DayTakingsCard from '@/components/staff/DayTakingsCard'
 
 const STATUS_DONE: Record<string, string> = {
   completed: 'Marked as completed',
@@ -428,6 +429,7 @@ export default function Diary() {
                   })() : (
                     <div className="text-xs text-stone/60 pb-0.5">Nothing booked</div>
                   )}
+                  <DayTakingsCard day={day} bookings={dayB} nowMin={nowMin} />
                 </div>
               )
             })}
@@ -458,6 +460,7 @@ export default function Diary() {
                 <DiaryBookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={consentMissing} onOpen={setDetail} onCancel={setPendingCancel} />
               ))
             })()}
+            <DayTakingsCard day={date} bookings={live} nowMin={nowMin} />
           </div>
         )}
 

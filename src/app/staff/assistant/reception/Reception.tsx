@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { CalendarDays, CalendarPlus, Check, ChevronLeft, ChevronRight, Clock, ListPlus, LogOut, Mic, Phone, Sparkles, X } from 'lucide-react'
 import { notifyDone } from '@/lib/staff-toast'
 import { BookingRow, BookingDetailModal, CancelConfirmModal, type BookingLite } from '@/components/staff/BookingCard'
+import DayTakingsCard from '@/components/staff/DayTakingsCard'
 
 type Lite = { id: string; service_name: string; client_name: string; client_email?: string | null; client_phone: string | null; starts_at: string; ends_at?: string; status: string; source: string; created_at: string; notes?: string | null; confirmed_at: string | null }
 type WaitRow = { id: string; client_name: string; service_name: string | null; client_phone: string | null }
@@ -554,7 +555,7 @@ function DaySchedule({ day, data, nowMin, missing, onBook, onOpen, onCancel, hea
       </div>
     )
 
-  if (!heading) return body
+  if (!heading) return <>{body}<DayTakingsCard day={day} bookings={dayB} nowMin={nowMin} /></>
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
@@ -565,6 +566,7 @@ function DaySchedule({ day, data, nowMin, missing, onBook, onOpen, onCancel, hea
         </div>
       </div>
       {body}
+      <DayTakingsCard day={day} bookings={dayB} nowMin={nowMin} />
     </div>
   )
 }
