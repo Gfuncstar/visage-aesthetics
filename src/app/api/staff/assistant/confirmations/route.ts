@@ -49,6 +49,10 @@ export async function POST(req: Request) {
         : 'No email or mobile on file to message this client.'
       return NextResponse.json({ error: reason }, { status: 422 })
     }
+    // Stamp reminded_at just like the hourly cron does, so the booking's detail
+    // card shows "Reminder sent · …" and the unconfirmed-bookings query treats it
+    // as already chased. Without this a staff-sent reminder left reminded_at null.
+    await update('bookings', { id: booking.id }, { reminded_at: new Date().toISOString() })
     await audit('remind', 'booking', booking.id, { via: 'staff-manual', channel: result.channel })
     return NextResponse.json({ ok: true, action, channel: result.channel })
   } catch (err) {
