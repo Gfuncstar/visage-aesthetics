@@ -25,6 +25,7 @@ export type BookingLite = {
   source?: string
   notes?: string | null
   confirmed_at: string | null
+  reminded_at?: string | null
   is_new_client?: boolean
 }
 
@@ -43,6 +44,11 @@ function timeLabel(iso: string): string {
 }
 function dayLabelShort(ds: string): string {
   return new Intl.DateTimeFormat('en-GB', { timeZone: TZ, weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(`${ds}T12:00:00Z`))
+}
+// A confirmation reminder is a moment in time, so stamp it with day + time —
+// "12 Jun, 4:45 pm" — so staff can see exactly when the client was last chased.
+function reminderStamp(iso: string): string {
+  return new Intl.DateTimeFormat('en-GB', { timeZone: TZ, day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', hour12: true }).format(new Date(iso))
 }
 
 const statusTone: Record<string, string> = {
@@ -73,6 +79,20 @@ export function ConfirmedDot({ status, confirmedAt, onDark = false }: { status: 
   if (status === 'confirmed' && !confirmedAt) return <span title="Awaiting confirmation" className="w-2 h-2 rounded-full bg-gold inline-block shrink-0" />
   if (status === 'pending') return <span title="Deposit pending" className="w-2 h-2 rounded-full bg-gold-deep inline-block shrink-0" />
   return null
+}
+
+// Whether the 24h confirmation reminder has gone out for this booking, and when.
+// Shown in the detail modal so staff never have to guess if a client's already
+// been chased — sage tick once it's sent, a quiet grey line until then.
+export function ReminderLine({ remindedAt }: { remindedAt: string | null | undefined }) {
+  return (
+    <div className="flex items-center gap-2 text-xs">
+      <Send size={12} strokeWidth={1.75} className={`shrink-0 ${remindedAt ? 'text-sage' : 'text-stone/50'}`} />
+      {remindedAt
+        ? <span className="text-stone">Reminder sent · {reminderStamp(remindedAt)}</span>
+        : <span className="text-stone/60">No reminder sent yet</span>}
+    </div>
+  )
 }
 
 export function ConsentFlag({ name, missing, onDark = false }: { name: string; missing: Set<string> | null; onDark?: boolean }) {
@@ -250,6 +270,8 @@ export function BookingDetailModal({ booking: b, onClose, onCancel, onChanged }:
             </span>
             {b.source && <span className="text-xs text-stone shrink-0">via {b.source === 'ovatu' ? 'Ovatu' : b.source === 'online' ? 'online' : 'staff'}</span>}
           </div>
+
+          <ReminderLine remindedAt={b.reminded_at} />
 
           <div className="text-sm text-charcoal space-y-2 border-t border-line/40 pt-3.5">
             <div className="flex items-center gap-2.5">

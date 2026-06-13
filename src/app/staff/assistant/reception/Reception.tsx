@@ -8,7 +8,7 @@ import { BookingRow, BookingDetailModal, CancelConfirmModal, type BookingLite } 
 import DayTakingsCard from '@/components/staff/DayTakingsCard'
 import DayComplianceCard from '@/components/staff/DayComplianceCard'
 
-type Lite = { id: string; service_name: string; client_name: string; client_email?: string | null; client_phone: string | null; starts_at: string; ends_at?: string; status: string; source: string; created_at: string; notes?: string | null; confirmed_at: string | null }
+type Lite = { id: string; service_name: string; client_name: string; client_email?: string | null; client_phone: string | null; starts_at: string; ends_at?: string; status: string; source: string; created_at: string; notes?: string | null; confirmed_at: string | null; reminded_at?: string | null }
 type WaitRow = { id: string; client_name: string; service_name: string | null; client_phone: string | null }
 type BusinessHour = { weekday: number; is_open: boolean; open_min: number; close_min: number }
 type TimeOffRow = { id: string; starts_at: string; ends_at: string; reason: string | null }
