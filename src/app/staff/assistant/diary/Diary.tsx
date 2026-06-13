@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight, Check, Clock, LogOut, Mail, Phone, Plus, Ban
 import MicButton, { appendText } from '@/components/ui/MicButton'
 import { notifyDone } from '@/lib/staff-toast'
 import ConsentStatus from '@/components/staff/ConsentStatus'
-import { NewClientBadge } from '@/components/staff/BookingCard'
+import { NewClientBadge, ReminderLine } from '@/components/staff/BookingCard'
 import DayTakingsCard from '@/components/staff/DayTakingsCard'
 import DayComplianceCard from '@/components/staff/DayComplianceCard'
 
@@ -30,6 +30,7 @@ type Booking = {
   source: string
   notes: string | null
   confirmed_at: string | null
+  reminded_at: string | null
   is_new_client?: boolean
 }
 type TimeOff = { id: string; starts_at: string; ends_at: string; reason: string | null }
@@ -798,6 +799,8 @@ function DiaryDetailModal({ booking: b, onClose, onStatus, onChanged, onCancel }
             </span>
             {b.source && <span className="text-xs text-stone shrink-0">via {b.source === 'ovatu' ? 'Ovatu' : b.source === 'online' ? 'online' : 'staff'}</span>}
           </div>
+
+          <ReminderLine remindedAt={b.reminded_at} />
 
           <div className="text-sm text-charcoal space-y-2 border-t border-line/40 pt-3.5">
             <div className="flex items-center gap-2.5">

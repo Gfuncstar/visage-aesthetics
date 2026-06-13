@@ -5,6 +5,7 @@ import { CalendarPlus, Check, ChevronLeft, ChevronRight, Clock, Mail, Phone, Sen
 import { notifyDone } from '@/lib/staff-toast'
 import { recordUndo, UNDO_DONE_EVENT } from '@/lib/staff-undo'
 import ConsentStatus from '@/components/staff/ConsentStatus'
+import { ReminderLine } from '@/components/staff/BookingCard'
 import DayTakingsCard from '@/components/staff/DayTakingsCard'
 import DayComplianceCard from '@/components/staff/DayComplianceCard'
 
@@ -12,7 +13,7 @@ import DayComplianceCard from '@/components/staff/DayComplianceCard'
 // landing page. Mirrors the front-desk schedule so the desk can rebook a client
 // the moment they get up from the chair, without leaving the home screen.
 
-type Lite = { id: string; service_name: string; client_name: string; client_email?: string | null; client_phone: string | null; starts_at: string; ends_at?: string; status: string; confirmed_at: string | null; notes?: string | null; source?: string; is_new_client?: boolean }
+type Lite = { id: string; service_name: string; client_name: string; client_email?: string | null; client_phone: string | null; starts_at: string; ends_at?: string; status: string; confirmed_at: string | null; reminded_at?: string | null; notes?: string | null; source?: string; is_new_client?: boolean }
 type TimeOffRow = { id: string; starts_at: string; ends_at: string; reason: string | null }
 type BusinessHour = { weekday: number; is_open: boolean; open_min: number; close_min: number }
 type ServiceLite = { slug: string; name: string; duration_min: number }
@@ -807,6 +808,8 @@ function BookingDetailModal({ booking: b, onClose, onCancel, onChanged }: { book
             </span>
             {b.source && <span className="text-xs text-stone shrink-0">via {b.source === 'ovatu' ? 'Ovatu' : b.source === 'online' ? 'online' : 'staff'}</span>}
           </div>
+
+          <ReminderLine remindedAt={b.reminded_at} />
 
           <div className="text-sm text-charcoal space-y-2 border-t border-line/40 pt-3.5">
             <div className="flex items-center gap-2.5">
