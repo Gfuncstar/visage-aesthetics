@@ -9,6 +9,8 @@ import { confirmationReview } from '@/lib/assistant/confirmations'
 import StaffLandingHub from './StaffLandingHub'
 import AttentionList, { type AttentionItem } from './AttentionList'
 import FaceIdSetup from './FaceIdSetup'
+import BriefingPlayer from './BriefingPlayer'
+import { buildBriefing } from '@/lib/assistant/briefing'
 
 export const metadata: Metadata = {
   title: 'Staff',
@@ -26,9 +28,13 @@ export default async function StaffIndex() {
   // things that actually need attention today, pulled straight from the clinic
   // data, and otherwise say it's all clear.
   const configured = assistantConfigured()
+  // Compose the audio briefing in parallel with the attention data below. It
+  // degrades to a short fallback on its own when the database isn't connected.
+  const briefingPromise = buildBriefing()
   const [today, stock, consent, confirmations] = configured
     ? await Promise.all([endOfDaySummary(), stockReview(), consentReview(), confirmationReview()])
     : [null, null, null, null]
+  const briefing = await briefingPromise
 
   const items: AttentionItem[] = []
 
@@ -125,6 +131,10 @@ export default async function StaffIndex() {
   return (
     <section className="bg-cream text-charcoal min-h-screen">
       <div className="max-w-3xl mx-auto px-5 md:px-8 pt-6 pb-24">
+        <div className="mb-6">
+          <BriefingPlayer briefing={briefing} />
+        </div>
+
         <StaffLandingHub />
 
         <FaceIdSetup />
