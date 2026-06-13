@@ -6,20 +6,50 @@
 // the words on screen, so there's no audio file to host and no voice key to pay
 // for. If the device has no speech engine it stays a perfectly good read-on-
 // screen briefing, with the controls hidden.
+//
+// The voice defaults to the most natural one the device offers (the downloaded
+// "Enhanced"/"Premium" system voices sound far better than the basic fallback),
+// and the listener can pick another voice and a reading speed — both remembered
+// between visits.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AudioLines, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
+import { AudioLines, Pause, Play, SkipBack, SkipForward, SlidersHorizontal } from 'lucide-react'
 import type { Briefing, BriefingTabKey } from '@/lib/assistant/briefing'
 
-// The voice's name on screen — a consistent persona across the briefing.
-const VOICE_LABEL = 'Tessa'
+const VOICE_KEY = 'visage.briefing.voiceURI'
+const RATE_KEY = 'visage.briefing.rate'
+const SPEEDS = [0.8, 0.9, 1.0, 1.1, 1.2, 1.3]
 
-// Pick the most natural British voice the device offers, falling back sensibly.
-function chooseVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null {
-  if (!voices.length) return null
-  const gb = voices.filter((v) => /en[-_]GB/i.test(v.lang))
-  const named = gb.find((v) => /tessa|serena|kate|stephanie|female|libby|sonia/i.test(v.name))
-  return named || gb[0] || voices.find((v) => /^en/i.test(v.lang)) || voices[0]
+// Names the platforms give their higher-quality voices. Matching one is a
+// strong signal the voice will sound natural rather than robotic.
+const PREMIUM = /enhanced|premium|neural|natural|siri/i
+// Pleasant British-English voices across platforms, as a softer tie-break.
+const PREFERRED_NAMES = /tessa|serena|kate|sonia|libby|stephanie|martha|fiona|moira|female/i
+
+/** Rough quality score so the best voice floats to the top and is chosen by default. */
+function scoreVoice(v: SpeechSynthesisVoice): number {
+  let s = 0
+  if (PREMIUM.test(v.name)) s += 8
+  if (/en[-_]GB/i.test(v.lang)) s += 4
+  else if (/^en/i.test(v.lang)) s += 1
+  if (PREFERRED_NAMES.test(v.name)) s += 2
+  if (v.localService) s += 1 // downloaded voices tend to be the enhanced ones
+  return s
+}
+
+/** English voices, best first — the list shown in the picker. */
+function englishVoices(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice[] {
+  return voices
+    .filter((v) => /^en/i.test(v.lang))
+    .sort((a, b) => scoreVoice(b) - scoreVoice(a) || a.name.localeCompare(b.name))
+}
+
+/** Short, human label for a voice — flags the enhanced ones. */
+function voiceLabel(v: SpeechSynthesisVoice): string {
+  const region = /GB/i.test(v.lang) ? 'UK' : /US/i.test(v.lang) ? 'US' : v.lang.replace(/^en[-_]?/i, '') || 'EN'
+  const name = v.name.replace(/\s*\((enhanced|premium)\)/i, '')
+  const premium = PREMIUM.test(v.name) ? ' · Enhanced' : ''
+  return `${name} (${region})${premium}`
 }
 
 export default function BriefingPlayer({ briefing }: { briefing: Briefing }) {
@@ -28,15 +58,19 @@ export default function BriefingPlayer({ briefing }: { briefing: Briefing }) {
   const [playing, setPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
   const [supported, setSupported] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
 
-  const voiceRef = useRef<SpeechSynthesisVoice | null>(null)
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([])
+  const [voiceURI, setVoiceURI] = useState<string>('')
+  const [rate, setRate] = useState(1)
+
   // Refs so the utterance callbacks always see the live state, not a stale closure.
   const playingRef = useRef(false)
   const idxRef = useRef(0)
   const startedRef = useRef(false)
-  // Holds the latest speak fn, so the auto-advance can recurse without the
-  // callback referencing itself before it's declared.
   const speakRef = useRef<(i: number) => void>(() => {})
+  const selectedVoiceRef = useRef<SpeechSynthesisVoice | null>(null)
+  const rateRef = useRef(1)
 
   const tab = useMemo(
     () => briefing.tabs.find((t) => t.key === activeKey) ?? briefing.tabs[0],
@@ -45,18 +79,38 @@ export default function BriefingPlayer({ briefing }: { briefing: Briefing }) {
   const segments = useMemo(() => tab?.segments ?? [], [tab])
   const total = segments.length
 
+  const picker = useMemo(() => englishVoices(voices), [voices])
+  const selectedVoice = useMemo(
+    () => voices.find((v) => v.voiceURI === voiceURI) ?? picker[0] ?? null,
+    [voices, voiceURI, picker],
+  )
+
   // The spoken/shown line — the warm greeting rides along on the very first one.
   const lineFor = useCallback(
     (i: number) => (i === 0 ? `${briefing.greeting} ${segments[i] ?? ''}`.trim() : segments[i] ?? ''),
     [briefing.greeting, segments],
   )
 
-  // Detect speech support and load voices (they arrive asynchronously).
+  // Detect speech support and load voices (they arrive asynchronously). The
+  // listener's saved voice and speed are restored here too.
   useEffect(() => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
     setSupported(true)
+    const savedRate = Number(window.localStorage.getItem(RATE_KEY))
+    if (savedRate >= 0.5 && savedRate <= 2) {
+      setRate(savedRate)
+      rateRef.current = savedRate
+    }
+    const savedVoice = window.localStorage.getItem(VOICE_KEY) || ''
     const load = () => {
-      voiceRef.current = chooseVoice(window.speechSynthesis.getVoices())
+      const all = window.speechSynthesis.getVoices()
+      if (all.length) setVoices(all)
+      // Default to the saved choice if it's still present, else the best voice.
+      setVoiceURI((cur) => {
+        if (cur) return cur
+        if (savedVoice && all.some((v) => v.voiceURI === savedVoice)) return savedVoice
+        return englishVoices(all)[0]?.voiceURI ?? ''
+      })
     }
     load()
     window.speechSynthesis.addEventListener('voiceschanged', load)
@@ -65,6 +119,14 @@ export default function BriefingPlayer({ briefing }: { briefing: Briefing }) {
       window.speechSynthesis.cancel()
     }
   }, [])
+
+  // Keep the utterance refs in step with the chosen voice and speed.
+  useEffect(() => {
+    selectedVoiceRef.current = selectedVoice
+  }, [selectedVoice])
+  useEffect(() => {
+    rateRef.current = rate
+  }, [rate])
 
   const stop = useCallback(() => {
     if (supported) window.speechSynthesis.cancel()
@@ -83,9 +145,9 @@ export default function BriefingPlayer({ briefing }: { briefing: Briefing }) {
       const text = lineFor(i)
       if (!text) return
       const u = new SpeechSynthesisUtterance(text)
-      if (voiceRef.current) u.voice = voiceRef.current
-      u.lang = voiceRef.current?.lang || 'en-GB'
-      u.rate = 1
+      if (selectedVoiceRef.current) u.voice = selectedVoiceRef.current
+      u.lang = selectedVoiceRef.current?.lang || 'en-GB'
+      u.rate = rateRef.current
       u.pitch = 1
       u.onboundary = (e) => {
         if (text.length) setProgress(Math.min(1, e.charIndex / text.length))
@@ -161,7 +223,33 @@ export default function BriefingPlayer({ briefing }: { briefing: Briefing }) {
     [activeKey, stop],
   )
 
+  // Picking a voice or speed saves it and, if we're mid-read, applies it now by
+  // restarting the current line so the change is heard straight away.
+  const onPickVoice = useCallback(
+    (uri: string) => {
+      setVoiceURI(uri)
+      selectedVoiceRef.current = voices.find((v) => v.voiceURI === uri) ?? selectedVoiceRef.current
+      try {
+        window.localStorage.setItem(VOICE_KEY, uri)
+      } catch {}
+      if (playingRef.current) speak(idxRef.current)
+    },
+    [voices, speak],
+  )
+  const onPickRate = useCallback(
+    (r: number) => {
+      setRate(r)
+      rateRef.current = r
+      try {
+        window.localStorage.setItem(RATE_KEY, String(r))
+      } catch {}
+      if (playingRef.current) speak(idxRef.current)
+    },
+    [speak],
+  )
+
   const pct = total > 1 ? ((idx + progress) / total) * 100 : progress * 100
+  const footerVoice = selectedVoice ? voiceLabel(selectedVoice) : 'Voice'
 
   return (
     <div className="border border-gold/40 bg-cream-soft rounded-sm overflow-hidden">
@@ -250,15 +338,56 @@ export default function BriefingPlayer({ briefing }: { briefing: Briefing }) {
         </button>
       </div>
 
+      {/* Voice settings — collapsed by default to keep the card calm. */}
+      {supported && showSettings && (
+        <div className="px-4 sm:px-5 pb-3 pt-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <label className="block">
+            <span className="block text-[11px] tracking-[0.08em] uppercase text-ink-soft mb-1">Voice</span>
+            <select
+              value={selectedVoice?.voiceURI ?? ''}
+              onChange={(e) => onPickVoice(e.target.value)}
+              className="w-full bg-cream border border-line rounded-sm px-2.5 py-2 text-sm text-charcoal focus:outline-none focus:border-gold"
+            >
+              {picker.map((v) => (
+                <option key={v.voiceURI} value={v.voiceURI}>
+                  {voiceLabel(v)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block">
+            <span className="block text-[11px] tracking-[0.08em] uppercase text-ink-soft mb-1">Speed</span>
+            <select
+              value={rate}
+              onChange={(e) => onPickRate(Number(e.target.value))}
+              className="w-full bg-cream border border-line rounded-sm px-2.5 py-2 text-sm text-charcoal focus:outline-none focus:border-gold"
+            >
+              {SPEEDS.map((s) => (
+                <option key={s} value={s}>
+                  {s.toFixed(1)}×{s === 1 ? ' (normal)' : ''}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      )}
+
       {/* Voice / source footer. */}
-      <div className="px-4 sm:px-5 py-2.5 border-t border-line/40 bg-cream flex items-center justify-between">
-        <span className="inline-flex items-center gap-1.5 text-[11px] text-ink-soft">
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-gold-deep" />
-          {VOICE_LABEL}
-        </span>
-        <span className="text-[11px] text-ink-soft">
-          {supported ? tab?.lead : 'Read on screen — this device has no voice.'}
-        </span>
+      <div className="px-4 sm:px-5 py-2.5 border-t border-line/40 bg-cream flex items-center justify-between gap-3">
+        {supported ? (
+          <button
+            type="button"
+            onClick={() => setShowSettings((s) => !s)}
+            aria-expanded={showSettings}
+            className="inline-flex items-center gap-1.5 text-[11px] text-ink-soft hover:text-gold-deep transition-colors min-w-0"
+          >
+            <SlidersHorizontal size={12} strokeWidth={1.75} className="shrink-0" />
+            <span className="truncate">{footerVoice}</span>
+          </button>
+        ) : (
+          <span className="text-[11px] text-ink-soft">Read on screen — this device has no voice.</span>
+        )}
+        <span className="text-[11px] text-ink-soft text-right shrink-0">{tab?.lead}</span>
       </div>
     </div>
   )
