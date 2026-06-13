@@ -72,6 +72,7 @@ const PAGE_DATES: Record<string, string> = {
   '/blog/first-botox-appointment': '2026-04-01',
   '/blog/natural-looking-filler': '2026-04-01',
   '/blog/profhilo-vs-dermal-filler': '2026-04-01',
+  '/blog/marionette-lines-treatment': '2026-06-13',
   '/blog/platysmal-bands-neck-botox': '2026-06-10',
   '/blog/biostimulators-explained': '2026-06-07',
   '/blog/nasolabial-fold-treatment-options': '2026-06-05',
@@ -156,7 +157,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'what-is-a-nurse-led-clinic',
     'consultation-questions-to-ask',
     'tear-trough-filler-truth',
-    'first-time-botox-mistakes',    'anti-wrinkle-aftercare',    'how-long-does-botox-last',    'exercise-and-botox-results',    'vitamin-b12-injections-when-they-work',    'natural-looking-aesthetics-essex',    'hyperhidrosis-botox-explained',    'men-aesthetics-guide',    'micro-needling-results-timeline',    'aqualyx-fat-dissolving-explained',    'uk-aesthetics-regulation-2026',    'profhilo-treatment-guide',    'harmonyca-vs-traditional-filler',    'preventative-botox-late-twenties',    'ozempic-face-volume-loss',    'masseter-botox-jawline-slimming',    'brow-lift-with-botox',    'abcde-mole-check-guide',    'wedding-aesthetics-timeline',    'chin-filler-for-jawline-projection',    'mole-mapping-how-often',    'vascular-occlusion-filler-safety',    'nasolabial-fold-treatment-options',    'biostimulators-explained',    'platysmal-bands-neck-botox',
+    'first-time-botox-mistakes',    'anti-wrinkle-aftercare',    'how-long-does-botox-last',    'exercise-and-botox-results',    'vitamin-b12-injections-when-they-work',    'natural-looking-aesthetics-essex',    'hyperhidrosis-botox-explained',    'men-aesthetics-guide',    'micro-needling-results-timeline',    'aqualyx-fat-dissolving-explained',    'uk-aesthetics-regulation-2026',    'profhilo-treatment-guide',    'harmonyca-vs-traditional-filler',    'preventative-botox-late-twenties',    'ozempic-face-volume-loss',    'masseter-botox-jawline-slimming',    'brow-lift-with-botox',    'abcde-mole-check-guide',    'wedding-aesthetics-timeline',    'chin-filler-for-jawline-projection',    'mole-mapping-how-often',    'vascular-occlusion-filler-safety',    'nasolabial-fold-treatment-options',    'biostimulators-explained',    'platysmal-bands-neck-botox',    'marionette-lines-treatment',
+
 
 
 

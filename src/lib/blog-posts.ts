@@ -362,6 +362,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-06-10',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'marionette-lines-treatment',
+    category: "Dermal filler",
+    title: "Marionette lines: what helps and what doesn't",
+    excerpt: "Marionette lines need more than filler in the crease itself—a layered approach combining Botox, strategic volume restoration, and sometimes biostimulators delivers genuinely better results.",
+    readTime: "7 min read",
+    datePublished: '2026-06-13',
+    dateModified: '2026-06-13',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
