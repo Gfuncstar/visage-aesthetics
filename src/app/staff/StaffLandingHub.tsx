@@ -1,12 +1,30 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Check, Mic, Sparkles, X } from 'lucide-react'
+import Link from 'next/link'
+import { Check, Headphones, Mic, Sparkles, X } from 'lucide-react'
 import GapCalendar from './GapCalendar'
 
 export default function StaffLandingHub() {
   return (
     <div className="mt-3 space-y-6">
+      {/* The briefing — a short spoken update on the day, read aloud. Sits at the
+          very top so it's the first thing on the home screen, before the diary. */}
+      <Link
+        href="/staff/briefing"
+        className="group flex items-center gap-4 border border-gold/40 bg-gold/5 rounded-sm px-4 py-3.5 hover:border-gold transition-colors"
+      >
+        <span className="inline-flex w-11 h-11 rounded-full bg-charcoal text-cream items-center justify-center shrink-0 group-hover:bg-gold-deep transition-colors">
+          <Headphones size={18} strokeWidth={1.75} />
+        </span>
+        <span className="min-w-0">
+          <span className="block font-display italic text-lg text-charcoal leading-tight">Today’s briefing</span>
+          <span className="block text-xs text-ink-soft leading-snug">
+            A quiet word on today, the week ahead, and where to push — read aloud.
+          </span>
+        </span>
+      </Link>
+
       {/* The diary calendar — the main focus of the page (today's chair, gaps
           and the whole book all live here, so no separate "today" list). */}
       <GapCalendar />

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowLeft, Bot, Boxes, ClipboardPen, FileCheck2, HardDrive, ReceiptText, ShieldCheck, TrendingUp, Users } from 'lucide-react'
+import { ArrowLeft, Bot, Boxes, ClipboardPen, FileCheck2, HardDrive, Headphones, ReceiptText, ShieldCheck, TrendingUp, Users } from 'lucide-react'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { isSimpleView } from '@/lib/staff-prefs'
 import StaffGate from '../notes/StaffGate'
@@ -17,6 +17,12 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 const tools = [
+  {
+    href: '/staff/briefing',
+    title: 'The briefing',
+    description: 'A spoken update on today, the week ahead and where to push.',
+    Icon: Headphones,
+  },
   {
     href: '/staff/assistant/treatment',
     title: 'Treatment write-up',
