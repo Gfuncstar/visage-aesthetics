@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AlertTriangle, ArrowLeft, Bell, BellOff, Ban, Camera, Check, ChevronDown, ChevronRight, CreditCard, FileCheck2, ImagePlus, LogOut, Search, Trash2, X } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Bell, BellOff, Ban, Camera, Check, ChevronDown, ChevronRight, CreditCard, FileCheck2, ImagePlus, LogOut, Search, X } from 'lucide-react'
 import MicButton, { appendText } from '@/components/ui/MicButton'
 import { gbp, ukDate } from '@/lib/assistant/format'
 import { notifyDone } from '@/lib/staff-toast'
@@ -673,7 +673,7 @@ function PhotoVault({ name, photos, onRefresh, onLightbox }: { name: string; pho
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={p.url} alt={`${p.type} ${ukDate(p.date)}`} onClick={() => onLightbox(p.url)} className="w-full aspect-square object-cover rounded-sm border border-line/40 cursor-zoom-in" />
               <span className="absolute bottom-1 left-1 text-[10px] uppercase tracking-wide bg-charcoal/70 text-cream px-1.5 py-0.5 rounded-sm">{p.type}</span>
-              <button onClick={() => del(p.id)} className="absolute top-1 right-1 bg-charcoal/70 text-cream rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={12} /></button>
+              <button onClick={() => del(p.id)} aria-label="Delete this photo" title="Delete this photo" className="absolute top-1 right-1 bg-charcoal/80 hover:bg-clay text-cream rounded-full p-1 shadow-sm"><X size={13} strokeWidth={2.5} /></button>
             </div>
           ))}
         </div>

@@ -103,7 +103,7 @@ export default function TreatmentTool() {
 
   const isConsult = typeId === 'consultation'
 
-  const [txPhotos, setTxPhotos] = useState<{ url: string; type: string }[]>([])
+  const [txPhotos, setTxPhotos] = useState<{ id: string; url: string; type: string }[]>([])
   const [photoType, setPhotoType] = useState<'before' | 'after'>('before')
   const [photoBusy, setPhotoBusy] = useState(false)
   const [photoErr, setPhotoErr] = useState<string | null>(null)
@@ -128,11 +128,22 @@ export default function TreatmentTool() {
       const res = await fetch('/api/staff/assistant/photos', { method: 'POST', body: fd })
       const d = await res.json().catch(() => ({}))
       if (!res.ok) { setPhotoErr(d.error || 'Upload failed.'); return }
-      setTxPhotos((prev) => [...prev, { url: d.url, type: photoType }])
+      setTxPhotos((prev) => [...prev, { id: d.id, url: d.url, type: photoType }])
     } catch {
       setPhotoErr('Network error.')
     } finally {
       setPhotoBusy(false)
+    }
+  }
+
+  // X off a photo just added in this write-up — drop it from view straight away,
+  // then delete the stored file and its record. Best-effort on the network side.
+  async function removeTxPhoto(id: string) {
+    setTxPhotos((prev) => prev.filter((p) => p.id !== id))
+    try {
+      await fetch(`/api/staff/assistant/photos?id=${id}`, { method: 'DELETE' })
+    } catch {
+      /* the thumbnail is already gone from view; deletion will be retried if re-added */
     }
   }
 
@@ -733,11 +744,14 @@ export default function TreatmentTool() {
             <input ref={libraryRef} type="file" accept="image/jpeg,image/png,image/webp,image/heic" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; if (f) void uploadPhoto(f); e.target.value = '' }} />
             {txPhotos.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-2">
-                {txPhotos.map((p, i) => (
-                  <div key={i} className="relative">
+                {txPhotos.map((p) => (
+                  <div key={p.id} className="relative">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={p.url} alt={p.type} className="w-16 h-16 object-cover rounded-sm border border-line/40" />
                     <span className="absolute bottom-0 left-0 text-[9px] uppercase tracking-wide bg-charcoal/70 text-cream px-1 rounded-sm">{p.type}</span>
+                    <button type="button" onClick={() => removeTxPhoto(p.id)} aria-label="Remove this photo" title="Remove this photo" className="absolute -top-1.5 -right-1.5 bg-charcoal/85 hover:bg-clay text-cream rounded-full p-0.5 shadow-sm">
+                      <X size={12} strokeWidth={2.5} />
+                    </button>
                   </div>
                 ))}
               </div>
