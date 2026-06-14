@@ -16,9 +16,9 @@ type FormValues = {
   productUsed: string
   lotNoExp: string
   dosage: string
-  beforePhotosTaken: YesNo
+  beforePhotosTaken: boolean
   problemsNoted: YesNo
-  aftercareProvided: YesNo
+  aftercareProvided: boolean
   additionalNotes: string
   emergencyContactProvided: YesNo
   dateSigned: string
@@ -41,19 +41,24 @@ export default function PatientNotesForm() {
     defaultValues: {
       dateOfTreatment: today,
       dateSigned: today,
-      beforePhotosTaken: 'Yes',
+      beforePhotosTaken: false,
       problemsNoted: 'No',
-      aftercareProvided: 'Yes',
+      aftercareProvided: false,
       emergencyContactProvided: 'Yes',
     },
   })
 
   async function onSubmit(values: FormValues) {
     setServerError(null)
+    const payload = {
+      ...values,
+      beforePhotosTaken: values.beforePhotosTaken ? 'Yes' : 'No',
+      aftercareProvided: values.aftercareProvided ? 'Yes' : 'No',
+    }
     const res = await fetch('/api/staff/notes', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(values),
+      body: JSON.stringify(payload),
     })
     if (!res.ok) {
       const data = await res.json().catch(() => ({}))
@@ -67,9 +72,9 @@ export default function PatientNotesForm() {
     reset({
       dateOfTreatment: today,
       dateSigned: today,
-      beforePhotosTaken: 'Yes',
+      beforePhotosTaken: false,
       problemsNoted: 'No',
-      aftercareProvided: 'Yes',
+      aftercareProvided: false,
       emergencyContactProvided: 'Yes',
     })
     setSubmitted(false)
@@ -182,9 +187,11 @@ export default function PatientNotesForm() {
             </div>
           </div>
 
-          <YesNoField label="Before photos taken" name="beforePhotosTaken" register={register} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <CheckboxField label="Photo taken" name="beforePhotosTaken" register={register} />
+            <CheckboxField label="Aftercare given" name="aftercareProvided" register={register} />
+          </div>
           <YesNoField label="Any problems / abnormality noted by practitioner or voiced by client" name="problemsNoted" register={register} />
-          <YesNoField label="Aftercare instructions provided (verbal or written)" name="aftercareProvided" register={register} />
           <YesNoField label="Emergency contact details provided" name="emergencyContactProvided" register={register} />
 
           <div>
@@ -223,6 +230,23 @@ export default function PatientNotesForm() {
         </form>
       </div>
     </section>
+  )
+}
+
+function CheckboxField({
+  label,
+  name,
+  register,
+}: {
+  label: string
+  name: keyof FormValues
+  register: ReturnType<typeof useForm<FormValues>>['register']
+}) {
+  return (
+    <label className="flex items-center gap-3 border border-line/40 rounded-sm px-4 py-3 cursor-pointer has-[:checked]:bg-gold/10 has-[:checked]:border-gold transition-colors min-h-[48px]">
+      <input type="checkbox" className="w-5 h-5 accent-gold shrink-0" {...register(name)} />
+      <span className="text-sm text-charcoal">{label}</span>
+    </label>
   )
 }
 
