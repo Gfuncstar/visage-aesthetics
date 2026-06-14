@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import { CalendarPlus, Check, ChevronLeft, ChevronRight, Clock, Mail, Phone, Send, Sparkles, X } from 'lucide-react'
 import { notifyDone } from '@/lib/staff-toast'
 import { recordUndo, UNDO_DONE_EVENT } from '@/lib/staff-undo'
@@ -682,7 +683,12 @@ function BookingRow({ booking: b, nowMin, missing, onFile, justBooked = false, o
           <ConsentFlag name={b.client_name} missing={missing} onFile={onFile} onDark={solid} />
           <ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} onDark={solid} />
           <span className={`text-xs ${solid ? 'text-cream/85' : statusToneFor(b.status, b.confirmed_at)}`}>{statusLabel(b.status, b.confirmed_at)}</span>
-          {isPastOrCurrent && <NotesFlag done={!!b.notes_done} />}
+          {isPastOrCurrent && (
+            <NotesFlag
+              done={!!b.notes_done}
+              href={`/staff/notes?name=${encodeURIComponent(b.client_name)}&date=${localDate(b.starts_at)}`}
+            />
+          )}
         </div>
       </div>
       <div className="shrink-0 flex items-center gap-3">
@@ -698,15 +704,20 @@ function BookingRow({ booking: b, nowMin, missing, onFile, justBooked = false, o
 // Shown only on the charcoal "been and gone" cards: a tick once this client's
 // patient notes are written up, or an empty box until then — so Bernadette can
 // see at a glance who she still has notes to do as she catches up through the day.
-function NotesFlag({ done }: { done: boolean }) {
+// Tapping it opens the patient notes form prefilled for this client, so she can
+// write the notes up straight from the home screen. stopPropagation keeps the tap
+// from also opening the booking detail behind it.
+function NotesFlag({ done, href }: { done: boolean; href: string }) {
   return (
-    <span
-      title={done ? 'Notes done' : 'Notes not done yet'}
-      className={`inline-flex items-center gap-1 text-[10px] font-semibold shrink-0 whitespace-nowrap rounded-full px-1.5 py-0.5 ${done ? 'bg-sage text-cream' : 'border border-cream/45 text-cream/75'}`}
+    <Link
+      href={href}
+      onClick={(e) => e.stopPropagation()}
+      title={done ? 'Notes done — tap to view or add' : 'Tap to write up the notes'}
+      className={`inline-flex items-center gap-1 text-[10px] font-semibold shrink-0 whitespace-nowrap rounded-full px-1.5 py-0.5 transition-colors ${done ? 'bg-sage text-cream hover:bg-sage/90' : 'border border-cream/45 text-cream/80 hover:border-cream hover:text-cream'}`}
     >
       {done ? <Check size={10} strokeWidth={3} /> : <span className="inline-block w-2.5 h-2.5 rounded-[2px] border border-cream/70" />}
       Notes
-    </span>
+    </Link>
   )
 }
 
