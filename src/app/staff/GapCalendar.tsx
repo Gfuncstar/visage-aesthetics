@@ -502,7 +502,7 @@ function MonthGrid({ anchor, data, onPick }: { anchor: string; data: SchedData; 
 // ---- Client picker: search existing clients, or type a new walk-in ---------
 type ClientSuggestion = { id: string | null; name: string; email: string | null; source: string }
 
-function ClientField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+function ClientField({ value, onChange, onPick }: { value: string; onChange: (v: string) => void; onPick?: (s: ClientSuggestion) => void }) {
   const [open, setOpen] = useState(false)
   const [sugs, setSugs] = useState<ClientSuggestion[]>([])
   const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -539,7 +539,7 @@ function ClientField({ value, onChange }: { value: string; onChange: (v: string)
               key={`${s.id ?? 'x'}-${i}`}
               type="button"
               onMouseDown={(e) => e.preventDefault()}
-              onClick={() => { onChange(s.name); setOpen(false) }}
+              onClick={() => { onChange(s.name); onPick?.(s); setOpen(false) }}
               className="w-full text-left px-3 py-2 text-sm text-charcoal hover:bg-gold/10 flex items-center justify-between gap-2"
             >
               <span className="truncate">{s.name}</span>
@@ -564,6 +564,7 @@ function NewBookingPanel({ initialDate, initialTime, onClose, onDone }: { initia
   const [date, setDate] = useState(initialDate)
   const [time, setTime] = useState(initialTime)
   const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
@@ -577,11 +578,18 @@ function NewBookingPanel({ initialDate, initialTime, onClose, onDone }: { initia
 
   async function save() {
     if (!slug || !name.trim()) { setErr('Pick a treatment and enter a name.'); return }
+    // Every new booking needs an email to reach the client (confirmations,
+    // aftercare). Picking an existing client prefills theirs; a new client must
+    // have one entered. The server enforces the same rule as a safety net.
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setErr('Add an email for this client — every new booking needs one.')
+      return
+    }
     setBusy(true); setErr(null)
     const res = await fetch('/api/staff/assistant/diary', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ kind: 'booking', service: slug, date, startMinutes: timeToMinutes(time), name, phone }),
+      body: JSON.stringify({ kind: 'booking', service: slug, date, startMinutes: timeToMinutes(time), name, email: email.trim(), phone }),
     })
     if (res.ok) {
       notifyDone('Added to the diary')
@@ -606,7 +614,8 @@ function NewBookingPanel({ initialDate, initialTime, onClose, onDone }: { initia
         <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
         <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
       </div>
-      <ClientField value={name} onChange={setName} />
+      <ClientField value={name} onChange={setName} onPick={(s) => { if (s.email) setEmail(s.email) }} />
+      <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Email (required)" className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
       <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Mobile (optional)" className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
       {err && <p className="text-xs text-clay">{err}</p>}
       <button onClick={save} disabled={busy} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 38 }}>{busy ? 'Saving…' : 'Add to diary'}</button>
