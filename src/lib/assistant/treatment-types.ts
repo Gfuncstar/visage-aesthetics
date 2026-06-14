@@ -140,6 +140,22 @@ export const TREATMENT_TYPES: TreatmentType[] = [
     followUpDays: 42,
   },
   {
+    id: 'b12',
+    name: 'Vitamin B12 injection',
+    unit: 'ml',
+    products: ['Hydroxocobalamin', 'Methylcobalamin'],
+    areas: ['Left deltoid', 'Right deltoid', 'Left gluteal', 'Right gluteal'],
+    aftercare: [
+      'Some tenderness, redness or mild bruising at the injection site is normal and usually settles within a day or two.',
+      'You can carry on with your day as normal. There is no specific downtime.',
+      'If the area feels sore, a cool compress held against it can help.',
+      'Keep the injection site clean and avoid heavy pressure or massage over it for the rest of the day.',
+      'Drink plenty of water and see how you feel over the next few days.',
+    ],
+    followUp: 'Vitamin B12 is often given as a course. I would suggest your next injection in around four weeks, or as we have agreed.',
+    followUpDays: 28,
+  },
+  {
     id: 'consultation',
     name: 'Consultation',
     unit: 'none',
@@ -177,6 +193,7 @@ export function getTreatmentType(id: string): TreatmentType | undefined {
 export function matchTreatmentType(serviceName: string): string | null {
   const s = (serviceName || '').toLowerCase()
   if (!s) return null
+  if (/b12|b-12|vitamin b|cobalamin/.test(s)) return 'b12'
   if (/botox|anti.?wrinkle|toxin|azzalure|bocouture|wrinkle|line|hyperhidrosis|sweat|masseter|jaw/.test(s)) return 'anti-wrinkle'
   if (/profhilo|booster|bio.?remodel/.test(s)) return 'skin-booster'
   if (/polynucleotide|pn|plinest|nucleofill/.test(s)) return 'polynucleotides'
