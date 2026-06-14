@@ -81,12 +81,11 @@ export function rebookEmail(item: RebookItem): {
   body: string
 } {
   const phrase = PHRASE[item.treatmentGroup] ?? 'treatment'
-  const when = item.monthsSince <= 1 ? 'about a month ago' : `around ${item.monthsSince} months ago`
   return {
     subject: `Your ${phrase} is about due`,
     preheader: 'A little reminder from Visage Aesthetics.',
     headline: 'Time for your next visit',
-    body: `Hi ${item.firstName},\n\nYour ${phrase} with us was ${when}, so you are about due if you would like it kept up.\n\nWhenever suits you, you can book a time below. If you have any questions before then, just reply to this email and it will come straight back to the clinic.`,
+    body: `Hi ${item.firstName},\n\nYour ${phrase} with us is about due, so here is a little reminder in case you would like it kept up.\n\nWhenever suits you, you can book a time below. If you have any questions before then, just reply to this email and it will come straight back to the clinic.`,
   }
 }
 
@@ -104,10 +103,9 @@ function firstNameOf(name: string): string {
   return name.trim().split(/\s+/)[0] || 'there'
 }
 
-function buildDraft(firstName: string, group: string, monthsSince: number): string {
+function buildDraft(firstName: string, group: string): string {
   const phrase = PHRASE[group] ?? 'treatment'
-  const when = monthsSince <= 1 ? 'about a month ago' : `around ${monthsSince} months ago`
-  return `Hi ${firstName}, your ${phrase} with us was ${when}, so you are about due if you would like it kept up. Book a time that suits you here: ${BOOKING_URL}`
+  return `Hi ${firstName}, your ${phrase} with us is about due, so here is a little reminder if you would like it kept up. Book a time that suits you here: ${BOOKING_URL}`
 }
 
 export function recallDays(group: string): number | null {
@@ -199,7 +197,7 @@ export async function dueRebookings(): Promise<RebookItem[]> {
       overdueDays,
       phone: phoneByName.get(last.clientName.toLowerCase()) ?? null,
       email,
-      draft: buildDraft(firstName, group, monthsSince),
+      draft: buildDraft(firstName, group),
     })
   }
 
