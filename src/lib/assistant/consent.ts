@@ -89,6 +89,36 @@ export async function consentBookingIdsOnFile(): Promise<Set<string>> {
   return set
 }
 
+export type ConsentChaseState = {
+  // Bookings whose consent is genuinely done — a submission, or a completed /
+  // waived request — so they should never be chased again.
+  doneBookingIds: Set<string>
+  // For bookings only SENT a form (not yet filled in): how many times it's been
+  // sent and when last, so the pre-appointment chase fires once, never per hour.
+  sentByBooking: Map<string, { count: number; lastSentAt: string }>
+}
+
+// Per-booking consent state for the 4h "please complete" resend. One sweep of
+// the submissions and request rows, turned into the two lookups the cron needs.
+export async function consentChaseState(): Promise<ConsentChaseState> {
+  const [subs, reqs] = await Promise.all([
+    select<{ booking_id: string | null }>('consent_submissions', { select: 'booking_id', limit: 5000 }).catch(() => [] as { booking_id: string | null }[]),
+    select<{ booking_id: string | null; status: string; created_at: string }>('consent_requests', { select: 'booking_id,status,created_at', limit: 5000 }).catch(() => [] as { booking_id: string | null; status: string; created_at: string }[]),
+  ])
+  const doneBookingIds = new Set<string>()
+  for (const s of subs) if (s.booking_id) doneBookingIds.add(s.booking_id)
+  const sentByBooking = new Map<string, { count: number; lastSentAt: string }>()
+  for (const r of reqs) {
+    if (!r.booking_id) continue
+    if (r.status === 'completed' || r.status === 'waived') { doneBookingIds.add(r.booking_id); continue }
+    if (r.status !== 'sent') continue
+    const cur = sentByBooking.get(r.booking_id)
+    if (!cur) sentByBooking.set(r.booking_id, { count: 1, lastSentAt: r.created_at })
+    else sentByBooking.set(r.booking_id, { count: cur.count + 1, lastSentAt: cur.lastSentAt > r.created_at ? cur.lastSentAt : r.created_at })
+  }
+  return { doneBookingIds, sentByBooking }
+}
+
 export async function consentReview(): Promise<ConsentReview | null> {
   const today = new Date().toISOString().slice(0, 10)
   const horizon = new Date(Date.now() + HORIZON_DAYS * DAY_MS).toISOString().slice(0, 10)
