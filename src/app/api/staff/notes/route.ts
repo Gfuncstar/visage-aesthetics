@@ -1,7 +1,36 @@
 import { NextResponse } from 'next/server'
 import { isStaffAuthed } from '@/lib/staff-auth'
+import { assistantConfigured, select, update } from '@/lib/assistant/db'
 
 export const runtime = 'nodejs'
+
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+
+function normName(name: string): string {
+  return name.trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
+// Best-effort: once a treatment note is saved, tick the matching booking on the
+// staff landing page so Bernadette can see at a glance whose notes are done.
+// Matched by client name and the treatment date; never blocks the submission.
+async function flagBookingNotesDone(name: string, date: string): Promise<void> {
+  if (!assistantConfigured() || !name || !DATE_RE.test(date)) return
+  const target = normName(name)
+  try {
+    const rows = await select<{ id: string; client_name: string }>('bookings', {
+      and: `(starts_at.gte.${date}T00:00:00Z,starts_at.lte.${date}T23:59:59Z)`,
+      status: 'neq.cancelled',
+      select: 'id,client_name',
+      limit: 50,
+    })
+    const matches = rows.filter((r) => normName(r.client_name ?? '') === target)
+    for (const m of matches) {
+      await update('bookings', { id: m.id }, { notes_done: true })
+    }
+  } catch (err) {
+    console.error('[staff/notes] could not flag booking notes_done', err)
+  }
+}
 
 const FIELDS = [
   'name',
@@ -100,6 +129,10 @@ export async function POST(req: Request) {
     console.error('Sheet webhook error', err)
     return NextResponse.json({ error: 'Could not save to sheet' }, { status: 502 })
   }
+
+  // The note is saved; now tick the matching booking on the landing page. The
+  // clean() step guarantees these are trimmed strings (name is required above).
+  await flagBookingNotesDone(body.name ?? '', body.dateOfTreatment ?? '')
 
   return NextResponse.json({ ok: true })
 }
