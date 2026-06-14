@@ -12,6 +12,35 @@ export const dynamic = 'force-dynamic'
 
 const TZ = 'Europe/London'
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+// An email already on record for this client (their most recent booking, else
+// an imported appointment), so an existing client never has to re-enter it.
+async function emailOnFile(name: string): Promise<string | null> {
+  const clean = name.trim()
+  if (!clean) return null
+  try {
+    const b = await select<{ client_email: string | null }>('bookings', {
+      client_name: `ilike.${clean}`,
+      client_email: 'not.is.null',
+      select: 'client_email',
+      order: 'created_at.desc',
+      limit: 1,
+    })
+    if (b[0]?.client_email) return b[0].client_email
+    const a = await select<{ email: string | null }>('appointments', {
+      client_name: `ilike.${clean}`,
+      email: 'not.is.null',
+      select: 'email',
+      order: 'date.desc',
+      limit: 1,
+    })
+    if (a[0]?.email) return a[0].email
+  } catch {
+    /* best-effort lookup; treat a failure as "none on file" */
+  }
+  return null
+}
 
 function dayBounds(dateStr: string): { start: string; end: string } {
   return { start: `${dateStr}T00:00:00Z`, end: `${dateStr}T23:59:59Z` }
@@ -115,6 +144,18 @@ export async function POST(req: Request) {
     if (!slug || !Number.isFinite(startMin) || !name) {
       return NextResponse.json({ error: 'Service, time and name are required.' }, { status: 400 })
     }
+    // Every new booking must reach the client by email (confirmations, aftercare).
+    // Accept an email entered now, otherwise fall back to one already on file for
+    // this client; reject only when there is neither.
+    const typedEmail = typeof body.email === 'string' ? body.email.trim().toLowerCase().slice(0, 160) : ''
+    let clientEmail = EMAIL_RE.test(typedEmail) ? typedEmail : ''
+    if (!clientEmail) clientEmail = (await emailOnFile(name)) ?? ''
+    if (!clientEmail) {
+      return NextResponse.json(
+        { error: 'An email is required for a new booking, and none is on file for this client.' },
+        { status: 400 },
+      )
+    }
     const service = await getService(slug)
     if (!service) return NextResponse.json({ error: 'Unknown service' }, { status: 404 })
     const startsAt = londonWallToUtc(date, startMin)
@@ -124,7 +165,7 @@ export async function POST(req: Request) {
       service_name: service.name,
       service_slug: service.slug,
       client_name: name,
-      client_email: typeof body.email === 'string' ? body.email.trim().slice(0, 160) || null : null,
+      client_email: clientEmail,
       client_phone: typeof body.phone === 'string' ? body.phone.trim().slice(0, 40) || null : null,
       starts_at: startsAt.toISOString(),
       ends_at: endsAt.toISOString(),
