@@ -8,7 +8,7 @@
 // screen briefing, with the controls hidden.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AudioLines, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
+import { AudioLines, ChevronDown, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
 import type { Briefing, BriefingTabKey } from '@/lib/assistant/briefing'
 
 // The voice's name on screen — a consistent persona across the briefing.
@@ -28,6 +28,9 @@ export default function BriefingPlayer({ briefing }: { briefing: Briefing }) {
   const [playing, setPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
   const [supported, setSupported] = useState(false)
+  // Collapsed by default — the headline alone is enough at a glance, and the full
+  // player takes up a lot of room. Tap the header to open it.
+  const [open, setOpen] = useState(false)
 
   const voiceRef = useRef<SpeechSynthesisVoice | null>(null)
   // Refs so the utterance callbacks always see the live state, not a stale closure.
@@ -161,20 +164,45 @@ export default function BriefingPlayer({ briefing }: { briefing: Briefing }) {
     [activeKey, stop],
   )
 
+  // Collapsing should also silence any playback — the controls would be hidden.
+  const toggleOpen = useCallback(() => {
+    setOpen((o) => {
+      if (o) stop()
+      return !o
+    })
+  }, [stop])
+
   const pct = total > 1 ? ((idx + progress) / total) * 100 : progress * 100
 
   return (
     <div className="border border-gold/40 bg-cream-soft rounded-sm overflow-hidden">
-      {/* Headline — the one thing worth your eye. */}
-      <div className="px-4 sm:px-5 pt-4">
-        <div className="eyebrow text-gold-deep mb-1.5">Clinic briefing</div>
-        <p className="font-display italic text-charcoal text-lg sm:text-xl leading-snug">
-          {briefing.headline}
-        </p>
-      </div>
+      {/* Header — the one thing worth your eye, doubling as the expand toggle. */}
+      <button
+        type="button"
+        onClick={toggleOpen}
+        aria-expanded={open}
+        className="w-full text-left px-4 sm:px-5 py-4 flex items-start justify-between gap-3"
+      >
+        <span className="min-w-0">
+          <span className="eyebrow text-gold-deep mb-1.5 flex items-center gap-2">
+            <AudioLines size={14} strokeWidth={1.75} className={playing ? 'animate-pulse' : ''} />
+            Clinic briefing
+          </span>
+          <span className="block font-display italic text-charcoal text-lg sm:text-xl leading-snug">
+            {briefing.headline}
+          </span>
+        </span>
+        <ChevronDown
+          size={18}
+          strokeWidth={1.75}
+          className={`mt-1 shrink-0 text-gold-deep transition-transform ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
 
+      {open && (
+        <>
       {/* Angle pills. */}
-      <div className="px-4 sm:px-5 mt-3 flex flex-wrap gap-2">
+      <div className="px-4 sm:px-5 flex flex-wrap gap-2">
         {briefing.tabs.map((t) => {
           const on = t.key === activeKey
           return (
@@ -260,6 +288,8 @@ export default function BriefingPlayer({ briefing }: { briefing: Briefing }) {
           {supported ? tab?.lead : 'Read on screen — this device has no voice.'}
         </span>
       </div>
+        </>
+      )}
     </div>
   )
 }
