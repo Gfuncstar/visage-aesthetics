@@ -163,6 +163,7 @@ export default function GapCalendar() {
   const [prefill, setPrefill] = useState<{ date: string; time: string } | null>(null)
   const [nextOpen, setNextOpen] = useState(false)
   const [consentMissing, setConsentMissing] = useState<Set<string> | null>(null)
+  const [consentOnFile, setConsentOnFile] = useState<Set<string> | null>(null)
   const [justBooked, setJustBooked] = useState<JustBookedRow[]>([])
   const [pendingCancel, setPendingCancel] = useState<Lite | null>(null)
   const [detail, setDetail] = useState<Lite | null>(null)
@@ -205,7 +206,7 @@ export default function GapCalendar() {
   useEffect(() => {
     fetch('/api/staff/assistant/consent/flags')
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => { setConsentMissing(new Set((d?.missing ?? []) as string[])) })
+      .then((d) => { setConsentMissing(new Set((d?.missing ?? []) as string[])); setConsentOnFile(new Set((d?.onFile ?? []) as string[])) })
       .catch(() => {})
   }, [])
 
@@ -319,11 +320,11 @@ export default function GapCalendar() {
       ) : schedView === 'week' ? (
         <div className="space-y-4">
           {weekDays(anchor).map((day) => (
-            <DaySchedule key={day} day={day} data={schedData} nowMin={nowMin} missing={consentMissing} justIds={justIds} onBook={bookSlot} onCancel={setPendingCancel} onOpen={setDetail} heading />
+            <DaySchedule key={day} day={day} data={schedData} nowMin={nowMin} missing={consentMissing} onFile={consentOnFile} justIds={justIds} onBook={bookSlot} onCancel={setPendingCancel} onOpen={setDetail} heading />
           ))}
         </div>
       ) : (
-        <DaySchedule day={anchor} data={schedData} nowMin={nowMin} missing={consentMissing} justIds={justIds} onBook={bookSlot} onCancel={setPendingCancel} onOpen={setDetail} />
+        <DaySchedule day={anchor} data={schedData} nowMin={nowMin} missing={consentMissing} onFile={consentOnFile} justIds={justIds} onBook={bookSlot} onCancel={setPendingCancel} onOpen={setDetail} />
       )}
 
       {detail && (
@@ -347,7 +348,7 @@ export default function GapCalendar() {
 }
 
 // ---- One day's bookings + tappable gaps ------------------------------------
-function DaySchedule({ day, data, nowMin, missing, justIds, onBook, onCancel, onOpen, heading = false }: { day: string; data: SchedData; nowMin: number; missing: Set<string> | null; justIds: Set<string>; onBook: (date: string, startMin: number) => void; onCancel: (booking: Lite) => void; onOpen: (booking: Lite) => void; heading?: boolean }) {
+function DaySchedule({ day, data, nowMin, missing, onFile, justIds, onBook, onCancel, onOpen, heading = false }: { day: string; data: SchedData; nowMin: number; missing: Set<string> | null; onFile: Set<string> | null; justIds: Set<string>; onBook: (date: string, startMin: number) => void; onCancel: (booking: Lite) => void; onOpen: (booking: Lite) => void; heading?: boolean }) {
   const dayB = data.bookings.filter((b) => localDate(b.starts_at) === day).sort((a, b) => a.starts_at.localeCompare(b.starts_at))
   const gaps = gapsForDay(day, data.bookings, data.timeOff, data.businessHours)
   const free = freeMinsForDay(day, data.bookings, data.timeOff, data.businessHours)
@@ -365,7 +366,7 @@ function DaySchedule({ day, data, nowMin, missing, justIds, onBook, onCancel, on
     : (
       <div className="space-y-2">
         {items.map((item, i) => item.kind === 'booking'
-          ? <BookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={missing} justBooked={justIds.has(item.b.id)} onCancel={onCancel} onOpen={onOpen} />
+          ? <BookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={missing} onFile={onFile} justBooked={justIds.has(item.b.id)} onCancel={onCancel} onOpen={onOpen} />
           : <GapRow key={`gap-${i}`} date={day} startMin={item.start} endMin={item.end} onBook={onBook} />
         )}
       </div>
@@ -629,7 +630,7 @@ function GapRow({ date, startMin, endMin, onBook }: { date: string; startMin: nu
   )
 }
 
-function BookingRow({ booking: b, nowMin, missing, justBooked = false, onCancel, onOpen }: { booking: Lite; nowMin: number; missing: Set<string> | null; justBooked?: boolean; onCancel: (booking: Lite) => void; onOpen: (booking: Lite) => void }) {
+function BookingRow({ booking: b, nowMin, missing, onFile, justBooked = false, onCancel, onOpen }: { booking: Lite; nowMin: number; missing: Set<string> | null; onFile: Set<string> | null; justBooked?: boolean; onCancel: (booking: Lite) => void; onOpen: (booking: Lite) => void }) {
   const start = toLocalMin(b.starts_at)
   const end = b.ends_at ? toLocalMin(b.ends_at) : start + 60
   const bookingDay = localDate(b.starts_at)
@@ -669,7 +670,7 @@ function BookingRow({ booking: b, nowMin, missing, justBooked = false, onCancel,
           {justBooked && !solid && <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-semibold text-gold-deep bg-gold/15 border border-gold/40 rounded-full px-1.5 py-0.5"><Sparkles size={9} strokeWidth={2} /> Just booked</span>}
         </div>
         <div className="mt-1 flex items-center gap-1.5">
-          <ConsentFlag name={b.client_name} missing={missing} onDark={solid} />
+          <ConsentFlag name={b.client_name} missing={missing} onFile={onFile} onDark={solid} />
           <ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} onDark={solid} />
           <span className={`text-xs ${solid ? 'text-cream/85' : statusToneFor(b.status, b.confirmed_at)}`}>{statusLabel(b.status, b.confirmed_at)}</span>
         </div>
@@ -861,22 +862,28 @@ function ConfirmedDot({ status, confirmedAt, onDark = false }: { status: string;
   return null
 }
 
-function ConsentFlag({ name, missing, onDark = false }: { name: string; missing: Set<string> | null; onDark?: boolean }) {
+function ConsentFlag({ name, missing, onFile, onDark = false }: { name: string; missing: Set<string> | null; onFile: Set<string> | null; onDark?: boolean }) {
   if (missing === null) return null
-  // Missing consent shouts — darker, bolder red so it can't be missed. Once
-  // consent is in, the tick settles back to a light, quiet green.
-  if (missing.has(name.trim().toLowerCase())) {
+  const key = name.trim().toLowerCase()
+  // Missing consent shouts — darker, bolder red so it can't be missed.
+  if (missing.has(key)) {
     return (
       <span className={`inline-flex items-center gap-0.5 text-[10px] font-semibold shrink-0 whitespace-nowrap ${onDark ? 'text-cream' : 'text-avail'}`}>
         <X size={10} strokeWidth={3} /> Consent
       </span>
     )
   }
-  return (
-    <span className={`inline-flex items-center gap-0.5 text-[10px] font-normal shrink-0 whitespace-nowrap ${onDark ? 'text-cream/70' : 'text-sage/70'}`}>
-      <Check size={9} strokeWidth={2.5} /> Consent
-    </span>
-  )
+  // The quiet green tick shows only when consent is genuinely on file. A booking
+  // we aren't vouching for (e.g. grandfathered) gets no flag rather than a tick
+  // that the detail card would then contradict.
+  if (onFile?.has(key)) {
+    return (
+      <span className={`inline-flex items-center gap-0.5 text-[10px] font-normal shrink-0 whitespace-nowrap ${onDark ? 'text-cream/70' : 'text-sage/70'}`}>
+        <Check size={9} strokeWidth={2.5} /> Consent
+      </span>
+    )
+  }
+  return null
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
