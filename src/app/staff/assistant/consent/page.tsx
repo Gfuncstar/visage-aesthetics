@@ -7,6 +7,7 @@ import StaffGate from '../../notes/StaffGate'
 import ConsentForms from './ConsentForms'
 import ConsentMissing from './ConsentMissing'
 import ConsentSubmissions from './ConsentSubmissions'
+import SendTodayConsent from './SendTodayConsent'
 
 export const metadata: Metadata = {
   title: 'Consent forms',
@@ -32,8 +33,13 @@ export default async function ConsentBackendPage() {
           Send any form to a client, preview it, and read everything they have completed — saved against their record.
         </p>
 
-        {/* Booked clients with nothing on file — who needs a form, with a send button each. */}
+        {/* One-click: chase everyone still coming in today who hasn't completed consent. */}
         <div className="mt-8">
+          <SendTodayConsent />
+        </div>
+
+        {/* Booked clients with nothing on file — who needs a form, with a send button each. */}
+        <div className="mt-6">
           <ConsentMissing missing={review?.bookedMissing ?? []} forms={forms} />
         </div>
 
