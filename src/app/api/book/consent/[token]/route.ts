@@ -126,6 +126,17 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
       }
     }
 
+    // A booking may have been sent the form more than once (an initial send plus
+    // a pre-appointment chase). Clear ALL still-'sent' requests for this booking
+    // so none linger on the outstanding list once the client has completed one.
+    if (context.bookingId) {
+      try {
+        await update('consent_requests', { booking_id: context.bookingId, status: 'sent' }, { status: 'completed', completed_at: new Date().toISOString() })
+      } catch {
+        /* best effort */
+      }
+    }
+
     await audit('create', 'consent_submission', saved.id, { form: context.form.id, source: context.source })
 
     // Mirror it to the consent Google Sheet (no-op unless the webhook is set).

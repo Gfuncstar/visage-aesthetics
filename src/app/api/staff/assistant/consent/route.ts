@@ -26,6 +26,7 @@ export type ConsentRequestSummary = {
   form_name: string
   client_name: string
   client_email: string | null
+  booking_id: string | null
   status: string
   created_at: string
 }
@@ -62,7 +63,18 @@ export async function GET(req: Request) {
     try {
       const rq: Record<string, string | number> = { status: 'eq.sent', order: 'created_at.desc', limit: 300 }
       if (q) rq.client_name = `ilike.*${q}*`
-      outstanding = await select<ConsentRequestSummary>('consent_requests', rq)
+      const rows = await select<ConsentRequestSummary>('consent_requests', rq)
+      // A booking can have more than one outstanding 'sent' request (an initial
+      // send plus a pre-appointment chase). Show each booking once — the newest,
+      // since rows are ordered created_at desc — so the list isn't doubled up.
+      // Requests with no booking (ad-hoc manual sends) are always kept.
+      const seenBooking = new Set<string>()
+      outstanding = rows.filter((r) => {
+        if (!r.booking_id) return true
+        if (seenBooking.has(r.booking_id)) return false
+        seenBooking.add(r.booking_id)
+        return true
+      })
     } catch {
       /* table may not exist yet */
     }

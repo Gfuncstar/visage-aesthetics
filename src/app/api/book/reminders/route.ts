@@ -4,7 +4,7 @@ import { assistantConfigured, select, update } from '@/lib/assistant/db'
 import { sendConfirmRequest } from '@/lib/booking-engine/confirm-request'
 import { smsConfigured } from '@/lib/assistant/sms'
 import { consentFormForService } from '@/lib/consent/forms'
-import { consentBookingIdsOnFile } from '@/lib/assistant/consent'
+import { consentBookingIdsOnFile, consentChaseState } from '@/lib/assistant/consent'
 import { sendConsentForm } from '@/lib/consent/send'
 import { goLiveTimestamp } from '@/lib/assistant/go-live'
 import type { Booking } from '@/lib/booking-engine/types'
@@ -28,6 +28,10 @@ export const maxDuration = 60
 // next 24h whose treatment needs one (e.g. Botox → Botox Consent Form) when the
 // client hasn't already completed, been sent, or been waived one. Dedup is by
 // the consent_requests row this creates, so nobody is emailed twice.
+//
+// Finally it runs a 4h "please complete" resend: any booking now within 4h whose
+// form was sent but still isn't filled in gets one more nudge (sent at most
+// once — see the resend pass below).
 export async function GET(req: Request) {
   if (!assistantConfigured()) return NextResponse.json({ error: 'Not configured' }, { status: 503 })
   const url = new URL(req.url)
@@ -105,5 +109,35 @@ export async function GET(req: Request) {
     }
   }
 
-  return NextResponse.json({ ok: true, dueCount: due.length, sms, email, consent })
+  // Consent resend — 4h before the appointment, chase anyone who was sent a
+  // consent form but still hasn't completed it, so a forgotten form gets one
+  // last nudge in time to fill in. Sent at most once: we only resend when there
+  // is a single outstanding 'sent' request that's over an hour old, so we never
+  // double up on a form just sent (including one sent moments ago by the 24h
+  // pass above) and never email again after this one chase. The fresh link from
+  // sendConsentForm supersedes the first; completing either clears both (see the
+  // consent submission handler), so nothing lingers on the outstanding list.
+  let consentResent = 0
+  const resendBy = new Date(now.getTime() + 4 * 3600_000)
+  const resendDue = await select<Booking>('bookings', {
+    status: 'eq.confirmed',
+    and: `(starts_at.gt.${now.toISOString()},starts_at.lte.${resendBy.toISOString()},created_at.gte.${CONSENT_ENFORCE_FROM})`,
+    order: 'starts_at.asc',
+    limit: 200,
+  })
+  const chase = await consentChaseState()
+  const RESEND_MIN_AGE_MS = 60 * 60_000
+  for (const b of resendDue) {
+    if (!b.client_email) continue
+    const form = consentFormForService(b.service_slug, b.service_name)
+    if (!form) continue
+    if (chase.doneBookingIds.has(b.id)) continue
+    const sent = chase.sentByBooking.get(b.id)
+    if (!sent || sent.count >= 2) continue
+    if (now.getTime() - new Date(sent.lastSentAt).getTime() < RESEND_MIN_AGE_MS) continue
+    const res = await sendConsentForm({ form, clientName: b.client_name, clientEmail: b.client_email, bookingId: b.id })
+    if (res.ok) consentResent++
+  }
+
+  return NextResponse.json({ ok: true, dueCount: due.length, sms, email, consent, consentResent })
 }
