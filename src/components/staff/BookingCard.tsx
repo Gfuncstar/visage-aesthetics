@@ -95,20 +95,29 @@ export function ReminderLine({ remindedAt }: { remindedAt: string | null | undef
   )
 }
 
-export function ConsentFlag({ name, missing, onDark = false }: { name: string; missing: Set<string> | null; onDark?: boolean }) {
+// Tri-state, so a tick is only ever shown when consent is genuinely on file:
+//   missing  — booking needs a form → red warning.
+//   onFile   — a real consent record exists → green tick.
+//   neither  — unknown / not chased (e.g. grandfathered) → no indicator, rather
+//              than a green tick that would imply consent we can't vouch for.
+export function ConsentFlag({ name, missing, onFile, onDark = false }: { name: string; missing: Set<string> | null; onFile: Set<string> | null; onDark?: boolean }) {
   if (missing === null) return null
-  if (missing.has(name.trim().toLowerCase())) {
+  const key = name.trim().toLowerCase()
+  if (missing.has(key)) {
     return (
       <span className={`inline-flex items-center gap-0.5 text-[10px] font-semibold shrink-0 whitespace-nowrap ${onDark ? 'text-cream' : 'text-avail'}`}>
         <X size={10} strokeWidth={3} /> Consent
       </span>
     )
   }
-  return (
-    <span className={`inline-flex items-center gap-0.5 text-[10px] font-normal shrink-0 whitespace-nowrap ${onDark ? 'text-cream/70' : 'text-sage/70'}`}>
-      <Check size={9} strokeWidth={2.5} /> Consent
-    </span>
-  )
+  if (onFile?.has(key)) {
+    return (
+      <span className={`inline-flex items-center gap-0.5 text-[10px] font-normal shrink-0 whitespace-nowrap ${onDark ? 'text-cream/70' : 'text-sage/70'}`}>
+        <Check size={9} strokeWidth={2.5} /> Consent
+      </span>
+    )
+  }
+  return null
 }
 
 // A bold, can't-miss flag on a first-time client's card. Sage green reads as
@@ -122,10 +131,11 @@ export function NewClientBadge({ onSolid = false }: { onSolid?: boolean }) {
 }
 
 // ---- The tappable appointment card -----------------------------------------
-export function BookingRow({ booking: b, nowMin, missing, justBooked = false, onCancel, onOpen }: {
+export function BookingRow({ booking: b, nowMin, missing, onFile, justBooked = false, onCancel, onOpen }: {
   booking: BookingLite
   nowMin: number
   missing: Set<string> | null
+  onFile: Set<string> | null
   justBooked?: boolean
   onCancel: (booking: BookingLite) => void
   onOpen: (booking: BookingLite) => void
@@ -166,7 +176,7 @@ export function BookingRow({ booking: b, nowMin, missing, justBooked = false, on
           {justBooked && !solid && <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-semibold text-gold-deep bg-gold/15 border border-gold/40 rounded-full px-1.5 py-0.5"><Sparkles size={9} strokeWidth={2} /> Just booked</span>}
         </div>
         <div className="mt-1 flex items-center gap-1.5">
-          <ConsentFlag name={b.client_name} missing={missing} onDark={solid} />
+          <ConsentFlag name={b.client_name} missing={missing} onFile={onFile} onDark={solid} />
           <ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} onDark={solid} />
           <span className={`text-xs ${solid ? 'text-cream/85' : statusToneFor(b.status, b.confirmed_at)}`}>{statusLabel(b.status, b.confirmed_at)}</span>
         </div>

@@ -139,20 +139,27 @@ function ConfirmedDot({ status, confirmedAt, onDark = false }: { status: string;
   return null
 }
 
-function ConsentFlag({ name, missing, onDark = false }: { name: string; missing: Set<string> | null; onDark?: boolean }) {
+// Green tick only when consent is genuinely on file; red when a booking needs a
+// form; nothing when status is unknown (e.g. grandfathered) — never a tick we
+// can't vouch for. See ConsentFlag in components/staff/BookingCard.tsx.
+function ConsentFlag({ name, missing, onFile, onDark = false }: { name: string; missing: Set<string> | null; onFile: Set<string> | null; onDark?: boolean }) {
   if (missing === null) return null
-  if (missing.has(name.trim().toLowerCase())) {
+  const key = name.trim().toLowerCase()
+  if (missing.has(key)) {
     return (
       <span className={`inline-flex items-center gap-0.5 text-[10px] font-semibold shrink-0 whitespace-nowrap ${onDark ? 'text-cream' : 'text-avail'}`}>
         <X size={10} strokeWidth={3} /> Consent
       </span>
     )
   }
-  return (
-    <span className={`inline-flex items-center gap-0.5 text-[10px] font-normal shrink-0 whitespace-nowrap ${onDark ? 'text-cream/70' : 'text-sage/70'}`}>
-      <Check size={9} strokeWidth={2.5} /> Consent
-    </span>
-  )
+  if (onFile?.has(key)) {
+    return (
+      <span className={`inline-flex items-center gap-0.5 text-[10px] font-normal shrink-0 whitespace-nowrap ${onDark ? 'text-cream/70' : 'text-sage/70'}`}>
+        <Check size={9} strokeWidth={2.5} /> Consent
+      </span>
+    )
+  }
+  return null
 }
 
 function toLocalMin(iso: string): number {
@@ -292,6 +299,7 @@ export default function Diary() {
   const [businessHours, setBusinessHours] = useState<BusinessHours[]>([])
   const [adding, setAdding] = useState<'booking' | 'time_off' | 'hours' | null>(null)
   const [consentMissing, setConsentMissing] = useState<Set<string> | null>(null)
+  const [consentOnFile, setConsentOnFile] = useState<Set<string> | null>(null)
   const [detail, setDetail] = useState<Booking | null>(null)
   const [pendingCancel, setPendingCancel] = useState<Booking | null>(null)
   const nowMin = useNowMin()
@@ -320,7 +328,7 @@ export default function Diary() {
   useEffect(() => {
     fetch('/api/staff/assistant/consent/flags')
       .then((r) => r.ok ? r.json() : null)
-      .then((d) => { setConsentMissing(new Set((d?.missing ?? []) as string[])) })
+      .then((d) => { setConsentMissing(new Set((d?.missing ?? []) as string[])); setConsentOnFile(new Set((d?.onFile ?? []) as string[])) })
       .catch(() => {})
   }, [])
   useEffect(() => {
@@ -430,7 +438,7 @@ export default function Diary() {
                             <span className="text-[11px] text-stone/50 whitespace-nowrap">{gapLabel(item.g.end - item.g.start)}</span>
                           </div>
                         ) : (
-                          <DiaryBookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={consentMissing} onOpen={setDetail} onCancel={setPendingCancel} />
+                          <DiaryBookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={consentMissing} onFile={consentOnFile} onOpen={setDetail} onCancel={setPendingCancel} />
                         ))}
                       </div>
                     )
@@ -466,7 +474,7 @@ export default function Diary() {
                   </div>
                 </div>
               ) : (
-                <DiaryBookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={consentMissing} onOpen={setDetail} onCancel={setPendingCancel} />
+                <DiaryBookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={consentMissing} onFile={consentOnFile} onOpen={setDetail} onCancel={setPendingCancel} />
               ))
             })()}
           </div>
@@ -672,8 +680,8 @@ function BlockTime({ date, onDone }: { date: string; onDone: () => void }) {
 }
 
 // ---- Booking card — matches GapCalendar's BookingRow style ------------------
-function DiaryBookingRow({ booking: b, nowMin, missing, onOpen, onCancel }: {
-  booking: Booking; nowMin: number; missing: Set<string> | null
+function DiaryBookingRow({ booking: b, nowMin, missing, onFile, onOpen, onCancel }: {
+  booking: Booking; nowMin: number; missing: Set<string> | null; onFile: Set<string> | null
   onOpen: (b: Booking) => void; onCancel: (b: Booking) => void
 }) {
   const start = toLocalMin(b.starts_at)
@@ -704,7 +712,7 @@ function DiaryBookingRow({ booking: b, nowMin, missing, onOpen, onCancel }: {
           {b.is_new_client && <NewClientBadge onSolid={solid} />}
         </div>
         <div className="mt-1 flex items-center gap-1.5">
-          <ConsentFlag name={b.client_name} missing={missing} onDark={solid} />
+          <ConsentFlag name={b.client_name} missing={missing} onFile={onFile} onDark={solid} />
           <ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} onDark={solid} />
           <span className={`text-xs ${solid ? 'text-cream/85' : statusToneFor(b.status, b.confirmed_at)}`}>{statusLabel(b.status, b.confirmed_at)}</span>
         </div>

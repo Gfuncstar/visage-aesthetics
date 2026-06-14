@@ -215,10 +215,11 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
   useEffect(() => { void load() }, [load])
 
   const [consentMissing, setConsentMissing] = useState<Set<string> | null>(null)
+  const [consentOnFile, setConsentOnFile] = useState<Set<string> | null>(null)
   useEffect(() => {
     fetch('/api/staff/assistant/consent/flags')
       .then((r) => r.ok ? r.json() : null)
-      .then((d) => { setConsentMissing(new Set((d?.missing ?? []) as string[])) })
+      .then((d) => { setConsentMissing(new Set((d?.missing ?? []) as string[])); setConsentOnFile(new Set((d?.onFile ?? []) as string[])) })
       .catch(() => {})
   }, [])
 
@@ -377,11 +378,11 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
               ) : schedView === 'week' ? (
                 <div className="space-y-4">
                   {weekDays(anchor).map((day) => (
-                    <DaySchedule key={day} day={day} data={schedData} nowMin={nowMin} missing={consentMissing} onBook={bookSlot} onOpen={setDetail} onCancel={setPendingCancel} heading />
+                    <DaySchedule key={day} day={day} data={schedData} nowMin={nowMin} missing={consentMissing} onFile={consentOnFile} onBook={bookSlot} onOpen={setDetail} onCancel={setPendingCancel} heading />
                   ))}
                 </div>
               ) : (
-                <DaySchedule day={anchor} data={schedData} nowMin={nowMin} missing={consentMissing} onBook={bookSlot} onOpen={setDetail} onCancel={setPendingCancel} />
+                <DaySchedule day={anchor} data={schedData} nowMin={nowMin} missing={consentMissing} onFile={consentOnFile} onBook={bookSlot} onOpen={setDetail} onCancel={setPendingCancel} />
               )}
             </Section>
 
@@ -533,7 +534,7 @@ function NewBookingPanel({ initialDate, initialTime, onClose, onDone }: { initia
 }
 
 // ---- One day's bookings + tappable gaps ------------------------------------
-function DaySchedule({ day, data, nowMin, missing, onBook, onOpen, onCancel, heading = false }: { day: string; data: SchedData; nowMin: number; missing: Set<string> | null; onBook: (date: string, startMin: number) => void; onOpen: (b: BookingLite) => void; onCancel: (b: BookingLite) => void; heading?: boolean }) {
+function DaySchedule({ day, data, nowMin, missing, onFile, onBook, onOpen, onCancel, heading = false }: { day: string; data: SchedData; nowMin: number; missing: Set<string> | null; onFile: Set<string> | null; onBook: (date: string, startMin: number) => void; onOpen: (b: BookingLite) => void; onCancel: (b: BookingLite) => void; heading?: boolean }) {
   const dayB = data.bookings.filter((b) => localDate(b.starts_at) === day).sort((a, b) => a.starts_at.localeCompare(b.starts_at))
   const gaps = gapsForDay(day, data.bookings, data.timeOff, data.businessHours)
   const free = freeMinsForDay(day, data.bookings, data.timeOff, data.businessHours)
@@ -550,7 +551,7 @@ function DaySchedule({ day, data, nowMin, missing, onBook, onOpen, onCancel, hea
     : (
       <div className="space-y-2">
         {items.map((item, i) => item.kind === 'booking'
-          ? <BookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={missing} onOpen={onOpen} onCancel={onCancel} />
+          ? <BookingRow key={item.b.id} booking={item.b} nowMin={nowMin} missing={missing} onFile={onFile} onOpen={onOpen} onCancel={onCancel} />
           : <GapRow key={`gap-${i}`} date={day} startMin={item.start} endMin={item.end} onBook={onBook} />
         )}
       </div>
