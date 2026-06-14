@@ -56,6 +56,24 @@ export async function consentNamesOnFile(): Promise<Set<string>> {
   return set
 }
 
+// Normalised names of every client whose consent is genuinely DONE — a
+// completed submission, a completed/waived request, or a waiver. Unlike
+// consentNamesOnFile this deliberately EXCLUDES a form that's only been sent and
+// not filled in yet, so the per-row list tick means "signed", not "chased".
+export async function consentNamesDone(): Promise<Set<string>> {
+  const since = new Date(Date.now() - CONSENT_LOOKBACK_DAYS * DAY_MS).toISOString()
+  const [requests, waivers, submissions] = await Promise.all([
+    select<ReqRow>('consent_requests', { status: 'in.(completed,waived)', select: 'id,client_name', limit: 2000 }).catch(() => [] as ReqRow[]),
+    select<WaiverRow>('consent_waivers', { select: 'client_name_norm', limit: 2000 }).catch(() => [] as WaiverRow[]),
+    select<SubRow>('consent_submissions', { submitted_at: `gte.${since}`, select: 'client_name,submitted_at', limit: 5000 }).catch(() => [] as SubRow[]),
+  ])
+  const set = new Set<string>()
+  for (const s of submissions) { const k = norm(s.client_name ?? ''); if (k) set.add(k) }
+  for (const r of requests) { const k = norm(r.client_name ?? ''); if (k) set.add(k) }
+  for (const w of waivers) { if (w.client_name_norm) set.add(w.client_name_norm) }
+  return set
+}
+
 // Booking ids that already have consent accounted for — a submission or a sent
 // request tied to that booking. Used by the 24h auto-send so consent is chased
 // per treatment: each booking that hasn't got its own consent yet gets the form,
