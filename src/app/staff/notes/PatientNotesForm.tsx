@@ -27,7 +27,7 @@ type FormValues = {
 const inputClass =
   'w-full bg-cream border border-line/40 rounded-sm px-4 py-3 text-base text-charcoal placeholder:text-ink-soft/60 focus:outline-none focus:border-gold min-h-[48px]'
 
-export default function PatientNotesForm() {
+export default function PatientNotesForm({ prefillName = '', prefillDate = '' }: { prefillName?: string; prefillDate?: string }) {
   const [submitted, setSubmitted] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
   const today = new Date().toISOString().slice(0, 10)
@@ -39,7 +39,8 @@ export default function PatientNotesForm() {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
-      dateOfTreatment: today,
+      name: prefillName,
+      dateOfTreatment: prefillDate || today,
       dateSigned: today,
       beforePhotosTaken: false,
       problemsNoted: 'No',
