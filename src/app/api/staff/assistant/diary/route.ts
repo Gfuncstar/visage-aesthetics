@@ -70,7 +70,7 @@ export async function GET(req: Request) {
   const start = dayBounds(from).start
   const end = dayBounds(to).end
   try {
-    const [bookings, timeOff, waitlist, businessHours, history] = await Promise.all([
+    const [bookings, timeOff, waitlist, businessHours, history, writeUps] = await Promise.all([
       select<Booking>('bookings', { and: `(starts_at.gte.${start},starts_at.lte.${end})`, order: 'starts_at.asc', limit: 200 }),
       select<TimeOff>('time_off', { and: `(starts_at.lte.${end},ends_at.gte.${start})`, order: 'starts_at.asc', limit: 100 }),
       select<Record<string, unknown>>('waitlist', { status: 'eq.waiting', order: 'created_at.asc', limit: 50 }),
@@ -80,6 +80,12 @@ export async function GET(req: Request) {
       // regular as new. We only need the earliest appointment date per client.
       select<Pick<Appointment, 'client_name' | 'date'>>('appointments', {
         select: 'client_name,date', order: 'date.asc', limit: 8000,
+      }),
+      // Clinical write-ups in this window, so a card ticks "notes done" whether
+      // the note came from the Patient Notes form (sets bookings.notes_done) or
+      // the Treatment write-up tool (a treatment_records row), matched by name+date.
+      select<{ client_name: string; date: string }>('treatment_records', {
+        and: `(date.gte.${from},date.lte.${to})`, select: 'client_name,date', limit: 1000,
       }),
     ])
     // Earliest appointment date we've ever recorded for each client (by name).
@@ -94,10 +100,14 @@ export async function GET(req: Request) {
     // booking is mirrored into appointments at the same date, so a later booking
     // for the same person sees that earlier date and is no longer flagged — the
     // NEW badge lands only on a client's very first appointment.
+    // A note is "done" for a visit when there is a write-up for that client on
+    // that day, by either route. Key on name + calendar day.
+    const writtenUp = new Set(writeUps.map((r) => `${(r.date ?? '').slice(0, 10)}|${normName(r.client_name)}`))
     const withNew = bookings.map((b) => {
       const prior = earliest.get(normName(b.client_name))
       const isNew = b.status !== 'cancelled' && (!prior || prior >= londonDate(b.starts_at))
-      return { ...b, is_new_client: isNew }
+      const notesDone = Boolean(b.notes_done) || writtenUp.has(`${londonDate(b.starts_at)}|${normName(b.client_name)}`)
+      return { ...b, is_new_client: isNew, notes_done: notesDone }
     })
     return NextResponse.json({ bookings: withNew, timeOff, waitlist, businessHours, configured: true })
   } catch (err) {
