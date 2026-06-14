@@ -1,12 +1,22 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { ArrowLeft, Check, LogOut } from 'lucide-react'
 import { treatments } from '@/lib/treatments'
 
 type YesNo = 'Yes' | 'No'
+
+type SavedNote = { source: 'notes-form' | 'write-up'; date: string | null; treatment: string | null; body: string; created_at: string }
+
+function formatNoteDate(d: string | null): string {
+  if (!d) return ''
+  const dt = new Date(`${d.slice(0, 10)}T12:00:00Z`)
+  return Number.isNaN(dt.getTime())
+    ? d
+    : new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(dt)
+}
 
 type FormValues = {
   name: string
@@ -30,7 +40,22 @@ const inputClass =
 export default function PatientNotesForm({ prefillName = '', prefillDate = '' }: { prefillName?: string; prefillDate?: string }) {
   const [submitted, setSubmitted] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
+  const [savedNotes, setSavedNotes] = useState<SavedNote[]>([])
   const today = new Date().toISOString().slice(0, 10)
+
+  // When opened for a specific client (tapped from a landing-page card), pull the
+  // notes already on file so they can be read before adding more.
+  useEffect(() => {
+    if (!prefillName) return
+    let cancelled = false
+    const q = new URLSearchParams({ name: prefillName })
+    if (prefillDate) q.set('date', prefillDate)
+    fetch(`/api/staff/notes?${q.toString()}`)
+      .then((r) => (r.ok ? r.json() : { notes: [] }))
+      .then((d) => { if (!cancelled) setSavedNotes(d.notes ?? []) })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [prefillName, prefillDate])
 
   const {
     register,
@@ -135,6 +160,31 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
             <span className="hidden sm:inline">Sign out</span>
           </button>
         </div>
+
+        {savedNotes.length > 0 && (
+          <div className="mb-8 border border-line/40 rounded-sm bg-cream-soft overflow-hidden">
+            <div className="px-4 py-3 border-b border-line/40 flex items-center justify-between gap-2">
+              <span className="text-eyebrow text-gold-deep">Notes already on file{prefillName ? ` · ${prefillName}` : ''}</span>
+              <span className="text-xs text-stone shrink-0">{savedNotes.length} saved</span>
+            </div>
+            <div className="divide-y divide-line/30 max-h-80 overflow-y-auto">
+              {savedNotes.map((n, i) => (
+                <div key={i} className="px-4 py-3">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <span className="text-sm font-medium text-charcoal">{n.treatment || 'Note'}</span>
+                    <span className="text-xs text-stone whitespace-nowrap shrink-0">
+                      {formatNoteDate(n.date)}{n.date ? ' · ' : ''}{n.source === 'write-up' ? 'Write-up' : 'Notes'}
+                    </span>
+                  </div>
+                  <p className="text-sm text-ink-soft whitespace-pre-wrap leading-relaxed">{n.body}</p>
+                </div>
+              ))}
+            </div>
+            <div className="px-4 py-2.5 border-t border-line/40 text-xs text-ink-soft">
+              Add a new note below if there is anything more to record.
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

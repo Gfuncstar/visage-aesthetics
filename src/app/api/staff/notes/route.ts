@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { isStaffAuthed } from '@/lib/staff-auth'
-import { assistantConfigured, select, update } from '@/lib/assistant/db'
+import { assistantConfigured, select, insert, update } from '@/lib/assistant/db'
 
 export const runtime = 'nodejs'
 
@@ -29,6 +29,33 @@ async function flagBookingNotesDone(name: string, date: string): Promise<void> {
     }
   } catch (err) {
     console.error('[staff/notes] could not flag booking notes_done', err)
+  }
+}
+
+// Keep a readable copy of the note in the clinic database, so a saved note can
+// later be shown back (the Google sheet is write-only). Best-effort: a failure
+// here must never stop the note being saved to the sheet.
+async function savePatientNoteCopy(body: Record<string, string | undefined>): Promise<void> {
+  if (!assistantConfigured() || !body.name) return
+  try {
+    await insert('patient_notes', {
+      client_name: body.name,
+      name_normalised: normName(body.name),
+      date: body.dateOfTreatment || null,
+      treatment: body.treatment || null,
+      specific_area: body.specificArea || null,
+      product_used: body.productUsed || null,
+      lot_no_exp: body.lotNoExp || null,
+      dosage: body.dosage || null,
+      before_photos_taken: body.beforePhotosTaken || null,
+      problems_noted: body.problemsNoted || null,
+      aftercare_provided: body.aftercareProvided || null,
+      additional_notes: body.additionalNotes || null,
+      emergency_contact_provided: body.emergencyContactProvided || null,
+      date_signed: body.dateSigned || null,
+    })
+  } catch (err) {
+    console.error('[staff/notes] could not save patient_notes copy', err)
   }
 }
 
@@ -130,9 +157,69 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Could not save to sheet' }, { status: 502 })
   }
 
-  // The note is saved; now tick the matching booking on the landing page. The
-  // clean() step guarantees these are trimmed strings (name is required above).
-  await flagBookingNotesDone(body.name ?? '', body.dateOfTreatment ?? '')
+  // The note is saved; keep a readable copy and tick the matching booking on the
+  // landing page. Both are best-effort and the name is required above.
+  await Promise.all([
+    savePatientNoteCopy(body),
+    flagBookingNotesDone(body.name ?? '', body.dateOfTreatment ?? ''),
+  ])
 
   return NextResponse.json({ ok: true })
+}
+
+// ---- GET ?name=&date= : the notes already on file for a client -------------
+// Powers the "previously saved notes" panel shown when a card's Notes tick is
+// tapped. Combines the Patient Notes form copies with clinical write-ups, newest
+// first, so whichever route was used, the saved note shows.
+type SavedNote = { source: 'notes-form' | 'write-up'; date: string | null; treatment: string | null; body: string; created_at: string }
+
+type PatientNoteRow = {
+  client_name: string; date: string | null; treatment: string | null; specific_area: string | null
+  product_used: string | null; lot_no_exp: string | null; dosage: string | null
+  before_photos_taken: string | null; problems_noted: string | null; aftercare_provided: string | null
+  additional_notes: string | null; emergency_contact_provided: string | null; created_at: string
+}
+type WriteUpRow = { client_name: string; date: string | null; treatment_type: string | null; clinical_note: string | null; notes: string | null; created_at: string }
+
+function patientNoteBody(r: PatientNoteRow): string {
+  const lines: string[] = []
+  if (r.specific_area) lines.push(`Area: ${r.specific_area}`)
+  if (r.product_used) lines.push(`Product: ${r.product_used}${r.lot_no_exp ? ` (Lot/Exp: ${r.lot_no_exp})` : ''}`)
+  if (r.dosage) lines.push(`Dosage: ${r.dosage}`)
+  const flags: string[] = []
+  if (r.before_photos_taken) flags.push(`Photo taken: ${r.before_photos_taken}`)
+  if (r.aftercare_provided) flags.push(`Aftercare given: ${r.aftercare_provided}`)
+  if (r.problems_noted && r.problems_noted !== 'No') flags.push(`Problems noted: ${r.problems_noted}`)
+  if (r.emergency_contact_provided) flags.push(`Emergency contact: ${r.emergency_contact_provided}`)
+  if (flags.length) lines.push(flags.join('  ·  '))
+  if (r.additional_notes) lines.push(r.additional_notes)
+  return lines.join('\n')
+}
+
+export async function GET(req: Request) {
+  if (!(await isStaffAuthed())) {
+    return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
+  }
+  if (!assistantConfigured()) return NextResponse.json({ notes: [] })
+  const name = (new URL(req.url).searchParams.get('name') ?? '').trim().slice(0, 200)
+  if (!name) return NextResponse.json({ notes: [] })
+  const target = normName(name)
+  try {
+    const [formNotes, writeUps] = await Promise.all([
+      select<PatientNoteRow>('patient_notes', { name_normalised: `eq.${target}`, order: 'created_at.desc', limit: 25 }),
+      select<WriteUpRow>('treatment_records', { client_name: `ilike.${name}`, order: 'created_at.desc', limit: 25 }),
+    ])
+    const notes: SavedNote[] = [
+      ...formNotes.map((r): SavedNote => ({ source: 'notes-form', date: r.date, treatment: r.treatment, body: patientNoteBody(r), created_at: r.created_at })),
+      ...writeUps
+        .filter((r) => normName(r.client_name ?? '') === target)
+        .map((r): SavedNote => ({ source: 'write-up', date: r.date, treatment: r.treatment_type, body: (r.clinical_note || r.notes || '').trim(), created_at: r.created_at })),
+    ]
+      .filter((n) => n.body)
+      .sort((a, b) => (b.created_at ?? '').localeCompare(a.created_at ?? ''))
+    return NextResponse.json({ notes })
+  } catch (err) {
+    console.error('[staff/notes] could not read saved notes', err)
+    return NextResponse.json({ notes: [] })
+  }
 }
