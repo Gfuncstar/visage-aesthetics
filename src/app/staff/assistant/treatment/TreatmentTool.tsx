@@ -36,7 +36,7 @@ const textareaClass =
 
 type Suggestion = { id: string | null; name: string; email: string | null; source: string }
 type AreaRow = { area: string; dose: number }
-type RecentAppt = { id: string; client_name: string; date: string; service_name: string; status: string }
+type RecentAppt = { id: string; client_name: string; date: string; service_name: string; status: string; email?: string | null }
 
 // Carry-forward memory: remember the product / batch / expiry / technique per
 // treatment type so the same batch auto-fills for the rest of the day. Stored
@@ -203,7 +203,10 @@ export default function TreatmentTool() {
     setPickedApptId(a.id)
     setClientName(a.client_name)
     setClientId(null)
-    setClientEmail(null)
+    // Carry the email from the appointment so the follow-up / aftercare email
+    // can actually be sent — otherwise the "Send from clinic" button never shows
+    // for a client picked from the day's list.
+    setClientEmail(a.email ?? null)
     setDate(a.date)
     const matched = matchTreatmentType(a.service_name)
     if (matched) setTypeId(matched)
