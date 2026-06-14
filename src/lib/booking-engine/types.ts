@@ -50,6 +50,9 @@ export type Booking = {
   review_requested_at: string | null
   created_at: string
   updated_at: string
+  // Set true once the patient notes have been written up for this visit. The
+  // Patient Notes form flags the matching booking by client name and date.
+  notes_done?: boolean
   // Derived on read by the diary API — true when this is the client's first visit.
   is_new_client?: boolean
 }

@@ -13,7 +13,7 @@ import DayComplianceCard from '@/components/staff/DayComplianceCard'
 // landing page. Mirrors the front-desk schedule so the desk can rebook a client
 // the moment they get up from the chair, without leaving the home screen.
 
-type Lite = { id: string; service_name: string; client_name: string; client_email?: string | null; client_phone: string | null; starts_at: string; ends_at?: string; status: string; confirmed_at: string | null; reminded_at?: string | null; notes?: string | null; source?: string; is_new_client?: boolean }
+type Lite = { id: string; service_name: string; client_name: string; client_email?: string | null; client_phone: string | null; starts_at: string; ends_at?: string; status: string; confirmed_at: string | null; reminded_at?: string | null; notes?: string | null; source?: string; is_new_client?: boolean; notes_done?: boolean }
 type TimeOffRow = { id: string; starts_at: string; ends_at: string; reason: string | null }
 type BusinessHour = { weekday: number; is_open: boolean; open_min: number; close_min: number }
 type ServiceLite = { slug: string; name: string; duration_min: number }
@@ -673,6 +673,7 @@ function BookingRow({ booking: b, nowMin, missing, onFile, justBooked = false, o
           <ConsentFlag name={b.client_name} missing={missing} onFile={onFile} onDark={solid} />
           <ConfirmedDot status={b.status} confirmedAt={b.confirmed_at} onDark={solid} />
           <span className={`text-xs ${solid ? 'text-cream/85' : statusToneFor(b.status, b.confirmed_at)}`}>{statusLabel(b.status, b.confirmed_at)}</span>
+          {isPastOrCurrent && <NotesFlag done={!!b.notes_done} />}
         </div>
       </div>
       <div className="shrink-0 flex items-center gap-3">
@@ -682,6 +683,21 @@ function BookingRow({ booking: b, nowMin, missing, onFile, justBooked = false, o
         </button>
       </div>
     </div>
+  )
+}
+
+// Shown only on the charcoal "been and gone" cards: a tick once this client's
+// patient notes are written up, or an empty box until then — so Bernadette can
+// see at a glance who she still has notes to do as she catches up through the day.
+function NotesFlag({ done }: { done: boolean }) {
+  return (
+    <span
+      title={done ? 'Notes done' : 'Notes not done yet'}
+      className={`inline-flex items-center gap-1 text-[10px] font-semibold shrink-0 whitespace-nowrap rounded-full px-1.5 py-0.5 ${done ? 'bg-sage text-cream' : 'border border-cream/45 text-cream/75'}`}
+    >
+      {done ? <Check size={10} strokeWidth={3} /> : <span className="inline-block w-2.5 h-2.5 rounded-[2px] border border-cream/70" />}
+      Notes
+    </span>
   )
 }
 
