@@ -30,6 +30,16 @@ export default function ConsentSubmissions() {
     }
   }, [])
 
+  // Open and scroll to a specific submission when arriving from the "View
+  // consent form" button in Bernadette's notification email (?submission=<id>).
+  useEffect(() => {
+    if (loading || rows.length === 0) return
+    const id = new URLSearchParams(window.location.search).get('submission')
+    if (!id || !rows.some((r) => r.id === id)) return
+    setOpenId(id)
+    setTimeout(() => document.getElementById(`sub-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
+  }, [loading, rows])
+
   const outstandingFiltered = useMemo(() => {
     const term = q.trim().toLowerCase()
     if (!term) return outstanding
@@ -111,7 +121,7 @@ export default function ConsentSubmissions() {
         {filtered.map((r) => {
           const open = openId === r.id
           return (
-            <li key={r.id} className="border border-line/40 rounded-sm bg-cream-soft">
+            <li key={r.id} id={`sub-${r.id}`} className="border border-line/40 rounded-sm bg-cream-soft scroll-mt-24">
               <button
                 type="button"
                 onClick={() => setOpenId(open ? null : r.id)}

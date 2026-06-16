@@ -3,6 +3,7 @@ import { assistantConfigured, select, insert, update, audit } from '@/lib/assist
 import { resolveConsent } from '@/lib/consent/resolve'
 import { sanitiseAnswers } from '@/lib/consent/forms'
 import { pushConsentToSheet } from '@/lib/consent/sheet'
+import { notifyConsentSubmitted } from '@/lib/consent/notify'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -148,6 +149,14 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
       formName: context.form.name,
       answers,
       declaration: context.form.declaration,
+    })
+
+    // Let Bernadette know it's done, with a link straight to the submission.
+    await notifyConsentSubmitted({
+      submissionId: saved.id,
+      clientName: context.clientName,
+      serviceName: context.serviceName,
+      formName: context.form.name,
     })
 
     return NextResponse.json({ ok: true })
