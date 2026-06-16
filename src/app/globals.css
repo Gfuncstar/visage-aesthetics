@@ -37,6 +37,16 @@
   color-scheme: light;
 }
 
+/* Stronger, higher-contrast status colours for the internal staff/back-office
+   area only. The public marketing site keeps the muted brand palette. Scoped
+   via .staff-vivid on the signed-in staff wrapper; Tailwind v4 utilities read
+   these tokens through var(), so text-/bg-/border- sage, clay & gold all shift. */
+.staff-vivid {
+  --color-sage: #1F8F4E;      /* success / positive — vivid green */
+  --color-clay: #D23B2C;      /* urgent / danger — vivid red */
+  --color-gold-deep: #9A7322; /* attention / warning — richer amber */
+}
+
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
