@@ -372,6 +372,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-06-13',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'polynucleotides-vs-profhilo',
+    category: "Skin quality",
+    title: "Polynucleotides vs Profhilo: two skin boosters, different jobs",
+    excerpt: "Both work differently: Profhilo hydrates and tightens fast, whilst polynucleotides repair skin gradually over months—here's which suits your concern.",
+    readTime: "8 min read",
+    datePublished: '2026-06-16',
+    dateModified: '2026-06-16',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
