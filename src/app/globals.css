@@ -70,6 +70,13 @@
   color: var(--section-accent, #A8895E);
 }
 
+/* Bolder: the page's main title also takes the section colour, so each area
+   reads unmistakably as its own colour. Falls back to charcoal before the nav
+   sets the accent. */
+.staff-vivid h1 {
+  color: var(--section-accent, #1F1B1A);
+}
+
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 

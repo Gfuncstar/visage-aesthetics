@@ -74,7 +74,7 @@ export default function StaffNav({ viewToggle }: { viewToggle?: React.ReactNode 
         )}
       </div>
       {/* Section accent bar — a persistent colour cue for the area you're in. */}
-      <div aria-hidden style={{ height: 3, background: activeAccent }} />
+      <div aria-hidden style={{ height: 5, background: activeAccent }} />
     </nav>
   )
 }
