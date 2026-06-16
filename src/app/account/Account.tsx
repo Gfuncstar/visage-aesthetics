@@ -21,6 +21,7 @@ type PortalData = { name: string; email: string; phone: string; bookings: Portal
 type AuthMode = 'login' | 'register' | 'forgot'
 
 const WHATSAPP = 'https://wa.me/447931395246'
+const REMEMBER_EMAIL_KEY = 'visage_account_email'
 
 function whenLabel(iso: string): string {
   return new Intl.DateTimeFormat('en-GB', {
@@ -148,6 +149,11 @@ export default function Account() {
       window.location.replace(`/api/account/from-link?token=${encodeURIComponent(token)}`)
       return
     }
+    // Prefill the email if it was remembered on this device last time.
+    try {
+      const saved = localStorage.getItem(REMEMBER_EMAIL_KEY)
+      if (saved) setEmail(saved)
+    } catch {}
     void (async () => {
       await loadPortal()
       setLoading(false)
@@ -194,6 +200,11 @@ export default function Account() {
         body: JSON.stringify({ email: email.trim(), password, remember }),
       })
       if (res.ok) {
+        // Remember (or forget) the email on this device for next time.
+        try {
+          if (remember) localStorage.setItem(REMEMBER_EMAIL_KEY, email.trim())
+          else localStorage.removeItem(REMEMBER_EMAIL_KEY)
+        } catch {}
         setPassword('')
         await loadPortal()
       } else {
