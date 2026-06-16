@@ -46,6 +46,12 @@ export default function BookingFlow() {
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<'confirmed' | 'deposit' | 'waitlist' | null>(null)
 
+  // Optional account creation on the confirmation screen.
+  const [accPassword, setAccPassword] = useState('')
+  const [accBusy, setAccBusy] = useState(false)
+  const [accDone, setAccDone] = useState(false)
+  const [accError, setAccError] = useState<string | null>(null)
+
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? 'null')
@@ -148,6 +154,29 @@ export default function BookingFlow() {
       setError('Network error. Please try again.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function createAccount() {
+    setAccError(null)
+    if (accPassword.length < 8) { setAccError('Please choose at least 8 characters.'); return }
+    setAccBusy(true)
+    try {
+      const res = await fetch('/api/account/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password: accPassword, remember: true }),
+      })
+      if (res.ok) {
+        setAccDone(true)
+      } else {
+        const d = await res.json().catch(() => ({}))
+        setAccError(d.error || 'Could not create your account.')
+      }
+    } catch {
+      setAccError('Network error. Please try again.')
+    } finally {
+      setAccBusy(false)
     }
   }
 
@@ -303,6 +332,7 @@ export default function BookingFlow() {
 
         {/* Step 4 — done */}
         {step === 'done' && (
+          <>
           <div className="border border-sage/40 bg-sage/10 rounded-sm p-6 text-center">
             <div className="inline-flex w-12 h-12 rounded-full bg-sage/20 text-sage items-center justify-center mb-4"><Check size={22} strokeWidth={2} /></div>
             {result === 'waitlist' ? (
@@ -322,6 +352,37 @@ export default function BookingFlow() {
               </>
             )}
           </div>
+
+          {result !== 'waitlist' && email && (
+            <div className="mt-4 border border-line rounded-sm p-6">
+              {accDone ? (
+                <div className="text-center">
+                  <div className="inline-flex w-10 h-10 rounded-full bg-gold/15 text-gold-deep items-center justify-center mb-3"><Check size={18} strokeWidth={2} /></div>
+                  <h3 className="font-display italic text-xl text-charcoal mb-1">Account created</h3>
+                  <p className="text-sm text-ink-soft leading-relaxed">You are logged in. <a href="/account" className="text-gold-deep underline">See your appointments</a> any time.</p>
+                </div>
+              ) : (
+                <>
+                  <h3 className="font-display italic text-xl text-charcoal mb-1">Create an account</h3>
+                  <p className="text-sm text-ink-soft leading-relaxed mb-4">Set a password to log back in any time and see your upcoming and past appointments. We will use <span className="text-charcoal">{email}</span>.</p>
+                  <input
+                    type="password"
+                    value={accPassword}
+                    onChange={(e) => { setAccPassword(e.target.value); setAccError(null) }}
+                    placeholder="Choose a password (at least 8 characters)"
+                    autoComplete="new-password"
+                    className={inputClass}
+                    onKeyDown={(e) => e.key === 'Enter' && void createAccount()}
+                  />
+                  {accError && <p className="text-sm text-clay mt-2">{accError}</p>}
+                  <button onClick={() => void createAccount()} disabled={accBusy} className="btn btn-primary btn-block mt-3 disabled:opacity-50">
+                    <span>{accBusy ? 'Creating…' : 'Create account'}</span>
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+          </>
         )}
       </div>
     </section>

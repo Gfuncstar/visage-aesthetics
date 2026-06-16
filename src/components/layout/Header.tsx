@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { Lock, Menu, X } from 'lucide-react'
+import { Lock, Menu, User, X } from 'lucide-react'
 import { treatments } from '@/lib/treatments'
 import { BOOKING_LINK_PROPS } from '@/lib/booking'
 import { AWARD } from '@/lib/award'
@@ -92,6 +92,14 @@ export default function Header() {
             </nav>
 
             <div className="flex items-center gap-3">
+              <Link
+                href="/account"
+                className="hidden lg:inline-flex items-center justify-center w-9 h-9 rounded-full text-stone hover:text-gold-deep hover:bg-cream-soft transition-colors"
+                aria-label="My account"
+                title="My account"
+              >
+                <User size={15} strokeWidth={1.75} />
+              </Link>
               <Link
                 href={STAFF_LINK.href}
                 className="hidden lg:inline-flex items-center justify-center w-9 h-9 rounded-full text-stone hover:text-gold-deep hover:bg-cream-soft transition-colors"
@@ -194,9 +202,18 @@ export default function Header() {
               info@vaclinic.co.uk
             </a>
             <Link
-              href={STAFF_LINK.href}
+              href="/account"
               onClick={() => setMobileOpen(false)}
               className="mt-6 inline-flex items-center gap-2 eyebrow text-stone hover:text-gold-deep mx-auto"
+              style={{ display: 'flex', justifyContent: 'center' }}
+            >
+              <User size={12} strokeWidth={1.75} />
+              My account
+            </Link>
+            <Link
+              href={STAFF_LINK.href}
+              onClick={() => setMobileOpen(false)}
+              className="mt-4 inline-flex items-center gap-2 eyebrow text-stone hover:text-gold-deep mx-auto"
               style={{ display: 'flex', justifyContent: 'center' }}
             >
               <Lock size={12} strokeWidth={1.75} />
