@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { assistantConfigured, select, update, audit } from '@/lib/assistant/db'
-import { readPortalToken } from '@/lib/booking-engine/portal-token'
+import { emailFromRequest } from '@/lib/account/session'
 import { londonToday } from '@/lib/booking-engine/time'
 import type { Booking } from '@/lib/booking-engine/types'
 
@@ -18,17 +18,13 @@ type PortalBooking = {
   past: boolean
 }
 
-function tokenFrom(req: Request): string | null {
-  return new URL(req.url).searchParams.get('token')
-}
-
-// Public (magic-link gated): everything a client booked, by email. The token in
-// the link is the only key — no password. Returns each booking's manage link so
-// the page can reuse the existing change/cancel flow.
+// Public (session gated): everything a client booked, by email. The logged-in
+// client's email comes from their signed session cookie. Returns each booking's
+// manage link so the page can reuse the existing change/cancel flow.
 export async function GET(req: Request) {
   if (!assistantConfigured()) return NextResponse.json({ error: 'Unavailable' }, { status: 503 })
-  const email = readPortalToken(tokenFrom(req))
-  if (!email) return NextResponse.json({ error: 'This link has expired. Please request a new one.' }, { status: 401 })
+  const email = emailFromRequest(req)
+  if (!email) return NextResponse.json({ error: 'Please log in.' }, { status: 401 })
 
   try {
     const rows = await select<Booking>('bookings', {
@@ -62,8 +58,8 @@ export async function GET(req: Request) {
 // client record and any upcoming bookings so reminders use the new number.
 export async function PATCH(req: Request) {
   if (!assistantConfigured()) return NextResponse.json({ error: 'Unavailable' }, { status: 503 })
-  const email = readPortalToken(tokenFrom(req))
-  if (!email) return NextResponse.json({ error: 'This link has expired. Please request a new one.' }, { status: 401 })
+  const email = emailFromRequest(req)
+  if (!email) return NextResponse.json({ error: 'Please log in.' }, { status: 401 })
 
   let phone = ''
   try {

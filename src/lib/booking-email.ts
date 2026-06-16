@@ -105,6 +105,27 @@ If you did not ask for this, you can ignore this email.`
   }
 }
 
+export function passwordResetEmail(input: { name: string; url: string; isNew: boolean }): { subject: string; html: string; text: string } {
+  const intro = input.isNew
+    ? `You asked to set up an account for your Visage Aesthetics appointments. Choose a password using the secure link below — it is just for you, so please do not forward it.`
+    : `You asked to reset the password for your Visage Aesthetics account. Set a new one using the secure link below — it is just for you, so please do not forward it.`
+  const label = input.isNew ? 'Set up my account' : 'Reset my password'
+  const body = `Hi ${firstName(input.name)},
+
+${intro}
+
+[${label}](${input.url})
+
+This link lasts one hour. If you did not ask for this, you can safely ignore this email — nothing will change.`
+  const headline = input.isNew ? 'Set up your account' : 'Reset your password'
+  const opts = { preheader: 'Your secure link to set a password.', headline, body, cta: 'none' as const }
+  return {
+    subject: input.isNew ? 'Set up your Visage Aesthetics account' : 'Reset your Visage Aesthetics password',
+    html: buildBroadcastHtml(opts),
+    text: buildBroadcastText({ headline, body, cta: 'none' }),
+  }
+}
+
 export function staffNewBookingEmail(input: {
   clientName: string
   serviceName: string
