@@ -4,7 +4,6 @@ import { useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import GoogleG from '@/components/ui/GoogleG'
-import { BOOKING_LINK_PROPS } from '@/lib/booking'
 import { AWARD } from '@/lib/award'
 
 export default function ScrollScrubHero() {
@@ -175,14 +174,6 @@ export default function ScrollScrubHero() {
                 className="flex items-end justify-between gap-6 flex-wrap"
                 style={{ opacity: 0, animation: 'fadeUp 1.1s 1.2s var(--ease) forwards' }}
               >
-                <a
-                  {...BOOKING_LINK_PROPS}
-                  className="btn btn-primary !min-h-[24px] !px-3.5 !py-2"
-                  style={{ minWidth: 110, fontSize: 9.5, letterSpacing: '0.15em', gap: 8 }}
-                >
-                  <span>Book</span>
-                  <span className="btn-arrow">→</span>
-                </a>
                 <div className="hidden sm:flex items-center gap-4 lg:gap-6 text-stone">
                   <MiniSignal icon={<GoogleG size={14} />} label="5.0" />
                   <Dot />
