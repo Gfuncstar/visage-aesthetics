@@ -134,6 +134,14 @@ export default function Header() {
               >
                 Book
               </a>
+              <Link
+                href="/account"
+                className="lg:hidden inline-flex items-center justify-center w-11 h-11 text-charcoal hover:text-gold-deep transition-colors"
+                aria-label="My account"
+                title="My account"
+              >
+                <User size={20} strokeWidth={1.6} />
+              </Link>
               <button
                 type="button"
                 onClick={() => setMobileOpen((v) => !v)}
