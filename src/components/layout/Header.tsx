@@ -136,11 +136,12 @@ export default function Header() {
               </a>
               <Link
                 href="/account"
-                className="lg:hidden inline-flex items-center justify-center w-11 h-11 text-charcoal hover:text-gold-deep transition-colors"
-                aria-label="My account"
-                title="My account"
+                className="lg:hidden inline-flex flex-col items-center justify-center gap-0.5 text-charcoal hover:text-gold-deep transition-colors"
+                aria-label="Members area"
+                title="Members"
               >
                 <User size={20} strokeWidth={1.6} />
+                <span style={{ fontSize: 8.5, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, lineHeight: 1 }}>Members</span>
               </Link>
               <button
                 type="button"
