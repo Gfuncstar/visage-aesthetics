@@ -28,6 +28,7 @@ const PAGE_DATES: Record<string, string> = {
   '/contact': '2026-04-26',
   '/blog': '2026-04-26',
   '/privacy': '2025-09-01',
+  '/cancellation-policy': '2026-06-16',
   // Geo landing pages (local SEO)
   '/braintree-botox': '2026-04-26',
   '/braintree-lip-filler': '2026-04-26',
@@ -124,6 +125,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE}/contact`,         changeFrequency: 'monthly', priority: 0.85, lastModified: dateOf('/contact') },
     { url: `${SITE}/blog`,            changeFrequency: 'weekly',  priority: 0.8,  lastModified: dateOf('/blog') },
     { url: `${SITE}/privacy`,         changeFrequency: 'yearly',  priority: 0.2,  lastModified: dateOf('/privacy') },
+    { url: `${SITE}/cancellation-policy`, changeFrequency: 'yearly', priority: 0.2, lastModified: dateOf('/cancellation-policy') },
     // Geo landing pages (auto-generated from registry)
     // Authority pages
     { url: `${SITE}/about/qualifications`, changeFrequency: 'yearly',  priority: 0.7,  lastModified: dateOf('/about/qualifications') },
