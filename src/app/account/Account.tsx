@@ -181,6 +181,14 @@ export default function Account() {
           {mode === 'forgot' && 'Enter your email and we will send you a link to set a new password.'}
         </p>
 
+        {mode === 'login' && (
+          <div className="mt-4 border border-line/60 bg-cream-soft text-ink-soft text-sm rounded-sm px-4 py-3 leading-relaxed">
+            Booked with us but never set up a password? Enter your email and press{' '}
+            <button onClick={() => { setMode('forgot'); setAuthError(null) }} className="text-gold-deep underline">Set a password</button>{' '}
+            — we will email you a link to create one.
+          </div>
+        )}
+
         <div className="mt-5 space-y-3">
           <label className="block text-sm">
             <span className="text-ink-soft flex items-center gap-2 mb-1"><Mail size={14} /> Email</span>
