@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { assistantConfigured, select, update, audit } from '@/lib/assistant/db'
 import { emailFromRequest } from '@/lib/account/session'
 import { londonToday } from '@/lib/booking-engine/time'
+import { consentFormForService } from '@/lib/consent/forms'
 import type { Booking } from '@/lib/booking-engine/types'
 
 export const runtime = 'nodejs'
@@ -13,14 +14,17 @@ type PortalBooking = {
   serviceName: string
   serviceSlug: string | null
   startsAt: string
+  endsAt: string | null
   status: string
   manageToken: string
   past: boolean
+  needsConsent: boolean
 }
 
 // Public (session gated): everything a client booked, by email. The logged-in
 // client's email comes from their signed session cookie. Returns each booking's
-// manage link so the page can reuse the existing change/cancel flow.
+// manage link so the page can reuse the existing change/cancel flow, plus an
+// end time (for calendar files) and whether a consent form is still outstanding.
 export async function GET(req: Request) {
   if (!assistantConfigured()) return NextResponse.json({ error: 'Unavailable' }, { status: 503 })
   const email = emailFromRequest(req)
@@ -33,14 +37,38 @@ export async function GET(req: Request) {
       limit: 100,
     })
     const todayStart = `${londonToday()}T00:00:00.000Z`
+
+    // Which upcoming bookings need a consent form that has not been submitted?
+    // Only check live, future bookings whose service has a form on file.
+    const upcomingNeedingForm = rows.filter(
+      (b) =>
+        b.starts_at >= todayStart &&
+        b.status !== 'cancelled' &&
+        b.status !== 'completed' &&
+        consentFormForService(b.service_slug, b.service_name),
+    )
+    const consentDone = new Set<string>()
+    if (upcomingNeedingForm.length > 0) {
+      const ids = upcomingNeedingForm.map((b) => b.id).join(',')
+      const subs = await select<{ booking_id: string | null }>('consent_submissions', {
+        booking_id: `in.(${ids})`,
+        select: 'booking_id',
+        limit: 1000,
+      }).catch(() => [])
+      for (const s of subs) if (s.booking_id) consentDone.add(s.booking_id)
+    }
+    const needsFormIds = new Set(upcomingNeedingForm.filter((b) => !consentDone.has(b.id)).map((b) => b.id))
+
     const bookings: PortalBooking[] = rows.map((b) => ({
       id: b.id,
       serviceName: b.service_name,
       serviceSlug: b.service_slug,
       startsAt: b.starts_at,
+      endsAt: b.ends_at ?? null,
       status: b.status,
       manageToken: b.manage_token,
       past: b.starts_at < todayStart || b.status === 'completed',
+      needsConsent: needsFormIds.has(b.id),
     }))
     const latest = rows[0]
     return NextResponse.json({

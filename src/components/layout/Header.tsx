@@ -94,11 +94,12 @@ export default function Header() {
             <div className="flex items-center gap-3">
               <Link
                 href="/account"
-                className="hidden lg:inline-flex items-center justify-center w-9 h-9 rounded-full text-stone hover:text-gold-deep hover:bg-cream-soft transition-colors"
+                className="hidden md:inline-flex items-center gap-1.5 text-charcoal hover:text-gold-deep transition-colors pb-1.5 border-b border-charcoal hover:border-gold-deep"
+                style={{ fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 500 }}
                 aria-label="My account"
-                title="My account"
               >
-                <User size={15} strokeWidth={1.75} />
+                <User size={14} strokeWidth={1.75} />
+                My account
               </Link>
               <Link
                 href={STAFF_LINK.href}
