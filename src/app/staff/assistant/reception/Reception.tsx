@@ -348,9 +348,14 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
                   onDone={() => { setPrefill(null); void load(true); void loadSchedule(true) }}
                 />
               ) : (
-                <button onClick={() => bookSlot(todayStr(), 600)} className="btn btn-primary mb-8" style={{ minHeight: 40 }}>
-                  <span className="inline-flex items-center gap-2"><CalendarPlus size={15} strokeWidth={1.75} /> New booking</span>
-                </button>
+                <div className="flex flex-wrap items-center gap-3 mb-8">
+                  <button onClick={() => bookSlot(todayStr(), 600)} className="btn btn-primary" style={{ minHeight: 40 }}>
+                    <span className="inline-flex items-center gap-2"><CalendarPlus size={15} strokeWidth={1.75} /> New booking</span>
+                  </button>
+                  <a href="/staff/assistant/hours" className="inline-flex items-center gap-2 text-sm text-charcoal border border-line/50 rounded-sm px-4 hover:border-gold hover:text-gold-deep transition-colors" style={{ minHeight: 40 }}>
+                    <Clock size={15} strokeWidth={1.75} /> Opening hours
+                  </a>
+                </div>
               )}
             </div>
 
