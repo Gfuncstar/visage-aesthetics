@@ -130,6 +130,34 @@ This link lasts one hour. If you did not ask for this, you can safely ignore thi
   }
 }
 
+export function consentSubmittedEmail(input: {
+  clientName: string
+  serviceName?: string | null
+  formName: string
+  submissionId: string
+}): { subject: string; html: string; text: string } {
+  const viewUrl = `${SITE}/staff/assistant/consent?submission=${input.submissionId}`
+  const lines = [
+    `**${input.clientName}** has completed and submitted a consent form.`,
+    '',
+    `**Form:** ${input.formName}`,
+  ]
+  if (input.serviceName) lines.push(`**Treatment:** ${input.serviceName}`)
+  lines.push('', 'Tap below to read everything they completed.')
+  const body = lines.join('\n')
+  const opts = {
+    preheader: `${input.clientName} completed their consent form.`,
+    headline: 'Consent form completed',
+    body,
+    ctaCustom: { label: 'View consent form', url: viewUrl },
+  }
+  return {
+    subject: `Consent form completed: ${input.clientName} — ${input.formName}`,
+    html: buildBroadcastHtml(opts),
+    text: buildBroadcastText({ headline: opts.headline, body, ctaCustom: opts.ctaCustom }),
+  }
+}
+
 export function staffNewBookingEmail(input: {
   clientName: string
   serviceName: string
