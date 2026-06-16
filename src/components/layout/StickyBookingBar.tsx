@@ -1,15 +1,15 @@
 'use client'
 
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Mail, MessageCircle, ArrowUpRight } from 'lucide-react'
+import { LogIn, MessageCircle, ArrowUpRight } from 'lucide-react'
 import { BOOKING_URL, whatsappLink } from '@/lib/booking'
 
-const CLINIC_EMAIL = 'info@vaclinic.co.uk'
 const WHATSAPP_PREFILL = "Hi, I'd like to ask about "
 
 /**
  * Mobile-only sticky booking bar — three equal segments:
- *  ✉ Email · 💬 WhatsApp · → Book
+ *  ⇥ Login · 💬 WhatsApp · → Book
  *
  * Renders from the root layout, but hides itself on /contact (where the
  * Ovatu iframe is the page) so it doesn't double-up the booking entry.
@@ -29,15 +29,15 @@ export default function StickyBookingBar() {
       }}
     >
       <div className="grid grid-cols-3 h-[60px] divide-x" style={{ borderColor: 'rgba(245, 240, 236, 0.12)' }}>
-        <a
-          href={`mailto:${CLINIC_EMAIL}`}
+        <Link
+          href="/account"
           className="flex items-center justify-center gap-2 text-cream"
           style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 500, borderRight: '1px solid rgba(245, 240, 236, 0.12)' }}
-          aria-label="Email Visage Aesthetics"
+          aria-label="Member login"
         >
-          <Mail size={14} strokeWidth={1.5} />
-          <span>Email</span>
-        </a>
+          <LogIn size={14} strokeWidth={1.5} />
+          <span>Login</span>
+        </Link>
         <a
           href={whatsappLink(WHATSAPP_PREFILL)}
           target="_blank"
