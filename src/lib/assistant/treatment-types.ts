@@ -140,6 +140,22 @@ export const TREATMENT_TYPES: TreatmentType[] = [
     followUpDays: 42,
   },
   {
+    id: 'cryopen',
+    name: 'CryoPen (cryotherapy)',
+    unit: 'none',
+    products: ['CryoPen (nitrous oxide)'],
+    areas: ['Face', 'Neck', 'Scalp', 'Hand (left)', 'Hand (right)', 'Trunk', 'Targeted lesion'],
+    aftercare: [
+      'The treated area may sting, redden, swell or blister over the next few hours to days. This is a normal part of the response.',
+      'A scab or small blister may form. Leave it to heal on its own and do not pick or scratch it.',
+      'Keep the area clean and dry. A thin layer of a simple emollient is fine if it feels tight.',
+      'Avoid heavy make-up over the area and avoid swimming or saunas until it has healed.',
+      'Once healed, apply SPF to the area, as new skin can be sensitive to the sun and may darken.',
+    ],
+    followUp: 'Some lesions need more than one session. If it has not fully resolved, I would suggest reviewing it in around three to four weeks.',
+    followUpDays: 28,
+  },
+  {
     id: 'b12',
     name: 'Vitamin B12 injection',
     unit: 'ml',
@@ -200,6 +216,7 @@ export function matchTreatmentType(serviceName: string): string | null {
   if (/filler|lip|cheek|tear.?trough|jawline|chin|nasolabial|harmonyca|juvederm|restylane/.test(s)) return 'dermal-filler'
   if (/needling|microneedl|skin.?pen|dermapen|collagen induction/.test(s)) return 'microneedling'
   if (/peel|chemical/.test(s)) return 'chemical-peel'
+  if (/cryopen|cryo|wart|skin.?tag|verruca|milia|lesion/.test(s)) return 'cryopen'
   if (/consult|review|chat/.test(s)) return 'consultation'
   return null
 }
