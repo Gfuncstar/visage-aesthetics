@@ -60,30 +60,34 @@ export function appointmentConfirmEmail(input: {
   serviceName: string
   startsAtIso: string
   manageToken: string
+  /** 48h reminder offers a Rearrange button; the 24h reminder does not. */
+  allowRearrange: boolean
 }): { subject: string; html: string; text: string } {
   const confirmUrl = `${SITE}/book/confirm/${input.manageToken}`
   const manageUrl = `${SITE}/book/manage/${input.manageToken}`
+  const closing = input.allowRearrange
+    ? 'Please confirm you are still coming using the button below — it only takes a second and lets us know to expect you. If the time no longer suits, tap Rearrange to pick another. (Changes can be made up to 24 hours before your appointment.)'
+    : 'Please confirm you are still coming using the button below — it only takes a second and lets us know to expect you. As your appointment is now within 24 hours, it can no longer be changed online; if something has come up, please call the clinic.'
   const body = `Hi ${firstName(input.name)},
 
-This is a reminder that you have an appointment with us tomorrow:
+This is a reminder of your appointment with us:
 
 **${input.serviceName}**
 ${whenLine(input.startsAtIso)}
 ${ADDRESS}
 
-Please tap the button below to confirm you are still coming. It only takes a second, and lets us know to expect you.
-
-If you need to change or cancel, you can [manage your booking here](${manageUrl}) instead.`
+${closing}`
   const opts = {
-    preheader: 'Please confirm your appointment tomorrow.',
+    preheader: 'Please confirm your appointment.',
     headline: 'Please confirm your appointment',
     body,
-    ctaCustom: { label: 'Confirm your appointment', url: confirmUrl },
+    ctaCustom: { label: 'Confirm appointment', url: confirmUrl },
+    ...(input.allowRearrange ? { ctaSecondary: { label: 'Rearrange', url: manageUrl } } : {}),
   }
   return {
     subject: `Please confirm your appointment: ${input.serviceName}`,
     html: buildBroadcastHtml(opts),
-    text: buildBroadcastText({ headline: opts.headline, body, ctaCustom: opts.ctaCustom }),
+    text: buildBroadcastText({ headline: opts.headline, body, ctaCustom: opts.ctaCustom, ctaSecondary: input.allowRearrange ? { label: 'Rearrange', url: manageUrl } : undefined }),
   }
 }
 

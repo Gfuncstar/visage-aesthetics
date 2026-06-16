@@ -46,6 +46,9 @@ export type Booking = {
   source: 'online' | 'staff'
   manage_token: string
   reminded_at: string | null
+  // Set when the 48h "confirm or rearrange" reminder has been sent, so it fires
+  // once. The 24h confirm-only reminder is tracked separately by reminded_at.
+  confirm48_at: string | null
   confirmed_at: string | null
   review_requested_at: string | null
   created_at: string

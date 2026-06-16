@@ -55,7 +55,9 @@ export async function GET(req: Request) {
 
   const now = new Date()
   const windowEnd = new Date(now.getTime() + 24 * 3600_000)
+  const window48End = new Date(now.getTime() + 48 * 3600_000)
 
+  // 24h pass: the final "please confirm" (confirm only, no rearrange).
   const due = await select<Booking>('bookings', {
     status: 'eq.confirmed',
     reminded_at: 'is.null',
@@ -64,8 +66,18 @@ export async function GET(req: Request) {
     limit: 200,
   })
 
+  // 48h pass: the earlier "confirm or rearrange" reminder, fired once for
+  // bookings 24–48h out (before the 24h change cut-off bites).
+  const due48 = await select<Booking>('bookings', {
+    status: 'eq.confirmed',
+    confirm48_at: 'is.null',
+    and: `(starts_at.gt.${windowEnd.toISOString()},starts_at.lte.${window48End.toISOString()})`,
+    order: 'starts_at.asc',
+    limit: 200,
+  })
+
   if (url.searchParams.get('test') === '1' && isStaff) {
-    return NextResponse.json({ ok: true, test: true, dueCount: due.length, smsConfigured: smsConfigured() })
+    return NextResponse.json({ ok: true, test: true, dueCount: due.length, due48Count: due48.length, smsConfigured: smsConfigured() })
   }
 
   let sms = 0
@@ -80,6 +92,19 @@ export async function GET(req: Request) {
     // swallow the slot for bookings with no contact on file.
     if (result.channel) {
       await update('bookings', { id: b.id }, { reminded_at: now.toISOString() })
+    }
+  }
+
+  // 48h "confirm or rearrange" pass. sendConfirmRequest decides the rearrange
+  // option from how far out the booking is, so these get the Rearrange button.
+  let email48 = 0
+  let sms48 = 0
+  for (const b of due48) {
+    const result = await sendConfirmRequest(b)
+    if (result.channel === 'sms') sms48++
+    if (result.channel === 'email') email48++
+    if (result.channel) {
+      await update('bookings', { id: b.id }, { confirm48_at: now.toISOString() })
     }
   }
 
@@ -139,5 +164,5 @@ export async function GET(req: Request) {
     if (res.ok) consentResent++
   }
 
-  return NextResponse.json({ ok: true, dueCount: due.length, sms, email, consent, consentResent })
+  return NextResponse.json({ ok: true, dueCount: due.length, sms, email, due48Count: due48.length, sms48, email48, consent, consentResent })
 }
