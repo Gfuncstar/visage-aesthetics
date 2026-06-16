@@ -1,10 +1,32 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Check, MailQuestion, Send, X } from 'lucide-react'
 import { notifyDone } from '@/lib/staff-toast'
 
 type Item = { id: string; name: string; service: string; startsAt: string; phone: string | null; email: string | null }
+
+// Day-scoped dismissals: an x'd-off row stays hidden for the rest of today (e.g.
+// the client confirmed by phone or it was handled another way), then the list
+// resets the next morning.
+const DISMISS_KEY = 'staff-dismissed-confirmations'
+function todayKey(): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(new Date())
+}
+function readDismissed(): Set<string> {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(DISMISS_KEY) ?? 'null') as { date: string; ids: string[] } | null
+    if (!parsed || parsed.date !== todayKey() || !Array.isArray(parsed.ids)) return new Set()
+    return new Set(parsed.ids)
+  } catch {
+    return new Set()
+  }
+}
+function writeDismissed(ids: Set<string>) {
+  try {
+    localStorage.setItem(DISMISS_KEY, JSON.stringify({ date: todayKey(), ids: [...ids] }))
+  } catch { /* localStorage unavailable */ }
+}
 
 function whenLabel(iso: string): string {
   return new Intl.DateTimeFormat('en-GB', {
@@ -28,8 +50,24 @@ export default function Confirmations({ items }: { items: Item[] }) {
   const [confirmed, setConfirmed] = useState<Record<string, boolean>>({})
   const [err, setErr] = useState<Record<string, string>>({})
   const [previewing, setPreviewing] = useState<string | null>(null)
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set())
+  const [mounted, setMounted] = useState(false)
 
-  const remaining = items.filter((i) => !confirmed[i.id])
+  useEffect(() => {
+    setDismissed(readDismissed())
+    setMounted(true)
+  }, [])
+
+  function dismiss(id: string) {
+    setDismissed((prev) => {
+      const next = new Set(prev)
+      next.add(id)
+      writeDismissed(next)
+      return next
+    })
+  }
+
+  const remaining = items.filter((i) => !confirmed[i.id] && !(mounted && dismissed.has(i.id)))
 
   if (items.length === 0 || remaining.length === 0) {
     return (
@@ -158,6 +196,15 @@ export default function Confirmations({ items }: { items: Item[] }) {
                   <Check size={13} strokeWidth={2} />
                   {busy === `${m.id}:confirm` ? 'Saving…' : 'Mark confirmed'}
                 </button>
+                <button
+                  type="button"
+                  onClick={() => dismiss(m.id)}
+                  title="Dismiss for today — handled another way"
+                  aria-label={`Dismiss ${m.name}`}
+                  className="inline-flex items-center justify-center w-8 h-8 rounded-sm border border-line/40 text-ink-soft hover:border-clay hover:text-clay transition-colors"
+                >
+                  <X size={14} strokeWidth={1.75} />
+                </button>
               </div>
             </div>
 
@@ -175,7 +222,7 @@ export default function Confirmations({ items }: { items: Item[] }) {
       <p className="flex items-center gap-2 text-xs text-stone pt-2">
         <MailQuestion size={13} strokeWidth={1.75} />
         &ldquo;Message again&rdquo; re-sends the confirm email (or a text if there&apos;s no email). &ldquo;Mark confirmed&rdquo; clears them if
-        they&apos;ve told you another way.
+        they&apos;ve told you another way. The &times; just hides a row for today without recording a confirmation.
       </p>
     </div>
   )
