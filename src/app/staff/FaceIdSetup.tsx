@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ScanFace, Check } from 'lucide-react'
+import { ScanFace } from 'lucide-react'
 import { startRegistration, browserSupportsWebAuthn, platformAuthenticatorIsAvailable } from '@simplewebauthn/browser'
 
 // Per-device flag so the prompt settles into a "Face ID is on" state on the
@@ -60,42 +60,9 @@ export default function FaceIdSetup() {
     }
   }
 
-  async function disable() {
-    setBusy(true)
-    setError(null)
-    try {
-      await fetch('/api/staff/webauthn', { method: 'DELETE' })
-    } catch {
-      /* best effort */
-    }
-    localStorage.removeItem(FLAG)
-    setEnabled(false)
-    setBusy(false)
-  }
-
-  if (!available) return null
-
-  if (enabled) {
-    return (
-      <div className="mt-9 flex items-center justify-between gap-3 rounded-sm border border-sage/40 bg-sage/5 px-4 py-3">
-        <div className="flex items-center gap-2.5">
-          <Check size={16} strokeWidth={2} className="text-sage shrink-0" />
-          <div>
-            <div className="text-sm font-medium text-charcoal">Face ID is on for this device</div>
-            <div className="text-xs text-stone mt-0.5">Next time you can sign in with Face ID instead of the passcode.</div>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={disable}
-          disabled={busy}
-          className="text-xs text-stone hover:text-clay border border-line/50 hover:border-clay/40 rounded-sm px-2.5 py-1.5 transition-colors shrink-0 disabled:opacity-50"
-        >
-          {busy ? '…' : 'Turn off'}
-        </button>
-      </div>
-    )
-  }
+  // Once Face ID is set up on this device, the prompt has done its job —
+  // hide it entirely rather than leaving a standing banner.
+  if (!available || enabled) return null
 
   return (
     <div className="mt-9 rounded-sm border border-line/40 bg-cream-soft px-4 py-4">
