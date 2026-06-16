@@ -1,6 +1,7 @@
 'use client'
 
 import type React from 'react'
+import { useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ConciergeBell, Home, Megaphone, Sparkles } from 'lucide-react'
@@ -34,6 +35,13 @@ const tabs = [
 export default function StaffNav({ viewToggle }: { viewToggle?: React.ReactNode }) {
   const pathname = usePathname() || ''
   const activeAccent = tabs.find((t) => t.match(pathname))?.accent ?? '#A8895E'
+
+  // Publish the current section's colour so page content (kicker labels etc.)
+  // can pick it up via var(--section-accent), keeping each area visually distinct.
+  useEffect(() => {
+    document.documentElement.style.setProperty('--section-accent', activeAccent)
+  }, [activeAccent])
+
   return (
     <nav
       className="sticky top-0 inset-x-0 z-50 bg-charcoal"
