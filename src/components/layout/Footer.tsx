@@ -34,7 +34,7 @@ const links = [
   { label: 'FAQ', href: '/faq' },
   { label: 'Visit', href: '/contact' },
   { label: 'Privacy', href: '/privacy' },
-  { label: 'Cancellations', href: '/cancellation-policy' },
+  { label: 'Terms', href: '/cancellation-policy' },
 ]
 
 export default function Footer() {
