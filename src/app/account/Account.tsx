@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Calendar, CalendarPlus, Check, Clock, FileText, Gift, LogOut, Mail, MessageCircle, Phone, Plus, RotateCcw } from 'lucide-react'
+import { Calendar, CalendarPlus, Check, Clock, FileText, Gift, KeyRound, LogOut, Mail, MessageCircle, Phone, Plus, RotateCcw } from 'lucide-react'
 
 type PortalBooking = {
   id: string
@@ -113,6 +113,14 @@ export default function Account() {
   const [savingPhone, setSavingPhone] = useState(false)
   const [phoneSaved, setPhoneSaved] = useState(false)
 
+  // Change-password state
+  const [pwOpen, setPwOpen] = useState(false)
+  const [pwCurrent, setPwCurrent] = useState('')
+  const [pwNew, setPwNew] = useState('')
+  const [pwBusy, setPwBusy] = useState(false)
+  const [pwError, setPwError] = useState<string | null>(null)
+  const [pwDone, setPwDone] = useState(false)
+
   // Soonest availability for the client's most recent treatment
   const [nextAvail, setNextAvail] = useState<{ slug: string; name: string; date: string } | null>(null)
 
@@ -218,6 +226,31 @@ export default function Account() {
       if (res.ok) setPhoneSaved(true)
     } finally {
       setSavingPhone(false)
+    }
+  }
+
+  async function changePassword() {
+    setPwError(null)
+    if (pwNew.length < 8) { setPwError('Please choose a password of at least 8 characters.'); return }
+    setPwBusy(true)
+    try {
+      const res = await fetch('/api/account/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword: pwCurrent, newPassword: pwNew }),
+      })
+      if (res.ok) {
+        setPwDone(true)
+        setPwCurrent('')
+        setPwNew('')
+      } else {
+        const d = await res.json().catch(() => ({}))
+        setPwError(d.error || 'Could not update your password.')
+      }
+    } catch {
+      setPwError('Network error. Please try again.')
+    } finally {
+      setPwBusy(false)
     }
   }
 
@@ -465,6 +498,48 @@ export default function Account() {
             </button>
           </div>
         </label>
+
+        {/* Change password */}
+        <div className="pt-1 border-t border-line/40">
+          {!pwOpen ? (
+            <button onClick={() => { setPwOpen(true); setPwDone(false); setPwError(null) }} className="inline-flex items-center gap-2 text-sm text-stone hover:text-gold-deep transition-colors mt-3">
+              <KeyRound size={14} /> Change password
+            </button>
+          ) : pwDone ? (
+            <div className="mt-3 text-sm text-green-700 flex items-center gap-2">
+              <Check size={14} /> Password updated.
+              <button onClick={() => { setPwOpen(false); setPwDone(false) }} className="text-gold-deep underline ml-1">Close</button>
+            </div>
+          ) : (
+            <div className="mt-3 space-y-2">
+              <span className="text-ink-soft flex items-center gap-2 text-sm"><KeyRound size={14} /> Change password</span>
+              <input
+                type="password"
+                value={pwCurrent}
+                onChange={(e) => { setPwCurrent(e.target.value); setPwError(null) }}
+                placeholder="Current password"
+                autoComplete="current-password"
+                className="w-full border border-line/60 rounded-sm px-3 py-2 text-sm bg-cream focus:border-gold outline-none"
+              />
+              <input
+                type="password"
+                value={pwNew}
+                onChange={(e) => { setPwNew(e.target.value); setPwError(null) }}
+                placeholder="New password (at least 8 characters)"
+                autoComplete="new-password"
+                className="w-full border border-line/60 rounded-sm px-3 py-2 text-sm bg-cream focus:border-gold outline-none"
+                onKeyDown={(e) => e.key === 'Enter' && void changePassword()}
+              />
+              {pwError && <p className="text-sm text-clay">{pwError}</p>}
+              <div className="flex gap-2">
+                <button onClick={() => void changePassword()} disabled={pwBusy} className="inline-flex items-center justify-center gap-2 bg-charcoal text-cream text-sm rounded-sm px-4 py-2 hover:bg-gold-deep transition-colors disabled:opacity-50">
+                  {pwBusy ? 'Saving…' : 'Update password'}
+                </button>
+                <button onClick={() => { setPwOpen(false); setPwError(null); setPwCurrent(''); setPwNew('') }} className="text-sm text-stone hover:text-gold-deep px-2">Cancel</button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {past.length > 0 && (
