@@ -70,7 +70,8 @@ export default function WriteUpReminders({ today, simple = false }: { today: End
                   </span>
                   <button
                     onClick={() => dismiss(overdueKey(o))}
-                    className="text-stone hover:text-charcoal transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 p-0.5"
+                    title={`Dismiss ${o.name} — written up another way`}
+                    className="inline-flex items-center justify-center w-7 h-7 rounded-sm border border-line/40 text-ink-soft hover:border-clay hover:text-clay transition-colors"
                     aria-label={`Dismiss ${o.name}`}
                   >
                     <X size={13} strokeWidth={2} />
@@ -113,7 +114,8 @@ export default function WriteUpReminders({ today, simple = false }: { today: End
                       <span className="text-charcoal">{c.name}</span>
                       <button
                         onClick={() => dismiss(key)}
-                        className="text-stone hover:text-charcoal transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 p-0.5 shrink-0"
+                        title={`Dismiss ${c.name} — written up another way`}
+                        className="inline-flex items-center justify-center w-7 h-7 rounded-sm border border-line/40 text-ink-soft hover:border-clay hover:text-clay transition-colors shrink-0"
                         aria-label={`Dismiss ${c.name}`}
                       >
                         <X size={13} strokeWidth={2} />
