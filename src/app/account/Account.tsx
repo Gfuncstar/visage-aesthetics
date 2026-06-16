@@ -2,21 +2,25 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Calendar, Check, Clock, LogOut, Mail, Phone, RotateCcw } from 'lucide-react'
+import { Calendar, CalendarPlus, Check, Clock, FileText, Gift, LogOut, Mail, MessageCircle, Phone, Plus, RotateCcw } from 'lucide-react'
 
 type PortalBooking = {
   id: string
   serviceName: string
   serviceSlug: string | null
   startsAt: string
+  endsAt: string | null
   status: string
   manageToken: string
   past: boolean
+  needsConsent: boolean
 }
 
 type PortalData = { name: string; email: string; phone: string; bookings: PortalBooking[] }
 
 type AuthMode = 'login' | 'register' | 'forgot'
+
+const WHATSAPP = 'https://wa.me/447931395246'
 
 function whenLabel(iso: string): string {
   return new Intl.DateTimeFormat('en-GB', {
@@ -30,8 +34,65 @@ function whenLabel(iso: string): string {
   }).format(new Date(iso))
 }
 
+function dateLabel(iso: string): string {
+  return new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/London',
+    weekday: 'short',
+    day: 'numeric',
+    month: 'long',
+  }).format(new Date(`${iso}T12:00:00Z`))
+}
+
 function firstName(name: string): string {
   return name.trim().split(/\s+/)[0] || 'there'
+}
+
+function icsStamp(iso: string): string {
+  return new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z')
+}
+
+// Build and download a calendar (.ics) file so the appointment drops straight
+// into Apple / Google / Outlook calendars.
+function addToCalendar(b: PortalBooking) {
+  const endIso = b.endsAt ?? new Date(new Date(b.startsAt).getTime() + 60 * 60 * 1000).toISOString()
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Visage Aesthetics//Booking//EN',
+    'CALSCALE:GREGORIAN',
+    'BEGIN:VEVENT',
+    `UID:${b.id}@vaclinic.co.uk`,
+    `DTSTAMP:${icsStamp(new Date().toISOString())}`,
+    `DTSTART:${icsStamp(b.startsAt)}`,
+    `DTEND:${icsStamp(endIso)}`,
+    `SUMMARY:Visage Aesthetics: ${b.serviceName}`,
+    'LOCATION:17A Friars Lane, Braintree, Essex CM7 9BL',
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ]
+  const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `visage-${b.serviceSlug ?? 'appointment'}.ics`
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}
+
+// Stable page shell — kept at module scope so it is NOT re-created on every
+// render (doing so would remount the inputs and drop focus / the keyboard).
+function Shell({ children }: { children: React.ReactNode }) {
+  return (
+    <section className="bg-cream text-charcoal min-h-screen">
+      <div className="max-w-xl mx-auto px-5 md:px-8 pt-16 md:pt-24 pb-24">
+        <div className="eyebrow text-gold mb-2">Visage Aesthetics</div>
+        <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight">Your appointments</h1>
+        {children}
+      </div>
+    </section>
+  )
 }
 
 export default function Account() {
@@ -51,6 +112,9 @@ export default function Account() {
   const [phone, setPhone] = useState('')
   const [savingPhone, setSavingPhone] = useState(false)
   const [phoneSaved, setPhoneSaved] = useState(false)
+
+  // Soonest availability for the client's most recent treatment
+  const [nextAvail, setNextAvail] = useState<{ slug: string; name: string; date: string } | null>(null)
 
   const loadPortal = useCallback(async () => {
     try {
@@ -81,6 +145,26 @@ export default function Account() {
       setLoading(false)
     })()
   }, [loadPortal])
+
+  // Once we have bookings, look up the soonest free date for the most recent
+  // treatment so the client can see when they could next come in.
+  useEffect(() => {
+    const anchor = data?.bookings.find((b) => b.serviceSlug)
+    if (!anchor?.serviceSlug) { setNextAvail(null); return }
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await fetch(`/api/book/availability?service=${encodeURIComponent(anchor.serviceSlug!)}&days=60`)
+        if (!res.ok) return
+        const d = (await res.json()) as { calendar?: Record<string, number> }
+        const firstFree = Object.keys(d.calendar ?? {}).filter((k) => (d.calendar![k] ?? 0) > 0).sort()[0]
+        if (!cancelled && firstFree) setNextAvail({ slug: anchor.serviceSlug!, name: anchor.serviceName, date: firstFree })
+      } catch {
+        /* availability is best-effort */
+      }
+    })()
+    return () => { cancelled = true }
+  }, [data])
 
   const submitAuth = useCallback(async () => {
     setAuthError(null)
@@ -136,16 +220,6 @@ export default function Account() {
       setSavingPhone(false)
     }
   }
-
-  const Shell = ({ children }: { children: React.ReactNode }) => (
-    <section className="bg-cream text-charcoal min-h-screen">
-      <div className="max-w-xl mx-auto px-5 md:px-8 pt-16 md:pt-24 pb-24">
-        <div className="eyebrow text-gold mb-2">Visage Aesthetics</div>
-        <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight">Your appointments</h1>
-        {children}
-      </div>
-    </section>
-  )
 
   if (loading) {
     return (
@@ -279,6 +353,7 @@ export default function Account() {
   // ---- Logged in: appointments ---------------------------------------------
   const upcoming = data.bookings.filter((b) => !b.past && b.status !== 'cancelled')
   const past = data.bookings.filter((b) => b.past || b.status === 'cancelled')
+  const consentNeeded = upcoming.filter((b) => b.needsConsent)
 
   return (
     <Shell>
@@ -289,7 +364,33 @@ export default function Account() {
         </button>
       </div>
 
-      <h2 className="font-display italic text-xl text-charcoal mt-8 mb-2">Coming up</h2>
+      {/* Outstanding consent forms */}
+      {consentNeeded.length > 0 && (
+        <div className="mt-6 border border-gold/50 bg-gold/10 rounded-sm p-4">
+          <div className="flex items-center gap-2 text-charcoal font-medium text-sm"><FileText size={15} /> Before your visit</div>
+          {consentNeeded.map((b) => (
+            <p key={b.id} className="text-sm text-ink-soft mt-2 leading-relaxed">
+              Please complete your consent form for <span className="text-charcoal">{b.serviceName}</span>.{' '}
+              <Link href={`/consent/${b.manageToken}`} className="text-gold-deep underline">Open the form</Link>
+            </p>
+          ))}
+        </div>
+      )}
+
+      {/* Book a new appointment + soonest availability */}
+      <div className="mt-6">
+        <Link href="/book-online" className="btn btn-primary btn-block">
+          <span className="inline-flex items-center gap-2"><Plus size={16} /> Book a new appointment</span>
+        </Link>
+        {nextAvail && (
+          <p className="text-sm text-ink-soft mt-2 text-center">
+            Soonest {nextAvail.name}:{' '}
+            <Link href={`/book-online?service=${nextAvail.slug}`} className="text-gold-deep underline">{dateLabel(nextAvail.date)}</Link>
+          </p>
+        )}
+      </div>
+
+      <h2 className="font-display italic text-xl text-charcoal mt-10 mb-2">Coming up</h2>
       {upcoming.length === 0 ? (
         <p className="text-sm text-ink-soft">
           Nothing booked at the moment.{' '}
@@ -303,16 +404,38 @@ export default function Account() {
               <div className="text-sm text-ink-soft mt-1 flex items-center gap-2">
                 <Calendar size={14} /> {whenLabel(b.startsAt)}
               </div>
-              <Link
-                href={`/book/manage/${b.manageToken}`}
-                className="mt-3 inline-flex items-center gap-2 text-sm text-charcoal border border-charcoal/30 rounded-sm px-3 py-1.5 hover:border-gold hover:text-gold-deep transition-colors"
-              >
-                <RotateCcw size={13} /> Change or cancel
-              </Link>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Link
+                  href={`/book/manage/${b.manageToken}`}
+                  className="inline-flex items-center gap-2 text-sm text-charcoal border border-charcoal/30 rounded-sm px-3 py-1.5 hover:border-gold hover:text-gold-deep transition-colors"
+                >
+                  <RotateCcw size={13} /> Change or cancel
+                </Link>
+                <button
+                  onClick={() => addToCalendar(b)}
+                  className="inline-flex items-center gap-2 text-sm text-charcoal border border-charcoal/30 rounded-sm px-3 py-1.5 hover:border-gold hover:text-gold-deep transition-colors"
+                >
+                  <CalendarPlus size={13} /> Add to calendar
+                </button>
+              </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* Quick links */}
+      <h2 className="font-display italic text-xl text-charcoal mt-10 mb-2">Helpful links</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <Link href="/aftercare" className="flex items-center gap-2 text-sm text-charcoal border border-line/50 bg-cream-soft rounded-sm px-3 py-2.5 hover:border-gold hover:text-gold-deep transition-colors">
+          <FileText size={14} /> Aftercare advice
+        </Link>
+        <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-charcoal border border-line/50 bg-cream-soft rounded-sm px-3 py-2.5 hover:border-gold hover:text-gold-deep transition-colors">
+          <MessageCircle size={14} /> WhatsApp the clinic
+        </a>
+        <Link href="/gift" className="flex items-center gap-2 text-sm text-charcoal border border-line/50 bg-cream-soft rounded-sm px-3 py-2.5 hover:border-gold hover:text-gold-deep transition-colors">
+          <Gift size={14} /> Gift vouchers
+        </Link>
+      </div>
 
       {/* Contact details */}
       <h2 className="font-display italic text-xl text-charcoal mt-10 mb-2">Your details</h2>
@@ -349,11 +472,18 @@ export default function Account() {
           <h2 className="font-display italic text-xl text-charcoal mt-10 mb-2">Past and cancelled</h2>
           <div className="space-y-2">
             {past.map((b) => (
-              <div key={b.id} className="flex items-center justify-between text-sm border-b border-line/30 py-2">
+              <div key={b.id} className="flex items-center justify-between gap-3 text-sm border-b border-line/30 py-2">
                 <span className="text-charcoal">{b.serviceName}</span>
-                <span className="text-ink-soft">
-                  {whenLabel(b.startsAt)}
-                  {b.status === 'cancelled' && ' · cancelled'}
+                <span className="flex items-center gap-3 shrink-0">
+                  <span className="text-ink-soft">
+                    {whenLabel(b.startsAt)}
+                    {b.status === 'cancelled' && ' · cancelled'}
+                  </span>
+                  {b.serviceSlug && (
+                    <Link href={`/book-online?service=${b.serviceSlug}`} className="text-gold-deep underline whitespace-nowrap">
+                      Book again
+                    </Link>
+                  )}
                 </span>
               </div>
             ))}

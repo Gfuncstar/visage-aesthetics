@@ -71,6 +71,17 @@ export default function BookingFlow() {
     })()
   }, [])
 
+  // Preselect a treatment when arriving from /book-online?service=slug (e.g. the
+  // "Book again" links on the account page), so the client only confirms details
+  // then jumps straight to choosing a time.
+  useEffect(() => {
+    if (services.length === 0) return
+    const slug = new URLSearchParams(window.location.search).get('service')
+    if (!slug) return
+    const s = services.find((x) => x.slug === slug)
+    if (s) setService(s)
+  }, [services])
+
   const identityQuery = useCallback(() => {
     const p = new URLSearchParams()
     if (email) p.set('email', email)
@@ -186,7 +197,13 @@ export default function BookingFlow() {
     } else {
       localStorage.removeItem(STORAGE_KEY)
     }
-    setStep('service')
+    // If a treatment was preselected (e.g. "Book again"), skip the picker and go
+    // straight to choosing a time for it.
+    if (service) {
+      void pickService(service)
+    } else {
+      setStep('service')
+    }
   }
 
   const availableDays = Object.keys(calendar).filter((d) => calendar[d] > 0).sort()
