@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AlertTriangle, ArrowLeft, Bell, BellOff, Ban, Camera, Check, ChevronDown, ChevronRight, CreditCard, FileCheck2, ImagePlus, LogOut, Search, X } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Bell, BellOff, Ban, CalendarClock, Camera, Check, ChevronDown, ChevronRight, CreditCard, FileCheck2, ImagePlus, LogOut, Search, X } from 'lucide-react'
 import MicButton, { appendText } from '@/components/ui/MicButton'
 import { gbp, ukDate } from '@/lib/assistant/format'
 import { notifyDone } from '@/lib/staff-toast'
@@ -158,6 +158,24 @@ export default function ClientRecord() {
     }
   }
 
+  // Show the clinic as fully booked to this client until a given date.
+  // It lifts itself once the date passes — the client is never told they're blocked.
+  async function applyBlockUntil(iso: string, label: string) {
+    if (!selected) return
+    setBlockedUntil(iso) // optimistic
+    try {
+      const res = await fetch('/api/staff/assistant/client-flags', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: selected, blockedUntil: iso }),
+      })
+      if (!res.ok) openClient(selected) // revert on failure
+      else notifyDone(`Clinic shown full for ${label}`)
+    } catch {
+      openClient(selected)
+    }
+  }
+
   async function signOut() {
     await fetch('/api/staff/logout', { method: 'POST' })
     window.location.reload()
@@ -182,6 +200,7 @@ export default function ClientRecord() {
         blocked={blocked}
         blockedUntil={blockedUntil}
         onClearBlockUntil={clearBlockUntil}
+        onApplyBlockUntil={applyBlockUntil}
         requiresDeposit={requiresDeposit}
         onToggleFlag={toggleFlag}
         onBack={() => { setSelected(null); setSummary(null) }}
@@ -260,11 +279,11 @@ export default function ClientRecord() {
 }
 
 function Detail({
-  name, summary, appts, records, photos, messages, consentForms, vouchers, reminders, consentSends, loading, doNotContact, onToggleDnc, blocked, blockedUntil, onClearBlockUntil, requiresDeposit, onToggleFlag, onBack, onRefresh, onLightbox, lightbox, onCloseLightbox, onSignOut,
+  name, summary, appts, records, photos, messages, consentForms, vouchers, reminders, consentSends, loading, doNotContact, onToggleDnc, blocked, blockedUntil, onClearBlockUntil, onApplyBlockUntil, requiresDeposit, onToggleFlag, onBack, onRefresh, onLightbox, lightbox, onCloseLightbox, onSignOut,
 }: {
   name: string; summary: Summary | null; appts: Appt[]; records: TRecord[]; photos: Photo[]; messages: Message[]; consentForms: ConsentFormRecord[]; vouchers: Voucher[]; reminders: Reminders | null; consentSends: ConsentSends | null; loading: boolean
   doNotContact: boolean; onToggleDnc: (next: boolean) => void
-  blocked: boolean; blockedUntil: string | null; onClearBlockUntil: () => void
+  blocked: boolean; blockedUntil: string | null; onClearBlockUntil: () => void; onApplyBlockUntil: (iso: string, label: string) => void
   requiresDeposit: boolean; onToggleFlag: (flag: 'blocked' | 'requires_deposit', next: boolean) => void
   onBack: () => void; onRefresh: () => void; onLightbox: (url: string) => void; lightbox: string | null; onCloseLightbox: () => void; onSignOut: () => void
 }) {
@@ -333,6 +352,24 @@ function Detail({
               offText="This client can book online normally."
             />
             <p className="text-xs text-ink-soft mt-1.5 leading-snug">Client can only be booked in by staff</p>
+          </div>
+          <div>
+            <div className="rounded-sm border border-line/40 bg-cream-soft px-4 py-3">
+              <div className="flex items-start gap-2.5">
+                <CalendarClock size={16} strokeWidth={1.75} className="mt-0.5 shrink-0 text-stone" />
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-charcoal">Show clinic fully booked for a set time</div>
+                  <div className="text-xs text-stone mt-0.5">
+                    They see no online availability until the date passes, then it lifts on its own. They are never told they are blocked.
+                  </div>
+                  <BlockForControl onApply={onApplyBlockUntil} />
+                  {blockedUntil && blockedUntil >= today && (
+                    <p className="text-xs text-clay mt-2">Currently full until {ukDate(blockedUntil)}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-ink-soft mt-1.5 leading-snug">Use this after a consultation for a client you would rather not see back</p>
           </div>
         </div>
 
@@ -579,6 +616,71 @@ function Detail({
         </div>
       )}
     </section>
+  )
+}
+
+// Set a discreet "clinic full" block for a chosen length of time. Month presets
+// cover the common cases; the weeks field handles anything in between.
+function BlockForControl({ onApply }: { onApply: (iso: string, label: string) => void }) {
+  const [weeks, setWeeks] = useState('')
+
+  function isoInDays(days: number): string {
+    const d = new Date()
+    d.setDate(d.getDate() + days)
+    return d.toISOString().slice(0, 10)
+  }
+  function isoInMonths(months: number): string {
+    const d = new Date()
+    d.setMonth(d.getMonth() + months)
+    return d.toISOString().slice(0, 10)
+  }
+
+  const weeksNum = Math.floor(Number(weeks))
+  const weeksValid = Number.isFinite(weeksNum) && weeksNum > 0
+
+  function applyWeeks() {
+    if (!weeksValid) return
+    onApply(isoInDays(weeksNum * 7), `${weeksNum} week${weeksNum === 1 ? '' : 's'}`)
+    setWeeks('')
+  }
+
+  return (
+    <div className="mt-3 space-y-2">
+      <div className="flex flex-wrap gap-2">
+        {([['1 month', 1], ['3 months', 3], ['6 months', 6]] as const).map(([label, months]) => (
+          <button
+            key={months}
+            type="button"
+            onClick={() => onApply(isoInMonths(months), label)}
+            className="text-sm rounded-full border border-line/50 bg-cream px-3.5 py-2 text-charcoal hover:border-clay hover:text-clay transition-colors"
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-ink-soft">or</span>
+        <input
+          type="number"
+          min={1}
+          inputMode="numeric"
+          value={weeks}
+          onChange={(e) => setWeeks(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') applyWeeks() }}
+          placeholder="weeks"
+          className="w-20 bg-cream border border-line/40 rounded-sm px-3 py-2 text-sm text-charcoal placeholder:text-ink-soft/60 focus:outline-none focus:border-gold"
+          aria-label="Number of weeks to block"
+        />
+        <button
+          type="button"
+          onClick={applyWeeks}
+          disabled={!weeksValid}
+          className="text-sm rounded-full border border-line/50 bg-cream px-3.5 py-2 text-charcoal hover:border-clay hover:text-clay transition-colors disabled:opacity-40 disabled:hover:border-line/50 disabled:hover:text-charcoal"
+        >
+          Block for weeks
+        </button>
+      </div>
+    </div>
   )
 }
 
