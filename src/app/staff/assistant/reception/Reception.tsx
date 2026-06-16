@@ -483,6 +483,7 @@ function NewBookingPanel({ initialDate, initialTime, onClose, onDone }: { initia
   const [date, setDate] = useState(initialDate)
   const [time, setTime] = useState(initialTime)
   const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
@@ -500,7 +501,7 @@ function NewBookingPanel({ initialDate, initialTime, onClose, onDone }: { initia
     const res = await fetch('/api/staff/assistant/diary', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ kind: 'booking', service: slug, date, startMinutes: timeToMinutes(time), name, phone }),
+      body: JSON.stringify({ kind: 'booking', service: slug, date, startMinutes: timeToMinutes(time), name, email: email.trim(), phone }),
     })
     if (res.ok) {
       notifyDone('Added to the diary')
@@ -525,7 +526,9 @@ function NewBookingPanel({ initialDate, initialTime, onClose, onDone }: { initia
         <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
         <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
       </div>
+      <p className="text-xs text-ink-soft -mt-0.5">Any time works, including outside your normal opening hours.</p>
       <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Client name" className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
+      <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Email (required for a new client)" className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
       <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Mobile (optional)" className="w-full bg-cream border border-line rounded-sm px-3 py-2.5 text-sm" />
       {err && <p className="text-xs text-clay">{err}</p>}
       <button onClick={save} disabled={busy} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 38 }}>{busy ? 'Saving…' : 'Add to diary'}</button>
