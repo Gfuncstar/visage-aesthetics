@@ -42,9 +42,24 @@
    via .staff-vivid on the signed-in staff wrapper; Tailwind v4 utilities read
    these tokens through var(), so text-/bg-/border- sage, clay & gold all shift. */
 .staff-vivid {
+  /* Status — bold and legible at a glance */
   --color-sage: #1F8F4E;      /* success / positive — vivid green */
   --color-clay: #D23B2C;      /* urgent / danger — vivid red */
   --color-gold-deep: #9A7322; /* attention / warning — richer amber */
+  /* Neutrals — more contrast so cards and sections separate clearly, instead
+     of cream-on-cream with hairline borders that are hard to navigate. */
+  --color-line: #C3B398;       /* defined card / section borders */
+  --color-cream-soft: #ECE1D2; /* card surface lifts off the page */
+  --color-cream-deep: #E2D5C2;
+  --color-stone: #6C625E;      /* muted labels & meta text read clearly */
+  --color-ink-mute: #6C625E;
+}
+
+/* Lift every back-office card off the page with a soft shadow and a defined
+   border, so sections read as distinct blocks rather than cream-on-cream.
+   Scoped to the staff area; the public site is untouched. */
+.staff-vivid .rounded-sm.border {
+  box-shadow: 0 1px 2px rgba(31, 27, 26, 0.04), 0 2px 8px rgba(31, 27, 26, 0.05);
 }
 
 * { box-sizing: border-box; }
