@@ -255,26 +255,6 @@ export default function GapCalendar() {
 
   return (
     <div>
-      {justBooked.length > 0 && (
-        <div className="mb-4 border border-gold/45 bg-gold/[0.07] rounded-sm px-4 py-3">
-          <div className="eyebrow text-gold-deep mb-2 inline-flex items-center gap-2">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
-            <Sparkles size={13} strokeWidth={1.75} /> Just booked online · {justBooked.length}
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {justBooked.slice(0, 6).map((b) => (
-              <button
-                key={b.id}
-                onClick={() => { setAnchor(localDate(b.starts_at)); setSchedView('day') }}
-                className="text-xs border border-gold/40 bg-cream rounded-full px-2.5 py-1 text-charcoal hover:border-gold hover:bg-gold/10 transition-colors"
-              >
-                <span className="font-medium">{b.client_name}</span> · {dayLabelShort(localDate(b.starts_at))}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Booking form — opens pre-filled the moment a gap is tapped */}
       <div ref={bookingRef} className="scroll-mt-6">
         {prefill ? (
