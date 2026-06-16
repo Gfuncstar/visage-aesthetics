@@ -8,6 +8,7 @@ import { fillGap } from '@/lib/booking-engine/notify'
 import { getService, computeDay } from '@/lib/booking-engine/availability'
 import { mirrorBookingAppointment } from '@/lib/booking-engine/appointments-mirror'
 import { londonParts } from '@/lib/booking-engine/time'
+import { withinChangeCutoff, CHANGE_CUTOFF_MESSAGE } from '@/lib/booking-engine/policy'
 import type { Booking } from '@/lib/booking-engine/types'
 
 export const runtime = 'nodejs'
@@ -61,7 +62,9 @@ export async function GET(_req: Request, ctx: { params: Promise<{ token: string 
   try {
     const rows = await select<Booking>('bookings', { manage_token: `eq.${token}`, limit: 1 })
     if (rows.length === 0) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-    return NextResponse.json({ booking: publicView(rows[0]) })
+    const b = rows[0]
+    const canChange = b.status !== 'cancelled' && b.status !== 'completed' && !withinChangeCutoff(b.starts_at)
+    return NextResponse.json({ booking: { ...publicView(b), canChange } })
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : 'Load failed' }, { status: 502 })
   }
@@ -89,6 +92,12 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
     const booking = rows[0]
     if (!booking) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
+    // Enforce the 24h policy: no online changes within 24h of the appointment.
+    // (Cancelling an already-cancelled booking is a harmless no-op, so allow it.)
+    if (withinChangeCutoff(booking.starts_at) && !(action === 'cancel' && booking.status === 'cancelled')) {
+      return NextResponse.json({ error: CHANGE_CUTOFF_MESSAGE }, { status: 409 })
+    }
+
     if (action === 'reschedule') {
       if (booking.status === 'cancelled') return NextResponse.json({ error: 'This booking was cancelled.' }, { status: 409 })
       const startDate = new Date(newStartsAt)
@@ -107,6 +116,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
         starts_at: slot.startsAtIso,
         ends_at: slot.endsAtIso,
         reminded_at: null, // let a fresh reminder fire for the new time
+        confirm48_at: null, // and the 48h confirm-or-rearrange reminder too
       })
       await audit('reschedule', 'booking', booking.id, { to: slot.startsAtIso })
       await mirrorBookingAppointment({

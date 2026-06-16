@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Calendar, Check, Clock, RotateCcw, X } from 'lucide-react'
 
-type Booking = { serviceName: string; serviceSlug: string | null; clientName: string; startsAt: string; status: string }
+type Booking = { serviceName: string; serviceSlug: string | null; clientName: string; startsAt: string; status: string; canChange?: boolean }
 type Slot = { startsAtIso: string; label: string }
 
 function dayChip(dateStr: string): string {
@@ -111,7 +111,7 @@ export default function ManageBooking({ token }: { token: string }) {
                 <span className="inline-flex items-center gap-1.5 text-sm text-sage"><Check size={15} strokeWidth={2} /> Confirmed</span>
               )}
             </div>
-            {booking.status !== 'cancelled' && !rescheduling && (
+            {booking.status !== 'cancelled' && !rescheduling && booking.canChange && (
               <div className="mt-6 flex flex-wrap gap-2">
                 <button onClick={startReschedule} className="btn btn-primary" style={{ minHeight: 40 }}>
                   <span className="inline-flex items-center gap-2"><RotateCcw size={14} strokeWidth={1.75} /> Reschedule</span>
@@ -119,6 +119,12 @@ export default function ManageBooking({ token }: { token: string }) {
                 <button onClick={cancel} disabled={cancelling} className="btn btn-secondary disabled:opacity-50" style={{ minHeight: 40 }}>
                   <span className="inline-flex items-center gap-2"><X size={14} strokeWidth={1.75} /> {cancelling ? 'Cancelling…' : 'Cancel'}</span>
                 </button>
+              </div>
+            )}
+
+            {booking.status !== 'cancelled' && booking.canChange === false && (
+              <div className="mt-6 border border-gold/40 bg-gold/10 rounded-sm px-4 py-3 text-sm text-ink-soft leading-relaxed">
+                Your appointment is within 24 hours, so it can no longer be changed online. If something has come up, please call the clinic and we will help.
               </div>
             )}
 

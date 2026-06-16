@@ -12,6 +12,7 @@ import { sendSms, smsConfigured } from '@/lib/assistant/sms'
 import { recordMessage } from '@/lib/assistant/messages'
 import { isSuppressed } from '@/lib/assistant/suppression'
 import { londonParts, dayLabel, clockLabel } from './time'
+import { withinChangeCutoff } from './policy'
 import type { Booking } from './types'
 
 const SITE = 'https://www.vaclinic.co.uk'
@@ -30,6 +31,8 @@ export async function sendConfirmRequest(b: Booking): Promise<ConfirmRequestResu
   const first = b.client_name.trim().split(/\s+/)[0] || 'there'
   const confirmUrl = `${SITE}/book/confirm/${b.manage_token}`
   const manageUrl = `${SITE}/book/manage/${b.manage_token}`
+  // More than 24h away → the client may still rearrange; inside 24h → confirm only.
+  const allowRearrange = !withinChangeCutoff(b.starts_at)
 
   const apiKey = process.env.RESEND_API_KEY
   if (b.client_email && apiKey) {
@@ -38,6 +41,7 @@ export async function sendConfirmRequest(b: Booking): Promise<ConfirmRequestResu
       serviceName: b.service_name,
       startsAtIso: b.starts_at,
       manageToken: b.manage_token,
+      allowRearrange,
     })
     try {
       await new Resend(apiKey).emails.send({
@@ -56,7 +60,9 @@ export async function sendConfirmRequest(b: Booking): Promise<ConfirmRequestResu
   }
 
   if (b.client_phone && smsConfigured()) {
-    const text = `Hi ${first}, a reminder of your ${b.service_name} at Visage Aesthetics on ${when}. Please confirm you're coming: ${confirmUrl} — to change it: ${manageUrl}`
+    const text = allowRearrange
+      ? `Hi ${first}, a reminder of your ${b.service_name} at Visage Aesthetics on ${when}. Please confirm you're coming: ${confirmUrl} — to change it: ${manageUrl}`
+      : `Hi ${first}, a reminder of your ${b.service_name} at Visage Aesthetics on ${when}. Please confirm you're coming: ${confirmUrl}. As it's within 24h this can't be changed online — call us if something's come up.`
     const ok = await sendSms(b.client_phone, text)
     if (ok) {
       await recordMessage({ clientName: b.client_name, phone: b.client_phone, channel: 'sms', kind: 'reminder', body: text, bookingId: b.id })

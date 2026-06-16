@@ -110,6 +110,8 @@ export type BuildEmailInput = {
   cta?: CtaKind
   /** A custom CTA button (label + url). Takes precedence over `cta` when set. */
   ctaCustom?: { label: string; url: string }
+  /** An optional second, outlined CTA button shown beneath the primary one. */
+  ctaSecondary?: { label: string; url: string }
   recipientEmail?: string
   /** Optional pre-built table-row HTML inserted above the body (e.g. a voucher). */
   featureHtml?: string
@@ -123,13 +125,15 @@ export function buildBroadcastHtml({
   body,
   cta = 'none',
   ctaCustom,
+  ctaSecondary,
   recipientEmail,
   featureHtml,
 }: BuildEmailInput): string {
   const ctaInfo = ctaCustom && isSafeHref(ctaCustom.url) ? ctaCustom : ctaPreset(cta)
-  const ctaBlock = ctaInfo
+  const secondaryInfo = ctaSecondary && isSafeHref(ctaSecondary.url) ? ctaSecondary : null
+  const primaryBlock = ctaInfo
     ? `
-      <tr><td style="padding:32px 0 8px;">
+      <tr><td style="padding:32px 0 ${secondaryInfo ? '12px' : '8px'};">
         <table role="presentation" cellpadding="0" cellspacing="0" border="0">
           <tr><td style="background:${COLOR_GOLD};">
             <a href="${escapeAttr(ctaInfo.url)}" style="display:inline-block;padding:18px 32px;font-family:${FONT_BODY};font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:${COLOR_CREAM};text-decoration:none;font-weight:500;">${escapeHtml(ctaInfo.label)}</a>
@@ -137,6 +141,17 @@ export function buildBroadcastHtml({
         </table>
       </td></tr>`
     : ''
+  const secondaryBlock = secondaryInfo
+    ? `
+      <tr><td style="padding:0 0 8px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+          <tr><td style="border:1px solid ${COLOR_GOLD};">
+            <a href="${escapeAttr(secondaryInfo.url)}" style="display:inline-block;padding:16px 30px;font-family:${FONT_BODY};font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:${COLOR_CHARCOAL};text-decoration:none;font-weight:500;">${escapeHtml(secondaryInfo.label)}</a>
+          </td></tr>
+        </table>
+      </td></tr>`
+    : ''
+  const ctaBlock = primaryBlock + secondaryBlock
 
   const heroImage =
     imageUrl && isSafeHref(imageUrl)
@@ -239,9 +254,11 @@ export function buildBroadcastText({
   body,
   cta = 'none',
   ctaCustom,
+  ctaSecondary,
   recipientEmail,
 }: BuildEmailInput): string {
   const ctaInfo = ctaCustom && isSafeHref(ctaCustom.url) ? ctaCustom : ctaPreset(cta)
+  const secondaryInfo = ctaSecondary && isSafeHref(ctaSecondary.url) ? ctaSecondary : null
   const lines = [
     CLINIC_NAME,
     CLINIC_TAGLINE,
@@ -252,6 +269,7 @@ export function buildBroadcastText({
   if (headline) lines.push(headline, '')
   lines.push(bodyToText(body))
   if (ctaInfo) lines.push('', `${ctaInfo.label}: ${ctaInfo.url}`)
+  if (secondaryInfo) lines.push('', `${secondaryInfo.label}: ${secondaryInfo.url}`)
   if (imageUrl) lines.push('', `(Image: ${imageUrl})`)
   lines.push(
     '',
