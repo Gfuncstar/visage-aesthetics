@@ -64,7 +64,7 @@ export async function GET(req: Request) {
         select<TreatmentRecord>('treatment_records', { client_name: `ilike.${enc}`, order: 'date.desc', limit: 500 }),
         select<Photo>('photos', { client_name: `ilike.${enc}`, order: 'date.desc', limit: 200 }),
         select<{ id: string }>('do_not_contact', { name_normalised: `eq.${norm}`, limit: 1 }).catch(() => []),
-        select<{ blocked: boolean; requires_deposit: boolean }>('client_flags', { name_normalised: `eq.${norm}`, limit: 1 }).catch(() => []),
+        select<{ blocked: boolean; requires_deposit: boolean; blocked_until: string | null }>('client_flags', { name_normalised: `eq.${norm}`, limit: 1 }).catch(() => []),
         select<{ id: string; channel: string; kind: string; subject: string | null; body: string | null; created_at: string }>('messages', { name_normalised: `eq.${norm}`, order: 'created_at.desc', limit: 30 }).catch(() => []),
         // Consent forms are matched by name — the same way the rest of this record
         // is — so they appear regardless of whether the email-based client_id link
@@ -119,6 +119,7 @@ export async function GET(req: Request) {
         },
         doNotContact: dnc.length > 0,
         blocked: flags[0]?.blocked ?? false,
+        blockedUntil: flags[0]?.blocked_until ?? null,
         requiresDeposit: flags[0]?.requires_deposit ?? false,
       })
     }
