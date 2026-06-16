@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowLeft, Calendar, Check, Clock } from 'lucide-react'
+import { ArrowLeft, Calendar, Check, Clock, LogIn } from 'lucide-react'
 
 type Service = { slug: string; name: string; category: string | null; duration_min: number; price_from: number }
 type Slot = { startsAtIso: string; label: string }
@@ -214,6 +214,21 @@ export default function BookingFlow() {
       <div className="max-w-2xl mx-auto px-5 md:px-8 pt-28 md:pt-32 pb-24">
         <div className="eyebrow text-gold mb-2">Visage Aesthetics &nbsp;·&nbsp; Braintree</div>
         <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight mb-8">Book your appointment.</h1>
+
+        {step === 'details' && (
+          <a
+            href="/account"
+            className="flex items-center justify-between gap-3 border border-line/60 bg-cream-soft rounded-sm px-4 py-3 mb-6 hover:border-gold transition-colors"
+          >
+            <span className="text-sm text-ink-soft leading-snug">
+              Already booked with us, or have an account?{' '}
+              <span className="text-charcoal">Log in</span> to see and manage your appointments.
+            </span>
+            <span className="shrink-0 inline-flex items-center gap-1.5 text-sm text-gold-deep">
+              <LogIn size={14} /> Log in
+            </span>
+          </a>
+        )}
 
         {step !== 'details' && step !== 'done' && (
           <button onClick={() => setStep(step === 'time' ? 'service' : 'details')} className="eyebrow text-stone hover:text-gold-deep inline-flex items-center gap-2 mb-6">
