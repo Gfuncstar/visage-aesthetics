@@ -182,6 +182,102 @@ export const conditions: Condition[] = [
       },
     ],
   },
+  {
+    slug: 'facial-volume-loss',
+    href: '/conditions/facial-volume-loss',
+    name: 'Facial volume loss',
+    alternateNames: ['Ozempic face', 'loss of facial volume', 'sunken cheeks', 'gaunt face after weight loss', 'hollow cheeks', 'volume loss with age'],
+    metaTitle: 'Facial Volume Loss & "Ozempic Face" Treatment, Braintree Essex | Visage Aesthetics',
+    metaDescription:
+      'Restore lost facial volume — including the gaunt "Ozempic face" after rapid weight loss — with reversible hyaluronic acid dermal filler in Braintree, Essex. Nurse-led, conservatively dosed. Bernadette Tobin RGN, MSc. From £110.',
+    h1: 'How do you restore facial volume?',
+    answer:
+      'Lost facial volume is restored with hyaluronic acid (HA) dermal filler, placed in small amounts to gently re-support the cheeks, tear troughs and jawline so the face looks rested rather than hollow. At Visage Aesthetics it is done conservatively — 0.5ml to 1ml at a time, built slowly over visits — by a registered nurse, and because HA filler is fully reversible, nothing is permanent.',
+    whatItIs:
+      'As we age we lose fat, collagen and bone support in the face, and the cheeks, temples and under-eyes can begin to look hollow or tired. Rapid weight loss — including from GLP-1 medication such as Ozempic, where it is often nicknamed "Ozempic face" — can bring the same change on much faster. The result is a gaunt, deflated look that ages the face more than lines do.',
+    howWeTreat:
+      'We restore volume with HA dermal filler, a gel that physically supports the tissue and is slowly metabolised over 9 to 18 months. The approach is deliberately conservative: small amounts, placed precisely in the cheeks, tear troughs, jawline or marionette area, built up gradually rather than all at once. Because HA is fully reversible — it can be dissolved within 24 to 48 hours if needed — it is the safest cosmetic injectable available. For broader skin quality alongside volume, we may also discuss Profhilo or HarmonyCa at consultation. We only proceed when it is genuinely the right call.',
+    treatmentName: 'Dermal Filler',
+    treatmentSlug: 'dermal-filler',
+    treatmentHref: '/treatments/dermal-filler',
+    priceFrom: 'From £110',
+    whoItsFor: [
+      'People whose cheeks, temples or under-eyes have started to look hollow or tired.',
+      'Anyone who has lost facial fullness after rapid or significant weight loss.',
+      'Those on GLP-1 medication (e.g. Ozempic, Mounjaro) noticing a gaunt, deflated face.',
+      'Clients who want a natural, reversible result built gradually — not an overfilled look.',
+    ],
+    faqs: [
+      {
+        question: 'What is "Ozempic face"?',
+        answer:
+          '"Ozempic face" is the nickname for the gaunt, hollow or deflated look some people develop after rapid weight loss on GLP-1 medication such as Ozempic or Mounjaro. The weight comes off the face as well as the body, and the loss of fat support can make the cheeks and under-eyes look sunken. Restoring a little volume with dermal filler is a common, reversible way to soften that change.',
+      },
+      {
+        question: 'Will filler make me look overdone?',
+        answer:
+          'Not the way it is done here. The whole approach at Visage is conservative — 0.5ml to 1ml at a time, placed to support the tissue rather than inflate it, and built slowly across visits. Many clients actually come to us to dissolve and rebalance over-treatment done elsewhere. The aim is for you to look rested, not filled.',
+      },
+      {
+        question: 'How long does it last, and is it reversible?',
+        answer:
+          'Hyaluronic acid filler lasts roughly 9 to 18 months depending on the product and area, with lips dissolving faster than cheeks. Crucially it is fully reversible: if you are unhappy with the result, or in the rare event of a complication, it can be dissolved within 24 to 48 hours using an enzyme called hyaluronidase. We do not use permanent or semi-permanent fillers.',
+      },
+      {
+        question: 'Is filler the only option for a gaunt face?',
+        answer:
+          'No, and at consultation we will talk through what actually suits you. Filler restores structural volume; Profhilo and HarmonyCa work more on overall skin quality and collagen. Sometimes the right answer is a combination, and sometimes it is to do less than you came in for. If filler is not right for you, we will say so.',
+      },
+    ],
+  },
+  {
+    slug: 'acne-scarring',
+    href: '/conditions/acne-scarring',
+    name: 'Acne scarring & uneven skin texture',
+    alternateNames: ['acne scars', 'acne scarring', 'uneven skin texture', 'rolling scars', 'enlarged pores', 'textured skin', 'collagen induction therapy'],
+    metaTitle: 'Acne Scarring & Skin Texture Treatment (Micro-Needling), Braintree | Visage Aesthetics',
+    metaDescription:
+      'Improve the appearance of acne scarring and uneven skin texture with medical micro-needling (collagen induction) in Braintree, Essex. Nurse-led, course-based. Bernadette Tobin RGN, MSc. From £80.',
+    h1: 'How do you treat acne scarring?',
+    answer:
+      'The appearance of acne scarring and uneven skin texture is improved with medical-grade micro-needling (collagen induction therapy), which creates thousands of controlled micro-channels that trigger new collagen and elastin. At Visage Aesthetics it is done as a course of three sessions, four weeks apart, by a registered nurse, with results that build gradually over the following months — no surgery or laser.',
+    whatItIs:
+      'Acne can settle but leave the skin textured behind it — rolling or pitted scars, enlarged pores and an uneven surface that makeup catches on. This is different from active, inflamed acne: it is the structural change left in the skin afterwards. Micro-needling is one of the few non-surgical treatments that can meaningfully remodel that texture.',
+    howWeTreat:
+      'We use a medical-grade micro-needling device — not a beauty-counter dermaroller — because the depth, speed and consistency of the needles are what determine the clinical result and your safety. Each session creates controlled micro-channels that prompt the skin to rebuild collagen and elastin. We recommend three sessions, four weeks apart, and collagen continues to develop for three to six months after the course. It pairs particularly well with Profhilo for clients wanting maximum skin-quality improvement. If your acne is still active or inflamed, we will talk about settling that first — sometimes with your GP — before texture work begins.',
+    treatmentName: 'Micro-Needling',
+    treatmentSlug: 'micro-needling',
+    treatmentHref: '/treatments/micro-needling',
+    priceFrom: 'From £80',
+    whoItsFor: [
+      'People left with rolling or pitted scars after acne has settled.',
+      'Anyone with uneven skin texture, enlarged pores or a rough surface.',
+      'Clients wanting to improve skin quality without surgery or laser.',
+      'Those happy to commit to a short course, since results build gradually.',
+    ],
+    faqs: [
+      {
+        question: 'Does micro-needling get rid of acne scars completely?',
+        answer:
+          'It improves their appearance rather than erasing them. Over a course, the new collagen softens the edges of rolling and shallow scars, evens out texture and refines pores, so skin looks smoother and more uniform. Deep, ice-pick scarring may need to be managed in combination with other approaches, which we will discuss honestly at consultation.',
+      },
+      {
+        question: 'Can I have it if my acne is still active?',
+        answer:
+          'Micro-needling is for the texture and scarring left behind, not for treating active, inflamed acne — and needling over an active breakout is not advisable. If your acne is still flaring, we will talk about settling it first, sometimes alongside your GP, and then focus on texture once the skin is calm.',
+      },
+      {
+        question: 'How many sessions will I need and when will I see results?',
+        answer:
+          'We usually recommend three sessions, four weeks apart, to give collagen time to build between treatments. You will often notice some radiance within a week of each session, but the meaningful texture change develops gradually — collagen keeps forming for three to six months after the course finishes.',
+      },
+      {
+        question: 'Is there any downtime?',
+        answer:
+          'Very little. Most people have some redness, a little like mild sunburn, for 24 to 48 hours afterwards. We send full written aftercare, and because the device is medical-grade and used at a controlled depth, the risk of bruising or pigmentation problems is kept low.',
+      },
+    ],
+  },
 ]
 
 export const getCondition = (slug: string) => conditions.find((c) => c.slug === slug)

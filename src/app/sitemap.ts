@@ -58,6 +58,8 @@ const PAGE_DATES: Record<string, string> = {
   // Condition-led answer pages
   '/conditions/excessive-sweating': '2026-06-17',
   '/conditions/chronic-migraine': '2026-06-17',
+  '/conditions/facial-volume-loss': '2026-06-17',
+  '/conditions/acne-scarring': '2026-06-17',
   '/conditions/mole-check': '2026-06-17',
   '/blog/botox-vs-filler': '2026-04-26',
   '/blog/how-long-does-profhilo-last': '2026-04-26',

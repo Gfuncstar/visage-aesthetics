@@ -97,6 +97,19 @@ export const TREATMENT_REFERENCES: Record<string, TreatmentReference[]> = {
     ...DEFAULT_REFERENCES,
   ],
   aqualyx: [NHS_FILLER, ...DEFAULT_REFERENCES],
+  'micro-needling': [
+    {
+      title: 'NHS — acne: treatment options and scarring',
+      url: 'https://www.nhs.uk/conditions/acne/',
+      publisher: 'NHS',
+    },
+    {
+      title: 'British Association of Dermatologists — patient information leaflets',
+      url: 'https://www.bad.org.uk/patient-information-leaflets/',
+      publisher: 'British Association of Dermatologists (BAD)',
+    },
+    ...DEFAULT_REFERENCES,
+  ],
 }
 
 /** Resolve the reference list for a treatment, always returning something. */
