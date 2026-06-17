@@ -55,6 +55,11 @@ export default function CancellationPolicyPage() {
             Arriving more than 10 minutes after your appointment time is treated as a missed appointment. Where this happens we reserve the right to cancel the appointment, and any deposit will not be refunded.
           </p>
 
+          <h2 className="font-display text-2xl md:text-3xl text-charcoal mt-10 mb-4">Review appointments</h2>
+          <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
+            Review appointments are offered two to three weeks after anti-wrinkle treatments. This is a clinical assessment, not a guaranteed top-up — any further product is only given where it is judged clinically appropriate. Anything later than three weeks cannot be reviewed. It is the client&apos;s responsibility to book their review appointment.
+          </p>
+
           <h2 className="font-display text-2xl md:text-3xl text-charcoal mt-10 mb-4">Making a change</h2>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
             The quickest way is the manage-booking link in your confirmation email, where you can reschedule or cancel yourself. If anything is unclear, contact the clinic at info@vaclinic.co.uk and we will sort it for you.
