@@ -1,0 +1,64 @@
+name: Automation health check (Visage Aesthetics)
+
+# Runs every day at 10:00 UTC — after the morning jobs have had their chance
+# to run. The "is everything still running?" agent: it asks GitHub whether
+# every OTHER scheduled workflow in this repo (auto-blog, scout, backup,
+# ai-visibility, …) actually ran and passed. If any has failed, gone stale,
+# or been disabled by GitHub for inactivity, it opens (or updates) a single
+# GitHub issue so the breakage can't sit unnoticed for weeks.
+#
+# Deterministic, no API keys, near-zero cost. It checks that the jobs RAN —
+# it does not re-check what they produced.
+#
+# Run it any time via the "Run workflow" button on the Actions tab.
+
+on:
+  schedule:
+    - cron: '0 10 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check scheduled jobs
+        id: check
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/job-health-check.mjs
+
+      - name: Alert on broken / disabled jobs
+        if: steps.check.outputs.unhealthy != '0' && steps.check.outputs.unhealthy != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create automation-health --color FBCA04 \
+            --description "A scheduled automation needs attention" 2>/dev/null || true
+          existing=$(gh issue list --label automation-health --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file job-health-report.md
+          else
+            gh issue create \
+              --title "⚠️ Automation health: a scheduled job needs attention" \
+              --body-file job-health-report.md \
+              --label automation-health
+          fi
+
+      - name: Fail the run if anything is broken
+        if: steps.check.outputs.unhealthy != '0' && steps.check.outputs.unhealthy != ''
+        run: |
+          echo "One or more scheduled jobs need attention — see the automation-health issue."
+          exit 1
