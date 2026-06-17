@@ -47,6 +47,7 @@ async function savePatientNoteCopy(body: Record<string, string | undefined>): Pr
       product_used: body.productUsed || null,
       lot_no_exp: body.lotNoExp || null,
       dosage: body.dosage || null,
+      consultation_done: body.consultationDone || null,
       before_photos_taken: body.beforePhotosTaken || null,
       problems_noted: body.problemsNoted || null,
       aftercare_provided: body.aftercareProvided || null,
@@ -67,6 +68,7 @@ const FIELDS = [
   'productUsed',
   'lotNoExp',
   'dosage',
+  'consultationDone',
   'beforePhotosTaken',
   'problemsNoted',
   'aftercareProvided',
@@ -176,6 +178,7 @@ type SavedNote = { source: 'notes-form' | 'write-up'; date: string | null; treat
 type PatientNoteRow = {
   client_name: string; date: string | null; treatment: string | null; specific_area: string | null
   product_used: string | null; lot_no_exp: string | null; dosage: string | null
+  consultation_done: string | null
   before_photos_taken: string | null; problems_noted: string | null; aftercare_provided: string | null
   additional_notes: string | null; emergency_contact_provided: string | null; created_at: string
 }
@@ -187,8 +190,9 @@ function patientNoteBody(r: PatientNoteRow): string {
   if (r.product_used) lines.push(`Product: ${r.product_used}${r.lot_no_exp ? ` (Lot/Exp: ${r.lot_no_exp})` : ''}`)
   if (r.dosage) lines.push(`Dosage: ${r.dosage}`)
   const flags: string[] = []
-  if (r.before_photos_taken) flags.push(`Photo taken: ${r.before_photos_taken}`)
-  if (r.aftercare_provided) flags.push(`Aftercare given: ${r.aftercare_provided}`)
+  if (r.consultation_done) flags.push(`Consultation done: ${r.consultation_done}`)
+  if (r.before_photos_taken) flags.push(`Photographs taken: ${r.before_photos_taken}`)
+  if (r.aftercare_provided) flags.push(`Aftercare sent: ${r.aftercare_provided}`)
   if (r.problems_noted && r.problems_noted !== 'No') flags.push(`Problems noted: ${r.problems_noted}`)
   if (r.emergency_contact_provided) flags.push(`Emergency contact: ${r.emergency_contact_provided}`)
   if (flags.length) lines.push(flags.join('  ·  '))
