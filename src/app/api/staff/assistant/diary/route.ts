@@ -6,6 +6,7 @@ import { londonWallToUtc, londonToday } from '@/lib/booking-engine/time'
 import { mirrorBookingAppointment } from '@/lib/booking-engine/appointments-mirror'
 import type { Booking, TimeOff, BusinessHours } from '@/lib/booking-engine/types'
 import type { Appointment } from '@/lib/assistant/types'
+import { loadOpeningWindows, type OpeningWindow } from '@/lib/booking-engine/opening-hours'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -70,11 +71,15 @@ export async function GET(req: Request) {
   const start = dayBounds(from).start
   const end = dayBounds(to).end
   try {
-    const [bookings, timeOff, waitlist, businessHours, history, writeUps] = await Promise.all([
+    const [bookings, timeOff, waitlist, businessHours, windowMap, history, writeUps] = await Promise.all([
       select<Booking>('bookings', { and: `(starts_at.gte.${start},starts_at.lte.${end})`, order: 'starts_at.asc', limit: 200 }),
       select<TimeOff>('time_off', { and: `(starts_at.lte.${end},ends_at.gte.${start})`, order: 'starts_at.asc', limit: 100 }),
       select<Record<string, unknown>>('waitlist', { status: 'eq.waiting', order: 'created_at.asc', limit: 50 }),
       select<BusinessHours>('business_hours', { limit: 7 }),
+      // Full opening-window list per weekday (a day can have several — a daytime
+      // clinic plus an evening session). The diary's gap/free views and the
+      // inline hours editor use this so split days display and edit correctly.
+      loadOpeningWindows(),
       // The appointment history (Ovatu imports + mirrored bookings) is the app's
       // source of truth for who's been before — bookings alone would flag every
       // regular as new. We only need the earliest appointment date per client.
@@ -109,7 +114,10 @@ export async function GET(req: Request) {
       const notesDone = Boolean(b.notes_done) || writtenUp.has(`${londonDate(b.starts_at)}|${normName(b.client_name)}`)
       return { ...b, is_new_client: isNew, notes_done: notesDone }
     })
-    return NextResponse.json({ bookings: withNew, timeOff, waitlist, businessHours, configured: true })
+    // Plain object keyed by weekday for the client (Maps don't serialise).
+    const windows: Record<number, OpeningWindow[]> = {}
+    for (const [wd, list] of windowMap) windows[wd] = list
+    return NextResponse.json({ bookings: withNew, timeOff, waitlist, businessHours, windows, configured: true })
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : 'Load failed' }, { status: 502 })
   }
