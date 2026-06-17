@@ -11,6 +11,7 @@ export const maxDuration = 60
 type Payload = {
   clientName?: unknown
   treatmentTypeId?: unknown
+  treatmentName?: unknown
   interest?: unknown
   notes?: unknown
   details?: unknown
@@ -122,6 +123,7 @@ export async function POST(req: Request) {
 
   const clientName = str(body.clientName, 100)
   const treatmentTypeId = str(body.treatmentTypeId, 50)
+  const treatmentName = str(body.treatmentName, 100)
   const interest = str(body.interest, 300)
   const notes = str(body.notes, 3000)
   const details = str(body.details, 500)
@@ -137,7 +139,9 @@ export async function POST(req: Request) {
     ? consultationPrompt(firstName, interest, notes, date)
     : treatmentPrompt(
         firstName,
-        type?.name ?? treatmentTypeId ?? 'treatment',
+        // The write-up tool always passes a known type; the notes form passes a
+        // free-text treatment name, so prefer that when given.
+        treatmentName || type?.name || treatmentTypeId || 'treatment',
         details,
         notes,
         type?.aftercare ?? [],

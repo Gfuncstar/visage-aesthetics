@@ -59,7 +59,7 @@ export default function ManageBooking({ token }: { token: string }) {
     setRescheduling(true)
     setDay(null)
     setSlots([])
-    const res = await fetch(`/api/book/availability?service=${booking.serviceSlug}&days=90`)
+    const res = await fetch(`/api/book/availability?service=${booking.serviceSlug}&days=300`)
     if (res.ok) setCalendar((await res.json()).calendar ?? {})
   }
 
