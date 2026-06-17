@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { assistantConfigured, select, insert, audit } from '@/lib/assistant/db'
-import { getConsentForm, sanitiseAnswers } from '@/lib/consent/forms'
+import { getConsentForm, sanitiseAnswers, TERMS_ACCEPTED_KEY, TERMS_ACCEPTED_NOTE } from '@/lib/consent/forms'
 import { pushConsentToSheet } from '@/lib/consent/sheet'
 import { notifyConsentSubmitted } from '@/lib/consent/notify'
 
@@ -32,11 +32,16 @@ export async function POST(req: Request, ctx: { params: Promise<{ formId: string
   if (b.agreed !== true) {
     return NextResponse.json({ error: 'Please tick the box to confirm before submitting.' }, { status: 400 })
   }
+  if (b.agreedTerms !== true) {
+    return NextResponse.json({ error: 'Please tick the box to confirm you accept the Terms & Conditions.' }, { status: 400 })
+  }
 
   const { answers, missing } = sanitiseAnswers(form, b.answers)
   if (missing.length > 0) {
     return NextResponse.json({ error: `Please complete: ${missing.join(', ')}` }, { status: 400 })
   }
+  // Record the client's acceptance of the booking Terms & Conditions.
+  answers[TERMS_ACCEPTED_KEY] = TERMS_ACCEPTED_NOTE
 
   try {
     // Identify the person from the form's own Personal Details.

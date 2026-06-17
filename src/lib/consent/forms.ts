@@ -66,6 +66,14 @@ export type ConsentForm = {
   declarationTruncated?: boolean
 }
 
+// Alongside the medical declaration, clients must accept the clinic's booking
+// Terms & Conditions (cancellation, deposit and missed-appointment policy) when
+// completing a consent form. Acceptance is required and recorded against the
+// submission (stored under this key in the answers) so there is a clear record.
+export const TERMS_ACCEPTED_KEY = 'Terms & Conditions'
+export const TERMS_ACCEPTED_NOTE =
+  'Accepted the clinic Terms & Conditions (24-hour cancellation, deposit and missed-appointment policy).'
+
 // Shared personal-details block (was identical across every captured Ovatu
 // form). Two clinic tightening changes have been made here and MUST be pushed
 // back to the live Ovatu forms so what clients sign matches:

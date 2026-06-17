@@ -18,9 +18,10 @@ const CONSENT_ENFORCE_FROM = process.env.CONSENT_ENFORCE_FROM || goLiveTimestamp
 export const maxDuration = 60
 
 // Sends the "please confirm you're coming" request for confirmed bookings
-// starting in the next ~24h that have not been reminded yet. The client gets a
-// branded email with a one-click "Confirm your appointment" button (or an SMS
-// with the same link if there's no email on file). Called hourly by the
+// starting in the next ~48h that have not been reminded yet. 48h is well outside
+// the 24-hour change cut-off, so this single reminder can still offer Confirm and
+// Rearrange. The client gets a branded email with one-click buttons (or an SMS
+// with the same links if there's no email on file). Called hourly by the
 // scheduler with ?key=<push_cron_secret>, or by signed-in staff (?test=1
 // reports the count).
 //
@@ -54,30 +55,29 @@ export async function GET(req: Request) {
   if (!bearerOk && !secretOk && !isStaff) return NextResponse.json({ error: 'Not authorised' }, { status: 401 })
 
   const now = new Date()
-  const windowEnd = new Date(now.getTime() + 24 * 3600_000)
-  const window48End = new Date(now.getTime() + 48 * 3600_000)
+  // The "please confirm your appointment" email goes out ~48 hours before the
+  // appointment: a single reminder, sent well outside the 24-hour change cut-off
+  // so the client can still confirm or rearrange. The cron runs hourly, so a
+  // booking is picked up on the first run once it is inside the 48h window
+  // (i.e. ~47–48h before the start).
+  const reminderWindowEnd = new Date(now.getTime() + 48 * 3600_000)
+  // Consent forms keep their own 24h send window (the pass further below).
+  const consentWindowEnd = new Date(now.getTime() + 24 * 3600_000)
 
-  // 24h pass: the final "please confirm" (confirm only, no rearrange).
+  // The single "please confirm" pass: confirmed bookings starting within the next
+  // ~48h that have not been reminded yet. sendConfirmRequest decides confirm-only
+  // vs confirm+rearrange from how far out the booking is — at ~48h it is outside
+  // the cut-off, so the Rearrange button is included.
   const due = await select<Booking>('bookings', {
     status: 'eq.confirmed',
     reminded_at: 'is.null',
-    and: `(starts_at.gt.${now.toISOString()},starts_at.lte.${windowEnd.toISOString()})`,
-    order: 'starts_at.asc',
-    limit: 200,
-  })
-
-  // 48h pass: the earlier "confirm or rearrange" reminder, fired once for
-  // bookings 24–48h out (before the 24h change cut-off bites).
-  const due48 = await select<Booking>('bookings', {
-    status: 'eq.confirmed',
-    confirm48_at: 'is.null',
-    and: `(starts_at.gt.${windowEnd.toISOString()},starts_at.lte.${window48End.toISOString()})`,
+    and: `(starts_at.gt.${now.toISOString()},starts_at.lte.${reminderWindowEnd.toISOString()})`,
     order: 'starts_at.asc',
     limit: 200,
   })
 
   if (url.searchParams.get('test') === '1' && isStaff) {
-    return NextResponse.json({ ok: true, test: true, dueCount: due.length, due48Count: due48.length, smsConfigured: smsConfigured() })
+    return NextResponse.json({ ok: true, test: true, dueCount: due.length, smsConfigured: smsConfigured() })
   }
 
   let sms = 0
@@ -95,19 +95,6 @@ export async function GET(req: Request) {
     }
   }
 
-  // 48h "confirm or rearrange" pass. sendConfirmRequest decides the rearrange
-  // option from how far out the booking is, so these get the Rearrange button.
-  let email48 = 0
-  let sms48 = 0
-  for (const b of due48) {
-    const result = await sendConfirmRequest(b)
-    if (result.channel === 'sms') sms48++
-    if (result.channel === 'email') email48++
-    if (result.channel) {
-      await update('bookings', { id: b.id }, { confirm48_at: now.toISOString() })
-    }
-  }
-
   // Consent forms — send the matching form to anyone due in the next 24h who
   // needs one and hasn't completed (or already been sent) it. Evaluated
   // independently of the confirmation reminder (no reminded_at filter) so a
@@ -115,7 +102,7 @@ export async function GET(req: Request) {
   let consent = 0
   const consentDue = await select<Booking>('bookings', {
     status: 'eq.confirmed',
-    and: `(starts_at.gt.${now.toISOString()},starts_at.lte.${windowEnd.toISOString()},created_at.gte.${CONSENT_ENFORCE_FROM})`,
+    and: `(starts_at.gt.${now.toISOString()},starts_at.lte.${consentWindowEnd.toISOString()},created_at.gte.${CONSENT_ENFORCE_FROM})`,
     order: 'starts_at.asc',
     limit: 200,
   })
@@ -164,5 +151,5 @@ export async function GET(req: Request) {
     if (res.ok) consentResent++
   }
 
-  return NextResponse.json({ ok: true, dueCount: due.length, sms, email, due48Count: due48.length, sms48, email48, consent, consentResent })
+  return NextResponse.json({ ok: true, dueCount: due.length, sms, email, consent, consentResent })
 }

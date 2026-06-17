@@ -51,6 +51,7 @@ export default function ConsentFormClient({
 }) {
   const [answers, setAnswers] = useState<AnswerMap>(() => initialAnswers(form, clientName))
   const [agreed, setAgreed] = useState(false)
+  const [agreedTerms, setAgreedTerms] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState(false)
@@ -83,12 +84,16 @@ export default function ConsentFormClient({
       setError('Please tick the box to confirm before submitting.')
       return
     }
+    if (!agreedTerms) {
+      setError('Please tick the box to confirm you accept the Terms & Conditions before submitting.')
+      return
+    }
     setSubmitting(true)
     try {
       const res = await fetch(submitUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(noChanges ? { agreed: true, noChanges: true } : { answers, agreed: true }),
+        body: JSON.stringify(noChanges ? { agreed: true, agreedTerms: true, noChanges: true } : { answers, agreed: true, agreedTerms: true }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -178,6 +183,9 @@ export default function ConsentFormClient({
                 I confirm there are no changes to my medical history and no new medications since my last consent. {form.declaration}
               </span>
             </label>
+            <div className="mt-4">
+              <TermsCheckbox checked={agreedTerms} onChange={setAgreedTerms} />
+            </div>
           </div>
 
           {error && <div className="mt-4 border border-gold/40 bg-gold/10 text-charcoal text-sm rounded-sm px-4 py-3">{error}</div>}
@@ -244,6 +252,9 @@ export default function ConsentFormClient({
             <input type="checkbox" className="sr-only" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
             <span className="text-sm text-charcoal leading-relaxed">{form.declaration}</span>
           </label>
+          <div className="mt-4">
+            <TermsCheckbox checked={agreedTerms} onChange={setAgreedTerms} />
+          </div>
         </div>
 
         {error && (
@@ -260,6 +271,31 @@ export default function ConsentFormClient({
         </div>
       </div>
     </section>
+  )
+}
+
+// Required acceptance of the booking Terms & Conditions, shown next to the
+// medical declaration. Links to the T&C page in a new tab so form progress is
+// not lost.
+function TermsCheckbox({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <label className="flex items-start gap-3 cursor-pointer select-none">
+      <span
+        className={`inline-flex w-6 h-6 mt-0.5 rounded-sm border items-center justify-center shrink-0 transition-colors ${
+          checked ? 'bg-gold border-gold text-charcoal' : 'border-line bg-cream'
+        }`}
+      >
+        {checked && <Check size={14} strokeWidth={2.5} />}
+      </span>
+      <input type="checkbox" className="sr-only" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <span className="text-sm text-charcoal leading-relaxed">
+        I have read and agree to the{' '}
+        <a href="/cancellation-policy" target="_blank" rel="noopener noreferrer" className="text-gold-deep underline">
+          Terms &amp; Conditions
+        </a>
+        , including the cancellation, deposit and missed-appointment policy.
+      </span>
+    </label>
   )
 }
 
