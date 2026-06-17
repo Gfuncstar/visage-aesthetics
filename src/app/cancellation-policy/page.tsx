@@ -51,6 +51,9 @@ export default function CancellationPolicyPage() {
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
             If you are running behind, please let us know. We will always do our best to see you, though occasionally we may need to shorten the appointment or find you another time.
           </p>
+          <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
+            Arriving more than 10 minutes after your appointment time is treated as a missed appointment. Where this happens we reserve the right to cancel the appointment, and any deposit will not be refunded.
+          </p>
 
           <h2 className="font-display text-2xl md:text-3xl text-charcoal mt-10 mb-4">Making a change</h2>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
