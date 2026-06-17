@@ -206,6 +206,17 @@ export default async function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }} />
       <ScrollScrubHero />
 
+      {/* ANSWER LINE — a single, crawlable sentence that states who/what/where
+          high in the DOM, so answer engines can lift a direct summary before
+          the brand narrative. Quiet by design. */}
+      <section className="bg-cream py-7 md:py-9">
+        <div className="max-w-[1100px] mx-auto px-5 md:px-8 text-center">
+          <p className="font-display italic text-charcoal mx-auto max-w-3xl" style={{ fontSize: 'clamp(19px, 2vw, 25px)', lineHeight: 1.4, fontWeight: 400 }}>
+            Visage Aesthetics is a nurse-led aesthetics clinic on Friars Lane, Braintree, Essex, where every treatment is performed by Bernadette Tobin, a registered nurse (NMC PIN 05G1755E) with an MSc in Advanced Practice and 20+ years&apos; clinical experience. Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex.
+          </p>
+        </div>
+      </section>
+
       {/* GOOGLE REVIEWS, replaces the founder Vision section */}
       <GoogleReviews />
 

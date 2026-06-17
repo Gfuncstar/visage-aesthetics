@@ -96,6 +96,7 @@ const jsonLd = {
     ],
     memberOf: [
       { '@type': 'Organization', name: 'Nursing and Midwifery Council', url: 'https://www.nmc.org.uk/' },
+      { '@type': 'Organization', name: 'Royal College of Nursing', url: 'https://www.rcn.org.uk/' },
     ],
     hasCredential: [
       { '@type': 'EducationalOccupationalCredential', credentialCategory: 'degree', name: 'MSc Advanced Practice (Level 7)' },
