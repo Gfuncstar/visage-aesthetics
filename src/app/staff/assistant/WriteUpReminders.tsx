@@ -1,49 +1,39 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { AlertTriangle, ClipboardCheck, ClipboardPen, X } from 'lucide-react'
 import type { EndOfDay, OverdueWriteUp } from '@/lib/assistant/end-of-day'
 
-const STORAGE_KEY = 'va_dismissed_writeups'
-
-function loadDismissed(): Set<string> {
-  try {
-    const raw = sessionStorage.getItem(STORAGE_KEY)
-    return new Set(raw ? (JSON.parse(raw) as string[]) : [])
-  } catch {
-    return new Set()
-  }
-}
-
-function saveDismissed(s: Set<string>) {
-  try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify([...s]))
-  } catch { /* */ }
+function visitKey(name: string, date: string): string {
+  return `${date}|${name.trim().toLowerCase()}`
 }
 
 function overdueKey(o: OverdueWriteUp): string {
-  return `${o.date}|${o.name.trim().toLowerCase()}`
+  return visitKey(o.name, o.date)
 }
 
 export default function WriteUpReminders({ today, simple = false }: { today: EndOfDay; simple?: boolean }) {
+  // The server now filters out dismissed visits, so this set only drives the
+  // immediate (optimistic) hide before the next load — it does not need to
+  // persist in the browser.
   const [dismissed, setDismissed] = useState<Set<string>>(new Set())
+  const todayStr = new Date().toISOString().slice(0, 10)
 
-  useEffect(() => {
-    setDismissed(loadDismissed())
-  }, [])
-
-  function dismiss(key: string) {
-    setDismissed((prev) => {
-      const next = new Set(prev)
-      next.add(key)
-      saveDismissed(next)
-      return next
-    })
+  // Hide the row straight away, then persist the dismissal so it stays gone on
+  // every device and after the app is closed.
+  function dismiss(name: string, date: string) {
+    const key = visitKey(name, date)
+    setDismissed((prev) => new Set(prev).add(key))
+    void fetch('/api/staff/assistant/writeup-dismiss', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, date }),
+    }).catch(() => {})
   }
 
   const visibleOverdue = today.overdue.filter((o) => !dismissed.has(overdueKey(o)))
-  const visibleToWrite = today.toWrite.filter((c) => !dismissed.has(`today|${c.name.trim().toLowerCase()}`))
+  const visibleToWrite = today.toWrite.filter((c) => !dismissed.has(visitKey(c.name, todayStr)))
 
   return (
     <>
@@ -69,7 +59,7 @@ export default function WriteUpReminders({ today, simple = false }: { today: End
                     {o.daysAgo === 1 ? '1 day' : `${o.daysAgo} days`} ago
                   </span>
                   <button
-                    onClick={() => dismiss(overdueKey(o))}
+                    onClick={() => dismiss(o.name, o.date)}
                     title={`Dismiss ${o.name} — written up another way`}
                     className="inline-flex items-center justify-center w-7 h-7 rounded-sm border border-line/40 text-ink-soft hover:border-clay hover:text-clay transition-colors"
                     aria-label={`Dismiss ${o.name}`}
@@ -108,12 +98,12 @@ export default function WriteUpReminders({ today, simple = false }: { today: End
             <>
               <ul className="mt-3 space-y-1.5">
                 {visibleToWrite.map((c) => {
-                  const key = `today|${c.name.trim().toLowerCase()}`
+                  const key = visitKey(c.name, todayStr)
                   return (
                     <li key={key} className="text-sm flex items-baseline justify-between gap-3 group">
                       <span className="text-charcoal">{c.name}</span>
                       <button
-                        onClick={() => dismiss(key)}
+                        onClick={() => dismiss(c.name, todayStr)}
                         title={`Dismiss ${c.name} — written up another way`}
                         className="inline-flex items-center justify-center w-7 h-7 rounded-sm border border-line/40 text-ink-soft hover:border-clay hover:text-clay transition-colors shrink-0"
                         aria-label={`Dismiss ${c.name}`}
