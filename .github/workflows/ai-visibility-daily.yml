@@ -1,0 +1,89 @@
+name: AI visibility watchdog (Visage Aesthetics)
+
+# Runs every day at 07:30 UTC. The daily agent for the AI answer layer.
+#
+#   1. Checks the LIVE site is still easy for AI engines to find and cite:
+#      /llms.txt serving, robots.txt still allowing the AI crawlers,
+#      sitemap healthy, homepage schema still carrying the star rating +
+#      sameAs links. A failure here is a production regression — the job
+#      opens (or updates) a GitHub issue so you're alerted.
+#
+#   2. Keeps the committed Google-reviews FALLBACK in sync with the live
+#      rating/count (the live numbers already update automatically via the
+#      Places API at runtime; this just keeps the safety-net current). When
+#      the count drifts it patches src/lib/google-reviews.ts, verifies the
+#      build, and auto-publishes straight to main — which deploys to
+#      production. No PR, no clicks (per the chosen auto-merge setup).
+#
+# To enable the review-sync half, add two repo secrets
+# (Settings → Secrets and variables → Actions):
+#   GOOGLE_PLACE_ID         — the clinic's Google Place ID (ChIJ…)
+#   GOOGLE_PLACES_API_KEY   — a key with the Places API (New) enabled
+# Without them the watchdog half still runs; the sync half skips gracefully.
+#
+# Run it any time via the "Run workflow" button on the Actions tab.
+
+on:
+  schedule:
+    - cron: '30 7 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  watchdog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run AI visibility audit
+        id: audit
+        env:
+          GOOGLE_PLACE_ID: ${{ secrets.GOOGLE_PLACE_ID }}
+          GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
+        run: node scripts/ai-visibility-audit.mjs
+
+      - name: Verify build (only if the fallback was patched)
+        if: steps.audit.outputs.synced == 'true'
+        run: npm run build
+
+      - name: Auto-publish fallback sync to main
+        if: steps.audit.outputs.synced == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase --autostash origin main
+          git add src/lib/google-reviews.ts
+          git commit -m "chore(reviews): sync fallback rating/count with live Google data"
+          git push origin main
+
+      - name: Open an issue on a production regression
+        if: steps.audit.outputs.regressions != '0' && steps.audit.outputs.regressions != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --title "AI visibility regression detected ($(date -u +%Y-%m-%d))" \
+            --body-file ai-visibility-report.md \
+            --label "ai-visibility" 2>/dev/null \
+          || gh issue create \
+            --title "AI visibility regression detected ($(date -u +%Y-%m-%d))" \
+            --body-file ai-visibility-report.md
+
+      - name: Fail the run if there were regressions
+        if: steps.audit.outputs.regressions != '0' && steps.audit.outputs.regressions != ''
+        run: |
+          echo "Production AI-visibility regressions detected — see the issue above."
+          exit 1
