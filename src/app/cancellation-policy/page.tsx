@@ -38,6 +38,9 @@ export default function CancellationPolicyPage() {
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
             Appointments cancelled with less than 24 hours&apos; notice, or missed without warning, mean clinic time set aside especially for you cannot be offered to anyone else. Where this happens repeatedly, we may ask for a deposit to hold any future appointments.
           </p>
+          <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
+            We reserve the right, where an appointment has been missed, to decline to carry out the treatment on the day and to decline future bookings.
+          </p>
 
           <h2 className="font-display text-2xl md:text-3xl text-charcoal mt-10 mb-4">Consultations</h2>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
