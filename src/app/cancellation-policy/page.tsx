@@ -31,12 +31,15 @@ export default function CancellationPolicyPage() {
 
           <h2 className="font-display text-2xl md:text-3xl text-charcoal mt-10 mb-4">Deposits</h2>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-            We do not normally take a deposit to book. The only exception is where an appointment has previously been missed without notice — in that case we may ask for a small deposit to secure future bookings, which is then put towards your treatment on the day.
+            We do not normally take a deposit to book. The only exception is where an appointment has previously been missed without notice — in that case we may ask for a &pound;30 deposit to secure future bookings, which is then put towards your treatment on the day. The &pound;30 deposit stays refundable if you cancel or rearrange with at least 24 hours&apos; notice; within the final 24 hours before your appointment it becomes non-refundable.
           </p>
 
           <h2 className="font-display text-2xl md:text-3xl text-charcoal mt-10 mb-4">Missed appointments</h2>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
             Appointments cancelled with less than 24 hours&apos; notice, or missed without warning, mean clinic time set aside especially for you cannot be offered to anyone else. Where this happens repeatedly, we may ask for a deposit to hold any future appointments.
+          </p>
+          <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
+            We reserve the right, where an appointment has been missed, to decline to carry out the treatment on the day and to decline future bookings.
           </p>
 
           <h2 className="font-display text-2xl md:text-3xl text-charcoal mt-10 mb-4">Consultations</h2>
