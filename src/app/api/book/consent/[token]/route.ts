@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { assistantConfigured, select, insert, update, audit } from '@/lib/assistant/db'
 import { resolveConsent } from '@/lib/consent/resolve'
-import { sanitiseAnswers } from '@/lib/consent/forms'
+import { sanitiseAnswers, TERMS_ACCEPTED_KEY, TERMS_ACCEPTED_NOTE } from '@/lib/consent/forms'
 import { pushConsentToSheet } from '@/lib/consent/sheet'
 import { notifyConsentSubmitted } from '@/lib/consent/notify'
 
@@ -55,6 +55,9 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
     if (b.agreed !== true) {
       return NextResponse.json({ error: 'Please tick the box to confirm before submitting.' }, { status: 400 })
     }
+    if (b.agreedTerms !== true) {
+      return NextResponse.json({ error: 'Please tick the box to confirm you accept the Terms & Conditions.' }, { status: 400 })
+    }
 
     let answers: Record<string, string | string[]>
     if (b.noChanges === true) {
@@ -89,6 +92,9 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
       }
       answers = result.answers
     }
+
+    // Record the client's acceptance of the booking Terms & Conditions.
+    answers[TERMS_ACCEPTED_KEY] = TERMS_ACCEPTED_NOTE
 
     // Best-effort link to an existing client record by email.
     let clientId: string | null = null
