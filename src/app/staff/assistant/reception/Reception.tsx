@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { CalendarDays, CalendarPlus, Check, ChevronLeft, ChevronRight, Clock, ListPlus, LogOut, Mic, Phone, Sparkles, X } from 'lucide-react'
-import { notifyDone } from '@/lib/staff-toast'
+import { notifyDone, notifyError } from '@/lib/staff-toast'
 import { BookingRow, BookingDetailModal, CancelConfirmModal, type BookingLite } from '@/components/staff/BookingCard'
 import DayTakingsCard from '@/components/staff/DayTakingsCard'
 import DayComplianceCard from '@/components/staff/DayComplianceCard'
@@ -457,16 +457,22 @@ export default function Reception({ simple = false }: { simple?: boolean }) {
             const b = pendingCancel
             setPendingCancel(null)
             setSchedData((prev) => ({ ...prev, bookings: prev.bookings.filter((x) => x.id !== b.id) }))
+            let ok = false
             try {
               const res = await fetch(`/api/staff/assistant/diary/${b.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: 'cancelled' }),
               })
-              if (res.ok) notifyDone('Booking cancelled — slot released')
+              ok = res.ok
             } catch {
-              /* network error — the reload below restores the row */
+              ok = false
             }
+            // Either way the reload below re-syncs with the database. On success
+            // the slot stays released; on failure the row comes back — so say so
+            // clearly, otherwise it looks like the cancel "didn't stick".
+            if (ok) notifyDone('Booking cancelled — slot released')
+            else notifyError("That didn't save — please check your connection and try again.")
             void loadSchedule(true)
           }}
           onClose={() => setPendingCancel(null)}

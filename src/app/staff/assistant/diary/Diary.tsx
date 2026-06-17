@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight, Check, Clock, LogOut, Mail, Phone, Plus, Ban, Send, User, X } from 'lucide-react'
 import MicButton, { appendText } from '@/components/ui/MicButton'
-import { notifyDone } from '@/lib/staff-toast'
+import { notifyDone, notifyError } from '@/lib/staff-toast'
 import ConsentStatus from '@/components/staff/ConsentStatus'
 import { NewClientBadge, ReminderLine } from '@/components/staff/BookingCard'
 import DayTakingsCard from '@/components/staff/DayTakingsCard'
@@ -339,13 +339,33 @@ export default function Diary() {
   }, [])
 
   async function setStatus(id: string, status: string) {
+    // Optimistically reflect the change, but remember the previous state so we
+    // can undo it if the server doesn't actually save. Without this, a failed
+    // PATCH (a network blip, a Supabase hiccup) would silently hide the booking
+    // and flash "done" — then it would reappear on the next reload because the
+    // database never changed. (That's the "I X'd them off and they came back" bug.)
+    const previous = bookings
     setBookings((prev) => prev.map((b) => (b.id === id ? { ...b, status } : b)))
-    await fetch(`/api/staff/assistant/diary/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
-    })
-    notifyDone(STATUS_DONE[status] ?? 'Updated')
+    let ok = false
+    try {
+      const res = await fetch(`/api/staff/assistant/diary/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      })
+      ok = res.ok
+    } catch {
+      ok = false
+    }
+    if (ok) {
+      notifyDone(STATUS_DONE[status] ?? 'Updated')
+    } else {
+      // Put the booking back exactly as it was and make the failure unmistakable,
+      // so staff know it didn't save and can try again rather than trusting a
+      // change that never happened.
+      setBookings(previous)
+      notifyError("That didn't save — please check your connection and try again.")
+    }
   }
 
   async function signOut() {
