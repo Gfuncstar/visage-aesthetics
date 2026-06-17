@@ -116,6 +116,13 @@ export default function Footer() {
               <div className="eyebrow mb-2" style={{ color: 'rgba(245, 240, 236, 0.45)' }}>Already a client?</div>
               <div className="flex flex-wrap gap-x-5 gap-y-2 text-[13px]">
                 <Link
+                  href="/manage"
+                  className="hover:text-cream transition-colors border-b"
+                  style={{ color: 'rgba(245, 240, 236, 0.85)', borderColor: 'rgba(168, 137, 94, 0.5)' }}
+                >
+                  Manage your appointment
+                </Link>
+                <Link
                   href="/aftercare"
                   className="hover:text-cream transition-colors border-b"
                   style={{ color: 'rgba(245, 240, 236, 0.85)', borderColor: 'rgba(168, 137, 94, 0.5)' }}
