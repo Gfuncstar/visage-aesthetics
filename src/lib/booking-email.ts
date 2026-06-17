@@ -4,6 +4,7 @@
 
 import { buildBroadcastHtml, buildBroadcastText } from './broadcast-email'
 import { londonParts, dayLabel, clockLabel } from './booking-engine/time'
+import { withinChangeCutoff } from './booking-engine/policy'
 
 const SITE = 'https://www.vaclinic.co.uk'
 const ADDRESS = '17A Friars Lane, Braintree, Essex CM7 9BL'
@@ -34,6 +35,13 @@ export function bookingConfirmationEmail(input: {
   const consentLine = input.consentUrl
     ? `\n\n**Before your appointment:** please [complete your consent form here](${input.consentUrl}). It only takes a couple of minutes and saves time when you arrive.`
     : ''
+  // The Rearrange button only works more than 24 hours before the appointment
+  // (the manage page and API both enforce this). For a last-minute booking that
+  // is already inside the 24h window, drop the button and tell them to call.
+  const allowRearrange = !withinChangeCutoff(input.startsAtIso)
+  const changeLine = allowRearrange
+    ? 'If you need to rearrange or cancel, use the button below. Changes can be made up to 24 hours before your appointment.'
+    : `If you need to rearrange or cancel, please call the clinic — as your appointment is within 24 hours, it can no longer be changed online. You can see all your appointments any time at ${SITE}/account.`
   const body = `Hi ${firstName(input.name)},
 
 Your appointment is confirmed. Here are the details:
@@ -42,16 +50,19 @@ Your appointment is confirmed. Here are the details:
 ${whenLine(input.startsAtIso)}
 ${ADDRESS}${consentLine}
 
-If you need to change or cancel, you can [manage your booking here](${manageUrl}).
-
-You can also see all your appointments any time at ${SITE}/account (we email you a private link, no password needed).
+${changeLine}${allowRearrange ? `\n\nYou can also see all your appointments any time at ${SITE}/account (we email you a private link, no password needed).` : ''}
 
 Looking forward to seeing you in clinic.`
-  const opts = { preheader: 'Your appointment is confirmed.', headline: 'You are booked in', body, cta: 'none' as const }
+  const opts = {
+    preheader: 'Your appointment is confirmed.',
+    headline: 'You are booked in',
+    body,
+    ...(allowRearrange ? { ctaCustom: { label: 'Rearrange appointment', url: manageUrl } } : { cta: 'none' as const }),
+  }
   return {
     subject: `Your booking is confirmed: ${input.serviceName}`,
     html: buildBroadcastHtml(opts),
-    text: buildBroadcastText({ headline: opts.headline, body, cta: 'none' }),
+    text: buildBroadcastText({ headline: opts.headline, body, ...(allowRearrange ? { ctaCustom: { label: 'Rearrange appointment', url: manageUrl } } : { cta: 'none' as const }) }),
   }
 }
 
