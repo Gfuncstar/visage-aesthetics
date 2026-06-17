@@ -7,6 +7,7 @@ import HideOnStaff from '@/components/layout/HideOnStaff'
 import RevealRoot from '@/components/ui/Reveal'
 import FloatingWhatsApp from '@/components/ui/FloatingWhatsApp'
 import StickyBookingBar from '@/components/layout/StickyBookingBar'
+import { CLINIC, addressSchema } from '@/lib/clinic'
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -74,18 +75,11 @@ const jsonLd = {
   name: 'Visage Aesthetics',
   url: 'https://www.vaclinic.co.uk',
   description: 'Private, discreet nurse-led aesthetics clinic in Braintree, Essex — no signage on the building, private parking, one client at a time. Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex.',
-  address: {
-    '@type': 'PostalAddress',
-    streetAddress: '17A Friars Lane',
-    addressLocality: 'Braintree',
-    addressRegion: 'Essex',
-    postalCode: 'CM7 9BL',
-    addressCountry: 'GB',
-  },
-  geo: { '@type': 'GeoCoordinates', latitude: 51.885914, longitude: 0.555411 },
-  email: 'info@vaclinic.co.uk',
-  telephone: '+44 7931 395246',
-  openingHours: ['Tu-Sa 09:00-18:00'],
+  address: addressSchema,
+  geo: { '@type': 'GeoCoordinates', latitude: CLINIC.latitude, longitude: CLINIC.longitude },
+  email: CLINIC.email,
+  telephone: CLINIC.telephone,
+  openingHours: CLINIC.openingHoursSchema,
   medicalSpecialty: 'Aesthetic Medicine',
   award: [
     'Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards)',

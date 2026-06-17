@@ -2,6 +2,7 @@ import { treatments } from '@/lib/treatments'
 import { geoPages } from '@/lib/geo-pages'
 import { blogPostsByDate } from '@/lib/blog-posts'
 import { AWARD } from '@/lib/award'
+import { CLINIC } from '@/lib/clinic'
 
 const SITE = 'https://www.vaclinic.co.uk'
 
@@ -40,6 +41,16 @@ export async function GET() {
   push(`- [Contact / Visit](${SITE}/contact): Friars Lane, Braintree (CM7 9BL), strictly by appointment.`)
   push(`- [FAQ](${SITE}/faq): Common questions about treatments, safety, recovery.`)
   push(`- [Aftercare](${SITE}/aftercare): Post-treatment guidance across every service.`)
+  push()
+
+  // Contact (plain-text NAP so engines can quote it without following a link)
+  push('## Contact')
+  push(`- Clinic: ${CLINIC.name}`)
+  push(`- Address: ${CLINIC.addressLine}, United Kingdom`)
+  push(`- Phone / WhatsApp: ${CLINIC.telephone}`)
+  push(`- Email: ${CLINIC.email}`)
+  push(`- Hours: ${CLINIC.openingHoursHuman}`)
+  push(`- Booking: ${SITE}/book-online (free consultation; discreet entrance and private parking on site)`)
   push()
 
   // Treatments
