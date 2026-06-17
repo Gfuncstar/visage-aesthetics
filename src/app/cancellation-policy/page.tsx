@@ -44,7 +44,7 @@ export default function CancellationPolicyPage() {
 
           <h2 className="font-display text-2xl md:text-3xl text-charcoal mt-10 mb-4">Consultations</h2>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-            Consultations are always free. There is no booking fee and no obligation to proceed, so you are welcome to rearrange whenever you need to.
+            Consultations are always free, with no booking fee and no obligation to proceed. We do ask for at least 24 hours&apos; notice if you need to rearrange — consultations cannot be rearranged with less than 24 hours&apos; notice.
           </p>
 
           <h2 className="font-display text-2xl md:text-3xl text-charcoal mt-10 mb-4">Running late</h2>
