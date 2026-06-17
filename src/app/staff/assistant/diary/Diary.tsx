@@ -36,7 +36,10 @@ type Booking = {
 type TimeOff = { id: string; starts_at: string; ends_at: string; reason: string | null }
 type Service = { slug: string; name: string; duration_min: number }
 type WaitlistEntry = { id: string; client_name: string; service_name: string | null; client_phone: string | null; preferred_note: string | null }
-type BusinessHours = { weekday: number; is_open: boolean; open_min: number; close_min: number }
+type OpeningWindow = { open_min: number; close_min: number }
+// Opening windows keyed by weekday (0=Sun..6=Sat). A weekday can have several
+// windows (a split day), or none when the clinic is closed that day.
+type WindowMap = Record<number, OpeningWindow[]>
 type Interval = { start: number; end: number }
 
 const TZ = 'Europe/London'
@@ -179,31 +182,40 @@ function subtractIntervals(free: Interval[], busy: Interval[]): Interval[] {
   }
   return result
 }
-function dayFreeGaps(day: string, allBookings: Booking[], allTimeOff: TimeOff[], bh: BusinessHours[]): Interval[] {
-  const wday = new Date(`${day}T12:00:00Z`).getUTCDay()
-  const hours = bh.find((h) => h.weekday === wday)
-  // Sort all busy items together
-  const allBusy = [
+// Merge overlapping/touching intervals into a tidy, sorted set.
+function mergeIntervals(intervals: Interval[]): Interval[] {
+  const sorted = [...intervals].sort((a, b) => a.start - b.start)
+  const out: Interval[] = []
+  for (const iv of sorted) {
+    const last = out[out.length - 1]
+    if (last && iv.start <= last.end) last.end = Math.max(last.end, iv.end)
+    else out.push({ ...iv })
+  }
+  return out
+}
+// The opening windows for the weekday a date falls on, as {start,end} intervals
+// (empty when the clinic is closed that day).
+function winsForDay(day: string, windows: WindowMap): Interval[] {
+  return (windows[new Date(`${day}T12:00:00Z`).getUTCDay()] ?? []).map((w) => ({ start: w.open_min, end: w.close_min }))
+}
+function busyForDay(day: string, allBookings: Booking[], allTimeOff: TimeOff[]): Interval[] {
+  return [
     ...allBookings.filter((b) => localDate(b.starts_at) === day).map((b) => ({ start: toLocalMin(b.starts_at), end: toLocalMin(b.ends_at) })),
     ...allTimeOff.filter((t) => localDate(t.starts_at) === day).map((t) => ({ start: toLocalMin(t.starts_at), end: toLocalMin(t.ends_at) })),
   ].sort((a, b) => a.start - b.start)
-  if (allBusy.length === 0) return []
+}
+function dayFreeGaps(day: string, allBookings: Booking[], allTimeOff: TimeOff[], windows: WindowMap): Interval[] {
+  const wins = winsForDay(day, windows)
+  const allBusy = busyForDay(day, allBookings, allTimeOff)
   const gaps: Interval[] = []
-  // Gap before first booking — only if business hours are known
-  if (hours?.is_open && hours.open_min < allBusy[0].start && allBusy[0].start - hours.open_min >= 15) {
-    gaps.push({ start: hours.open_min, end: allBusy[0].start })
-  }
-  // Gaps between bookings — always computed, no business hours needed
+  // Open-but-unbooked time inside each opening window (handles split days).
+  if (wins.length) gaps.push(...subtractIntervals(wins, allBusy))
+  // Gaps strictly between two bookings — always shown, even outside set hours,
+  // so a one-off appointment booked off-hours still reveals the space around it.
   for (let i = 0; i < allBusy.length - 1; i++) {
-    const gapStart = allBusy[i].end
-    const gapEnd = allBusy[i + 1].start
-    if (gapEnd - gapStart >= 15) gaps.push({ start: gapStart, end: gapEnd })
+    if (allBusy[i + 1].start > allBusy[i].end) gaps.push({ start: allBusy[i].end, end: allBusy[i + 1].start })
   }
-  // Gap after last booking — only if business hours are known
-  if (hours?.is_open && allBusy[allBusy.length - 1].end < hours.close_min && hours.close_min - allBusy[allBusy.length - 1].end >= 15) {
-    gaps.push({ start: allBusy[allBusy.length - 1].end, end: hours.close_min })
-  }
-  return gaps
+  return mergeIntervals(gaps).filter((g) => g.end - g.start >= 15)
 }
 function gapClock(min: number): string {
   const h = Math.floor(min / 60), m = min % 60
@@ -219,16 +231,13 @@ function freeShort(mins: number): string {
   const h = Math.floor(mins / 60), m = mins % 60
   return h > 0 ? `${h}h` : `${m}m`
 }
-// Total open-but-unbooked minutes on a day (≥15-min gaps only).
-function dayFreeMins(day: string, bookings: Booking[], allTimeOff: TimeOff[], bh: BusinessHours[]): number {
-  const wday = new Date(`${day}T12:00:00Z`).getUTCDay()
-  const hours = bh.find((h) => h.weekday === wday)
-  if (!hours?.is_open) return 0
-  const busy: Interval[] = [
-    ...bookings.filter((b) => localDate(b.starts_at) === day).map((b) => ({ start: toLocalMin(b.starts_at), end: toLocalMin(b.ends_at) })),
-    ...allTimeOff.filter((t) => localDate(t.starts_at) === day).map((t) => ({ start: toLocalMin(t.starts_at), end: toLocalMin(t.ends_at) })),
-  ]
-  return subtractIntervals([{ start: hours.open_min, end: hours.close_min }], busy)
+// Total open-but-unbooked minutes on a day (≥15-min gaps only), across every
+// opening window — so a split day counts both its sessions.
+function dayFreeMins(day: string, bookings: Booking[], allTimeOff: TimeOff[], windows: WindowMap): number {
+  const wins = winsForDay(day, windows)
+  if (!wins.length) return 0
+  const busy = busyForDay(day, bookings, allTimeOff)
+  return subtractIntervals(wins, busy)
     .filter((g) => g.end - g.start >= 15)
     .reduce((s, g) => s + (g.end - g.start), 0)
 }
@@ -243,7 +252,7 @@ function monthGridDays(ds: string): (string | null)[] {
 }
 const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
-function MonthGrid({ date, bookings, timeOff, businessHours, onPick }: { date: string; bookings: Booking[]; timeOff: TimeOff[]; businessHours: BusinessHours[]; onPick: (day: string) => void }) {
+function MonthGrid({ date, bookings, timeOff, windows, onPick }: { date: string; bookings: Booking[]; timeOff: TimeOff[]; windows: WindowMap; onPick: (day: string) => void }) {
   const cells = monthGridDays(date)
   const today = todayStr()
   return (
@@ -256,10 +265,9 @@ function MonthGrid({ date, bookings, timeOff, businessHours, onPick }: { date: s
       <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
         {cells.map((day, i) => {
           if (!day) return <div key={`blank-${i}`} />
-          const wday = new Date(`${day}T12:00:00Z`).getUTCDay()
-          const isOpen = businessHours.find((h) => h.weekday === wday)?.is_open ?? false
+          const isOpen = winsForDay(day, windows).length > 0
           const count = bookings.filter((b) => localDate(b.starts_at) === day).length
-          const free = dayFreeMins(day, bookings, timeOff, businessHours)
+          const free = dayFreeMins(day, bookings, timeOff, windows)
           const isToday = day === today
           const dayNum = Number(day.slice(8, 10))
           let tone = 'border-sage/30 bg-sage/[0.05]'
@@ -296,7 +304,7 @@ export default function Diary() {
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([])
   const [services, setServices] = useState<Service[]>([])
   const [loading, setLoading] = useState(true)
-  const [businessHours, setBusinessHours] = useState<BusinessHours[]>([])
+  const [windows, setWindows] = useState<WindowMap>({})
   const [adding, setAdding] = useState<'booking' | 'time_off' | 'hours' | null>(null)
   const [consentMissing, setConsentMissing] = useState<Set<string> | null>(null)
   const [consentOnFile, setConsentOnFile] = useState<Set<string> | null>(null)
@@ -313,7 +321,7 @@ export default function Diary() {
       setBookings(d.bookings ?? [])
       setTimeOff(d.timeOff ?? [])
       setWaitlist(d.waitlist ?? [])
-      if (d.businessHours) setBusinessHours(d.businessHours)
+      if (d.windows) setWindows(d.windows)
     }
     setLoading(false)
   }, [])
@@ -417,14 +425,14 @@ export default function Diary() {
 
         {adding === 'booking' && <AddBooking date={date} services={services} onDone={() => { setAdding(null); reload() }} />}
         {adding === 'time_off' && <BlockTime date={date} onDone={() => { setAdding(null); reload() }} />}
-        {adding === 'hours' && <EditHours initialHours={businessHours} onDone={() => { setAdding(null); reload() }} />}
+        {adding === 'hours' && <EditHours initialWindows={windows} onDone={() => { setAdding(null); reload() }} />}
 
         {loading ? (
           <p className="text-sm text-ink-soft">Loading…</p>
         ) : view === 'month' ? (
           <div className="space-y-3">
             <div className="eyebrow text-gold">{live.length} booked this month</div>
-            <MonthGrid date={date} bookings={live} timeOff={timeOff} businessHours={businessHours} onPick={(day) => { setDate(day); setView('day') }} />
+            <MonthGrid date={date} bookings={live} timeOff={timeOff} windows={windows} onPick={(day) => { setDate(day); setView('day') }} />
           </div>
         ) : view === 'week' ? (
           <div className="space-y-4">
@@ -441,7 +449,7 @@ export default function Diary() {
                   <DayTakingsCard day={day} bookings={dayB} nowMin={nowMin} />
                   <DayComplianceCard day={day} bookings={dayB} nowMin={nowMin} />
                   {dayB.length || dayT.length ? (() => {
-                    const gaps = dayFreeGaps(day, live, timeOff, businessHours)
+                    const gaps = dayFreeGaps(day, live, timeOff, windows)
                     const sorted = [
                       ...dayB.map((b) => ({ t: 'b' as const, b, min: toLocalMin(b.starts_at) })),
                       ...dayT.map((t) => ({ t: 'to' as const, to: t, min: toLocalMin(t.starts_at) })),
@@ -476,7 +484,7 @@ export default function Diary() {
             <DayTakingsCard day={date} bookings={live} nowMin={nowMin} />
             <DayComplianceCard day={date} bookings={live} nowMin={nowMin} />
             {(() => {
-              const gaps = dayFreeGaps(date, live, timeOff, businessHours)
+              const gaps = dayFreeGaps(date, live, timeOff, windows)
               const sorted = [
                 ...live.map((b) => ({ t: 'b' as const, b, min: toLocalMin(b.starts_at) })),
                 ...timeOff.map((t) => ({ t: 'to' as const, to: t, min: toLocalMin(t.starts_at) })),
@@ -584,31 +592,63 @@ function AddBooking({ date, services, onDone }: { date: string; services: Servic
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0]
 
-function EditHours({ initialHours, onDone }: { initialHours: BusinessHours[]; onDone: () => void }) {
-  const [rows, setRows] = useState<BusinessHours[]>(() =>
-    Array.from({ length: 7 }, (_, i) => initialHours.find((h) => h.weekday === i) ?? { weekday: i, is_open: false, open_min: 540, close_min: 1020 })
+function EditHours({ initialWindows, onDone }: { initialWindows: WindowMap; onDone: () => void }) {
+  // One editable list of sessions per weekday (index 0=Sun..6=Sat). An empty
+  // list means closed; several entries mean a split day (e.g. a morning clinic
+  // and an evening session with a break between).
+  const [days, setDays] = useState<OpeningWindow[][]>(() =>
+    Array.from({ length: 7 }, (_, wd) => (initialWindows[wd] ?? []).map((w) => ({ ...w })))
   )
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
 
-  function patch(weekday: number, changes: Partial<BusinessHours>) {
-    setRows((prev) => prev.map((r) => (r.weekday === weekday ? { ...r, ...changes } : r)))
+  function setWins(wd: number, wins: OpeningWindow[]) {
+    setDays((prev) => prev.map((d, i) => (i === wd ? wins : d)))
+    setSaved(false); setErr(null)
+  }
+  function toggleOpen(wd: number) {
+    const wins = days[wd]
+    setWins(wd, wins.length ? [] : [{ open_min: 600, close_min: 1020 }])
+  }
+  function editWin(wd: number, idx: number, patch: Partial<OpeningWindow>) {
+    setWins(wd, days[wd].map((w, i) => (i === idx ? { ...w, ...patch } : w)))
+  }
+  function addWin(wd: number) {
+    const last = days[wd][days[wd].length - 1]
+    // Start the next session after the previous one ends (a break between), or
+    // default a first session to a 10–5 day.
+    const open = last ? Math.min(last.close_min + 60, 1380) : 600
+    setWins(wd, [...days[wd], { open_min: open, close_min: Math.min(open + 120, 1440) }])
+  }
+  function removeWin(wd: number, idx: number) {
+    setWins(wd, days[wd].filter((_, i) => i !== idx))
   }
 
   async function save() {
+    // Validate every day before sending anything.
+    for (const wd of WEEK_ORDER) {
+      const wins = [...days[wd]].sort((a, b) => a.open_min - b.open_min)
+      for (const w of wins) {
+        if (w.close_min <= w.open_min) { setErr(`${DAY_NAMES[wd]}: each session must close after it opens.`); return }
+      }
+      for (let i = 1; i < wins.length; i++) {
+        if (wins[i].open_min < wins[i - 1].close_min) { setErr(`${DAY_NAMES[wd]}: those sessions overlap — give each a separate time.`); return }
+      }
+    }
     setBusy(true); setErr(null)
     try {
       await Promise.all(
-        rows.map((r) =>
+        days.map((wins, wd) =>
           fetch('/api/staff/assistant/business-hours', {
-            method: 'PATCH',
+            method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(r),
+            body: JSON.stringify({ weekday: wd, windows: [...wins].sort((a, b) => a.open_min - b.open_min) }),
           })
         )
       )
       setSaved(true)
+      notifyDone('Working hours saved')
       setTimeout(() => { setSaved(false); onDone() }, 900)
     } catch {
       setErr('Could not save. Please try again.')
@@ -619,47 +659,68 @@ function EditHours({ initialHours, onDone }: { initialHours: BusinessHours[]; on
   return (
     <div className="border border-gold/40 bg-gold/5 rounded-sm p-4 mb-5">
       <div className="eyebrow text-gold mb-3">Working hours</div>
-      <div className="space-y-2">
+      <div className="space-y-3">
         {WEEK_ORDER.map((wd) => {
-          const row = rows[wd]
+          const wins = days[wd]
+          const open = wins.length > 0
           return (
-            <div key={wd} className="flex items-center gap-2.5 flex-wrap">
-              <span className="text-sm text-charcoal w-24 shrink-0">{DAY_NAMES[wd]}</span>
-              <button
-                onClick={() => patch(wd, { is_open: !row.is_open })}
-                className={`text-xs rounded-full px-3 py-1 border transition-colors shrink-0 ${row.is_open ? 'border-sage/60 bg-sage/10 text-sage' : 'border-line/50 bg-cream text-stone hover:border-gold/50'}`}
-              >
-                {row.is_open ? 'Open' : 'Closed'}
-              </button>
-              {row.is_open && (
-                <>
-                  <input
-                    type="time"
-                    value={minToTime(row.open_min)}
-                    onChange={(e) => patch(wd, { open_min: timeToMinutes(e.target.value) })}
-                    className="bg-cream border border-line rounded-sm px-2.5 py-1.5 text-sm w-28"
-                  />
-                  <span className="text-xs text-stone">to</span>
-                  <input
-                    type="time"
-                    value={minToTime(row.close_min)}
-                    onChange={(e) => patch(wd, { close_min: timeToMinutes(e.target.value) })}
-                    className="bg-cream border border-line rounded-sm px-2.5 py-1.5 text-sm w-28"
-                  />
-                </>
+            <div key={wd} className="border-b border-line/30 last:border-0 pb-3 last:pb-0">
+              <div className="flex items-center gap-2.5">
+                <span className="text-sm text-charcoal w-24 shrink-0">{DAY_NAMES[wd]}</span>
+                <button
+                  onClick={() => toggleOpen(wd)}
+                  className={`text-xs rounded-full px-3 py-1 border transition-colors shrink-0 ${open ? 'border-sage/60 bg-sage/10 text-sage' : 'border-line/50 bg-cream text-stone hover:border-gold/50'}`}
+                >
+                  {open ? 'Open' : 'Closed'}
+                </button>
+              </div>
+              {open && (
+                <div className="mt-2 space-y-2 sm:pl-[6.5rem]">
+                  {wins.map((w, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <input
+                        type="time"
+                        value={minToTime(w.open_min)}
+                        onChange={(e) => editWin(wd, idx, { open_min: timeToMinutes(e.target.value) })}
+                        className="bg-cream border border-line rounded-sm px-2.5 py-1.5 text-sm w-28"
+                      />
+                      <span className="text-xs text-stone">to</span>
+                      <input
+                        type="time"
+                        value={minToTime(w.close_min)}
+                        onChange={(e) => editWin(wd, idx, { close_min: timeToMinutes(e.target.value) })}
+                        className="bg-cream border border-line rounded-sm px-2.5 py-1.5 text-sm w-28"
+                      />
+                      <button
+                        onClick={() => removeWin(wd, idx)}
+                        aria-label="Remove this session"
+                        title="Remove this session"
+                        className="inline-flex items-center justify-center w-8 h-8 rounded-sm border border-line/40 text-ink-soft hover:border-clay hover:text-clay transition-colors shrink-0"
+                      >
+                        <X size={14} strokeWidth={2} />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => addWin(wd)}
+                    className="inline-flex items-center gap-1.5 text-xs text-gold-deep hover:text-charcoal transition-colors"
+                  >
+                    <Plus size={13} strokeWidth={2} /> Add a session
+                  </button>
+                </div>
               )}
             </div>
           )
         })}
       </div>
-      {err && <p className="text-xs text-clay mt-2">{err}</p>}
+      {err && <p className="text-xs text-clay mt-3">{err}</p>}
       <div className="flex items-center gap-2 mt-4">
         <button onClick={save} disabled={busy || saved} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 38 }}>
           {saved ? 'Saved ✓' : busy ? 'Saving…' : 'Save working hours'}
         </button>
         <button onClick={onDone} className="btn btn-secondary" style={{ minHeight: 38 }}>Cancel</button>
       </div>
-      <p className="text-xs text-ink-soft mt-1.5 leading-snug">Changes take effect immediately. Clients will see the updated availability.</p>
+      <p className="text-xs text-ink-soft mt-1.5 leading-snug">Open a day, then add a session for each block you work — split a day into, say, a morning and an evening with a break between. Changes take effect immediately; clients see the updated availability.</p>
     </div>
   )
 }
