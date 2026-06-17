@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { treatments } from '@/lib/treatments'
 import { geoPages } from '@/lib/geo-pages'
+import { conditions } from '@/lib/conditions'
 
 const SITE = 'https://www.vaclinic.co.uk'
 
@@ -54,6 +55,10 @@ const PAGE_DATES: Record<string, string> = {
   '/great-dunmow-profhilo': '2026-05-14',
   '/about/qualifications': '2026-04-26',
   '/author/bernadette-tobin': '2026-04-26',
+  // Condition-led answer pages
+  '/conditions/excessive-sweating': '2026-06-17',
+  '/conditions/chronic-migraine': '2026-06-17',
+  '/conditions/mole-check': '2026-06-17',
   '/blog/botox-vs-filler': '2026-04-26',
   '/blog/how-long-does-profhilo-last': '2026-04-26',
   '/blog/what-is-a-nurse-led-clinic': '2026-04-26',
@@ -150,6 +155,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: dateOf(g.href),
   }))
 
+  const conditionRoutes: MetadataRoute.Sitemap = conditions.map((c) => ({
+    url: `${SITE}${c.href}`,
+    changeFrequency: 'monthly',
+    priority: 0.8,
+    lastModified: dateOf(c.href),
+  }))
+
   const blogRoutes: MetadataRoute.Sitemap = [
     'first-botox-appointment',
     'natural-looking-filler',
@@ -195,5 +207,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: dateOf(`/blog/${slug}`),
   }))
 
-  return [...staticRoutes, ...treatmentRoutes, ...geoRoutes, ...blogRoutes]
+  return [...staticRoutes, ...treatmentRoutes, ...geoRoutes, ...conditionRoutes, ...blogRoutes]
 }

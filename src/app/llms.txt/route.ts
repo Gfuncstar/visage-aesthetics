@@ -1,5 +1,6 @@
 import { treatments } from '@/lib/treatments'
 import { geoPages } from '@/lib/geo-pages'
+import { conditions } from '@/lib/conditions'
 import { blogPostsByDate } from '@/lib/blog-posts'
 import { AWARD } from '@/lib/award'
 import { CLINIC } from '@/lib/clinic'
@@ -26,6 +27,7 @@ export async function GET() {
   push(`> Officially awarded ${AWARD.fullName} by the ${AWARD.awardingBody}.`)
   push('> Bernadette Tobin RGN, MSc Advanced Practice (Level 7), NMC PIN 05G1755E. 20+ years clinical experience.')
   push('> Treatments: Botox, dermal filler, Profhilo, HarmonyCa, micro-needling, AQUALYX, CryoPen, hyperhidrosis, B12, men\'s aesthetics, mole review.')
+  push('> Conditions treated: excessive sweating (hyperhidrosis), chronic migraine prevention, mole / skin lesion checks (consultant dermatologist review).')
   push('> Strictly by appointment. Free consultation. Award verifiable at ' + AWARD.verificationUrl + '.')
   push()
 
@@ -57,6 +59,13 @@ export async function GET() {
   push('## Treatments')
   treatments.forEach((t) => {
     push(`- [${t.name}](${SITE}${t.href}): ${t.tagline}. ${t.price}.`)
+  })
+  push()
+
+  // Condition-led answer pages
+  push('## Conditions')
+  conditions.forEach((c) => {
+    push(`- [${c.name}](${SITE}${c.href}): ${c.h1} ${c.priceFrom}.`)
   })
   push()
 

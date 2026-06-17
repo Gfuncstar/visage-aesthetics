@@ -6,6 +6,7 @@ import BookingCTA from '@/components/sections/BookingCTA'
 import VideoBandUSP from '@/components/sections/VideoBandUSP'
 import TreatmentFinder from '@/components/sections/TreatmentFinder'
 import { treatments } from '@/lib/treatments'
+import { conditions } from '@/lib/conditions'
 import { BOOKING_URL } from '@/lib/booking'
 
 export const metadata: Metadata = {
@@ -74,6 +75,26 @@ export default function TreatmentsPage() {
                     <ArrowUpRight size={16} strokeWidth={1.5} className="text-gold" />
                   </span>
                 </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CONDITIONS WE TREAT — condition-led answer pages */}
+      <section className="bg-cream-soft py-7 md:py-10">
+        <div className="max-w-[1280px] mx-auto px-5 md:px-8">
+          <span className="hairline hairline-left mb-6" />
+          <div className="text-eyebrow text-gold mb-3">Conditions we treat</div>
+          <h2 className="font-display text-h1 text-charcoal max-w-2xl">Looking for help with something specific?</h2>
+          <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-px bg-line/30 border border-line/30">
+            {conditions.map((c) => (
+              <Link key={c.slug} href={c.href} className="group bg-cream hover:bg-cream-soft transition-colors p-6 md:p-7">
+                <h3 className="font-display text-xl text-charcoal group-hover:text-gold transition-colors">{c.name}</h3>
+                <p className="mt-2 text-sm text-ink-soft leading-relaxed">{c.h1}</p>
+                <span className="mt-4 inline-flex items-center gap-1.5 text-gold" style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 500 }}>
+                  Read more <ArrowUpRight size={13} strokeWidth={1.5} />
+                </span>
               </Link>
             ))}
           </div>

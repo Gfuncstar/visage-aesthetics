@@ -13,6 +13,7 @@ import { treatments, type Treatment } from '@/lib/treatments'
 import { BOOKING_LINK_PROPS } from '@/lib/booking'
 import { geoPages } from '@/lib/geo-pages'
 import { getGoogleReviews } from '@/lib/google-reviews'
+import { referencesForTreatment } from '@/lib/treatment-references'
 
 export type TreatmentImage = { src: string; alt: string; width: number; height: number }
 
@@ -71,6 +72,11 @@ export default async function TreatmentTemplate({
   // Geo pages that target this exact treatment family
   const travellingFrom = geoPages.filter((g) => g.treatmentSlug === treatment.slug)
 
+  // Independent clinical references for this treatment — cited in schema and
+  // surfaced visibly so the safety/mechanism claims are grounded in sources
+  // answer engines already trust (NHS, MHRA, NICE, BAD, JCCP).
+  const references = referencesForTreatment(treatment.slug)
+
   const provider: Record<string, unknown> = {
     '@type': 'MedicalBusiness',
     name: 'Visage Aesthetics',
@@ -128,6 +134,12 @@ export default async function TreatmentTemplate({
           url: `https://www.vaclinic.co.uk${treatment.href}`,
         },
         provider,
+        citation: references.map((r) => ({
+          '@type': 'CreativeWork',
+          name: r.title,
+          url: r.url,
+          publisher: { '@type': 'Organization', name: r.publisher },
+        })),
       },
       {
         '@type': 'Service',
@@ -543,6 +555,43 @@ export default async function TreatmentTemplate({
           <p className="mt-6 text-eyebrow text-ink-soft">Bernadette Tobin · RN, MSc</p>
         </div>
       </section>
+
+      {/* REFERENCES & FURTHER READING — independent clinical authorities.
+          Grounds the page's safety/mechanism claims in sources answer
+          engines already trust; mirrored in the MedicalProcedure schema. */}
+      {references.length > 0 && (
+        <section className="py-6 md:py-9">
+          <div className="max-w-[1100px] mx-auto px-5 md:px-8">
+            <span className="hairline hairline-left mb-6" />
+            <div className="text-eyebrow text-gold mb-3">References &amp; further reading</div>
+            <h2 className="font-display text-h2 text-charcoal max-w-2xl">Independent, regulated sources.</h2>
+            <p className="mt-4 text-body text-ink-soft max-w-2xl">
+              The guidance on this page is grounded in recognised UK clinical and regulatory authorities. We link them so you can check anything independently.
+            </p>
+            <ul className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4">
+              {references.map((r) => (
+                <li key={r.url} className="border-b border-line/30 pb-4">
+                  <a
+                    href={r.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-start gap-2 text-charcoal hover:text-gold-deep transition-colors"
+                  >
+                    <ArrowUpRight size={15} strokeWidth={1.5} className="text-gold mt-1 shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    <span className="text-body leading-snug">
+                      {r.title}
+                      <span className="block text-stone mt-1" style={{ fontSize: 11.5, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{r.publisher}</span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-7 text-stone" style={{ fontSize: 11.5, lineHeight: 1.5 }}>
+              External links are provided for information only and do not imply endorsement. Always discuss your own circumstances at consultation.
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* RELATED */}
       <section className="bg-cream-soft py-6 md:py-9">

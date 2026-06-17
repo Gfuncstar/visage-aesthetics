@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { ArrowUpRight } from 'lucide-react'
 import Accordion, { type AccordionItem } from '@/components/ui/Accordion'
 import BookingCTA from '@/components/sections/BookingCTA'
 
@@ -140,6 +141,46 @@ export default function FAQPage() {
           </div>
         </section>
       ))}
+
+      {/* ACCREDITATION & REGULATION — name and link the bodies so the claims
+          are independently verifiable (strongest citation-authority signal). */}
+      <section className="py-7 md:py-10 border-t border-line/20">
+        <div className="max-w-[1280px] mx-auto px-5 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
+          <div className="md:col-span-4">
+            <span className="hairline hairline-left mb-6" />
+            <div className="text-eyebrow text-gold mb-3">Accreditation &amp; regulation</div>
+            <h2 className="font-display text-h1 text-charcoal">Check it yourself.</h2>
+            <p className="mt-5 text-body text-ink-soft max-w-sm">
+              Every claim on this page is verifiable. Bernadette is a registered nurse, a member of the Royal College of Nursing, and works to the standards set by the Joint Council for Cosmetic Practitioners.
+            </p>
+          </div>
+          <div className="md:col-span-8">
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-4">
+              {[
+                { title: 'Verify the NMC registration (PIN 05G1755E)', publisher: 'Nursing and Midwifery Council', url: 'https://www.nmc.org.uk/registration/search-the-register/' },
+                { title: 'Royal College of Nursing — professional membership', publisher: 'Royal College of Nursing (RCN)', url: 'https://www.rcn.org.uk/' },
+                { title: 'Joint Council for Cosmetic Practitioners — standards we work to', publisher: 'JCCP', url: 'https://www.jccp.org.uk/' },
+                { title: 'NHS — choosing who does your cosmetic procedure safely', publisher: 'NHS', url: 'https://www.nhs.uk/conditions/cosmetic-procedures/' },
+              ].map((r) => (
+                <li key={r.url} className="border-b border-line/30 pb-4">
+                  <a
+                    href={r.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-start gap-2 text-charcoal hover:text-gold-deep transition-colors"
+                  >
+                    <ArrowUpRight size={15} strokeWidth={1.5} className="text-gold mt-1 shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    <span className="text-body leading-snug">
+                      {r.title}
+                      <span className="block text-stone mt-1" style={{ fontSize: 11.5, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{r.publisher}</span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
 
       <BookingCTA />
     </>

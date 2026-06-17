@@ -30,9 +30,35 @@ const callIf = [
   'Asymmetry that has not settled after 14 days.',
 ]
 
+// HowTo schema — the aftercare steps are already procedural, so we mark them
+// up so answer engines can surface them as a step-based "how to" result.
+const howToJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: 'How to care for your skin after an aesthetic treatment',
+  description:
+    'Standard aftercare for non-surgical aesthetic treatments at Visage Aesthetics, Braintree — what to do in the first 48 hours and what to avoid in the first 24 hours.',
+  totalTime: 'P2D',
+  step: [
+    ...dos.map((text, i) => ({
+      '@type': 'HowToStep',
+      position: i + 1,
+      name: text.replace(/\.$/, ''),
+      text,
+    })),
+    ...donts.map((text, i) => ({
+      '@type': 'HowToStep',
+      position: dos.length + i + 1,
+      name: text.replace(/\.$/, ''),
+      text,
+    })),
+  ],
+}
+
 export default function AftercarePage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }} />
       <section className="bg-cream text-charcoal pt-24 md:pt-28 pb-8 md:pb-12 relative overflow-hidden">
         <div className="arc-bg" aria-hidden />
         <div className="max-w-[1280px] mx-auto px-5 md:px-8 relative">
