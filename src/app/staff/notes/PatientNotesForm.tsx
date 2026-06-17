@@ -26,6 +26,7 @@ type FormValues = {
   productUsed: string
   lotNoExp: string
   dosage: string
+  consultationDone: boolean
   beforePhotosTaken: boolean
   problemsNoted: YesNo
   aftercareProvided: boolean
@@ -67,6 +68,7 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
       name: prefillName,
       dateOfTreatment: prefillDate || today,
       dateSigned: today,
+      consultationDone: false,
       beforePhotosTaken: false,
       problemsNoted: 'No',
       aftercareProvided: false,
@@ -78,6 +80,7 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
     setServerError(null)
     const payload = {
       ...values,
+      consultationDone: values.consultationDone ? 'Yes' : 'No',
       beforePhotosTaken: values.beforePhotosTaken ? 'Yes' : 'No',
       aftercareProvided: values.aftercareProvided ? 'Yes' : 'No',
     }
@@ -98,6 +101,7 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
     reset({
       dateOfTreatment: today,
       dateSigned: today,
+      consultationDone: false,
       beforePhotosTaken: false,
       problemsNoted: 'No',
       aftercareProvided: false,
@@ -238,9 +242,15 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <CheckboxField label="Photo taken" name="beforePhotosTaken" register={register} />
-            <CheckboxField label="Aftercare given" name="aftercareProvided" register={register} />
+          <div>
+            <span className="text-eyebrow text-ink-soft mb-3 block">
+              Checklist <span className="text-stone normal-case tracking-normal">(optional — none required to save)</span>
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <CheckboxField label="Consultation done" name="consultationDone" register={register} />
+              <CheckboxField label="Photographs taken" name="beforePhotosTaken" register={register} />
+              <CheckboxField label="Aftercare sent" name="aftercareProvided" register={register} />
+            </div>
           </div>
           <YesNoField label="Any problems / abnormality noted by practitioner or voiced by client" name="problemsNoted" register={register} />
           <YesNoField label="Emergency contact details provided" name="emergencyContactProvided" register={register} />
