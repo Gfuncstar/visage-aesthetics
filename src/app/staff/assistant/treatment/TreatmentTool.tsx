@@ -295,21 +295,31 @@ export default function TreatmentTool() {
     setSendResult(null)
     setCopied(false)
     setAiNextSteps([])
-    // For a consultation, rewrite the follow-up email in Bernadette's voice from
-    // the fields straight away, so it is ready to send without a second step.
-    if (isConsult && clientName.trim()) void enhanceConsultationEmail()
+    // Rewrite the email in Bernadette's voice straight away so it is ready to
+    // send without a second step. For a consultation this summarises what was
+    // discussed; for a treatment it summarises today's visit from the notes.
+    // Skip the AI call for a treatment with no notes to summarise — the
+    // deterministic aftercare email stands on its own there.
+    if (clientName.trim() && (isConsult || notes.trim())) void enhanceFollowupEmail()
     setTimeout(() => {
       document.getElementById('outputs')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }, 50)
   }
 
-  async function enhanceConsultationEmail() {
+  async function enhanceFollowupEmail() {
     setAiEnhancing(true)
     try {
-      const res = await fetch('/api/staff/assistant/consultation-ai', {
+      // Give the model the specifics of what was done so the summary is concrete:
+      // the areas (with doses where they apply) and the product used.
+      const unit = type.unit === 'units' ? 'units' : type.unit === 'ml' ? 'ml' : ''
+      const areaText = areas.length
+        ? areas.map((a) => (unit ? `${a.area} ${a.dose} ${unit}` : a.area)).join(', ')
+        : ''
+      const details = [areaText, product.trim()].filter(Boolean).join(' · ')
+      const res = await fetch('/api/staff/assistant/followup-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clientName, interest, notes, date }),
+        body: JSON.stringify({ clientName, treatmentTypeId: typeId, interest, notes, details, date }),
       })
       const data = await res.json() as { ok?: boolean; email?: { subject: string; body: string }; next_steps?: string[] }
       if (res.ok && data.email) {
@@ -776,7 +786,7 @@ export default function TreatmentTool() {
           >
             <span className="inline-flex items-center gap-3">
               <Sparkles size={15} strokeWidth={1.75} />
-              {isConsult ? 'Generate note & follow-up email' : 'Generate clinical note'}
+              {isConsult ? 'Generate note & follow-up email' : 'Generate note & summary email'}
             </span>
             <span className="btn-arrow">→</span>
           </button>
@@ -785,7 +795,7 @@ export default function TreatmentTool() {
               Drafts the follow-up email in Bernadette’s voice from your notes — you can review, edit and send it below.
             </p>
           ) : (
-            <p className="text-xs text-ink-soft mt-1.5 leading-snug text-center">Produces a clinical note and client email.</p>
+            <p className="text-xs text-ink-soft mt-1.5 leading-snug text-center">Produces a clinical note and a follow-up summary email for the client.</p>
           )}
         </div>
 
@@ -824,13 +834,13 @@ export default function TreatmentTool() {
               <div className="flex items-center gap-2 mb-1">
                 <ChevronRight size={16} className="text-gold-deep" />
                 <span className="text-eyebrow text-gold-deep">
-                  {isConsult ? 'Consultation follow-up email' : 'Aftercare email'}
+                  {isConsult ? 'Consultation follow-up email' : 'Treatment follow-up email'}
                 </span>
               </div>
               <p className="text-xs text-ink-soft mb-3">
                 {isConsult
                   ? 'Written in Bernadette’s voice from their name, the date, what they came in for and what you discussed. Edit it, then copy, open in your email app, or send.'
-                  : 'A warm aftercare email for the client. Edit it, then copy, open in your email app, or send.'}
+                  : 'A warm summary of today’s treatment and aftercare, written in Bernadette’s voice from your notes. Edit it, then copy, open in your email app, or send.'}
               </p>
 
               <label htmlFor="email-subject" className="text-eyebrow text-ink-soft mb-2 block">Subject</label>
@@ -841,20 +851,20 @@ export default function TreatmentTool() {
                 onChange={(e) => setEmailSubject(e.target.value)}
               />
 
-              {isConsult && (
-                <>
-                  <button
-                    type="button"
-                    onClick={enhanceConsultationEmail}
-                    disabled={aiEnhancing}
-                    className="mb-2 inline-flex items-center gap-2 text-sm text-gold-deep hover:text-charcoal border border-gold/40 hover:border-gold rounded-sm px-3 py-2 transition-colors disabled:opacity-50"
-                  >
-                    <Sparkles size={14} strokeWidth={1.75} />
-                    {aiEnhancing ? "Writing in Bernadette’s voice…" : "Rewrite in Bernadette’s voice"}
-                  </button>
-                  <p className="text-xs text-ink-soft mt-1.5 leading-snug mb-4">Adds suggested aftercare and follow-up notes.</p>
-                </>
-              )}
+              <button
+                type="button"
+                onClick={enhanceFollowupEmail}
+                disabled={aiEnhancing}
+                className="mb-2 inline-flex items-center gap-2 text-sm text-gold-deep hover:text-charcoal border border-gold/40 hover:border-gold rounded-sm px-3 py-2 transition-colors disabled:opacity-50"
+              >
+                <Sparkles size={14} strokeWidth={1.75} />
+                {aiEnhancing ? "Writing in Bernadette’s voice…" : "Rewrite in Bernadette’s voice"}
+              </button>
+              <p className="text-xs text-ink-soft mt-1.5 leading-snug mb-4">
+                {isConsult
+                  ? 'Adds suggested aftercare and follow-up notes.'
+                  : 'Summarises today’s treatment and aftercare from your notes.'}
+              </p>
 
               <label htmlFor="email-body" className="text-eyebrow text-ink-soft mb-2 mt-4 block">Message</label>
               <textarea
@@ -927,7 +937,7 @@ export default function TreatmentTool() {
             </div>
 
             {/* Suggested next steps — populated after AI personalisation */}
-            {isConsult && aiNextSteps.length > 0 && (
+            {aiNextSteps.length > 0 && (
               <div className="border-t border-line/40 pt-8">
                 <div className="flex items-center gap-2 mb-3">
                   <ChevronRight size={16} className="text-gold-deep" />
