@@ -15,7 +15,9 @@ When Giles says any of:
 - "add the latest reviews"
 - "update the review count"
 
-…the Google Places API path is **not** live (no billing on the Cloud project), so the homepage + treatment pages serve from a static fallback list. Refresh it manually:
+**Review COUNT + RATING now update automatically.** Once `GOOGLE_PLACE_ID` and `GOOGLE_PLACES_API_KEY` are set (see `docs/ai-visibility-agent.md`), the live rating/count refresh at runtime via the Places API (revalidated every 6h), and the daily AI-visibility watchdog (`.github/workflows/ai-visibility-daily.yml`) keeps the committed fallback in sync. So you should **not** normally need to touch the count by hand.
+
+What still needs a human is **editorial curation** — choosing *which* 6–8 reviews are featured in `src/lib/reviews.ts` (the live API returns whatever Google ranks "most relevant"; the curated list is hand-picked for substance and variety, and is also the safety-net shown if the API is ever down). Do that manually when Giles asks:
 
 ## What to do
 
@@ -29,12 +31,10 @@ When Giles says any of:
    - Variety of angle (results, professionalism, anxiety-handling, honesty, specific treatments)
    - Initialled names ("Patricia M.", not "Patricia Moore") matching the existing pattern. Single-name reviewers stay as-is ("Taylor").
    - Convert relative times to ISO `date` strings relative to today.
-5. **Update the total count** in `src/lib/google-reviews.ts` — change the `total:` value in the fallback `return { ... }` block to match what Google shows.
-6. **Commit + push + open PR + squash-merge** — message style: `Refresh fallback Google reviews — N newest, substantive, varied`.
+5. **Leave the count alone** — the `total:` in the `src/lib/google-reviews.ts` fallback is kept in sync automatically by the daily watchdog. Only touch it by hand if the API is known to be off.
+6. **Commit + push + open PR + squash-merge** — message style: `Refresh featured Google reviews — N newest, substantive, varied`.
 7. **Wait for both Vercel production deploys** (`visage-aesthetics` and `visage-aesthetics-ddxi`) to flip to Ready.
 
-## Why this is manual
+## The daily AI-visibility agent
 
-The full Google Places API integration is wired (`getGoogleReviews()` in `src/lib/google-reviews.ts` looks for `GOOGLE_PLACE_ID` and `GOOGLE_PLACES_API_KEY` env vars), but enabling it requires a Google Cloud project with billing (a card on file). Giles decided not to add the card — the static refresh takes ~5 minutes and is good enough for the cadence of new reviews.
-
-If Giles ever changes his mind and adds billing, the env vars + place ID can be wired up and this manual step goes away.
+`.github/workflows/ai-visibility-daily.yml` runs `scripts/ai-visibility-audit.mjs` every morning. It (a) checks the live site is still AI-discoverable — llms.txt serving, robots still allowing the AI crawlers, sitemap healthy, homepage schema still carrying the rating + sameAs links — opening a GitHub issue if anything regressed, and (b) syncs the review fallback to the live count, auto-publishing to main. Setup + the one-time Google Cloud steps are in `docs/ai-visibility-agent.md`.
