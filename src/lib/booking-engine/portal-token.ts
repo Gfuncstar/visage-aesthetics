@@ -11,7 +11,7 @@
 
 import { createHmac, timingSafeEqual } from 'node:crypto'
 
-const TTL_DAYS = 14
+const TTL_DAYS = 365
 
 function secret(): string {
   const s = process.env.PORTAL_SECRET || process.env.STAFF_PIN || process.env.CRON_SECRET
