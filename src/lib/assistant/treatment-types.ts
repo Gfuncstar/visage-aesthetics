@@ -216,6 +216,7 @@ export function matchTreatmentType(serviceName: string): string | null {
   if (/filler|lip|cheek|tear.?trough|jawline|chin|nasolabial|harmonyca|juvederm|restylane/.test(s)) return 'dermal-filler'
   if (/needling|microneedl|skin.?pen|dermapen|collagen induction/.test(s)) return 'microneedling'
   if (/peel|chemical/.test(s)) return 'chemical-peel'
+  if (/aqualyx|fat.?dissolv|deso|lemon.?bottle|lipolysis/.test(s)) return 'aqualyx'
   if (/cryopen|cryo|wart|skin.?tag|verruca|milia|lesion/.test(s)) return 'cryopen'
   if (/consult|review|chat/.test(s)) return 'consultation'
   return null

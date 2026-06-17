@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
-import { ArrowLeft, Check, LogOut } from 'lucide-react'
+import { ArrowLeft, Check, Copy, LogOut, Mail, Send, Sparkles, X } from 'lucide-react'
 import { treatments } from '@/lib/treatments'
+import { matchTreatmentType } from '@/lib/assistant/treatment-types'
+import { bodyToText } from '@/lib/broadcast-email'
 
 type YesNo = 'Yes' | 'No'
 
@@ -43,6 +45,22 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
   const [serverError, setServerError] = useState<string | null>(null)
   const [savedNotes, setSavedNotes] = useState<SavedNote[]>([])
   const today = new Date().toISOString().slice(0, 10)
+
+  // Follow-up summary email — drafted and sent after a note is saved, for the
+  // note just recorded (today and going forward). Optional: the clinician taps
+  // to draft a warm summary in Bernadette's voice, edits it, then sends it to
+  // the client's email on file (or copies it / opens it in their email app).
+  const [savedValues, setSavedValues] = useState<FormValues | null>(null)
+  const [lookupEmail, setLookupEmail] = useState<string | null>(null)
+  const [drafting, setDrafting] = useState(false)
+  const [draftError, setDraftError] = useState<string | null>(null)
+  const [drafted, setDrafted] = useState(false)
+  const [emailSubject, setEmailSubject] = useState('')
+  const [emailBody, setEmailBody] = useState('')
+  const [copied, setCopied] = useState(false)
+  const [confirmSend, setConfirmSend] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [sendResult, setSendResult] = useState<{ ok: boolean; message: string } | null>(null)
 
   // When opened for a specific client (tapped from a landing-page card), pull the
   // notes already on file so they can be read before adding more.
@@ -94,6 +112,7 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
       setServerError(data.error || 'Could not save the record. Please try again.')
       return
     }
+    setSavedValues(values)
     setSubmitted(true)
   }
 
@@ -108,6 +127,123 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
       emergencyContactProvided: 'Yes',
     })
     setSubmitted(false)
+    setSavedValues(null)
+    setLookupEmail(null)
+    setDrafting(false)
+    setDraftError(null)
+    setDrafted(false)
+    setEmailSubject('')
+    setEmailBody('')
+    setCopied(false)
+    setConfirmSend(false)
+    setSending(false)
+    setSendResult(null)
+  }
+
+  // Draft the summary: look up the client's email on file (best-effort, by exact
+  // name match so we never address the wrong person), then ask the AI for a warm
+  // summary of this treatment and its aftercare in Bernadette's voice.
+  async function draftSummary() {
+    if (!savedValues) return
+    setDrafting(true)
+    setDraftError(null)
+    let email = lookupEmail
+    if (email === null) {
+      try {
+        const r = await fetch(`/api/staff/assistant/clients?q=${encodeURIComponent(savedValues.name)}`)
+        if (r.ok) {
+          const d = (await r.json()) as { clients?: { name: string; email: string | null }[] }
+          const target = savedValues.name.trim().toLowerCase()
+          const match = (d.clients ?? []).find((c) => c.name.trim().toLowerCase() === target && c.email)
+          email = match?.email ?? ''
+        } else {
+          email = ''
+        }
+      } catch {
+        email = ''
+      }
+      setLookupEmail(email)
+    }
+    try {
+      const treatmentTypeId = matchTreatmentType(savedValues.treatment) ?? 'review'
+      const details = [savedValues.specificArea, savedValues.productUsed, savedValues.dosage]
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .join(' · ')
+      const res = await fetch('/api/staff/assistant/followup-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientName: savedValues.name,
+          treatmentTypeId,
+          treatmentName: savedValues.treatment,
+          notes: savedValues.additionalNotes,
+          details,
+          date: savedValues.dateOfTreatment,
+        }),
+      })
+      const data = (await res.json().catch(() => ({}))) as {
+        email?: { subject: string; body: string }
+        error?: string
+      }
+      if (!res.ok || !data.email) {
+        setDraftError(data.error || 'Could not draft the email.')
+        return
+      }
+      setEmailSubject(data.email.subject)
+      setEmailBody(data.email.body)
+      setDrafted(true)
+    } catch {
+      setDraftError('Network error while drafting.')
+    } finally {
+      setDrafting(false)
+    }
+  }
+
+  async function sendSummary() {
+    if (!savedValues || !lookupEmail) return
+    setSending(true)
+    setSendResult(null)
+    setConfirmSend(false)
+    try {
+      const treatmentTypeId = matchTreatmentType(savedValues.treatment) ?? 'review'
+      const res = await fetch('/api/staff/assistant/client-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientName: savedValues.name,
+          treatmentTypeId,
+          date: savedValues.dateOfTreatment,
+          notes: savedValues.additionalNotes,
+          subject: emailSubject,
+          body: emailBody,
+          to: lookupEmail,
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setSendResult({ ok: false, message: data.error || 'Could not send the email.' })
+        return
+      }
+      setSendResult({ ok: true, message: `Sent to ${lookupEmail}.` })
+    } catch {
+      setSendResult({ ok: false, message: 'Network error while sending.' })
+    } finally {
+      setSending(false)
+    }
+  }
+
+  const emailPlain = bodyToText(emailBody)
+  const mailtoHref = `mailto:${lookupEmail ?? ''}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailPlain)}`
+
+  async function copyEmail() {
+    try {
+      await navigator.clipboard.writeText(`Subject: ${emailSubject}\n\n${emailPlain}`)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      setCopied(false)
+    }
   }
 
   async function signOut() {
@@ -118,14 +254,107 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
   if (submitted) {
     return (
       <section className="bg-cream text-charcoal">
-        <div className="max-w-2xl mx-auto px-5 md:px-8 py-24 text-center">
-          <div className="inline-flex w-12 h-12 rounded-full bg-gold text-charcoal items-center justify-center mb-5">
-            <Check size={20} strokeWidth={1.75} />
+        <div className="max-w-2xl mx-auto px-5 md:px-8 py-24">
+          <div className="text-center">
+            <div className="inline-flex w-12 h-12 rounded-full bg-gold text-charcoal items-center justify-center mb-5">
+              <Check size={20} strokeWidth={1.75} />
+            </div>
+            <h2 className="font-display italic text-3xl md:text-4xl text-charcoal">Saved to the record.</h2>
+            <p className="text-ink-soft mt-3 max-w-md mx-auto leading-relaxed">
+              The treatment note has been added to the patient notes sheet.
+            </p>
           </div>
-          <h2 className="font-display italic text-3xl md:text-4xl text-charcoal">Saved to the record.</h2>
-          <p className="text-ink-soft mt-3 max-w-md mx-auto leading-relaxed">
-            The treatment note has been added to the patient notes sheet.
-          </p>
+
+          {/* Follow-up summary email for the note just saved */}
+          <div className="mt-10 border border-line/40 rounded-sm bg-cream-soft overflow-hidden text-left">
+            <div className="px-5 py-4 border-b border-line/40">
+              <span className="text-eyebrow text-gold-deep">Send the client a follow-up summary</span>
+              <p className="text-sm text-ink-soft mt-1 leading-relaxed">
+                A warm summary of{' '}
+                {savedValues?.treatment ? `today’s ${savedValues.treatment.toLowerCase()}` : 'today’s treatment'} and
+                aftercare, written in Bernadette’s voice. Optional — only if you’d like to email{' '}
+                {savedValues?.name || 'the client'}.
+              </p>
+            </div>
+            <div className="px-5 py-4">
+              {!drafted ? (
+                <>
+                  <button type="button" onClick={draftSummary} disabled={drafting} className="btn btn-secondary disabled:opacity-50">
+                    <span className="inline-flex items-center gap-2">
+                      <Sparkles size={15} strokeWidth={1.75} />
+                      {drafting ? 'Drafting…' : 'Draft a summary email'}
+                    </span>
+                  </button>
+                  {draftError && <p className="text-xs text-clay mt-2">{draftError}</p>}
+                </>
+              ) : (
+                <>
+                  <label htmlFor="sum-subject" className="text-eyebrow text-ink-soft mb-2 block">Subject</label>
+                  <input id="sum-subject" className={inputClass} value={emailSubject} onChange={(e) => setEmailSubject(e.target.value)} />
+
+                  <label htmlFor="sum-body" className="text-eyebrow text-ink-soft mb-2 mt-4 block">Message</label>
+                  <textarea id="sum-body" rows={12} className={inputClass} value={emailBody} onChange={(e) => setEmailBody(e.target.value)} />
+
+                  {lookupEmail ? (
+                    <p className="text-xs text-stone mt-2">To: {lookupEmail}</p>
+                  ) : (
+                    <p className="text-xs text-ink-soft mt-2">
+                      No email on file for this client. Copy the message or open it in your email app to address it.
+                    </p>
+                  )}
+
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button type="button" onClick={copyEmail} className="btn btn-secondary">
+                      <span className="inline-flex items-center gap-2">
+                        {copied ? <Check size={15} strokeWidth={1.75} /> : <Copy size={15} strokeWidth={1.75} />}
+                        {copied ? 'Copied' : 'Copy email'}
+                      </span>
+                    </button>
+                    <a href={mailtoHref} className="btn btn-secondary">
+                      <span className="inline-flex items-center gap-2">
+                        <Mail size={15} strokeWidth={1.75} />
+                        Open in email app
+                      </span>
+                    </a>
+                    {lookupEmail && !confirmSend && (
+                      <button type="button" onClick={() => { setConfirmSend(true); setSendResult(null) }} disabled={sending} className="btn btn-primary disabled:opacity-50">
+                        <span className="inline-flex items-center gap-2">
+                          <Send size={15} strokeWidth={1.75} /> Send from clinic
+                        </span>
+                      </button>
+                    )}
+                  </div>
+
+                  {confirmSend && (
+                    <div className="mt-3 border border-gold/50 bg-gold/8 rounded-sm px-4 py-3 flex items-center justify-between gap-3">
+                      <p className="text-sm text-charcoal">
+                        Send <span className="font-medium">{emailSubject}</span> to <span className="font-medium">{lookupEmail}</span>?
+                      </p>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button type="button" onClick={sendSummary} disabled={sending} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 36 }}>
+                          <span className="inline-flex items-center gap-1.5">
+                            <Send size={13} strokeWidth={1.75} />
+                            {sending ? 'Sending…' : 'Confirm send'}
+                          </span>
+                        </button>
+                        <button type="button" onClick={() => setConfirmSend(false)} className="inline-flex items-center justify-center w-8 h-8 rounded-sm border border-line/40 text-ink-soft hover:text-charcoal transition-colors">
+                          <X size={14} strokeWidth={1.75} />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {sendResult && (
+                    <div className={`mt-3 border rounded-sm px-4 py-3 text-sm flex items-start gap-3 ${sendResult.ok ? 'border-sage/50 bg-sage/10' : 'border-gold/40 bg-gold/10'}`}>
+                      <Check size={16} strokeWidth={1.75} className="text-gold-deep mt-0.5 shrink-0" />
+                      <span>{sendResult.message}</span>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
           <div className="mt-8 flex items-center justify-center gap-3">
             <button onClick={startAnother} className="btn btn-primary">Add another</button>
             <button onClick={signOut} className="btn">Sign out</button>
