@@ -18,7 +18,7 @@ const CONSENT_ENFORCE_FROM = process.env.CONSENT_ENFORCE_FROM || goLiveTimestamp
 export const maxDuration = 60
 
 // Sends the "please confirm you're coming" request for confirmed bookings
-// starting in the next ~27h that have not been reminded yet. 27h is just outside
+// starting in the next ~48h that have not been reminded yet. 48h is well outside
 // the 24-hour change cut-off, so this single reminder can still offer Confirm and
 // Rearrange. The client gets a branded email with one-click buttons (or an SMS
 // with the same links if there's no email on file). Called hourly by the
@@ -55,18 +55,18 @@ export async function GET(req: Request) {
   if (!bearerOk && !secretOk && !isStaff) return NextResponse.json({ error: 'Not authorised' }, { status: 401 })
 
   const now = new Date()
-  // The "please confirm your appointment" email goes out ~27 hours before the
-  // appointment: a single reminder, sent just outside the 24-hour change cut-off
+  // The "please confirm your appointment" email goes out ~48 hours before the
+  // appointment: a single reminder, sent well outside the 24-hour change cut-off
   // so the client can still confirm or rearrange. The cron runs hourly, so a
-  // booking is picked up on the first run once it is inside the 27h window
-  // (i.e. ~26–27h before the start).
-  const reminderWindowEnd = new Date(now.getTime() + 27 * 3600_000)
+  // booking is picked up on the first run once it is inside the 48h window
+  // (i.e. ~47–48h before the start).
+  const reminderWindowEnd = new Date(now.getTime() + 48 * 3600_000)
   // Consent forms keep their own 24h send window (the pass further below).
   const consentWindowEnd = new Date(now.getTime() + 24 * 3600_000)
 
   // The single "please confirm" pass: confirmed bookings starting within the next
-  // ~27h that have not been reminded yet. sendConfirmRequest decides confirm-only
-  // vs confirm+rearrange from how far out the booking is — at ~27h it is outside
+  // ~48h that have not been reminded yet. sendConfirmRequest decides confirm-only
+  // vs confirm+rearrange from how far out the booking is — at ~48h it is outside
   // the cut-off, so the Rearrange button is included.
   const due = await select<Booking>('bookings', {
     status: 'eq.confirmed',
