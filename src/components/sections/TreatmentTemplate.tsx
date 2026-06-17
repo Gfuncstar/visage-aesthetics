@@ -84,7 +84,7 @@ export default async function TreatmentTemplate({
       addressCountry: 'GB',
     },
   }
-  if (reviews.live && reviews.total > 0) {
+  if (reviews.total > 0) {
     provider.aggregateRating = {
       '@type': 'AggregateRating',
       ratingValue: reviews.rating.toFixed(1),

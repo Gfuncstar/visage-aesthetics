@@ -7,7 +7,7 @@ import HideOnStaff from '@/components/layout/HideOnStaff'
 import RevealRoot from '@/components/ui/Reveal'
 import FloatingWhatsApp from '@/components/ui/FloatingWhatsApp'
 import StickyBookingBar from '@/components/layout/StickyBookingBar'
-import { CLINIC, addressSchema } from '@/lib/clinic'
+import { CLINIC, addressSchema, SAME_AS } from '@/lib/clinic'
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -80,6 +80,7 @@ const jsonLd = {
   email: CLINIC.email,
   telephone: CLINIC.telephone,
   openingHours: CLINIC.openingHoursSchema,
+  sameAs: SAME_AS,
   medicalSpecialty: 'Aesthetic Medicine',
   award: [
     'Best Non-Surgical Aesthetics Clinic 2026, Essex (Health, Beauty & Wellness Awards)',

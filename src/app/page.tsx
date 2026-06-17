@@ -9,6 +9,7 @@ import Image from 'next/image'
 import Watermark from '@/components/ui/Watermark'
 import { treatments } from '@/lib/treatments'
 import { getGoogleReviews } from '@/lib/google-reviews'
+import { SAME_AS } from '@/lib/clinic'
 import { BOOKING_URL } from '@/lib/booking'
 import { beforeAfterByIds } from '@/lib/before-after'
 
@@ -99,7 +100,7 @@ export default async function Home() {
           closes: '18:00',
           description: 'Strictly by appointment',
         }],
-        sameAs: ['https://www.instagram.com/visageaestheticclinic'],
+        sameAs: SAME_AS,
         hasMap: 'https://maps.google.com/?q=CM7+9BL',
         contactPoint: [
           {
@@ -152,7 +153,7 @@ export default async function Home() {
             'Educator of the Year 2026, Nominee (Beauty & Aesthetics Awards)',
           ],
         },
-        ...(reviews.live
+        ...(reviews.total > 0
           ? {
               aggregateRating: {
                 '@type': 'AggregateRating',
