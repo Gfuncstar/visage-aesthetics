@@ -99,7 +99,7 @@ export default function BookingFlow() {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`/api/book/availability?service=${s.slug}&days=90&${identityQuery()}`)
+      const res = await fetch(`/api/book/availability?service=${s.slug}&days=300&${identityQuery()}`)
       const d = await res.json()
       setCalendar(d.calendar ?? {})
     } finally {
@@ -298,7 +298,7 @@ export default function BookingFlow() {
               <p className="text-sm text-ink-soft">Finding availability…</p>
             ) : availableDays.length === 0 ? (
               <div className="border border-line/40 bg-cream-soft rounded-sm px-4 py-5 text-sm text-ink-soft leading-relaxed">
-                <p>There is no online availability for this treatment in the next three months.</p>
+                <p>There is no online availability for this treatment in the coming months.</p>
                 <button onClick={joinWaitlist} disabled={loading} className="btn btn-primary mt-4 disabled:opacity-50">
                   <span className="inline-flex items-center gap-2">{loading ? 'Joining…' : 'Join the waitlist'}</span>
                 </button>

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { assistantConfigured } from '@/lib/assistant/db'
-import { getService, computeDay, availabilityCalendar } from '@/lib/booking-engine/availability'
+import { getService, computeDay, availabilityCalendar, MAX_ADVANCE_DAYS } from '@/lib/booking-engine/availability'
 import { londonToday } from '@/lib/booking-engine/time'
 import { lookupClientFlags } from '@/lib/booking-engine/client-flags'
 
@@ -39,7 +39,7 @@ export async function GET(req: Request) {
     }
 
     const from = params.get('from') && DATE_RE.test(params.get('from')!) ? params.get('from')! : londonToday()
-    const days = Math.min(60, Math.max(1, Number(params.get('days') ?? 30)))
+    const days = Math.min(MAX_ADVANCE_DAYS, Math.max(1, Number(params.get('days') ?? 30)))
     const calendar = flags.blocked ? {} : await availabilityCalendar(service, from, days)
     return NextResponse.json({ service: publicService(service), calendar })
   } catch (err) {

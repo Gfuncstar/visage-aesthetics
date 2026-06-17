@@ -7,7 +7,11 @@ import type { BusinessHours, Booking, Service, Slot, TimeOff } from './types'
 
 const STEP_MIN = 15 // slot granularity
 const LEAD_MIN = 120 // earliest bookable lead time from now (2 hours)
-const MAX_ADVANCE_DAYS = 90
+// How far ahead the public diary opens. Kept generous (about ten months) so the
+// calendar runs to the end of the year and beyond — clients can book months out,
+// not just the next couple. The range is fetched in one batch (see
+// availabilityCalendar), so a longer horizon does not cost more database load.
+const MAX_ADVANCE_DAYS = 300
 
 type Interval = { start: number; end: number } // minutes from midnight (London)
 
@@ -165,20 +169,64 @@ function dayEndIso(dateStr: string): string {
   return new Date(`${dateStr}T23:59:59Z`).toISOString()
 }
 
+/** Add n days to a YYYY-MM-DD string, returning YYYY-MM-DD (noon-anchored, DST-safe). */
+function addDaysStr(fromStr: string, n: number): string {
+  const d = new Date(`${fromStr}T12:00:00Z`)
+  d.setUTCDate(d.getUTCDate() + n)
+  return d.toISOString().slice(0, 10)
+}
+
 /**
  * Day-by-day availability summary for a date range, used by the date picker to
  * grey out full / closed days. Returns a map of dateStr -> count of free slots.
+ *
+ * The whole window is loaded in one batch — opening hours (one row per weekday)
+ * plus every booking, appointment and time-off touching the range — and each day
+ * is then computed in memory. This keeps the database load flat (a handful of
+ * queries) no matter how far ahead the calendar reaches.
  */
 export async function availabilityCalendar(service: Service, fromStr: string, days: number): Promise<Record<string, number>> {
+  const span = Math.min(Math.max(1, Math.floor(days)), MAX_ADVANCE_DAYS)
+  const now = new Date()
+  const today = londonToday()
+
+  const rangeStartIso = dayStartIso(fromStr)
+  const rangeEndIso = dayEndIso(addDaysStr(fromStr, span - 1))
+
+  const [hoursRows, bookings, appts, timeOff] = await Promise.all([
+    select<BusinessHours>('business_hours', { limit: 20 }),
+    select<Booking>('bookings', {
+      and: `(starts_at.gte.${rangeStartIso},starts_at.lt.${rangeEndIso})`,
+      status: 'neq.cancelled',
+      limit: 5000,
+    }),
+    // Ovatu diary safety net — booked appointments with a real time. Tolerant of
+    // older databases without the time columns (returns nothing then).
+    select<ApptInterval>('appointments', {
+      select: 'starts_at,ends_at,status',
+      and: `(starts_at.gte.${rangeStartIso},starts_at.lt.${rangeEndIso})`,
+      status: 'eq.booked',
+      limit: 5000,
+    }).catch(() => [] as ApptInterval[]),
+    select<TimeOff>('time_off', {
+      and: `(starts_at.lt.${rangeEndIso},ends_at.gt.${rangeStartIso})`,
+      limit: 1000,
+    }),
+  ])
+
+  const hoursByWeekday = new Map<number, BusinessHours>()
+  for (const h of hoursRows) hoursByWeekday.set(h.weekday, h)
+
   const out: Record<string, number> = {}
-  const tasks: Promise<void>[] = []
-  for (let i = 0; i < Math.min(days, MAX_ADVANCE_DAYS); i++) {
-    const d = new Date(`${fromStr}T12:00:00Z`)
-    d.setUTCDate(d.getUTCDate() + i)
-    const ds = d.toISOString().slice(0, 10)
-    tasks.push(computeDay(service, ds).then((slots) => { out[ds] = slots.length }))
+  for (let i = 0; i < span; i++) {
+    const ds = addDaysStr(fromStr, i)
+    if (ds < today) {
+      out[ds] = 0
+      continue
+    }
+    const hours = hoursByWeekday.get(weekdayOf(ds))
+    out[ds] = slotsForDay(service, ds, hours, bookings, timeOff, now, appts).length
   }
-  await Promise.all(tasks)
   return out
 }
 
