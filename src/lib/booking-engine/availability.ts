@@ -3,7 +3,8 @@
 
 import { select } from '../assistant/db'
 import { londonWallToUtc, londonParts, clockLabel, londonToday, TZ } from './time'
-import type { BusinessHours, Booking, Service, Slot, TimeOff } from './types'
+import type { Booking, Service, Slot, TimeOff } from './types'
+import { loadOpeningWindows, windowsForWeekday, type OpeningWindow } from './opening-hours'
 
 const STEP_MIN = 15 // slot granularity
 const LEAD_MIN = 120 // earliest bookable lead time from now (2 hours)
@@ -87,19 +88,20 @@ function overlaps(aStart: number, aEnd: number, busy: Interval[]): boolean {
 
 /**
  * Compute bookable slots for a service on a London date (YYYY-MM-DD).
- * Needs the day's hours, existing bookings and time-off (loaded by the caller
- * or by computeDay below).
+ * Needs the day's opening windows, existing bookings and time-off (loaded by
+ * the caller or by computeDay below). A day may have several windows (e.g. a
+ * daytime clinic plus an evening session); each is walked in turn.
  */
 export function slotsForDay(
   service: Service,
   dateStr: string,
-  hours: BusinessHours | undefined,
+  windows: OpeningWindow[],
   bookings: Booking[],
   timeOff: TimeOff[],
   now: Date,
   appts: ApptInterval[] = [],
 ): Slot[] {
-  if (!hours || !hours.is_open) return []
+  if (!windows || windows.length === 0) return []
   const total = service.duration_min + service.buffer_min
   const busy = [
     ...busyFromBookings(bookings, dateStr),
@@ -113,18 +115,20 @@ export function slotsForDay(
   const earliest = isToday ? nowParts.minutes + LEAD_MIN : 0
 
   const slots: Slot[] = []
-  for (let start = hours.open_min; start + total <= hours.close_min; start += STEP_MIN) {
-    if (start < earliest) continue
-    const end = start + total
-    if (overlaps(start, end, busy)) continue
-    const startsAt = londonWallToUtc(dateStr, start)
-    const endsAt = londonWallToUtc(dateStr, start + service.duration_min)
-    slots.push({
-      startMinutes: start,
-      startsAtIso: startsAt.toISOString(),
-      endsAtIso: endsAt.toISOString(),
-      label: clockLabel(start),
-    })
+  for (const w of windows) {
+    for (let start = w.open_min; start + total <= w.close_min; start += STEP_MIN) {
+      if (start < earliest) continue
+      const end = start + total
+      if (overlaps(start, end, busy)) continue
+      const startsAt = londonWallToUtc(dateStr, start)
+      const endsAt = londonWallToUtc(dateStr, start + service.duration_min)
+      slots.push({
+        startMinutes: start,
+        startsAtIso: startsAt.toISOString(),
+        endsAtIso: endsAt.toISOString(),
+        label: clockLabel(start),
+      })
+    }
   }
   return slots
 }
@@ -133,8 +137,8 @@ export function slotsForDay(
 export async function computeDay(service: Service, dateStr: string): Promise<Slot[]> {
   const now = new Date()
   if (dateStr < londonToday()) return []
-  const [hoursRows, bookings, appts, timeOff] = await Promise.all([
-    select<BusinessHours>('business_hours', { weekday: `eq.${weekdayOf(dateStr)}`, limit: 1 }),
+  const [windows, bookings, appts, timeOff] = await Promise.all([
+    windowsForWeekday(weekdayOf(dateStr)),
     select<Booking>('bookings', {
       and: `(starts_at.gte.${dayStartIso(dateStr)},starts_at.lt.${dayEndIso(dateStr)})`,
       status: 'neq.cancelled',
@@ -153,7 +157,7 @@ export async function computeDay(service: Service, dateStr: string): Promise<Slo
       limit: 100,
     }),
   ])
-  return slotsForDay(service, dateStr, hoursRows[0], bookings, timeOff, now, appts)
+  return slotsForDay(service, dateStr, windows, bookings, timeOff, now, appts)
 }
 
 /** Which London weekday a date falls on. */
@@ -193,8 +197,8 @@ export async function availabilityCalendar(service: Service, fromStr: string, da
   const rangeStartIso = dayStartIso(fromStr)
   const rangeEndIso = dayEndIso(addDaysStr(fromStr, span - 1))
 
-  const [hoursRows, bookings, appts, timeOff] = await Promise.all([
-    select<BusinessHours>('business_hours', { limit: 20 }),
+  const [windowsByWeekday, bookings, appts, timeOff] = await Promise.all([
+    loadOpeningWindows(),
     select<Booking>('bookings', {
       and: `(starts_at.gte.${rangeStartIso},starts_at.lt.${rangeEndIso})`,
       status: 'neq.cancelled',
@@ -214,9 +218,6 @@ export async function availabilityCalendar(service: Service, fromStr: string, da
     }),
   ])
 
-  const hoursByWeekday = new Map<number, BusinessHours>()
-  for (const h of hoursRows) hoursByWeekday.set(h.weekday, h)
-
   const out: Record<string, number> = {}
   for (let i = 0; i < span; i++) {
     const ds = addDaysStr(fromStr, i)
@@ -224,8 +225,8 @@ export async function availabilityCalendar(service: Service, fromStr: string, da
       out[ds] = 0
       continue
     }
-    const hours = hoursByWeekday.get(weekdayOf(ds))
-    out[ds] = slotsForDay(service, ds, hours, bookings, timeOff, now, appts).length
+    const windows = windowsByWeekday.get(weekdayOf(ds)) ?? []
+    out[ds] = slotsForDay(service, ds, windows, bookings, timeOff, now, appts).length
   }
   return out
 }

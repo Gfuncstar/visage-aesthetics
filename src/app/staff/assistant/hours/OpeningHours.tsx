@@ -1,10 +1,11 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { Check, Clock, LogOut } from 'lucide-react'
+import { Check, Clock, LogOut, Plus, X } from 'lucide-react'
 import { notifyDone } from '@/lib/staff-toast'
 
-type Hours = { weekday: number; is_open: boolean; open_min: number; close_min: number }
+type Window = { open_min: number; close_min: number }
+type Day = { weekday: number; windows: Window[] }
 
 // Mon-first display order over the 0=Sun..6=Sat data.
 const ORDER = [1, 2, 3, 4, 5, 6, 0]
@@ -21,7 +22,7 @@ function toMin(t: string): number {
 }
 
 export default function OpeningHours() {
-  const [hours, setHours] = useState<Hours[]>([])
+  const [days, setDays] = useState<Day[]>([])
   const [loading, setLoading] = useState(true)
   const [configured, setConfigured] = useState(true)
   const [savingDay, setSavingDay] = useState<number | null>(null)
@@ -35,9 +36,13 @@ export default function OpeningHours() {
       if (res.ok) {
         const d = await res.json()
         setConfigured(d.configured !== false)
-        // Ensure all 7 days exist, defaulting any missing to closed 10–5.
-        const byDay = new Map<number, Hours>((d.hours ?? []).map((h: Hours) => [h.weekday, h]))
-        setHours(ORDER.map((wd) => byDay.get(wd) ?? { weekday: wd, is_open: false, open_min: 600, close_min: 1020 }))
+        const windows: Record<number, Window[]> = d.windows ?? {}
+        setDays(
+          ORDER.map((wd) => ({
+            weekday: wd,
+            windows: (windows[wd] ?? []).map((w) => ({ open_min: w.open_min, close_min: w.close_min })),
+          })),
+        )
       }
     } finally {
       setLoading(false)
@@ -46,24 +51,52 @@ export default function OpeningHours() {
 
   useEffect(() => { void load() }, [load])
 
-  function edit(weekday: number, patch: Partial<Hours>) {
-    setHours((prev) => prev.map((h) => (h.weekday === weekday ? { ...h, ...patch } : h)))
+  function update(weekday: number, windows: Window[]) {
+    setDays((prev) => prev.map((d) => (d.weekday === weekday ? { ...d, windows } : d)))
     setSavedDay(null)
     setError(null)
   }
 
-  async function save(day: Hours) {
-    if (day.is_open && day.close_min <= day.open_min) {
-      setError(`${DAY_NAME[day.weekday]}: the closing time must be after the opening time.`)
-      return
+  function setOpen(day: Day, open: boolean) {
+    update(day.weekday, open ? (day.windows.length ? day.windows : [{ open_min: 600, close_min: 1020 }]) : [])
+  }
+
+  function editWindow(day: Day, idx: number, patch: Partial<Window>) {
+    update(day.weekday, day.windows.map((w, i) => (i === idx ? { ...w, ...patch } : w)))
+  }
+
+  function addWindow(day: Day) {
+    const last = day.windows[day.windows.length - 1]
+    // Default a new session to start after the previous one ends (or 6–7:30pm).
+    const open = last ? Math.min(last.close_min, 1380) : 1080
+    update(day.weekday, [...day.windows, { open_min: open, close_min: Math.min(open + 90, 1440) }])
+  }
+
+  function removeWindow(day: Day, idx: number) {
+    update(day.weekday, day.windows.filter((_, i) => i !== idx))
+  }
+
+  async function save(day: Day) {
+    const windows = [...day.windows].sort((a, b) => a.open_min - b.open_min)
+    for (const w of windows) {
+      if (w.close_min <= w.open_min) {
+        setError(`${DAY_NAME[day.weekday]}: each session must close after it opens.`)
+        return
+      }
+    }
+    for (let i = 1; i < windows.length; i++) {
+      if (windows[i].open_min < windows[i - 1].close_min) {
+        setError(`${DAY_NAME[day.weekday]}: the sessions overlap. Give each a separate time.`)
+        return
+      }
     }
     setSavingDay(day.weekday)
     setError(null)
     try {
       const res = await fetch('/api/staff/assistant/business-hours', {
-        method: 'PATCH',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ weekday: day.weekday, is_open: day.is_open, open_min: day.open_min, close_min: day.close_min }),
+        body: JSON.stringify({ weekday: day.weekday, windows }),
       })
       if (res.ok) {
         setSavedDay(day.weekday)
@@ -92,8 +125,9 @@ export default function OpeningHours() {
             <div className="eyebrow text-gold mb-2">Front desk &nbsp;·&nbsp; Opening hours</div>
             <h1 className="font-display italic text-charcoal text-3xl md:text-5xl leading-tight">Opening hours.</h1>
             <p className="text-ink-soft mt-4 max-w-xl leading-relaxed">
-              Set the days and times you are open. Opening a day or widening its hours releases those slots straight away,
-              so clients and the front desk can book into them. Closing a day hides its slots from new bookings.
+              Set the days and times you are open. Add more than one session to a day if you split it, for example a
+              daytime clinic and an evening session. Opening a day or widening its hours releases those slots straight
+              away; closing a day hides its slots from new bookings.
             </p>
           </div>
           <button onClick={signOut} className="eyebrow text-stone hover:text-gold-deep transition-colors flex items-center gap-2 shrink-0 mt-2">
@@ -109,46 +143,27 @@ export default function OpeningHours() {
           <p className="text-sm text-ink-soft">Loading…</p>
         ) : (
           <div className="space-y-2.5">
-            {hours.map((day) => {
+            {days.map((day) => {
               const saving = savingDay === day.weekday
               const saved = savedDay === day.weekday
+              const isOpen = day.windows.length > 0
               return (
                 <div key={day.weekday} className="border border-line/40 bg-cream-soft rounded-sm px-4 py-3">
                   <div className="flex items-center justify-between gap-3 flex-wrap">
                     <div className="flex items-center gap-3 min-w-[7.5rem]">
-                      <Clock size={15} strokeWidth={1.75} className={day.is_open ? 'text-gold-deep' : 'text-stone/50'} />
+                      <Clock size={15} strokeWidth={1.75} className={isOpen ? 'text-gold-deep' : 'text-stone/50'} />
                       <span className="text-charcoal font-medium">{DAY_NAME[day.weekday]}</span>
                     </div>
 
                     <label className="inline-flex items-center gap-2 cursor-pointer select-none">
                       <input
                         type="checkbox"
-                        checked={day.is_open}
-                        onChange={(e) => edit(day.weekday, { is_open: e.target.checked })}
+                        checked={isOpen}
+                        onChange={(e) => setOpen(day, e.target.checked)}
                         className="accent-gold-deep w-4 h-4"
                       />
-                      <span className="text-sm text-ink-soft">{day.is_open ? 'Open' : 'Closed'}</span>
+                      <span className="text-sm text-ink-soft">{isOpen ? 'Open' : 'Closed'}</span>
                     </label>
-
-                    {day.is_open ? (
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="time"
-                          value={toTime(day.open_min)}
-                          onChange={(e) => edit(day.weekday, { open_min: toMin(e.target.value) })}
-                          className="bg-cream border border-line rounded-sm px-2.5 py-2 text-sm"
-                        />
-                        <span className="text-ink-soft text-sm">to</span>
-                        <input
-                          type="time"
-                          value={toTime(day.close_min)}
-                          onChange={(e) => edit(day.weekday, { close_min: toMin(e.target.value) })}
-                          className="bg-cream border border-line rounded-sm px-2.5 py-2 text-sm"
-                        />
-                      </div>
-                    ) : (
-                      <span className="text-sm text-stone/70 flex-1">No appointments this day</span>
-                    )}
 
                     <button
                       onClick={() => void save(day)}
@@ -159,13 +174,52 @@ export default function OpeningHours() {
                       {saving ? 'Saving…' : saved ? 'Saved' : 'Save'}
                     </button>
                   </div>
+
+                  {isOpen ? (
+                    <div className="mt-3 space-y-2 pl-1">
+                      {day.windows.map((w, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <input
+                            type="time"
+                            value={toTime(w.open_min)}
+                            onChange={(e) => editWindow(day, idx, { open_min: toMin(e.target.value) })}
+                            className="bg-cream border border-line rounded-sm px-2.5 py-2 text-sm"
+                          />
+                          <span className="text-ink-soft text-sm">to</span>
+                          <input
+                            type="time"
+                            value={toTime(w.close_min)}
+                            onChange={(e) => editWindow(day, idx, { close_min: toMin(e.target.value) })}
+                            className="bg-cream border border-line rounded-sm px-2.5 py-2 text-sm"
+                          />
+                          <button
+                            onClick={() => removeWindow(day, idx)}
+                            aria-label="Remove this session"
+                            title="Remove this session"
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-sm border border-line/40 text-ink-soft hover:border-clay hover:text-clay transition-colors"
+                          >
+                            <X size={14} strokeWidth={2} />
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        onClick={() => addWindow(day)}
+                        className="inline-flex items-center gap-1.5 text-sm text-gold-deep hover:text-charcoal transition-colors"
+                      >
+                        <Plus size={14} strokeWidth={2} /> Add a session
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-sm text-stone/70 pl-1">No appointments this day</p>
+                  )}
                 </div>
               )
             })}
             {error && <p className="text-sm text-clay">{error}</p>}
             <p className="text-xs text-ink-soft pt-2 leading-relaxed">
-              Tip: you can also just tell the assistant, e.g. &ldquo;open Thursdays 9 to 5&rdquo; or &ldquo;close Saturdays&rdquo;.
-              A one-off appointment outside these hours can still be added from the front desk &ldquo;New booking&rdquo;.
+              Tip: you can also just tell the assistant, e.g. &ldquo;open Thursdays 9 to 5&rdquo; or &ldquo;close Saturdays&rdquo;
+              (that sets a single session). Use the sessions above to split a day. A one-off appointment outside these
+              hours can still be added from the front desk &ldquo;New booking&rdquo;.
             </p>
           </div>
         )}
