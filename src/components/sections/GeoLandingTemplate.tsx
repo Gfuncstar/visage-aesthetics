@@ -63,7 +63,7 @@ export default async function GeoLandingTemplate({
     },
     areaServed: { '@type': 'City', name: town },
   }
-  if (reviews.live && reviews.total > 0) {
+  if (reviews.total > 0) {
     provider.aggregateRating = {
       '@type': 'AggregateRating',
       ratingValue: reviews.rating.toFixed(1),

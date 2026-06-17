@@ -7,6 +7,8 @@
  * cite these constants rather than re-typing the values.
  */
 
+import { AWARD } from './award'
+
 export const CLINIC = {
   name: 'Visage Aesthetics',
   url: 'https://www.vaclinic.co.uk',
@@ -28,6 +30,11 @@ export const CLINIC = {
   /** Digits only — used for wa.me / tel: links */
   whatsapp: '447931395246',
 
+  // Social / entity profiles
+  instagramUrl: 'https://www.instagram.com/visageaestheticclinic',
+  /** Canonical Google Business Profile (Maps) listing — cid is the stable place id */
+  googleBusinessUrl: 'https://www.google.com/maps?cid=11343905217849105284',
+
   // Hours
   /** schema.org openingHours microformat */
   openingHoursSchema: ['Tu-Sa 09:00-18:00'],
@@ -39,6 +46,17 @@ export const CLINIC = {
     return `${this.streetAddress}, ${this.addressLocality}, ${this.addressRegion} ${this.postalCode}`
   },
 } as const
+
+/**
+ * schema.org `sameAs` — authoritative third-party references to *this same
+ * entity*. Helps AI answer engines and knowledge graphs disambiguate "Visage
+ * Aesthetics" (the Braintree clinic) from other businesses of the same name.
+ */
+export const SAME_AS = [
+  CLINIC.instagramUrl,
+  CLINIC.googleBusinessUrl,
+  AWARD.verificationUrl, // lux-life winner listing — third-party confirmation
+]
 
 /** Schema.org PostalAddress — reusable in Organization / LocalBusiness schema. */
 export const addressSchema = {
