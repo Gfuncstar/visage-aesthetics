@@ -3,6 +3,7 @@
 
 import { select } from './db'
 import { goLiveDate } from './go-live'
+import { dismissalKey } from './writeup-dismissals'
 
 type ApptRow = { client_name: string; service_name: string; starts_at: string | null; date: string }
 type RecRow = { client_name: string; date: string }
@@ -46,7 +47,7 @@ export async function endOfDaySummary(): Promise<EndOfDay | null> {
   const windowStart = isoDaysAgo(OVERDUE_WINDOW_DAYS)
   const since = OVERDUE_SINCE > windowStart ? OVERDUE_SINCE : windowStart
   try {
-    const [appts, records, requests, windowAppts, windowRecords] = await Promise.all([
+    const [appts, records, requests, windowAppts, windowRecords, dismissedRows] = await Promise.all([
       select<ApptRow>('appointments', {
         date: `eq.${today}`,
         status: 'neq.cancelled',
@@ -67,7 +68,14 @@ export async function endOfDaySummary(): Promise<EndOfDay | null> {
         select: 'client_name,date',
         limit: 500,
       }),
+      // Reminders the clinician has explicitly dismissed — never chase these
+      // again. Resilient so a read failure can't blank the whole summary.
+      select<{ visit_key: string }>('writeup_dismissals', { select: 'visit_key', limit: 2000 }).catch(
+        () => [] as { visit_key: string }[],
+      ),
     ])
+
+    const dismissed = new Set(dismissedRows.map((d) => d.visit_key))
 
     // Overdue: visits before today, in the window, with no matching write-up.
     // (Anything within the last 24h — i.e. today — is handled by toWrite, not here.)
@@ -78,7 +86,7 @@ export async function endOfDaySummary(): Promise<EndOfDay | null> {
       const name = (a.client_name ?? '').trim()
       if (!name) continue
       const key = visitKey(name, a.date)
-      if (writtenWindow.has(key) || overdueSeen.has(key)) continue
+      if (writtenWindow.has(key) || overdueSeen.has(key) || dismissed.has(key)) continue
       overdueSeen.add(key)
       const daysAgo = Math.max(1, Math.round((new Date(`${today}T00:00:00`).getTime() - new Date(`${a.date}T00:00:00`).getTime()) / DAY_MS))
       overdue.push({ name, service: a.service_name || 'Appointment', date: a.date, daysAgo })
@@ -99,7 +107,9 @@ export async function endOfDaySummary(): Promise<EndOfDay | null> {
 
     const toWrite: { name: string; service: string }[] = []
     for (const [name, service] of byName) {
-      if (!written.has(name.toLowerCase())) toWrite.push({ name, service })
+      if (written.has(name.toLowerCase())) continue
+      if (dismissed.has(dismissalKey(name, today))) continue
+      toWrite.push({ name, service })
     }
 
     return {
