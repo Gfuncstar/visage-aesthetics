@@ -44,12 +44,20 @@ export default function CancellationPolicyPage() {
 
           <h2 className="font-display text-2xl md:text-3xl text-charcoal mt-10 mb-4">Consultations</h2>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
-            Consultations are always free. There is no booking fee and no obligation to proceed, so you are welcome to rearrange whenever you need to.
+            Consultations are always free, with no booking fee and no obligation to proceed. We do ask for at least 24 hours&apos; notice if you need to rearrange — consultations cannot be rearranged with less than 24 hours&apos; notice.
           </p>
 
           <h2 className="font-display text-2xl md:text-3xl text-charcoal mt-10 mb-4">Running late</h2>
           <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
             If you are running behind, please let us know. We will always do our best to see you, though occasionally we may need to shorten the appointment or find you another time.
+          </p>
+          <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
+            Arriving more than 10 minutes after your appointment time is treated as a missed appointment. Where this happens we reserve the right to cancel the appointment, and any deposit will not be refunded.
+          </p>
+
+          <h2 className="font-display text-2xl md:text-3xl text-charcoal mt-10 mb-4">Review appointments</h2>
+          <p className="text-body-lg text-ink-soft leading-relaxed mb-5">
+            Review appointments are offered two to three weeks after anti-wrinkle treatments. This is a clinical assessment, not a guaranteed top-up — any further product is only given where it is judged clinically appropriate. Anything later than three weeks cannot be reviewed. It is the client&apos;s responsibility to book their review appointment.
           </p>
 
           <h2 className="font-display text-2xl md:text-3xl text-charcoal mt-10 mb-4">Making a change</h2>
