@@ -5,6 +5,7 @@
 
 import { select, insert, update, audit } from './db'
 import { getService } from '../booking-engine/availability'
+import { setWeekdayWindows } from '../booking-engine/opening-hours'
 import { londonWallToUtc, dayLabel, clockLabel, londonToday } from '../booking-engine/time'
 import { fillGap } from '../booking-engine/notify'
 import { mirrorBookingAppointment } from '../booking-engine/appointments-mirror'
@@ -194,16 +195,16 @@ export async function executeAction(a: Action): Promise<{ ok: boolean; message: 
 
     case 'set_hours': {
       if (a.weekday < 0 || a.weekday > 6) return { ok: false, message: 'Invalid day of week.' }
-      const patch: Record<string, unknown> = { is_open: a.isOpen }
       if (a.isOpen) {
         if (a.openMin == null || a.closeMin == null) return { ok: false, message: 'I need both an opening and closing time.' }
         if (a.openMin < 0 || a.openMin >= 1440 || a.closeMin <= a.openMin || a.closeMin > 1440) {
           return { ok: false, message: 'Those times don\'t make sense — check open is before close.' }
         }
-        patch.open_min = a.openMin
-        patch.close_min = a.closeMin
       }
-      await update('business_hours', { weekday: String(a.weekday) }, patch)
+      // Sets the day to this single window (replacing any split sessions). To
+      // add an evening session alongside a daytime one, use the Opening Hours
+      // editor. Keeps opening_windows and business_hours in sync.
+      await setWeekdayWindows(a.weekday, a.isOpen ? [{ open_min: a.openMin!, close_min: a.closeMin! }] : [])
       const day = DAY_NAMES[a.weekday]!
       if (!a.isOpen) return { ok: true, message: `Closed ${day}s.` }
       return { ok: true, message: `Set ${day}s to open ${clockLabel(a.openMin!)}–${clockLabel(a.closeMin!)}.` }
