@@ -62,21 +62,6 @@
   box-shadow: 0 1px 2px rgba(31, 27, 26, 0.04), 0 2px 8px rgba(31, 27, 26, 0.05);
 }
 
-/* Carry the current section's colour (set by the nav) into the page's kicker
-   label, so each area — Home, Reception, Marketing, Assistant — feels distinct
-   rather than uniformly gold. Targets only the gold page-title kickers. */
-.staff-vivid .eyebrow.text-gold,
-.staff-vivid .text-eyebrow.text-gold {
-  color: var(--section-accent, #A8895E);
-}
-
-/* Bolder: the page's main title also takes the section colour, so each area
-   reads unmistakably as its own colour. Falls back to charcoal before the nav
-   sets the accent. */
-.staff-vivid h1 {
-  color: var(--section-accent, #1F1B1A);
-}
-
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
