@@ -300,7 +300,16 @@ export default function Account() {
         </p>
 
         {mode === 'login' && (
-          <div className="mt-4 border border-line/60 bg-cream-soft text-ink-soft text-sm rounded-sm px-4 py-3 leading-relaxed">
+          <div className="mt-4 border border-gold/40 bg-gold/10 rounded-sm px-4 py-3">
+            <p className="text-sm text-charcoal leading-relaxed">
+              <span className="font-medium">Just need to change an appointment?</span> You don&apos;t need a password —{' '}
+              <Link href="/manage" className="text-gold-deep underline">get a quick link</Link> sent straight to your inbox.
+            </p>
+          </div>
+        )}
+
+        {mode === 'login' && (
+          <div className="mt-3 border border-line/60 bg-cream-soft text-ink-soft text-sm rounded-sm px-4 py-3 leading-relaxed">
             Booked with us but never set up a password? Enter your email and press{' '}
             <button onClick={() => { setMode('forgot'); setAuthError(null) }} className="text-gold-deep underline">Set a password</button>{' '}
             — we will email you a link to create one.
