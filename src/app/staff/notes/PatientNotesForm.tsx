@@ -7,6 +7,7 @@ import { ArrowLeft, Check, Copy, LogOut, Mail, Send, Sparkles, X } from 'lucide-
 import { treatments } from '@/lib/treatments'
 import { matchTreatmentType } from '@/lib/assistant/treatment-types'
 import { bodyToText } from '@/lib/broadcast-email'
+import NotesDictation from './NotesDictation'
 
 type YesNo = 'Yes' | 'No'
 
@@ -80,6 +81,8 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
     register,
     handleSubmit,
     reset,
+    getValues,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
@@ -492,6 +495,16 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
               className={inputClass}
               placeholder="Consultation form completed, contraindications, risks discussed, etc."
               {...register('additionalNotes')}
+            />
+            <NotesDictation
+              getContext={() => ({
+                treatment: getValues('treatment') || '',
+                specificArea: getValues('specificArea') || '',
+                existing: getValues('additionalNotes') || '',
+              })}
+              onWriteup={(notes) =>
+                setValue('additionalNotes', notes, { shouldDirty: true, shouldValidate: true })
+              }
             />
           </div>
 
