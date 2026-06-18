@@ -117,8 +117,8 @@ export default function Footer() {
               <div className="flex flex-wrap gap-x-5 gap-y-2 text-[13px]">
                 <Link
                   href="/manage"
-                  className="hover:text-cream transition-colors border-b"
-                  style={{ color: 'rgba(245, 240, 236, 0.85)', borderColor: 'rgba(168, 137, 94, 0.5)' }}
+                  className="text-[16px] font-medium hover:text-cream transition-colors border-b"
+                  style={{ color: '#F5F0EC', borderColor: 'rgba(168, 137, 94, 0.7)' }}
                 >
                   Manage your appointment
                 </Link>
