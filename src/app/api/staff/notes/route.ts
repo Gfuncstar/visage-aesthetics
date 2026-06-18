@@ -4,6 +4,12 @@ import { assistantConfigured, select, insert, update } from '@/lib/assistant/db'
 
 export const runtime = 'nodejs'
 
+// Google Apps Script web apps can be slow to respond on a cold start. Give the
+// function enough headroom to wait for the sheet write rather than letting the
+// platform kill it with a bare "Timed out" page. (Vercel caps this to the plan
+// limit: 60s on Hobby, higher on Pro.)
+export const maxDuration = 60
+
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 
 function normName(name: string): string {
@@ -111,6 +117,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Name and treatment are required' }, { status: 400 })
   }
 
+  // Abort the webhook call before the platform kills the whole function, so a
+  // genuinely stuck sheet write returns our own friendly message instead of a
+  // bare "Timed out" page.
+  const controller = new AbortController()
+  const abortTimer = setTimeout(() => controller.abort(), 50_000)
+
   try {
     const upstream = await fetch(url, {
       method: 'POST',
@@ -118,6 +130,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({ secret: sharedSecret, ...body }),
       cache: 'no-store',
       redirect: 'follow',
+      signal: controller.signal,
     })
     const text = await upstream.text()
 
@@ -155,8 +168,18 @@ export async function POST(req: Request) {
       )
     }
   } catch (err) {
+    const timedOut = err instanceof Error && err.name === 'AbortError'
     console.error('Sheet webhook error', err)
-    return NextResponse.json({ error: 'Could not save to sheet' }, { status: 502 })
+    return NextResponse.json(
+      {
+        error: timedOut
+          ? 'Saving took too long. The note may still have saved, so please check the sheet before trying again.'
+          : 'Could not save to sheet',
+      },
+      { status: 502 },
+    )
+  } finally {
+    clearTimeout(abortTimer)
   }
 
   // The note is saved; keep a readable copy and tick the matching booking on the
