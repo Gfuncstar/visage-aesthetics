@@ -27,6 +27,38 @@ export async function listBookableServices(): Promise<Service[]> {
   })
 }
 
+export type Clash = { clientName: string; startsAt: string; serviceName: string | null }
+
+/**
+ * The first active booking or booked Ovatu appointment overlapping
+ * [startsAtIso, endsAtIso), or null when the slot is free.
+ *
+ * The public online route filters slots before booking, but the staff diary and
+ * the Ovatu sync write straight to `bookings`, so they need an explicit clash
+ * check — otherwise two different clients can land on one slot.
+ */
+export async function findClash(startsAtIso: string, endsAtIso: string): Promise<Clash | null> {
+  const overlap = `starts_at.lt.${endsAtIso},ends_at.gt.${startsAtIso}`
+  const [bookings, appts] = await Promise.all([
+    select<Booking>('bookings', {
+      and: `(${overlap},status.neq.cancelled)`,
+      order: 'starts_at.asc',
+      limit: 1,
+    }),
+    select<{ client_name: string | null; starts_at: string | null; service_name: string | null }>('appointments', {
+      select: 'client_name,starts_at,service_name,status',
+      and: `(${overlap},status.eq.booked)`,
+      order: 'starts_at.asc',
+      limit: 1,
+    }).catch(() => [] as { client_name: string | null; starts_at: string | null; service_name: string | null }[]),
+  ])
+  const b = bookings[0]
+  if (b) return { clientName: b.client_name, startsAt: b.starts_at, serviceName: b.service_name }
+  const a = appts[0]
+  if (a?.starts_at) return { clientName: a.client_name ?? 'an existing appointment', startsAt: a.starts_at, serviceName: a.service_name }
+  return null
+}
+
 function busyFromBookings(bookings: Booking[], dateStr: string): Interval[] {
   const out: Interval[] = []
   for (const b of bookings) {
