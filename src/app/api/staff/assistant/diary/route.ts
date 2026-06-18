@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, select, insert, audit } from '@/lib/assistant/db'
-import { getService } from '@/lib/booking-engine/availability'
-import { londonWallToUtc, londonToday } from '@/lib/booking-engine/time'
+import { getService, findClash } from '@/lib/booking-engine/availability'
+import { londonWallToUtc, londonToday, clockLabel } from '@/lib/booking-engine/time'
 import { mirrorBookingAppointment } from '@/lib/booking-engine/appointments-mirror'
 import type { Booking, TimeOff, BusinessHours } from '@/lib/booking-engine/types'
 
@@ -106,6 +106,20 @@ export async function POST(req: Request) {
     if (!service) return NextResponse.json({ error: 'Unknown service' }, { status: 404 })
     const startsAt = londonWallToUtc(date, startMin)
     const endsAt = londonWallToUtc(date, startMin + service.duration_min)
+
+    // Refuse a slot that already has someone in it. The public route gets this
+    // for free via slot filtering; manual entries need it spelled out. A single
+    // practitioner can't see two clients at once, so this is a hard stop (the DB
+    // trigger enforces the same rule as a backstop) — pick another time.
+    const clash = await findClash(startsAt.toISOString(), endsAt.toISOString())
+    if (clash) {
+      const who = clash.serviceName ? `${clash.clientName} (${clash.serviceName})` : clash.clientName
+      return NextResponse.json(
+        { error: `${clockLabel(startMin)} already has ${who} booked in — please pick another time.`, clash: true },
+        { status: 409 },
+      )
+    }
+
     const booking = await insert<Booking>('bookings', {
       service_id: service.id,
       service_name: service.name,
