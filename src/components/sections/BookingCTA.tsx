@@ -36,6 +36,10 @@ export default function BookingCTA({ sectionNumber = '06' }: { sectionNumber?: s
             <span className="btn-arrow">→</span>
           </a>
         </div>
+        <Link href="/manage" className="btn btn-ghost-dark btn-md:auto mt-4">
+          <span>Manage my appointment</span>
+          <span className="btn-arrow">→</span>
+        </Link>
         <p
           className="mt-5 inline-flex items-center gap-2"
           style={{ color: 'rgba(245, 240, 236, 0.6)', fontSize: 12, letterSpacing: '0.04em' }}
