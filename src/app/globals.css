@@ -125,12 +125,15 @@ body {
   letter-spacing: -0.005em;
 }
 .text-body-lg {
-  font-size: 13.5px;
+  /* Matched to the VideoBandUSP overlay subline so body copy on plain
+     backgrounds reads at the same size as text laid over the video:
+     15px on mobile (the overlay's clamp floor), 16.5px on desktop. */
+  font-size: 15px;
   line-height: 1.55;
   color: #5C4F44;
 }
 @media (min-width: 768px) {
-  .text-body-lg { font-size: 14.5px; }
+  .text-body-lg { font-size: 16.5px; }
 }
 .text-body { font-size: 12.5px; line-height: 1.55; color: #5C4F44; }
 
