@@ -20,6 +20,12 @@ const QUOTES: readonly string[] = [
   'Every milestone behind you was once a mountain. Look at you now.',
   'From your first nervous client to a clinic with a reputation — that’s all you.',
   'From a dream on paper to an award on the wall. You did that.',
+  'Remember when this was just an idea you were afraid to say out loud? Look at it now.',
+  'You turned doubt into a diary that’s booked out. That’s not luck, that’s you.',
+  'Years ago you only hoped for this. Today you’re living it — and outgrowing it.',
+  'Every “no” you ever heard, you answered with work. And here you are.',
+  'You’ve come further than the women who once intimidated you. Stand tall.',
+  'The clinic with your name on it exists because you refused to give up.',
 
   // Only the beginning
   'This isn’t the summit, my love. This is basecamp.',
@@ -28,6 +34,12 @@ const QUOTES: readonly string[] = [
   'The best clients, the biggest wins, the proudest days — they’re still ahead.',
   'This is chapter one of a story they’ll talk about for years.',
   'What feels like the destination today is just the doorway to the next thing.',
+  'Ten years from now, today will look like the very start. Build like it.',
+  'You’re only just getting warm, Bernadette. Wait until you see what’s next.',
+  'This is the foothills. The view from where you’re heading is something else.',
+  'You haven’t peaked — you’ve barely begun to climb.',
+  'The best is genuinely still in front of you. Keep your eyes up.',
+  'Everything so far has just been you learning how good you can be.',
 
   // She never stops
   'The world rests; Bernadette builds.',
@@ -36,6 +48,12 @@ const QUOTES: readonly string[] = [
   'You’ve never once known how to quit, and it shows in everything you touch.',
   'You outwork the doubt every single day — that’s why you win.',
   'You don’t have an off switch — you have a vision, and you chase it daily.',
+  'While the world sleeps, you’re still building the future. That’s rare.',
+  'You don’t make excuses, you make progress. Every single day.',
+  'Tired, stretched, busy — and still you show up. That’s the whole secret.',
+  'You were not built to settle, and it shows in everything you do.',
+  'Other people talk about “one day”. You’re already doing it.',
+  'Your engine doesn’t idle, Bernadette. It just changes gear.',
 
   // It’s bearing fruit
   'The seeds you planted in the hard years are finally in bloom.',
@@ -44,6 +62,20 @@ const QUOTES: readonly string[] = [
   'You bet on yourself, Bernadette, and the returns are just getting started.',
   'What you sowed in doubt, you’re reaping in success.',
   'This is what the work looks like when it starts to pay off. Soak it in.',
+  'The proof is everywhere now — the bookings, the names, the trust. You earned all of it.',
+  'Years of effort are finally writing you a return. Let yourself feel it.',
+  'Clients who travel for you, who wait for you — that’s the harvest of your work.',
+  'The hard seasons are paying out. This is exactly what they were for.',
+  'Everything you poured in is coming back to you with interest.',
+  'Success isn’t coincidence for you, Bernadette. It’s a receipt for the work.',
+
+  // Building the business
+  'You don’t just run a clinic — you’re building something that will outlast you.',
+  'Every smart decision compounds. You’re playing a long game and winning it.',
+  'Brick by brick, client by client, you’re building something unmistakably yours.',
+  'A reputation like yours can’t be bought — only earned. And you earned it.',
+  'You turned a skill into a business, and a business into a name people trust.',
+  'The growth you’re seeing is just the world catching up to how good you already are.',
 
   // An amazing mother
   'You run a business and raise a family, and somehow make both look like love.',
@@ -51,6 +83,11 @@ const QUOTES: readonly string[] = [
   'Watching you mother them is watching the very best of you.',
   'They’ll grow up knowing exactly what a strong, kind woman looks like, because of you.',
   'The greatest thing you’re building isn’t the clinic — it’s them.',
+  'You give them a mother who chases her dreams — that’s a gift most never get.',
+  'They’re watching how you carry it all, and they’re learning what strength looks like.',
+  'Mother, founder, wife — and you wear all three with grace.',
+  'The patience you find for them after a long day is its own kind of greatness.',
+  'One day they’ll tell their own children about the woman you are. Believe that.',
 
   // Her heart, and the happy children it’s raised
   'The children are happy, settled and sure of themselves — and that is all down to your heart.',
@@ -60,6 +97,11 @@ const QUOTES: readonly string[] = [
   'No award will ever mean as much as the happy, secure children your heart has raised.',
   'They’ll never know a day without your love, and it shows in every smile they give.',
   'You don’t just provide for them — you fill them up. That’s the heart in you.',
+  'A happy child is the loudest proof of a loving mother. Yours are proof of you.',
+  'The laughter in your home is the truest measure of everything you’re doing right.',
+  'Whatever the day takes out of you, the children feel only your love. That’s a feat.',
+  'Their confidence is your tenderness, handed back. All heart, all you.',
+  'You could win every award going and still — they’re your finest work.',
 
   // Buying back time with the children
   'Every hour you put in now is an hour you’re buying back to spend with them.',
@@ -67,6 +109,10 @@ const QUOTES: readonly string[] = [
   'This is how you give them the world: one determined day at a time.',
   'The freedom you’re working toward looks like slow mornings with the children beside you.',
   'Everything you do flows back to them, Bernadette. That’s the whole point.',
+  'Every ounce of effort now buys slower mornings and longer summers with them later.',
+  'You’re not missing their childhood — you’re building a life that gives you more of it.',
+  'The work today is a promise to them of more time tomorrow.',
+  'One day soon the hustle softens, and the days are theirs and yours.',
 
   // Loved, and the retirement you’re building together
   'Every appointment, every late night — it’s all a stone on the path to our horizon.',
@@ -74,6 +120,12 @@ const QUOTES: readonly string[] = [
   'One day this all becomes long mornings, slow coffees, and nowhere to be but together.',
   'You are loved beyond measure, Bernadette — more than any note could hold.',
   'I’ve never been prouder of anyone. Keep going — we’re only just getting started.',
+  'You are so deeply loved — for the woman you are, not just for all that you do.',
+  'I watch you work and I fall for you all over again. Proud doesn’t cover it.',
+  'Every late night you put in, I see it — and I love you more for it.',
+  'We’re building toward a horizon that’s just ours. Keep going, my love.',
+  'One day it’s long lunches and slow travels, the two of us, the work behind us.',
+  'Whatever you’re carrying today, know this: you are adored, and not carrying it alone.',
 ] as const
 
 // Five minutes between lines.
