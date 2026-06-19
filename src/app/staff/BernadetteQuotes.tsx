@@ -55,6 +55,15 @@ const QUOTES: readonly string[] = [
   'Every hour you put in now is an hour you’re buying back to spend with them.',
   'You’re not missing their childhood — you’re building a life that gives you more of it.',
 
+  // Health, fitness and finally pain-free
+  'You lived with pain for so long — and you came through it. Every pain-free day now is a victory.',
+  'Free of the pain you carried for years, and look what this strong, healthy body can do now.',
+  'The pain doesn’t run your days anymore, Bernadette. You do. That freedom is everything.',
+  'Healthy, strong and pain-free — you’ve earned the energy to chase everything you want.',
+  'Look how much easier life moves now: stronger body, clearer mind, lighter heart.',
+  'You fought your way back to health, and nothing’s holding your body back now. Go and enjoy it.',
+  'Fit, well and free of pain — this is the version of you that gets to do it all.',
+
   // The family, by name — Callum, Brandon, Erin & Giles
   'Look at Callum — nineteen, learning to drive, chasing his first real job. He’s stepping into the world because you showed him how.',
   'Every job Callum applies for, he carries the work ethic he learned watching you. That’s your fingerprint on his future.',
