@@ -14,83 +14,83 @@ import { Heart } from 'lucide-react'
 // children, how loved she is, and the retirement the two of them are building.
 const QUOTES: readonly string[] = [
   // How far she's come
-  'Look how far you’ve come, Bernadette — from a dream on paper to a name people seek out.',
-  'You built this from nothing but belief and grit. Never forget that.',
-  'You turned doubt into a diary that’s booked out. That’s not luck, that’s you.',
-  'From your first nervous client to a clinic with a reputation — that’s all you.',
+  'Look how far you’ve come — from an idea to a name people seek out.',
+  'You built this from nothing but belief and grit.',
+  'You turned doubt into a diary that’s booked out. That’s not luck — that’s you.',
+  'From your first nervous client to a clinic with a reputation. All you.',
 
   // Only the beginning
   'This isn’t the summit, my love. This is basecamp.',
-  'The best clients, the biggest wins, the proudest days — they’re still ahead.',
-  'You haven’t peaked — you’ve barely begun to climb.',
-  'The best is genuinely still in front of you. Keep your eyes up.',
+  'The best clients, the biggest wins, the proudest days — still ahead.',
+  'You haven’t peaked. You’ve barely begun to climb.',
+  'The best is still in front of you. Eyes up.',
 
   // She never stops
   'The world rests; Bernadette builds.',
-  'Relentless isn’t a flaw, Bernadette. It’s your superpower.',
-  'You outwork the doubt every single day — that’s why you win.',
-  'You don’t have an off switch — you have a vision, and you chase it daily.',
+  'Relentless isn’t a flaw. It’s your superpower.',
+  'You outwork the doubt every single day. That’s why you win.',
+  'No off switch — just a vision, and you chase it daily.',
 
   // It’s bearing fruit
-  'The seeds you planted in the hard years are finally in bloom.',
-  'Clients who travel for you, who wait for you — that’s the harvest of your work.',
-  'You bet on yourself, Bernadette, and the returns are just getting started.',
-  'This is what the work looks like when it starts to pay off. Soak it in.',
+  'The seeds you planted in the hard years are in bloom.',
+  'Clients travel for you and wait for you. That’s the harvest.',
+  'You bet on yourself, and the returns are just starting.',
+  'This is the work paying off. Soak it in.',
 
   // Building the business
-  'You don’t just run a clinic — you’re building something that will outlast you.',
-  'A reputation like yours can’t be bought — only earned. And you earned it.',
+  'You don’t just run a clinic — you’ve built a name people trust.',
+  'A reputation like yours can’t be bought, only earned. And you earned it.',
 
   // An amazing mother
-  'You run a business and raise a family, and somehow make both look like love.',
+  'You run a business and raise a family, and make both look like love.',
   'The children don’t just have a mother — they have a role model.',
-  'Mother, founder, wife — and you wear all three with grace.',
+  'Mother, founder, wife — you wear all three with grace.',
 
   // Her heart, and the happy children it’s raised
-  'The children are happy, settled and sure of themselves — and that is all down to your heart.',
-  'The warmth in that home is yours, Bernadette. The children glow with it.',
-  'You could win every award going and still — they’re your finest work.',
+  'The children are happy, settled and sure of themselves. That’s your heart.',
+  'The warmth in that home is yours. They glow with it.',
+  'Win every award going, and still — they’re your finest work.',
 
   // Buying back time with the children
-  'Every hour you put in now is an hour you’re buying back to spend with them.',
-  'You’re not missing their childhood — you’re building a life that gives you more of it.',
+  'Every hour you put in now buys back time with them later.',
+  'You’re not missing their childhood — you’re building more of it.',
 
   // Health, fitness and finally pain-free
-  'You lived with pain for so long — and you came through it. Every pain-free day now is a victory.',
-  'Free of the pain you carried for years, and look what this strong, healthy body can do now.',
-  'The pain doesn’t run your days anymore, Bernadette. You do. That freedom is everything.',
-  'Healthy, strong and pain-free — you’ve earned the energy to chase everything you want.',
-  'Look how much easier life moves now: stronger body, clearer mind, lighter heart.',
-  'You fought your way back to health, and nothing’s holding your body back now. Go and enjoy it.',
-  'Fit, well and free of pain — this is the version of you that gets to do it all.',
+  'You lived with pain for years and came through it. Every pain-free day is a win.',
+  'Free of the pain you carried — look what this strong body can do now.',
+  'The pain doesn’t run your days anymore. You do.',
+  'Healthy, strong, pain-free — and full of energy for what’s next.',
+  'Everything moves easier now: stronger body, clearer mind, lighter heart.',
+  'You fought back to health, and nothing’s holding your body back. Enjoy it.',
+  'Fit, well and pain-free — this is the you that gets to do it all.',
 
   // The family, by name — Callum, Brandon, Erin & Giles
-  'Look at Callum — nineteen, learning to drive, chasing his first real job. He’s stepping into the world because you showed him how.',
-  'Every job Callum applies for, he carries the work ethic he learned watching you. That’s your fingerprint on his future.',
-  'Callum finding his feet and his independence — that quiet confidence started with you, Bernadette.',
-  'Brandon, nearly eighteen, eyeing university and his driving test — a young man full of ambition, and he got it from his mum.',
-  'When Brandon heads off to university, he’ll take a piece of your drive with him. You gave him that.',
-  'Brandon’s reaching higher because you taught him there’s always more to reach for.',
-  'Erin’s about to start big school, brave and ready — because her mum made her feel like she can do anything.',
-  'Eleven years old and stepping into a whole new world. Erin’s ready, Bernadette, and that readiness is your doing.',
-  'Watch Erin walk into big school with her head held high. That courage is yours, passed straight down.',
-  'Callum, Brandon and Erin — three good souls finding their way, and every one of them is proof of the mother you are.',
-  'Three children, three brand-new chapters all at once, and you’re holding it together with grace. Not many could.',
-  'Callum driving, Brandon off to university, Erin starting big school — your whole world is growing up well, because you raised it well.',
-  'You’ve given Callum, Brandon and Erin the best possible start, and you’ve given me the best life. — Giles',
-  'From the man lucky enough to have married you: I am so proud of you, Bernadette. — Giles',
-  'You’re the heart of this family, Bernadette. Callum, Brandon, Erin and I are who we are because of you. — Giles',
-  'Even Bailey and Coco know it — you’re the one who makes this house a home.',
-  'However long the day, Bailey and Coco are always waiting for you. That kind of love you’ve earned.',
-  'The home you’ve built has room for everyone in it — Callum, Brandon, Erin, Bailey and Coco. That’s your warmth.',
-  'Slow mornings with a coffee and the dogs at your feet — that’s part of the life all this hard work is buying.',
+  'Callum — nineteen, learning to drive, chasing his first job. Out in the world because you showed him how.',
+  'Every job Callum applies for, he carries the work ethic he learned from you.',
+  'Callum’s finding his feet, and that quiet confidence started with you.',
+  'Brandon — nearly eighteen, eyeing university and his driving test. He got that ambition from his mum.',
+  'When Brandon heads to university, he takes a piece of your drive with him.',
+  'Brandon reaches higher because you taught him there’s always more to reach for.',
+  'Erin starts big school soon, brave and ready — because you make her feel she can do anything.',
+  'Eleven and stepping into a whole new world. Erin’s ready — that’s your doing.',
+  'Erin will walk into big school head high. That courage is yours.',
+  'Callum, Brandon and Erin — three good souls finding their way. Every one of them proof of you.',
+  'Three children, three new chapters at once — and you hold it together with grace.',
+  'Callum driving, Brandon off to uni, Erin starting big school. Your world is growing up well, because you raised it well.',
+  'You’ve given Callum, Brandon and Erin the best start, and me the best life. — Giles',
+  'From the man lucky enough to have married you: I’m so proud of you. — Giles',
+  'You’re the heart of this family. We’re who we are because of you. — Giles',
+  'Even Bailey and Coco know it — you make this house a home.',
+  'However long the day, Bailey and Coco are always waiting. That love you’ve earned.',
+  'Room for everyone in the home you’ve built — Callum, Brandon, Erin, Bailey and Coco.',
+  'Slow mornings, coffee, the dogs at your feet — that’s the life this work is buying.',
 
-  // Loved, and the retirement you’re building together
-  'One day this all becomes long mornings, slow coffees, and nowhere to be but together.',
-  'You are loved beyond measure, Bernadette — more than any note could hold.',
-  'I’ve never been prouder of anyone. Keep going — we’re only just getting started.',
-  'I watch you work and I fall for you all over again. Proud doesn’t cover it. — Giles',
-  'Whatever you’re carrying today, know this: you are adored, and not carrying it alone. — Giles',
+  // Loved, and the life you’re building together
+  'Long mornings and slow coffees together — that’s where all this is heading.',
+  'You are loved beyond measure — more than any note could hold.',
+  'I’ve never been prouder of anyone. Keep going — we’re just getting started.',
+  'I watch you work and fall for you all over again. Proud doesn’t cover it. — Giles',
+  'Whatever you’re carrying today: you’re adored, and not carrying it alone. — Giles',
 ] as const
 
 // Five minutes between lines.
