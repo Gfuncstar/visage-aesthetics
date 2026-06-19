@@ -382,6 +382,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-06-16',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'lip-flip-vs-lip-filler',
+    category: "Anti-wrinkle",
+    title: "Lip flip vs lip filler: when each one is actually right",
+    excerpt: "A lip flip uses minimal anti-wrinkle injection to create the illusion of fullness, whilst filler adds actual volume—understanding which suits your goals will save you time and money.",
+    readTime: "7 min read",
+    datePublished: '2026-06-19',
+    dateModified: '2026-06-19',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
