@@ -341,7 +341,7 @@ export default function Diary() {
   }, [])
   useEffect(() => {
     void (async () => {
-      const res = await fetch('/api/book/services')
+      const res = await fetch('/api/staff/assistant/services')
       if (res.ok) setServices((await res.json()).services ?? [])
     })()
   }, [])
