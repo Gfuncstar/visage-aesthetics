@@ -6,6 +6,8 @@ import { isSimpleView } from '@/lib/staff-prefs'
 import StaffGate from '../notes/StaffGate'
 import { assistantConfigured } from '@/lib/assistant/db'
 import { endOfDaySummary } from '@/lib/assistant/end-of-day'
+import { buildBriefing } from '@/lib/assistant/briefing'
+import BriefingPlayer from '../BriefingPlayer'
 import NotificationToggle from './NotificationToggle'
 import WriteUpReminders from './WriteUpReminders'
 
@@ -82,7 +84,12 @@ export default async function AssistantIndex() {
   if (!authed) return <StaffGate />
   const configured = assistantConfigured()
   const simple = await isSimpleView()
-  const today = configured ? await endOfDaySummary() : null
+  // Build the audio briefing alongside today's summary. It degrades to a short
+  // fallback on its own when the database isn't connected.
+  const [today, briefing] = await Promise.all([
+    configured ? endOfDaySummary() : Promise.resolve(null),
+    buildBriefing(),
+  ])
   const visibleTools = simple ? tools.filter((t) => !t.advanced) : tools
 
   return (
@@ -104,6 +111,10 @@ export default async function AssistantIndex() {
         </p>
         <div className="mt-4">
           <NotificationToggle />
+        </div>
+
+        <div className="mt-6">
+          <BriefingPlayer briefing={briefing} />
         </div>
 
         {!configured && (
