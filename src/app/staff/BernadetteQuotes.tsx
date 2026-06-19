@@ -114,6 +114,23 @@ const QUOTES: readonly string[] = [
   'The work today is a promise to them of more time tomorrow.',
   'One day soon the hustle softens, and the days are theirs and yours.',
 
+  // The family, by name — Callum, Brandon, Erin & Giles
+  'Look at Callum — nineteen, learning to drive, chasing his first real job. He’s stepping into the world because you showed him how.',
+  'Every job Callum applies for, he carries the work ethic he learned watching you. That’s your fingerprint on his future.',
+  'Callum finding his feet and his independence — that quiet confidence started with you, Bernadette.',
+  'Brandon, nearly eighteen, eyeing university and his driving test — a young man full of ambition, and he got it from his mum.',
+  'When Brandon heads off to university, he’ll take a piece of your drive with him. You gave him that.',
+  'Brandon’s reaching higher because you taught him there’s always more to reach for.',
+  'Erin’s about to start big school, brave and ready — because her mum made her feel like she can do anything.',
+  'Eleven years old and stepping into a whole new world. Erin’s ready, Bernadette, and that readiness is your doing.',
+  'Watch Erin walk into big school with her head held high. That courage is yours, passed straight down.',
+  'Callum, Brandon and Erin — three good souls finding their way, and every one of them is proof of the mother you are.',
+  'Three children, three brand-new chapters all at once, and you’re holding it together with grace. Not many could.',
+  'Callum driving, Brandon off to university, Erin starting big school — your whole world is growing up well, because you raised it well.',
+  'You’ve given Callum, Brandon and Erin the best possible start, and you’ve given me the best life. — Giles',
+  'From the man lucky enough to have married you: I am so proud of you, Bernadette. — Giles',
+  'You’re the heart of this family, Bernadette. Callum, Brandon, Erin and I are who we are because of you. — Giles',
+
   // Loved, and the retirement you’re building together
   'Every appointment, every late night — it’s all a stone on the path to our horizon.',
   'We’re not just working. We’re buying back our future, one good day at a time.',
