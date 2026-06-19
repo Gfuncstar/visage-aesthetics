@@ -130,6 +130,10 @@ const QUOTES: readonly string[] = [
   'You’ve given Callum, Brandon and Erin the best possible start, and you’ve given me the best life. — Giles',
   'From the man lucky enough to have married you: I am so proud of you, Bernadette. — Giles',
   'You’re the heart of this family, Bernadette. Callum, Brandon, Erin and I are who we are because of you. — Giles',
+  'Even Bailey and Coco know it — you’re the one who makes this house a home.',
+  'However long the day, Bailey and Coco are always waiting for you. That kind of love you’ve earned.',
+  'The home you’ve built has room for everyone in it — Callum, Brandon, Erin, Bailey and Coco. That’s your warmth.',
+  'Slow mornings with a coffee and the dogs at your feet — that’s part of the life all this hard work is buying.',
 
   // Loved, and the retirement you’re building together
   'Every appointment, every late night — it’s all a stone on the path to our horizon.',
