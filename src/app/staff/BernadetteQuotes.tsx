@@ -52,6 +52,15 @@ const QUOTES: readonly string[] = [
   'They’ll grow up knowing exactly what a strong, kind woman looks like, because of you.',
   'The greatest thing you’re building isn’t the clinic — it’s them.',
 
+  // Her heart, and the happy children it’s raised
+  'The children are happy, settled and sure of themselves — and that is all down to your heart.',
+  'You can see your love in them every single day. Happy children don’t happen by accident.',
+  'However hard the days get, the children are thriving — because their mother leads with her heart.',
+  'The warmth in that home is yours, Bernadette. The children glow with it.',
+  'No award will ever mean as much as the happy, secure children your heart has raised.',
+  'They’ll never know a day without your love, and it shows in every smile they give.',
+  'You don’t just provide for them — you fill them up. That’s the heart in you.',
+
   // Buying back time with the children
   'Every hour you put in now is an hour you’re buying back to spend with them.',
   'You’re not choosing work over the children — you’re building a life with more of both.',
