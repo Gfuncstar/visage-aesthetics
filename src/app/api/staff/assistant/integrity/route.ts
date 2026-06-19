@@ -67,6 +67,10 @@ export async function GET(req: Request) {
         lines.push(`Ovatu appointments not in the new system (${report.uncovered.length}) — slot may be bookable twice:`)
         lines.push(...report.uncovered.map((s) => `  • ${s}`), '')
       }
+      if (report.ghosts.length) {
+        lines.push(`Cancelled in Ovatu but still live here (${report.ghosts.length}) — cancel these in the diary:`)
+        lines.push(...report.ghosts.map((s) => `  • ${s}`), '')
+      }
       if (report.duplicates.length) {
         lines.push(`Duplicate bookings (${report.duplicates.length}) — same client booked twice:`)
         lines.push(...report.duplicates.map((s) => `  • ${s}`), '')
@@ -76,7 +80,7 @@ export async function GET(req: Request) {
         lines.push(...report.overlaps.map((s) => `  • ${s}`), '')
       }
       lines.push('Open the staff diary to sort these out. (Sent only because something drifted — a clean day sends nothing.)')
-      const subject = `⚠️ Booking check: ${report.uncovered.length + report.duplicates.length + report.overlaps.length} to look at`
+      const subject = `⚠️ Booking check: ${report.uncovered.length + report.ghosts.length + report.duplicates.length + report.overlaps.length} to look at`
       try {
         await new Resend(apiKey).emails.send({
           from: FROM_EMAIL,
@@ -94,6 +98,7 @@ export async function GET(req: Request) {
   await audit('integrity-check', 'booking', undefined, {
     ok: report.ok,
     uncovered: report.uncovered.length,
+    ghosts: report.ghosts.length,
     duplicates: report.duplicates.length,
     overlaps: report.overlaps.length,
     alerted,

@@ -28,6 +28,7 @@ export type IntegrityReport = {
   checkedAt: string
   ok: boolean
   uncovered: string[] // Ovatu appointments with no matching active booking
+  ghosts: string[] // cancelled in Ovatu, but still live as a booking here
   duplicates: string[] // same client + same time, more than one active booking
   overlaps: string[] // two different clients in overlapping slots
 }
@@ -39,10 +40,20 @@ export async function bookingIntegrityCheck(): Promise<IntegrityReport> {
   const nowIso = now.toISOString()
   const today = londonToday()
 
-  const [appts, bookings] = await Promise.all([
+  const [appts, cancelledAppts, bookings] = await Promise.all([
     select<ApptRow>('appointments', {
       select: 'client_name,starts_at',
       status: 'eq.booked',
+      import_batch: 'eq.ovatu-ical',
+      and: `(date.gte.${today})`,
+      limit: 2000,
+    }).catch(() => [] as ApptRow[]),
+    // Appointments Ovatu reports as cancelled. If one of these still has a live
+    // booking here, the cancellation never made it across — the "Julie Hearn
+    // still shows as live" case — so flag it for a human to clear.
+    select<ApptRow>('appointments', {
+      select: 'client_name,starts_at',
+      status: 'eq.cancelled',
       import_batch: 'eq.ovatu-ical',
       and: `(date.gte.${today})`,
       limit: 2000,
@@ -63,6 +74,16 @@ export async function bookingIntegrityCheck(): Promise<IntegrityReport> {
     if (!a.starts_at) continue
     if (!activeKeys.has(key(a.client_name, a.starts_at))) {
       uncovered.push(`${a.client_name} — ${fmt(a.starts_at)}`)
+    }
+  }
+
+  // 1b) The inverse: Ovatu says cancelled, but a live booking is still on the
+  // diary. These are "ghost" bookings the cancellation didn't reach.
+  const ghosts: string[] = []
+  for (const a of cancelledAppts) {
+    if (!a.starts_at) continue
+    if (activeKeys.has(key(a.client_name, a.starts_at))) {
+      ghosts.push(`${a.client_name} — ${fmt(a.starts_at)}`)
     }
   }
 
@@ -94,6 +115,6 @@ export async function bookingIntegrityCheck(): Promise<IntegrityReport> {
     }
   }
 
-  const ok = uncovered.length === 0 && duplicates.length === 0 && overlaps.length === 0
-  return { checkedAt: nowIso, ok, uncovered, duplicates, overlaps }
+  const ok = uncovered.length === 0 && ghosts.length === 0 && duplicates.length === 0 && overlaps.length === 0
+  return { checkedAt: nowIso, ok, uncovered, ghosts, duplicates, overlaps }
 }
