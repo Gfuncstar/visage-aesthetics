@@ -246,7 +246,7 @@ export default async function Home() {
               <p className="text-body-lg">
                 A small, private clinic on Friars Lane, quiet by design, with a single appointment in the room at a time. No conveyor belt, no hard sell. Every treatment plan begins with a proper consultation, and only goes ahead if it&apos;s genuinely right for you.
               </p>
-              <ul className="brand-bullets reveal-stagger mt-10">
+              <ul className="brand-bullets reveal-stagger mt-12 md:mt-14">
                 <li>Medically led, ethically delivered</li>
                 <li>Bespoke treatment planning</li>
                 <li>Premium product partners</li>
