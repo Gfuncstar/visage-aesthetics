@@ -135,7 +135,8 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
 
     // cancel
     if (booking.status === 'cancelled') return NextResponse.json({ ok: true, status: 'cancelled' })
-    await update('bookings', { id: booking.id }, { status: 'cancelled' })
+    // Lock the cancellation so the Ovatu sync can't quietly revive it.
+    await update('bookings', { id: booking.id }, { status: 'cancelled', cancel_locked: true })
     await audit('cancel', 'booking', booking.id, { via: 'manage-link' })
     await mirrorBookingAppointment({
       bookingId: booking.id,

@@ -42,6 +42,10 @@ export type Booking = {
   starts_at: string
   ends_at: string
   status: BookingStatus
+  // True once a cancellation has been made inside this app. A DB trigger then
+  // refuses to let the external Ovatu sync flip the booking back to active; the
+  // app clears it when it deliberately restores a booking (Undo).
+  cancel_locked?: boolean
   notes: string | null
   source: 'online' | 'staff'
   manage_token: string

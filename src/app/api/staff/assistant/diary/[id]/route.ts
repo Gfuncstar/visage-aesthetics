@@ -30,7 +30,10 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   }
   if (!status) return NextResponse.json({ error: 'Bad status' }, { status: 400 })
   try {
-    const rows = await update<Booking>('bookings', { id }, { status })
+    // Lock a cancellation so the Ovatu sync can't quietly revive it; clear the
+    // lock on any other status, which is also how the top-nav Undo restores a
+    // booking (status set back with the lock released).
+    const rows = await update<Booking>('bookings', { id }, { status, cancel_locked: status === 'cancelled' })
     await audit('update', 'booking', id, { status })
 
     const booking = rows[0]

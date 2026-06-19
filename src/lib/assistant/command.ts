@@ -121,7 +121,8 @@ export async function executeAction(a: Action): Promise<{ ok: boolean; message: 
       }
       const booking = rows[0]
       if (!booking) return { ok: false, message: `I could not find a booking for ${a.clientName}.` }
-      await update('bookings', { id: booking.id }, { status: 'cancelled' })
+      // Lock the cancellation so the Ovatu sync can't quietly revive it.
+      await update('bookings', { id: booking.id }, { status: 'cancelled', cancel_locked: true })
       await audit('cancel', 'booking', booking.id, { via: 'command' })
       await mirrorBookingAppointment({
         bookingId: booking.id,
