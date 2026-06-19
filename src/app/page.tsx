@@ -212,7 +212,7 @@ export default async function Home() {
       <section className="bg-cream py-7 md:py-9">
         <div className="max-w-[1100px] mx-auto px-5 md:px-8 text-center">
           <p className="font-display italic text-charcoal mx-auto max-w-3xl" style={{ fontSize: 'clamp(19px, 2vw, 25px)', lineHeight: 1.4, fontWeight: 400 }}>
-            Visage Aesthetics is an advanced practice nurse-led clinic on Friars Lane, Braintree, Essex. Every treatment is performed by Bernadette Tobin &mdash; a registered nurse and prescriber, MSc Advanced Practice, 20+ years&apos; experience. Awarded Best Non-Surgical Aesthetics Clinic 2026, Essex.
+            Awarded Best Non-Surgical Aesthetics Clinic in Essex, 2026. Every treatment is performed by Bernadette Tobin &mdash; a registered nurse and prescriber with a Level 7 Master&apos;s in Advanced Practice and 20+ years of clinical experience.
           </p>
         </div>
       </section>
