@@ -40,6 +40,8 @@ type FormValues = {
 const inputClass =
   'w-full bg-cream border border-line/40 rounded-sm px-4 py-3 text-base text-charcoal placeholder:text-ink-soft/60 focus:outline-none focus:border-gold min-h-[48px]'
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 export default function PatientNotesForm({ prefillName = '', prefillDate = '' }: { prefillName?: string; prefillDate?: string }) {
   const [submitted, setSubmitted] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
@@ -52,6 +54,10 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
   // the client's email on file (or copies it / opens it in their email app).
   const [savedValues, setSavedValues] = useState<FormValues | null>(null)
   const [lookupEmail, setLookupEmail] = useState<string | null>(null)
+  // The address the email will actually go to. Prefilled from the lookup when a
+  // match is found, but always editable so the clinician can send even when no
+  // email is on file (or the name didn't match the record exactly).
+  const [recipient, setRecipient] = useState('')
   const [drafting, setDrafting] = useState(false)
   const [draftError, setDraftError] = useState<string | null>(null)
   const [drafted, setDrafted] = useState(false)
@@ -129,6 +135,7 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
     setSubmitted(false)
     setSavedValues(null)
     setLookupEmail(null)
+    setRecipient('')
     setDrafting(false)
     setDraftError(null)
     setDrafted(false)
@@ -163,6 +170,7 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
         email = ''
       }
       setLookupEmail(email)
+      if (email) setRecipient(email)
     }
     try {
       const treatmentTypeId = matchTreatmentType(savedValues.treatment) ?? 'review'
@@ -201,7 +209,8 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
   }
 
   async function sendSummary() {
-    if (!savedValues || !lookupEmail) return
+    const to = recipient.trim().toLowerCase()
+    if (!savedValues || !EMAIL_RE.test(to)) return
     setSending(true)
     setSendResult(null)
     setConfirmSend(false)
@@ -217,7 +226,7 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
           notes: savedValues.additionalNotes,
           subject: emailSubject,
           body: emailBody,
-          to: lookupEmail,
+          to,
         }),
       })
       const data = await res.json().catch(() => ({}))
@@ -225,7 +234,7 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
         setSendResult({ ok: false, message: data.error || 'Could not send the email.' })
         return
       }
-      setSendResult({ ok: true, message: `Sent to ${lookupEmail}.` })
+      setSendResult({ ok: true, message: `Sent to ${to}.` })
     } catch {
       setSendResult({ ok: false, message: 'Network error while sending.' })
     } finally {
@@ -234,7 +243,8 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
   }
 
   const emailPlain = bodyToText(emailBody)
-  const mailtoHref = `mailto:${lookupEmail ?? ''}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailPlain)}`
+  const recipientValid = EMAIL_RE.test(recipient.trim())
+  const mailtoHref = `mailto:${recipient.trim()}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailPlain)}`
 
   async function copyEmail() {
     try {
@@ -295,13 +305,22 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
                   <label htmlFor="sum-body" className="text-eyebrow text-ink-soft mb-2 mt-4 block">Message</label>
                   <textarea id="sum-body" rows={12} className={inputClass} value={emailBody} onChange={(e) => setEmailBody(e.target.value)} />
 
-                  {lookupEmail ? (
-                    <p className="text-xs text-stone mt-2">To: {lookupEmail}</p>
-                  ) : (
-                    <p className="text-xs text-ink-soft mt-2">
-                      No email on file for this client. Copy the message or open it in your email app to address it.
-                    </p>
-                  )}
+                  <label htmlFor="sum-to" className="text-eyebrow text-ink-soft mb-2 mt-4 block">Send to</label>
+                  <input
+                    id="sum-to"
+                    type="email"
+                    inputMode="email"
+                    autoComplete="off"
+                    placeholder="client@email.com"
+                    className={inputClass}
+                    value={recipient}
+                    onChange={(e) => { setRecipient(e.target.value); setConfirmSend(false) }}
+                  />
+                  <p className="text-xs text-ink-soft mt-2">
+                    {lookupEmail
+                      ? 'Email on file for this client — edit it here if it’s changed.'
+                      : 'No email on file for this client — add their address to send, or copy / open it in your email app.'}
+                  </p>
 
                   <div className="mt-3 flex flex-wrap gap-2">
                     <button type="button" onClick={copyEmail} className="btn btn-secondary">
@@ -316,8 +335,8 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
                         Open in email app
                       </span>
                     </a>
-                    {lookupEmail && !confirmSend && (
-                      <button type="button" onClick={() => { setConfirmSend(true); setSendResult(null) }} disabled={sending} className="btn btn-primary disabled:opacity-50">
+                    {!confirmSend && (
+                      <button type="button" onClick={() => { setConfirmSend(true); setSendResult(null) }} disabled={sending || !recipientValid} className="btn btn-primary disabled:opacity-50">
                         <span className="inline-flex items-center gap-2">
                           <Send size={15} strokeWidth={1.75} /> Send from clinic
                         </span>
@@ -328,7 +347,7 @@ export default function PatientNotesForm({ prefillName = '', prefillDate = '' }:
                   {confirmSend && (
                     <div className="mt-3 border border-gold/50 bg-gold/8 rounded-sm px-4 py-3 flex items-center justify-between gap-3">
                       <p className="text-sm text-charcoal">
-                        Send <span className="font-medium">{emailSubject}</span> to <span className="font-medium">{lookupEmail}</span>?
+                        Send <span className="font-medium">{emailSubject}</span> to <span className="font-medium">{recipient.trim()}</span>?
                       </p>
                       <div className="flex items-center gap-2 shrink-0">
                         <button type="button" onClick={sendSummary} disabled={sending} className="btn btn-primary disabled:opacity-50" style={{ minHeight: 36 }}>
