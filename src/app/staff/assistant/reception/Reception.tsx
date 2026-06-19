@@ -500,7 +500,7 @@ function NewBookingPanel({ initialDate, initialTime, onClose, onDone }: { initia
   const [err, setErr] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch('/api/book/services')
+    fetch('/api/staff/assistant/services')
       .then((r) => (r.ok ? r.json() : { services: [] }))
       .then((d) => setServices(d.services ?? []))
       .catch(() => {})

@@ -32,6 +32,17 @@ export async function listBookableServices(): Promise<Service[]> {
   })
 }
 
+/** All active services in display order, including those not bookable online.
+ *  Staff pickers (diary, reception) use this so they can book staff-only
+ *  services — e.g. a follow-up Review — that clients can't self-book online. */
+export async function listActiveServices(): Promise<Service[]> {
+  return select<Service>('services', {
+    active: 'eq.true',
+    order: 'display_order.asc',
+    limit: 100,
+  })
+}
+
 function busyFromBookings(bookings: Booking[], dateStr: string): Interval[] {
   const out: Interval[] = []
   for (const b of bookings) {
