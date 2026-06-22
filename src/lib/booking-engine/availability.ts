@@ -6,7 +6,7 @@ import { londonWallToUtc, londonParts, clockLabel, londonToday, TZ } from './tim
 import type { Booking, Service, Slot, TimeOff } from './types'
 import { loadOpeningWindows, windowsForWeekday, type OpeningWindow } from './opening-hours'
 
-const STEP_MIN = 15 // slot granularity
+const STEP_MIN = 30 // slot granularity — clients can only start on the :00/:30 grid
 const LEAD_MIN = 120 // earliest bookable lead time from now (2 hours)
 // How far ahead the public diary opens. Kept generous (about ten months) so the
 // calendar runs to the end of the year and beyond — clients can book months out,
