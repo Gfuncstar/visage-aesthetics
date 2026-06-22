@@ -117,7 +117,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             hero poster + award badge. Manual preload tags here were duplicating that
             and pulling the unoptimised 630 KB PNG on every mobile visit. */}
         <link rel="dns-prefetch" href="https://www.openstreetmap.org" />
-        <link rel="dns-prefetch" href="https://visage-aesthetics.book.app" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="alternate" type="application/rss+xml" title="Visage Aesthetics, Insights & Advice" href="/blog/rss.xml" />
         <link rel="search" type="application/opensearchdescription+xml" title="Visage Aesthetics" href="/opensearch.xml" />
