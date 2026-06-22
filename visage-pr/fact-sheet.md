@@ -11,7 +11,7 @@ A single, verified reference for journalists, award judges and partners. Every f
 - **Website:** https://www.vaclinic.co.uk
 - **Email:** info@vaclinic.co.uk
 - **Phone / WhatsApp:** 07931 395246
-- **Booking:** Online via Ovatu at https://visage-aesthetics.book.app/book-now
+- **Booking:** Online at https://www.vaclinic.co.uk/book-online
 - **Instagram:** https://www.instagram.com/visageaestheticclinic
 - **How to attend:** Strictly by appointment. Every treatment begins with a consultation.
 

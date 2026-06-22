@@ -11,7 +11,7 @@ A polished, active Google Business Profile is the single biggest local lever for
 **Get the basics right and keep them right:**
 - Business name exactly "Visage Aesthetics". Correct category (Medical spa / Skin care clinic / Aesthetics) and any relevant secondary categories.
 - Address, opening hours, phone (07931 395246) and website all correct and matching the site.
-- Booking link set to the Ovatu link so people can book straight from Google.
+- Booking link set to the in-house booking page (https://www.vaclinic.co.uk/book-online) so people can book straight from Google. (Must not point at the old Ovatu link.)
 - Services list filled out with the real treatments and short descriptions.
 - A proper "from the business" description in the Visage voice, citing the award in full.
 
@@ -19,7 +19,7 @@ A polished, active Google Business Profile is the single biggest local lever for
 - Add real, high-quality photos: the clinic exterior on Friars Lane, the treatment room, Bernadette, and any approved before-and-after images. Refresh monthly. Profiles with recent photos look alive and rank better locally.
 
 **Google Posts (aim for one a week):**
-- Short updates: the award, a seasonal offer or tip, a new treatment, a patient win (with consent), a safety tip. Each ends with "Book a consultation" linked to Ovatu.
+- Short updates: the award, a seasonal offer or tip, a new treatment, a patient win (with consent), a safety tip. Each ends with "Book a consultation" linked to the in-house booking page (vaclinic.co.uk/book-online).
 - These are easy wins and keep the profile active. Drafts come from the story angles.
 
 **Q&A:**
