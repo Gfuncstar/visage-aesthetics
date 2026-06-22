@@ -392,6 +392,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-06-19',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'harmonyca-jawline-restoration',
+    category: "Hybrid filler",
+    title: "HarmonyCa for jawline restoration: hybrid filler with collagen build",
+    excerpt: "HarmonyCa combines immediate volume with collagen stimulation, offering jawline restoration that improves both structure and skin quality over months rather than weeks.",
+    readTime: "7 min read",
+    datePublished: '2026-06-22',
+    dateModified: '2026-06-22',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
