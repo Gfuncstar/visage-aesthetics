@@ -79,6 +79,9 @@ function weekDays(ds: string): string[] {
 function localDate(iso: string): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date(iso))
 }
+function localTime24(iso: string): string {
+  return new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(iso))
+}
 function shortDay(ds: string): string {
   return new Intl.DateTimeFormat('en-GB', { timeZone: TZ, weekday: 'long', day: 'numeric', month: 'short' }).format(new Date(`${ds}T12:00:00Z`))
 }
@@ -824,8 +827,31 @@ function DiaryDetailModal({ booking: b, onClose, onStatus, onChanged, onCancel }
   const [busy, setBusy] = useState<string | null>(null)
   const [note, setNote] = useState<string | null>(null)
   const [err, setErr] = useState<string | null>(null)
+  const [moveOpen, setMoveOpen] = useState(false)
+  const [moveDate, setMoveDate] = useState(() => localDate(b.starts_at))
+  const [moveTime, setMoveTime] = useState(() => localTime24(b.starts_at))
+  const [moving, setMoving] = useState(false)
   const isConfirmed = b.status === 'confirmed' && !!b.confirmed_at
   const noContact = !b.client_email && !b.client_phone
+
+  async function moveBooking() {
+    setMoving(true); setErr(null); setNote(null)
+    try {
+      const res = await fetch(`/api/staff/assistant/diary/${b.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: moveDate, startMinutes: timeToMinutes(moveTime) }),
+      })
+      const d = await res.json().catch(() => ({}))
+      if (!res.ok) { setErr(d.error || 'Could not move the booking.'); return }
+      notifyDone(d.emailed ? 'Moved — client emailed to confirm' : 'Moved')
+      onChanged(); onClose()
+    } catch {
+      setErr('Network error — please try again.')
+    } finally {
+      setMoving(false)
+    }
+  }
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
@@ -930,6 +956,31 @@ function DiaryDetailModal({ booking: b, onClose, onStatus, onChanged, onCancel }
             )}
             {noContact && !isConfirmed && b.status !== 'completed' && (
               <p className="text-xs text-clay leading-snug">No contact details — add a phone or email to send a confirmation.</p>
+            )}
+            {b.status !== 'completed' && b.status !== 'cancelled' && (
+              moveOpen ? (
+                <div className="border border-gold/40 bg-gold/5 rounded-sm p-3 space-y-2">
+                  <div className="text-xs text-stone leading-snug">
+                    Move to any time — including outside opening hours, or onto a full day. It won&apos;t bump anyone or text the waitlist, and the client is emailed the new time to confirm.
+                  </div>
+                  <div className="flex gap-2">
+                    <input type="date" value={moveDate} onChange={(e) => setMoveDate(e.target.value)} className="bg-cream border border-line rounded-sm px-2.5 py-2 text-sm flex-1" />
+                    <input type="time" value={moveTime} onChange={(e) => setMoveTime(e.target.value)} className="bg-cream border border-line rounded-sm px-2.5 py-2 text-sm" />
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={moveBooking} disabled={moving} className="btn btn-primary disabled:opacity-50 flex-1" style={{ minHeight: 38 }}>
+                      {moving ? 'Moving…' : 'Move & email client'}
+                    </button>
+                    <button onClick={() => { setMoveOpen(false); setErr(null) }} disabled={moving} className="btn btn-secondary disabled:opacity-50" style={{ minHeight: 38 }}>
+                      Close
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button onClick={() => setMoveOpen(true)} disabled={busy !== null} className="btn btn-secondary disabled:opacity-50" style={{ minHeight: 40 }}>
+                  <span className="inline-flex items-center gap-2"><Clock size={15} strokeWidth={1.75} /> Move to another time</span>
+                </button>
+              )
             )}
             <button onClick={() => onCancel(b)} className="text-sm text-clay border border-clay/30 hover:bg-clay/5 rounded-sm transition-colors" style={{ minHeight: 40 }}>
               Cancel &amp; release slot

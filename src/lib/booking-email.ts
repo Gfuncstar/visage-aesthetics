@@ -102,6 +102,43 @@ ${closing}`
   }
 }
 
+export function bookingMovedEmail(input: {
+  name: string
+  serviceName: string
+  startsAtIso: string
+  manageToken: string
+}): { subject: string; html: string; text: string } {
+  const confirmUrl = `${SITE}/book/confirm/${input.manageToken}`
+  const manageUrl = `${SITE}/book/manage/${input.manageToken}`
+  // More than 24h out, they can rearrange online; inside that window, ask them
+  // to call instead (the manage page + API enforce the same cutoff).
+  const allowRearrange = !withinChangeCutoff(input.startsAtIso)
+  const closing = allowRearrange
+    ? 'Please confirm the new time still works for you using the button below. If it does not suit, tap Rearrange to pick another (changes can be made up to 24 hours before).'
+    : 'Please confirm the new time still works for you using the button below. As it is now within 24 hours, it can no longer be changed online — if it does not suit, please call the clinic and we will find another time.'
+  const body = `Hi ${firstName(input.name)},
+
+We have had to move the time of your appointment. Apologies for the change — here are the new details:
+
+**${input.serviceName}**
+${whenLine(input.startsAtIso)}
+${ADDRESS}
+
+${closing}`
+  const opts = {
+    preheader: 'Your appointment time has changed — please confirm.',
+    headline: 'Your appointment has been moved',
+    body,
+    ctaCustom: { label: 'Confirm new time', url: confirmUrl },
+    ...(allowRearrange ? { ctaSecondary: { label: 'Rearrange', url: manageUrl } } : {}),
+  }
+  return {
+    subject: `Your appointment has been moved: ${input.serviceName}`,
+    html: buildBroadcastHtml(opts),
+    text: buildBroadcastText({ headline: opts.headline, body, ctaCustom: opts.ctaCustom, ctaSecondary: allowRearrange ? { label: 'Rearrange', url: manageUrl } : undefined }),
+  }
+}
+
 export function portalLoginEmail(input: { name: string; url: string }): { subject: string; html: string; text: string } {
   const body = `Hi ${firstName(input.name)},
 
