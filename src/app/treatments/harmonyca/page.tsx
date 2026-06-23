@@ -1,13 +1,15 @@
-import type { Metadata } from 'next'
 import TreatmentTemplate from '@/components/sections/TreatmentTemplate'
 import { getTreatment } from '@/lib/treatments'
+import { buildMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/treatments/harmonyca' },
+export const metadata = buildMetadata({
   title: 'HarmonyCa | Visage Aesthetics',
   description:
     'HarmonyCa hybrid injectable for instant lift and long-term collagen stimulation. Visage Aesthetics, Braintree, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex.',
-}
+  path: '/treatments/harmonyca',
+  ogTitle: 'HarmonyCa',
+  eyebrow: 'Nurse-led treatment',
+})
 
 export default function Page() {
   const treatment = getTreatment('harmonyca')!

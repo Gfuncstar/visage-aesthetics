@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { ArrowUpRight, RotateCcw } from 'lucide-react'
 import { treatments, type Treatment } from '@/lib/treatments'
+import { BOOKING_LINK_PROPS } from '@/lib/booking'
 
 type Answers = {
   concern?: 'lines' | 'volume' | 'skin' | 'unsure'
@@ -212,6 +213,15 @@ export default function TreatmentFinder() {
                         </div>
                       </Link>
                     ))}
+                  </div>
+                  <div className="mt-6 flex flex-col sm:flex-row sm:items-center gap-4">
+                    <a {...BOOKING_LINK_PROPS} className="btn btn-primary btn-md:auto">
+                      <span>Book a free consultation</span>
+                      <span className="btn-arrow">→</span>
+                    </a>
+                    <span className="text-stone" style={{ fontSize: 12, lineHeight: 1.5 }}>
+                      Prefer to talk it through first? The consultation is free, with no obligation to book.
+                    </span>
                   </div>
                 </div>
               )}

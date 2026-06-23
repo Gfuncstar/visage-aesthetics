@@ -1,13 +1,15 @@
-import type { Metadata } from 'next'
 import TreatmentTemplate from '@/components/sections/TreatmentTemplate'
 import { getTreatment } from '@/lib/treatments'
+import { buildMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/treatments/micro-needling' },
-  title: 'Micro-Needling Braintree | Visage Aesthetics | Visage Aesthetics',
+export const metadata = buildMetadata({
+  title: 'Micro-Needling Braintree | Visage Aesthetics',
   description:
     'Medical-grade micro-needling in Braintree, Essex by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Best Non-Surgical Aesthetics Clinic 2026. Collagen induction therapy from £80. Exosome upgrade £150. Course of 3 from £240.',
-}
+  path: '/treatments/micro-needling',
+  ogTitle: 'Micro-Needling in Braintree',
+  eyebrow: 'Nurse-led treatment',
+})
 
 export default function Page() {
   const treatment = getTreatment('micro-needling')!

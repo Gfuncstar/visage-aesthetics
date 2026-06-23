@@ -1,4 +1,3 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowUpRight } from 'lucide-react'
@@ -8,11 +7,15 @@ import TreatmentFinder from '@/components/sections/TreatmentFinder'
 import { treatments } from '@/lib/treatments'
 import { conditions } from '@/lib/conditions'
 import { BOOKING_URL } from '@/lib/booking'
+import { buildMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
+export const metadata = buildMetadata({
   title: 'Treatments | Visage Aesthetics',
   description: 'Non-surgical aesthetic treatments at Visage Aesthetics, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. Anti-wrinkle, dermal filler, Profhilo, HarmonyCa, micro-needling, AQUALYX and more — performed in a private, discreet clinic on Friars Lane, Braintree. One client at a time.',
-}
+  path: '/treatments',
+  ogTitle: 'Treatments',
+  eyebrow: 'Nurse-led aesthetics',
+})
 
 export default function TreatmentsPage() {
   return (

@@ -1,11 +1,14 @@
-import type { Metadata } from 'next'
 import { Check, X, Clock, AlertCircle } from 'lucide-react'
 import BookingCTA from '@/components/sections/BookingCTA'
+import { buildMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
+export const metadata = buildMetadata({
   title: 'Aftercare | Visage Aesthetics',
   description: 'Aftercare guidance for aesthetic treatments at Visage Aesthetics, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. Anti-wrinkle, dermal filler, Profhilo, micro-needling and more.',
-}
+  path: '/aftercare',
+  ogTitle: 'Treatment Aftercare',
+  eyebrow: 'After your treatment',
+})
 
 const dos = [
   'Drink plenty of water for the first 48 hours.',

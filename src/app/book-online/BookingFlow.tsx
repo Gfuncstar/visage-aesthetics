@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { ArrowLeft, Calendar, Check, Clock, LogIn } from 'lucide-react'
 
-type Service = { slug: string; name: string; category: string | null; duration_min: number; price_from: number }
+type Service = { slug: string; name: string; category: string | null; duration_min: number; price_from: number; deposit: number }
 type Slot = { startsAtIso: string; label: string }
 
 const inputClass =
@@ -278,6 +278,9 @@ export default function BookingFlow() {
                   <div>
                     <div className="text-base text-charcoal">{s.name}</div>
                     <div className="text-xs text-stone mt-0.5 inline-flex items-center gap-2"><Clock size={12} strokeWidth={1.75} /> {s.duration_min} min &nbsp;·&nbsp; {gbp(s.price_from)}</div>
+                    {s.deposit > 0 && (
+                      <div className="text-[11px] text-gold-deep mt-1">{gbp(s.deposit)} deposit secures your slot &middot; balance paid at the appointment</div>
+                    )}
                   </div>
                   <span className="text-stone">→</span>
                 </button>
@@ -292,6 +295,9 @@ export default function BookingFlow() {
             <div className="mb-5">
               <div className="text-base font-medium text-charcoal">{service.name}</div>
               <div className="text-xs text-stone">{service.duration_min} min &nbsp;·&nbsp; {gbp(service.price_from)}</div>
+              {service.deposit > 0 && (
+                <div className="text-[11px] text-gold-deep mt-1">{gbp(service.deposit)} deposit secures your slot &middot; balance paid at the appointment</div>
+              )}
             </div>
 
             {loading && !day ? (

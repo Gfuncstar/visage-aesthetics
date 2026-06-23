@@ -1,13 +1,15 @@
-import type { Metadata } from 'next'
 import TreatmentTemplate from '@/components/sections/TreatmentTemplate'
 import { getTreatment } from '@/lib/treatments'
+import { buildMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/treatments/map-my-mole' },
+export const metadata = buildMetadata({
   title: 'Map My Mole | Visage Aesthetics',
   description:
     'Have a concerning mole or skin lesion reviewed by a UK consultant dermatologist within 24 hours. Medical-grade dermoscopy at Visage Aesthetics, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. £90 per mole.',
-}
+  path: '/treatments/map-my-mole',
+  ogTitle: 'Map My Mole',
+  eyebrow: 'Nurse-led treatment',
+})
 
 export default function Page() {
   const treatment = getTreatment('map-my-mole')!

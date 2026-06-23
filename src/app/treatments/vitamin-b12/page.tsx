@@ -1,13 +1,15 @@
-import type { Metadata } from 'next'
 import TreatmentTemplate from '@/components/sections/TreatmentTemplate'
 import { getTreatment } from '@/lib/treatments'
+import { buildMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/treatments/vitamin-b12' },
+export const metadata = buildMetadata({
   title: 'Vitamin B12 Injections | Visage Aesthetics',
   description:
     'Vitamin B12 injections for energy, focus, mood and deficiency support. Visage Aesthetics, Braintree, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex.',
-}
+  path: '/treatments/vitamin-b12',
+  ogTitle: 'Vitamin B12 Injections',
+  eyebrow: 'Nurse-led treatment',
+})
 
 export default function Page() {
   const treatment = getTreatment('vitamin-b12')!

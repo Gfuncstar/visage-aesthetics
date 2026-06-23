@@ -129,8 +129,8 @@ export default function Header() {
               </Link>
               <a
                 {...BOOKING_LINK_PROPS}
-                className="hidden md:inline-block text-charcoal hover:text-gold-deep transition-colors pb-1.5 border-b border-charcoal hover:border-gold-deep"
-                style={{ fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 500 }}
+                className="hidden md:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gold hover:bg-gold-deep text-cream transition-colors"
+                style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 600 }}
               >
                 Book
               </a>

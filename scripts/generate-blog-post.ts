@@ -580,13 +580,8 @@ function updateSitemap(slug: string, isoDate: string) {
       `$1\n  '/blog/${slug}': '${isoDate}',`,
     )
   }
-  // Ensure the route is registered in blogRoutes too
-  if (!src.includes(`'${slug}',`)) {
-    src = src.replace(
-      /(\s*\/\/ AUTO-BLOG-SITEMAP-INSERT[^\n]*\n)/,
-      `    '${slug}',\n$1`,
-    )
-  }
+  // blogRoutes is derived from the blog-posts.ts manifest in sitemap.ts, so a
+  // new post is registered automatically once the manifest is updated above.
   writeFileSync(path, src)
 }
 

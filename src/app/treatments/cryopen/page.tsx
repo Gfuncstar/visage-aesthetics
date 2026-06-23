@@ -1,13 +1,15 @@
-import type { Metadata } from 'next'
 import TreatmentTemplate from '@/components/sections/TreatmentTemplate'
 import { getTreatment } from '@/lib/treatments'
+import { buildMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/treatments/cryopen' },
+export const metadata = buildMetadata({
   title: 'CryoPen Skin Lesion Removal | Visage Aesthetics',
   description:
     'CryoPen cryotherapy for skin tags, warts, milia, age spots and benign lesions. Visage Aesthetics, Braintree, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex.',
-}
+  path: '/treatments/cryopen',
+  ogTitle: 'CryoPen Skin Lesion Removal',
+  eyebrow: 'Nurse-led treatment',
+})
 
 export default function Page() {
   const treatment = getTreatment('cryopen')!

@@ -1,13 +1,15 @@
-import type { Metadata } from 'next'
 import TreatmentTemplate from '@/components/sections/TreatmentTemplate'
 import { getTreatment } from '@/lib/treatments'
+import { buildMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/treatments/anti-wrinkle-injections' },
+export const metadata = buildMetadata({
   title: 'Anti-Wrinkle Injections (Botox) Braintree | Visage Aesthetics',
   description:
     'Winner: Best Non-Surgical Aesthetics Clinic 2026, Essex. Nurse-led anti-wrinkle injections in Braintree, Essex. Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Naturally subtle results, full expression preserved. From £120.',
-}
+  path: '/treatments/anti-wrinkle-injections',
+  ogTitle: 'Anti-Wrinkle Injections (Botox)',
+  eyebrow: 'Nurse-led treatment',
+})
 
 export default function Page() {
   const treatment = getTreatment('anti-wrinkle-injections')!

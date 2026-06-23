@@ -1,13 +1,15 @@
-import type { Metadata } from 'next'
 import TreatmentTemplate from '@/components/sections/TreatmentTemplate'
 import { getTreatment } from '@/lib/treatments'
+import { buildMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/treatments/profhilo' },
-  title: 'Profhilo Braintree | Visage Aesthetics | Visage Aesthetics',
+export const metadata = buildMetadata({
+  title: 'Profhilo Braintree | Visage Aesthetics',
   description:
     'Authentic Profhilo skin bio-remodelling in Braintree, Essex by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). Best Non-Surgical Aesthetics Clinic 2026. Hydration, glow, no fill. From £180.',
-}
+  path: '/treatments/profhilo',
+  ogTitle: 'Profhilo in Braintree',
+  eyebrow: 'Nurse-led treatment',
+})
 
 export default function Page() {
   const treatment = getTreatment('profhilo')!

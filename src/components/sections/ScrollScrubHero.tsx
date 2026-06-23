@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import GoogleG from '@/components/ui/GoogleG'
 import { AWARD } from '@/lib/award'
+import { BOOKING_LINK_PROPS } from '@/lib/booking'
 
 export default function ScrollScrubHero() {
   const heroRef = useRef<HTMLElement>(null)
@@ -165,6 +166,21 @@ export default function ScrollScrubHero() {
                   <span className="word-rise"><span style={{ animationDelay: '0.45s' }}>naturally yours.</span></span>
                 </span>
               </h1>
+              <div
+                className="mt-9 md:mt-10 flex flex-col sm:flex-row sm:items-center gap-4"
+                style={{ opacity: 0, animation: 'fadeUp 1s 0.75s var(--ease) forwards' }}
+              >
+                <a {...BOOKING_LINK_PROPS} className="btn btn-primary btn-md:auto">
+                  <span>Book a free consultation</span>
+                  <span className="btn-arrow">→</span>
+                </a>
+                <span
+                  className="inline-flex items-center"
+                  style={{ color: '#F5F0EC', fontSize: 12.5, letterSpacing: '0.02em', textShadow: '0 1px 3px rgba(0, 0, 0, 0.28)' }}
+                >
+                  Always free · No deposit · No pressure
+                </span>
+              </div>
             </div>
           </div>
 

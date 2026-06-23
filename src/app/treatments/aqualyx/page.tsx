@@ -1,13 +1,15 @@
-import type { Metadata } from 'next'
 import TreatmentTemplate from '@/components/sections/TreatmentTemplate'
 import { getTreatment } from '@/lib/treatments'
+import { buildMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/treatments/aqualyx' },
+export const metadata = buildMetadata({
   title: 'AQUALYX Fat Dissolving | Visage Aesthetics',
   description:
     'AQUALYX injectable fat-dissolving treatment for double chin, jowls, flanks and stubborn pockets. Visage Aesthetics, Braintree, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex.',
-}
+  path: '/treatments/aqualyx',
+  ogTitle: 'AQUALYX Fat Dissolving',
+  eyebrow: 'Nurse-led treatment',
+})
 
 export default function Page() {
   const treatment = getTreatment('aqualyx')!

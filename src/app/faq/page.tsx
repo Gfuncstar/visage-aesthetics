@@ -1,12 +1,15 @@
-import type { Metadata } from 'next'
 import { ArrowUpRight } from 'lucide-react'
 import Accordion, { type AccordionItem } from '@/components/ui/Accordion'
 import BookingCTA from '@/components/sections/BookingCTA'
+import { buildMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
+export const metadata = buildMetadata({
   title: 'FAQ | Visage Aesthetics',
   description: 'Common questions about aesthetic treatments at Visage Aesthetics, Braintree, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. Safety, qualifications, cost, what to expect before and after.',
-}
+  path: '/faq',
+  ogTitle: 'Frequently Asked Questions',
+  eyebrow: 'Everything answered',
+})
 
 const safety: AccordionItem[] = [
   {
@@ -100,12 +103,25 @@ export default function FAQPage() {
   const allFaqs = [...safety, ...treatmentsFaq, ...booking, ...aftercare]
   const faqJsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: allFaqs.map((f) => ({
-      '@type': 'Question',
-      name: f.question,
-      acceptedAnswer: { '@type': 'Answer', text: f.answer },
-    })),
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.vaclinic.co.uk/' },
+          { '@type': 'ListItem', position: 2, name: 'FAQ', item: 'https://www.vaclinic.co.uk/faq' },
+        ],
+      },
+      {
+        '@type': 'FAQPage',
+        '@id': 'https://www.vaclinic.co.uk/faq#faq',
+        url: 'https://www.vaclinic.co.uk/faq',
+        mainEntity: allFaqs.map((f) => ({
+          '@type': 'Question',
+          name: f.question,
+          acceptedAnswer: { '@type': 'Answer', text: f.answer },
+        })),
+      },
+    ],
   }
 
   return (

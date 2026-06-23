@@ -1,12 +1,15 @@
-import type { Metadata } from 'next'
 import { MapPin, Mail, Clock, MessageCircle } from 'lucide-react'
 import { BOOKING_URL, BOOKING_LINK_PROPS } from '@/lib/booking'
 import ContactForm from './ContactForm'
+import { buildMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
+export const metadata = buildMetadata({
   title: 'Book a Consultation | Visage Aesthetics',
   description: 'Book a free, no-obligation aesthetic consultation at Visage Aesthetics, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. A private, discreet clinic — no signage, private parking, one client at a time. 17A Friars Lane, Braintree CM7 9BL.',
-}
+  path: '/contact',
+  ogTitle: 'Book a Free Consultation',
+  eyebrow: 'Visit · Friars Lane, Braintree',
+})
 
 export default function ContactPage() {
   return (

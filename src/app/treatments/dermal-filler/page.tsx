@@ -1,13 +1,15 @@
-import type { Metadata } from 'next'
 import TreatmentTemplate from '@/components/sections/TreatmentTemplate'
 import { getTreatment } from '@/lib/treatments'
+import { buildMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/treatments/dermal-filler' },
-  title: 'Dermal Filler Braintree | Visage Aesthetics | Visage Aesthetics',
+export const metadata = buildMetadata({
+  title: 'Dermal Filler Braintree | Visage Aesthetics',
   description:
     'Subtle, balanced dermal filler in Braintree, Essex. Hyaluronic acid for lips, cheeks and jawline by Bernadette Tobin RGN, MSc (NMC PIN 05G1755E). From £110, fully reversible.',
-}
+  path: '/treatments/dermal-filler',
+  ogTitle: 'Dermal Filler in Braintree',
+  eyebrow: 'Nurse-led treatment',
+})
 
 export default function Page() {
   const treatment = getTreatment('dermal-filler')!

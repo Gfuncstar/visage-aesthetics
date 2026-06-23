@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next'
 import { treatments } from '@/lib/treatments'
 import { geoPages } from '@/lib/geo-pages'
 import { conditions } from '@/lib/conditions'
+import { blogPosts } from '@/lib/blog-posts'
 
 const SITE = 'https://www.vaclinic.co.uk'
 
@@ -166,51 +167,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: dateOf(c.href),
   }))
 
-  const blogRoutes: MetadataRoute.Sitemap = [
-    'first-botox-appointment',
-    'natural-looking-filler',
-    'profhilo-vs-dermal-filler',
-    'botox-vs-filler',
-    'lip-filler-aftercare-guide',
-    'how-long-does-profhilo-last',
-    'what-is-a-nurse-led-clinic',
-    'consultation-questions-to-ask',
-    'tear-trough-filler-truth',
-    'first-time-botox-mistakes',    'anti-wrinkle-aftercare',    'how-long-does-botox-last',    'exercise-and-botox-results',    'vitamin-b12-injections-when-they-work',    'natural-looking-aesthetics-essex',    'hyperhidrosis-botox-explained',    'men-aesthetics-guide',    'micro-needling-results-timeline',    'aqualyx-fat-dissolving-explained',    'uk-aesthetics-regulation-2026',    'profhilo-treatment-guide',    'harmonyca-vs-traditional-filler',    'preventative-botox-late-twenties',    'ozempic-face-volume-loss',    'masseter-botox-jawline-slimming',    'brow-lift-with-botox',    'abcde-mole-check-guide',    'wedding-aesthetics-timeline',    'chin-filler-for-jawline-projection',    'mole-mapping-how-often',    'vascular-occlusion-filler-safety',    'nasolabial-fold-treatment-options',    'biostimulators-explained',    'platysmal-bands-neck-botox',    'marionette-lines-treatment',    'polynucleotides-vs-profhilo',    'lip-flip-vs-lip-filler',    'harmonyca-jawline-restoration',
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // AUTO-BLOG-SITEMAP-INSERT, generator appends new slugs immediately above this line. Do not delete this marker.
-  ].map((slug) => ({
-    url: `${SITE}/blog/${slug}`,
+  const blogRoutes: MetadataRoute.Sitemap = blogPosts.map((p) => ({
+    url: `${SITE}/blog/${p.slug}`,
     changeFrequency: 'monthly',
     priority: 0.7,
-    lastModified: dateOf(`/blog/${slug}`),
+    lastModified: dateOf(`/blog/${p.slug}`),
   }))
 
   return [...staticRoutes, ...treatmentRoutes, ...geoRoutes, ...conditionRoutes, ...blogRoutes]

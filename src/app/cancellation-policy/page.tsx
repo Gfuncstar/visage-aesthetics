@@ -1,10 +1,12 @@
-import type { Metadata } from 'next'
 import BookingCTA from '@/components/sections/BookingCTA'
+import { buildMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
+export const metadata = buildMetadata({
   title: 'Terms & Conditions, Visage Aesthetics',
   description: 'Our booking terms and conditions, including our 24-hour cancellation and rescheduling policy.',
-}
+  path: '/cancellation-policy',
+  ogTitle: 'Terms & Conditions',
+})
 
 export default function CancellationPolicyPage() {
   return (

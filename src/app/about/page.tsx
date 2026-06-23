@@ -1,13 +1,16 @@
-import type { Metadata } from 'next'
 import { Award, Stethoscope, ShieldCheck, GraduationCap, BookOpen, Heart } from 'lucide-react'
 import BookingCTA from '@/components/sections/BookingCTA'
 import VideoBandUSP from '@/components/sections/VideoBandUSP'
 import AutoplayVideo from '@/components/ui/AutoplayVideo'
+import { buildMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
+export const metadata = buildMetadata({
   title: 'About Bernadette Tobin | Visage Aesthetics',
   description: 'Bernadette Tobin: registered nurse, MSc Advanced Practice, founder of Visage Aesthetics — awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. 20+ years clinical experience, natural conservative results, in a private clinic with no signage, private parking and one client at a time.',
-}
+  path: '/about',
+  ogTitle: 'About the Founder',
+  eyebrow: 'Founder · RGN, MSc',
+})
 
 const credentials = [
   { Icon: GraduationCap, title: 'MSc Advanced Practice', desc: 'Level 7 postgraduate qualification in advanced clinical practice, the highest academic level a nurse can hold.' },

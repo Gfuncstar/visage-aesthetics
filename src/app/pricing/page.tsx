@@ -202,6 +202,15 @@ export default function PricingPage() {
             No hidden costs. No pressure to upgrade. Every treatment plan starts with a free, unhurried
             consultation, and only goes ahead if it&apos;s genuinely right for you.
           </p>
+          <div className="mt-8 flex flex-col sm:flex-row sm:items-center gap-4">
+            <a {...BOOKING_LINK_PROPS} className="btn btn-primary btn-md:auto">
+              <span>Book a free consultation</span>
+              <span className="btn-arrow">→</span>
+            </a>
+            <span className="text-stone text-[12px] tracking-[0.18em] uppercase">
+              Free &amp; unhurried &nbsp;·&nbsp; Quoted in writing &nbsp;·&nbsp; No obligation
+            </span>
+          </div>
         </div>
       </section>
 

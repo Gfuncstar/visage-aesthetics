@@ -1,13 +1,15 @@
-import type { Metadata } from 'next'
 import TreatmentTemplate from '@/components/sections/TreatmentTemplate'
 import { getTreatment } from '@/lib/treatments'
+import { buildMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/treatments/mens-aesthetics' },
+export const metadata = buildMetadata({
   title: 'Men\u2019s Aesthetics | Visage Aesthetics',
   description:
     'Discreet, clinical aesthetic treatments for men. Visage Aesthetics, Braintree, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex. Anti-wrinkle, jawline filler, Profhilo and AQUALYX tailored to male anatomy.',
-}
+  path: '/treatments/mens-aesthetics',
+  ogTitle: "Men's Aesthetics",
+  eyebrow: 'Nurse-led treatment',
+})
 
 export default function Page() {
   const treatment = getTreatment('mens-aesthetics')!

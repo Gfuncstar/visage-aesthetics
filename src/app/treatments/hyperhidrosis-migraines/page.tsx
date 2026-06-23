@@ -1,13 +1,15 @@
-import type { Metadata } from 'next'
 import TreatmentTemplate from '@/components/sections/TreatmentTemplate'
 import { getTreatment } from '@/lib/treatments'
+import { buildMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/treatments/hyperhidrosis-migraines' },
+export const metadata = buildMetadata({
   title: 'Hyperhidrosis & Migraines | Visage Aesthetics',
   description:
     'Botulinum toxin treatment for excessive sweating and chronic migraine prevention. Visage Aesthetics, Braintree, awarded Best Non-Surgical Aesthetics Clinic 2026, Essex.',
-}
+  path: '/treatments/hyperhidrosis-migraines',
+  ogTitle: 'Hyperhidrosis & Migraine Treatment',
+  eyebrow: 'Nurse-led treatment',
+})
 
 export default function Page() {
   const treatment = getTreatment('hyperhidrosis-migraines')!
