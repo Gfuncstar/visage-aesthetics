@@ -3,23 +3,31 @@
 import { useCallback, useEffect, useState } from 'react'
 import {
   Bot,
+  Bookmark,
   Calendar,
   CheckCircle2,
   Clock,
+  Eye,
   FileText,
+  Globe,
+  Heart,
   HelpCircle,
-  Image,
+  Image as ImageIcon,
   LogOut,
+  MessageCircle,
   Package,
   Play,
   RefreshCw,
   Search,
+  Send,
   Star,
+  ThumbsUp,
   TrendingUp,
   X,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { notifyDone } from '@/lib/staff-toast'
+import { CLINIC } from '@/lib/clinic'
 
 type AgentId =
   | 'stock-expiry'
@@ -75,7 +83,7 @@ const AGENTS: AgentDef[] = [
     schedule: 'Tuesdays 09:00',
     description: 'Instagram and Facebook captions from recent blog posts.',
     hint: 'Drafts social posts from treatments and season',
-    Icon: Image,
+    Icon: ImageIcon,
     output: 'dashboard',
   },
   {
@@ -184,6 +192,7 @@ export default function AgentsDashboard() {
   const [loading, setLoading] = useState(true)
   const [running, setRunning] = useState<Partial<Record<AgentId, boolean>>>({})
   const [results, setResults] = useState<Partial<Record<AgentId, RunResult>>>({})
+  const [previewDraft, setPreviewDraft] = useState<SocialDraft | null>(null)
 
   const loadStatus = useCallback(async () => {
     setLoading(true)
@@ -223,6 +232,7 @@ export default function AgentsDashboard() {
         ? { ...prev, social_drafts: prev.social_drafts.filter((d) => d.id !== id) }
         : prev,
     )
+    setPreviewDraft((prev) => (prev?.id === id ? null : prev))
     notifyDone(newStatus === 'approved' ? 'Draft approved' : 'Draft dismissed')
   }
 
@@ -304,6 +314,13 @@ export default function AgentsDashboard() {
                       </span>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => setPreviewDraft(draft)}
+                        className="inline-flex items-center gap-1 text-xs text-charcoal hover:text-gold-deep border border-line/60 hover:border-gold/40 rounded px-2 py-1 transition-colors"
+                      >
+                        <Eye size={11} />
+                        Preview
+                      </button>
                       <button
                         onClick={() => void patchDraft(draft.id, 'approved')}
                         className="inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-900 border border-green-200 hover:border-green-400 rounded px-2 py-1 transition-colors"
@@ -485,6 +502,149 @@ export default function AgentsDashboard() {
           })}
         </div>
       </div>
+
+      {previewDraft && (
+        <div
+          className="fixed inset-0 bg-charcoal/70 z-50 flex items-center justify-center p-4 md:p-8"
+          onClick={() => setPreviewDraft(null)}
+        >
+          <div
+            className="bg-cream w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col rounded-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-5 py-3 border-b border-line/40 shrink-0">
+              <div className="eyebrow text-gold">
+                {previewDraft.platform === 'instagram' ? 'Instagram' : 'Facebook'} preview
+              </div>
+              <button
+                onClick={() => setPreviewDraft(null)}
+                className="text-stone hover:text-charcoal text-2xl leading-none"
+                aria-label="Close preview"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="flex-1 min-h-0 overflow-y-auto bg-stone-100 p-4">
+              {previewDraft.platform === 'instagram' ? (
+                <InstagramPreview draft={previewDraft} />
+              ) : (
+                <FacebookPreview draft={previewDraft} />
+              )}
+              <p className="text-[11px] text-stone text-center mt-3 leading-snug">
+                Approximate preview. The image is attached when the post is published — captions and hashtags appear as shown.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 px-5 py-3 border-t border-line/40 shrink-0">
+              <button
+                onClick={() => void patchDraft(previewDraft.id, 'dismissed')}
+                className="inline-flex items-center gap-1 text-xs text-stone hover:text-charcoal border border-line/60 hover:border-stone rounded px-3 py-1.5 transition-colors"
+              >
+                <X size={12} />
+                Dismiss
+              </button>
+              <button
+                onClick={() => void patchDraft(previewDraft.id, 'approved')}
+                className="inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-900 border border-green-200 hover:border-green-400 rounded px-3 py-1.5 transition-colors"
+              >
+                <CheckCircle2 size={12} />
+                Approve
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
+  )
+}
+
+function ClinicAvatar() {
+  return (
+    <div className="w-8 h-8 rounded-full bg-charcoal text-cream flex items-center justify-center shrink-0 font-display italic text-sm">
+      V
+    </div>
+  )
+}
+
+function ImagePlaceholder({ sourceTitle }: { sourceTitle: string }) {
+  return (
+    <div className="aspect-square bg-gradient-to-br from-cream-soft to-stone-200 flex flex-col items-center justify-center text-center px-6 border-y border-line/30">
+      <ImageIcon size={28} strokeWidth={1.5} className="text-stone mb-2" />
+      <p className="text-[11px] text-stone uppercase tracking-wide">Image added at publish</p>
+      {sourceTitle && (
+        <p className="text-xs text-ink-soft mt-1.5 max-w-[80%] leading-snug">{sourceTitle}</p>
+      )}
+    </div>
+  )
+}
+
+function InstagramPreview({ draft }: { draft: SocialDraft }) {
+  return (
+    <div className="bg-white max-w-sm mx-auto border border-line/40 rounded-sm overflow-hidden text-charcoal">
+      <div className="flex items-center gap-2.5 px-3 py-2.5">
+        <ClinicAvatar />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold leading-tight">visageaestheticclinic</p>
+          <p className="text-[11px] text-stone leading-tight">
+            {CLINIC.addressLocality}, {CLINIC.addressRegion}
+          </p>
+        </div>
+      </div>
+
+      <ImagePlaceholder sourceTitle={draft.source_title} />
+
+      <div className="flex items-center gap-4 px-3 pt-2.5">
+        <Heart size={20} strokeWidth={1.75} />
+        <MessageCircle size={20} strokeWidth={1.75} />
+        <Send size={20} strokeWidth={1.75} />
+        <Bookmark size={20} strokeWidth={1.75} className="ml-auto" />
+      </div>
+
+      <div className="px-3 py-2 text-sm leading-snug">
+        <span className="font-semibold mr-1.5">visageaestheticclinic</span>
+        <span className="whitespace-pre-wrap">{draft.caption}</span>
+        {draft.hashtags && (
+          <p className="text-[#385185] mt-1.5 whitespace-pre-wrap">{draft.hashtags}</p>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function FacebookPreview({ draft }: { draft: SocialDraft }) {
+  return (
+    <div className="bg-white max-w-sm mx-auto border border-line/40 rounded-sm overflow-hidden text-charcoal">
+      <div className="flex items-center gap-2.5 px-3 py-2.5">
+        <ClinicAvatar />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold leading-tight">{CLINIC.name}</p>
+          <p className="text-[11px] text-stone leading-tight flex items-center gap-1">
+            Just now · <Globe size={10} strokeWidth={2} />
+          </p>
+        </div>
+      </div>
+
+      <div className="px-3 pb-2.5 text-sm leading-snug">
+        <span className="whitespace-pre-wrap">{draft.caption}</span>
+        {draft.hashtags && (
+          <p className="text-[#385185] mt-1.5 whitespace-pre-wrap">{draft.hashtags}</p>
+        )}
+      </div>
+
+      <ImagePlaceholder sourceTitle={draft.source_title} />
+
+      <div className="flex items-center justify-around px-3 py-1.5 border-t border-line/30 text-stone">
+        <span className="inline-flex items-center gap-1.5 text-xs py-1">
+          <ThumbsUp size={15} strokeWidth={1.75} /> Like
+        </span>
+        <span className="inline-flex items-center gap-1.5 text-xs py-1">
+          <MessageCircle size={15} strokeWidth={1.75} /> Comment
+        </span>
+        <span className="inline-flex items-center gap-1.5 text-xs py-1">
+          <Send size={15} strokeWidth={1.75} /> Share
+        </span>
+      </div>
+    </div>
   )
 }
