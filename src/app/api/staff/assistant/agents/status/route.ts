@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, select } from '@/lib/assistant/db'
+import { instagramConfigured } from '@/lib/assistant/meta'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -14,6 +15,7 @@ type SocialDraft = {
   source_title: string
   status: string
   created_at: string
+  image: string | null
 }
 
 type SentimentLog = {
@@ -40,19 +42,22 @@ type SeoReport = {
 export async function GET() {
   if (!(await isStaffAuthed())) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
   if (!assistantConfigured()) {
-    return NextResponse.json({ social_drafts: [], sentiment: null, seo_report: null, configured: false })
+    return NextResponse.json({ social_drafts: [], approved_drafts: [], sentiment: null, seo_report: null, configured: false, instagram_connected: false })
   }
 
-  const [draftsResult, sentimentResult, seoResult] = await Promise.allSettled([
+  const [draftsResult, approvedResult, sentimentResult, seoResult] = await Promise.allSettled([
     select<SocialDraft>('social_drafts', { status: 'eq.draft', order: 'created_at.desc', limit: 20 }),
+    select<SocialDraft>('social_drafts', { status: 'eq.approved', order: 'created_at.desc', limit: 20 }),
     select<SentimentLog>('review_sentiment_log', { order: 'analyzed_at.desc', limit: 1 }),
     select<SeoReport>('seo_reports', { order: 'created_at.desc', limit: 1 }),
   ])
 
   return NextResponse.json({
     social_drafts: draftsResult.status === 'fulfilled' ? draftsResult.value : [],
+    approved_drafts: approvedResult.status === 'fulfilled' ? approvedResult.value : [],
     sentiment: sentimentResult.status === 'fulfilled' ? (sentimentResult.value[0] ?? null) : null,
     seo_report: seoResult.status === 'fulfilled' ? (seoResult.value[0] ?? null) : null,
     configured: true,
+    instagram_connected: instagramConfigured(),
   })
 }

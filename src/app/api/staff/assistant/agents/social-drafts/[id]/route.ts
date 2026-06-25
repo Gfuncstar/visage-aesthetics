@@ -25,10 +25,10 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   const { id } = await ctx.params
   if (!UUID_RE.test(id)) return NextResponse.json({ error: 'Bad id' }, { status: 400 })
 
-  let body: { status?: unknown; caption?: unknown; hashtags?: unknown }
+  let body: { status?: unknown; caption?: unknown; hashtags?: unknown; image?: unknown }
   try { body = await req.json() } catch { return NextResponse.json({ error: 'Invalid body' }, { status: 400 }) }
 
-  // Build the patch — staff can edit the copy, change the status, or both.
+  // Build the patch — staff can edit the copy, set the image, change the status, or any mix.
   const patch: Record<string, unknown> = {}
 
   if (typeof body.caption === 'string') {
@@ -38,6 +38,11 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   }
   if (typeof body.hashtags === 'string') {
     patch.hashtags = body.hashtags.trim().slice(0, 500)
+  }
+  // Same-origin asset path only (e.g. /images/profhilo.jpg) — this is composited
+  // into the branded image that gets published.
+  if (typeof body.image === 'string' && body.image.startsWith('/')) {
+    patch.image = body.image.slice(0, 300)
   }
   if (typeof body.status === 'string') {
     if (!ALLOWED_STATUSES.has(body.status)) return NextResponse.json({ error: 'Invalid status' }, { status: 400 })

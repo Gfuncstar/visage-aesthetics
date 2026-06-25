@@ -28,7 +28,7 @@ import {
   X,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { notifyDone } from '@/lib/staff-toast'
+import { notifyDone, notifyError } from '@/lib/staff-toast'
 import { CLINIC } from '@/lib/clinic'
 import { blogPosts } from '@/lib/blog-posts'
 
@@ -194,6 +194,7 @@ type SocialDraft = {
   source_title: string
   status: string
   created_at: string
+  image?: string | null
 }
 
 type Sentiment = {
@@ -216,9 +217,11 @@ type SeoReport = {
 
 type StatusData = {
   social_drafts: SocialDraft[]
+  approved_drafts: SocialDraft[]
   sentiment: Sentiment | null
   seo_report: SeoReport | null
   configured: boolean
+  instagram_connected: boolean
 }
 
 type RunResult = { ok: boolean; message: string }
@@ -259,6 +262,7 @@ export default function AgentsDashboard() {
   const [editCaption, setEditCaption] = useState('')
   const [editHashtags, setEditHashtags] = useState('')
   const [savingEdit, setSavingEdit] = useState(false)
+  const [publishing, setPublishing] = useState<string | null>(null)
 
   const loadStatus = useCallback(async () => {
     setLoading(true)
@@ -287,19 +291,52 @@ export default function AgentsDashboard() {
     }
   }
 
-  async function patchDraft(id: string, newStatus: 'approved' | 'dismissed') {
-    await fetch(`/api/staff/assistant/agents/social-drafts/${id}`, {
+  async function patchDraft(draft: SocialDraft, newStatus: 'approved' | 'dismissed') {
+    const image = imageByDraft[draft.id] ?? relatedImage(draft)
+    await fetch(`/api/staff/assistant/agents/social-drafts/${draft.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: newStatus }),
+      body: JSON.stringify(
+        newStatus === 'approved' ? { status: 'approved', image } : { status: 'dismissed' },
+      ),
     })
-    setStatus((prev) =>
-      prev
-        ? { ...prev, social_drafts: prev.social_drafts.filter((d) => d.id !== id) }
-        : prev,
-    )
-    setPreviewDraft((prev) => (prev?.id === id ? null : prev))
+    setStatus((prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        social_drafts: prev.social_drafts.filter((d) => d.id !== draft.id),
+        approved_drafts:
+          newStatus === 'approved'
+            ? [{ ...draft, image, status: 'approved' }, ...prev.approved_drafts]
+            : prev.approved_drafts,
+      }
+    })
+    setPreviewDraft((prev) => (prev?.id === draft.id ? null : prev))
     notifyDone(newStatus === 'approved' ? 'Draft approved' : 'Draft dismissed')
+  }
+
+  async function publishDraft(draft: SocialDraft) {
+    setPublishing(draft.id)
+    try {
+      const res = await fetch(`/api/staff/assistant/agents/social-drafts/${draft.id}/publish`, {
+        method: 'POST',
+      })
+      const data = (await res.json().catch(() => ({}))) as { error?: string }
+      if (!res.ok) {
+        notifyError(data.error || 'Could not publish to Instagram')
+        return
+      }
+      setStatus((prev) =>
+        prev
+          ? { ...prev, approved_drafts: prev.approved_drafts.filter((d) => d.id !== draft.id) }
+          : prev,
+      )
+      notifyDone('Posted to Instagram')
+    } catch {
+      notifyError('Could not publish to Instagram')
+    } finally {
+      setPublishing(null)
+    }
   }
 
   function startEdit(draft: SocialDraft) {
@@ -342,6 +379,8 @@ export default function AgentsDashboard() {
   }
 
   const drafts = status?.social_drafts ?? []
+  const approved = status?.approved_drafts ?? []
+  const igConnected = status?.instagram_connected ?? false
   const sentiment = status?.sentiment ?? null
   const seoReport = status?.seo_report ?? null
 
@@ -430,14 +469,14 @@ export default function AgentsDashboard() {
                           Preview
                         </button>
                         <button
-                          onClick={() => void patchDraft(draft.id, 'approved')}
+                          onClick={() => void patchDraft(draft, 'approved')}
                           className="inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-900 border border-green-200 hover:border-green-400 rounded px-2 py-1 transition-colors"
                         >
                           <CheckCircle2 size={11} />
                           Approve
                         </button>
                         <button
-                          onClick={() => void patchDraft(draft.id, 'dismissed')}
+                          onClick={() => void patchDraft(draft, 'dismissed')}
                           className="text-stone hover:text-charcoal transition-colors p-1"
                           aria-label="Dismiss"
                         >
@@ -487,6 +526,46 @@ export default function AgentsDashboard() {
                         <p className="text-xs text-stone mt-1.5">{draft.hashtags}</p>
                       )}
                     </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Approved — ready to publish to Instagram */}
+        {approved.length > 0 && (
+          <div className="mb-10">
+            <div className="eyebrow text-stone mb-3">
+              Approved &nbsp;·&nbsp; {approved.length} ready to publish
+            </div>
+            {!igConnected && (
+              <p className="text-xs text-stone mb-3 border border-line/40 rounded-sm bg-cream-soft px-3 py-2 leading-relaxed">
+                Instagram isn&rsquo;t connected yet — set <code className="text-gold-deep">META_IG_USER_ID</code> to enable publishing. Approved posts wait here until then.
+              </p>
+            )}
+            <div className="space-y-3">
+              {approved.map((draft) => (
+                <div
+                  key={draft.id}
+                  className="bg-cream-soft border border-line/40 rounded-sm p-4"
+                >
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <span className="text-xs text-stone truncate max-w-[200px]">
+                      {draft.source_title}
+                    </span>
+                    <button
+                      onClick={() => void publishDraft(draft)}
+                      disabled={!igConnected || publishing === draft.id}
+                      className="inline-flex items-center gap-1.5 text-xs text-cream bg-gold-deep hover:bg-gold rounded px-3 py-1.5 transition-colors shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <Send size={12} />
+                      {publishing === draft.id ? 'Publishing…' : 'Publish to Instagram'}
+                    </button>
+                  </div>
+                  <p className="text-sm text-charcoal leading-relaxed">{draft.caption}</p>
+                  {draft.hashtags && (
+                    <p className="text-xs text-stone mt-1.5">{draft.hashtags}</p>
                   )}
                 </div>
               ))}
@@ -718,14 +797,14 @@ export default function AgentsDashboard() {
 
             <div className="flex items-center justify-end gap-2 px-5 py-3 border-t border-line/40 shrink-0">
               <button
-                onClick={() => void patchDraft(previewDraft.id, 'dismissed')}
+                onClick={() => void patchDraft(previewDraft, 'dismissed')}
                 className="inline-flex items-center gap-1 text-xs text-stone hover:text-charcoal border border-line/60 hover:border-stone rounded px-3 py-1.5 transition-colors"
               >
                 <X size={12} />
                 Dismiss
               </button>
               <button
-                onClick={() => void patchDraft(previewDraft.id, 'approved')}
+                onClick={() => void patchDraft(previewDraft, 'approved')}
                 className="inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-900 border border-green-200 hover:border-green-400 rounded px-3 py-1.5 transition-colors"
               >
                 <CheckCircle2 size={12} />

@@ -16,7 +16,7 @@ covers *who holds the logins*).
 | **Anthropic** | All AI (agents, parsing, drafting) — **has billing** | `ANTHROPIC_API_KEY` | agents, order-parsers, contact |
 | **Twilio** | Client SMS | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM`, `TWILIO_MESSAGING_SERVICE_SID` | `src/lib/assistant/sms.ts` |
 | **Microsoft Graph** | Read the clinic Outlook inbox (order capture — parked) | `MS_GRAPH_CLIENT_ID`, `MS_GRAPH_CLIENT_SECRET`, `CLINIC_INBOX_FOLDER` | `src/lib/assistant/graph-inbox.ts` |
-| **Meta** | Facebook/Instagram page posting | `META_PAGE_ID`, `META_PAGE_ACCESS_TOKEN` | `src/lib/assistant/meta.ts` |
+| **Meta** | Facebook Page posting + Instagram publishing | `META_PAGE_ID`, `META_PAGE_ACCESS_TOKEN`, `META_IG_USER_ID` (Instagram) | `src/lib/assistant/meta.ts` |
 | **Ovatu** | Booking/CRM of record — **read-only** iCal feed | `OVATU_API_TOKEN`, `OVATU_API_BASE` (+ iCal token embedded in a Supabase function) | `src/lib/assistant/ovatu.ts` + Supabase pg_cron |
 | **Google Places** | Live reviews (fallback used — not billed) | `GOOGLE_PLACE_ID`, `GOOGLE_PLACES_API_KEY` | `src/lib/google-reviews.ts` |
 | **Vercel Blob** | Photo/image storage | `BLOB_READ_WRITE_TOKEN` | photo/broadcast upload routes |
@@ -47,7 +47,7 @@ Copy them into `.env.local` for local dev. Grouped by purpose:
 **Inbox / social / booking feed**
 - `MS_GRAPH_CLIENT_ID`, `MS_GRAPH_CLIENT_SECRET`, `CLINIC_INBOX_FOLDER`,
   `ASSISTANT_BASE_URL`
-- `META_PAGE_ID`, `META_PAGE_ACCESS_TOKEN`
+- `META_PAGE_ID`, `META_PAGE_ACCESS_TOKEN` (Facebook), `META_IG_USER_ID` (Instagram publishing — the IG Business account id linked to the Page; reuses the Page token)
 - `OVATU_API_TOKEN`, `OVATU_API_BASE`
 
 **Storage / reviews / webhooks**
