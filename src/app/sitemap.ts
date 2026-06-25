@@ -81,6 +81,7 @@ const PAGE_DATES: Record<string, string> = {
   '/blog/first-botox-appointment': '2026-04-01',
   '/blog/natural-looking-filler': '2026-04-01',
   '/blog/profhilo-vs-dermal-filler': '2026-04-01',
+  '/blog/cryopen-age-spots-pigmentation': '2026-06-25',
   '/blog/harmonyca-jawline-restoration': '2026-06-22',
   '/blog/lip-flip-vs-lip-filler': '2026-06-19',
   '/blog/polynucleotides-vs-profhilo': '2026-06-16',

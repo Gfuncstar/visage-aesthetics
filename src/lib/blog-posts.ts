@@ -402,6 +402,17 @@ export const blogPosts: BlogPost[] = [
     dateModified: '2026-06-22',
     image: '/images/og-home.jpg',
   },
+  {
+    slug: 'cryopen-age-spots-pigmentation',
+    category: "Skin lesions",
+    title: "Removing age spots and pigmentation with CryoPen",
+    excerpt: "CryoPen freezes excess melanin in age spots, which naturally shed over weeks—but understanding the healing timeline and aftercare is essential for results.",
+    readTime: "8 min read",
+    datePublished: '2026-06-25',
+    dateModified: '2026-06-25',
+    image: '/images/og-home.jpg',
+  },
+
 
 
 
