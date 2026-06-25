@@ -16,8 +16,10 @@ import {
   LogOut,
   MessageCircle,
   Package,
+  Pencil,
   Play,
   RefreshCw,
+  Save,
   Search,
   Send,
   Star,
@@ -30,10 +32,23 @@ import { notifyDone } from '@/lib/staff-toast'
 import { CLINIC } from '@/lib/clinic'
 import { blogPosts } from '@/lib/blog-posts'
 
-/** source_slug → hero image path, so previews can show the real post image. */
-const BLOG_IMAGE_BY_SLUG: Record<string, string> = Object.fromEntries(
-  blogPosts.flatMap((p) => (p.image ? [[p.slug, p.image]] : [])),
+/** source_slug → blog category, used as the eyebrow on the branded preview image. */
+const BLOG_CATEGORY_BY_SLUG: Record<string, string> = Object.fromEntries(
+  blogPosts.map((p) => [p.slug, p.category]),
 )
+
+/**
+ * Branded preview image for a draft — the same dynamic OG endpoint the public
+ * pages use (`/og?title=…&eyebrow=…`), so the preview shows a real, on-brand
+ * image with copy (post title, eyebrow, award strip) rather than a stock photo.
+ */
+function previewImageSrc(draft: SocialDraft): string {
+  const params = new URLSearchParams({
+    title: draft.source_title || CLINIC.name,
+    eyebrow: BLOG_CATEGORY_BY_SLUG[draft.source_slug] || `${CLINIC.name}, ${CLINIC.addressLocality}`,
+  })
+  return `/og?${params.toString()}`
+}
 
 type AgentId =
   | 'stock-expiry'
@@ -199,6 +214,10 @@ export default function AgentsDashboard() {
   const [running, setRunning] = useState<Partial<Record<AgentId, boolean>>>({})
   const [results, setResults] = useState<Partial<Record<AgentId, RunResult>>>({})
   const [previewDraft, setPreviewDraft] = useState<SocialDraft | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editCaption, setEditCaption] = useState('')
+  const [editHashtags, setEditHashtags] = useState('')
+  const [savingEdit, setSavingEdit] = useState(false)
 
   const loadStatus = useCallback(async () => {
     setLoading(true)
@@ -240,6 +259,40 @@ export default function AgentsDashboard() {
     )
     setPreviewDraft((prev) => (prev?.id === id ? null : prev))
     notifyDone(newStatus === 'approved' ? 'Draft approved' : 'Draft dismissed')
+  }
+
+  function startEdit(draft: SocialDraft) {
+    setEditingId(draft.id)
+    setEditCaption(draft.caption)
+    setEditHashtags(draft.hashtags ?? '')
+  }
+
+  async function saveEdit(id: string) {
+    const caption = editCaption.trim()
+    if (!caption) return
+    const hashtags = editHashtags.trim()
+    setSavingEdit(true)
+    try {
+      await fetch(`/api/staff/assistant/agents/social-drafts/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ caption, hashtags }),
+      })
+      setStatus((prev) =>
+        prev
+          ? {
+              ...prev,
+              social_drafts: prev.social_drafts.map((d) =>
+                d.id === id ? { ...d, caption, hashtags } : d,
+              ),
+            }
+          : prev,
+      )
+      setEditingId(null)
+      notifyDone('Draft updated')
+    } finally {
+      setSavingEdit(false)
+    }
   }
 
   async function signOut() {
@@ -319,33 +372,80 @@ export default function AgentsDashboard() {
                         {draft.source_title}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        onClick={() => setPreviewDraft(draft)}
-                        className="inline-flex items-center gap-1 text-xs text-charcoal hover:text-gold-deep border border-line/60 hover:border-gold/40 rounded px-2 py-1 transition-colors"
-                      >
-                        <Eye size={11} />
-                        Preview
-                      </button>
-                      <button
-                        onClick={() => void patchDraft(draft.id, 'approved')}
-                        className="inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-900 border border-green-200 hover:border-green-400 rounded px-2 py-1 transition-colors"
-                      >
-                        <CheckCircle2 size={11} />
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => void patchDraft(draft.id, 'dismissed')}
-                        className="text-stone hover:text-charcoal transition-colors p-1"
-                        aria-label="Dismiss"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
+                    {editingId !== draft.id && (
+                      <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+                        <button
+                          onClick={() => startEdit(draft)}
+                          className="inline-flex items-center gap-1 text-xs text-charcoal hover:text-gold-deep border border-line/60 hover:border-gold/40 rounded px-2 py-1 transition-colors"
+                        >
+                          <Pencil size={11} />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => setPreviewDraft(draft)}
+                          className="inline-flex items-center gap-1 text-xs text-charcoal hover:text-gold-deep border border-line/60 hover:border-gold/40 rounded px-2 py-1 transition-colors"
+                        >
+                          <Eye size={11} />
+                          Preview
+                        </button>
+                        <button
+                          onClick={() => void patchDraft(draft.id, 'approved')}
+                          className="inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-900 border border-green-200 hover:border-green-400 rounded px-2 py-1 transition-colors"
+                        >
+                          <CheckCircle2 size={11} />
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => void patchDraft(draft.id, 'dismissed')}
+                          className="text-stone hover:text-charcoal transition-colors p-1"
+                          aria-label="Dismiss"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  <p className="text-sm text-charcoal leading-relaxed">{draft.caption}</p>
-                  {draft.hashtags && (
-                    <p className="text-xs text-stone mt-1.5">{draft.hashtags}</p>
+
+                  {editingId === draft.id ? (
+                    <div className="space-y-2">
+                      <textarea
+                        value={editCaption}
+                        onChange={(e) => setEditCaption(e.target.value)}
+                        rows={4}
+                        className="w-full bg-cream border border-line rounded-sm px-3 py-2 text-sm text-charcoal focus:outline-none focus:border-gold leading-relaxed"
+                        placeholder="Post caption"
+                      />
+                      <input
+                        value={editHashtags}
+                        onChange={(e) => setEditHashtags(e.target.value)}
+                        className="w-full bg-cream border border-line rounded-sm px-3 py-2 text-xs text-charcoal focus:outline-none focus:border-gold"
+                        placeholder="#Hashtags"
+                      />
+                      <div className="flex items-center gap-2 justify-end">
+                        <button
+                          onClick={() => setEditingId(null)}
+                          className="inline-flex items-center gap-1 text-xs text-stone hover:text-charcoal border border-line/60 hover:border-stone rounded px-2 py-1 transition-colors"
+                        >
+                          <X size={12} />
+                          Cancel
+                        </button>
+                        <button
+                          onClick={() => void saveEdit(draft.id)}
+                          disabled={savingEdit || !editCaption.trim()}
+                          className="inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-900 border border-green-200 hover:border-green-400 rounded px-2 py-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          <Save size={12} />
+                          {savingEdit ? 'Saving…' : 'Save'}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-sm text-charcoal leading-relaxed">{draft.caption}</p>
+                      {draft.hashtags && (
+                        <p className="text-xs text-stone mt-1.5">{draft.hashtags}</p>
+                      )}
+                    </>
                   )}
                 </div>
               ))}
@@ -538,9 +638,7 @@ export default function AgentsDashboard() {
                 <FacebookPreview draft={previewDraft} />
               )}
               <p className="text-[11px] text-stone text-center mt-3 leading-snug">
-                {BLOG_IMAGE_BY_SLUG[previewDraft.source_slug]
-                  ? 'Approximate preview using the source post image — captions and hashtags appear as shown.'
-                  : 'Approximate preview. The image is attached when the post is published — captions and hashtags appear as shown.'}
+                Approximate preview — branded image generated from the post; captions and hashtags appear as shown.
               </p>
             </div>
 
@@ -576,25 +674,13 @@ function ClinicAvatar() {
 }
 
 function PostImage({ draft }: { draft: SocialDraft }) {
-  const src = BLOG_IMAGE_BY_SLUG[draft.source_slug]
-  if (src) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element -- matches staff-area convention; static public path
-      <img
-        src={src}
-        alt={draft.source_title}
-        className="w-full aspect-square object-cover border-y border-line/30"
-      />
-    )
-  }
   return (
-    <div className="aspect-square bg-gradient-to-br from-cream-soft to-stone-200 flex flex-col items-center justify-center text-center px-6 border-y border-line/30">
-      <ImageIcon size={28} strokeWidth={1.5} className="text-stone mb-2" />
-      <p className="text-[11px] text-stone uppercase tracking-wide">Image added at publish</p>
-      {draft.source_title && (
-        <p className="text-xs text-ink-soft mt-1.5 max-w-[80%] leading-snug">{draft.source_title}</p>
-      )}
-    </div>
+    // eslint-disable-next-line @next/next/no-img-element -- matches staff-area convention; same-origin dynamic /og route
+    <img
+      src={previewImageSrc(draft)}
+      alt={draft.source_title}
+      className="w-full aspect-[1200/630] object-cover border-y border-line/30 bg-cream-soft"
+    />
   )
 }
 
