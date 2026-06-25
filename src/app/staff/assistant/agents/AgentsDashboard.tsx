@@ -16,8 +16,10 @@ import {
   LogOut,
   MessageCircle,
   Package,
+  Pencil,
   Play,
   RefreshCw,
+  Save,
   Search,
   Send,
   Star,
@@ -212,6 +214,10 @@ export default function AgentsDashboard() {
   const [running, setRunning] = useState<Partial<Record<AgentId, boolean>>>({})
   const [results, setResults] = useState<Partial<Record<AgentId, RunResult>>>({})
   const [previewDraft, setPreviewDraft] = useState<SocialDraft | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editCaption, setEditCaption] = useState('')
+  const [editHashtags, setEditHashtags] = useState('')
+  const [savingEdit, setSavingEdit] = useState(false)
 
   const loadStatus = useCallback(async () => {
     setLoading(true)
@@ -253,6 +259,40 @@ export default function AgentsDashboard() {
     )
     setPreviewDraft((prev) => (prev?.id === id ? null : prev))
     notifyDone(newStatus === 'approved' ? 'Draft approved' : 'Draft dismissed')
+  }
+
+  function startEdit(draft: SocialDraft) {
+    setEditingId(draft.id)
+    setEditCaption(draft.caption)
+    setEditHashtags(draft.hashtags ?? '')
+  }
+
+  async function saveEdit(id: string) {
+    const caption = editCaption.trim()
+    if (!caption) return
+    const hashtags = editHashtags.trim()
+    setSavingEdit(true)
+    try {
+      await fetch(`/api/staff/assistant/agents/social-drafts/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ caption, hashtags }),
+      })
+      setStatus((prev) =>
+        prev
+          ? {
+              ...prev,
+              social_drafts: prev.social_drafts.map((d) =>
+                d.id === id ? { ...d, caption, hashtags } : d,
+              ),
+            }
+          : prev,
+      )
+      setEditingId(null)
+      notifyDone('Draft updated')
+    } finally {
+      setSavingEdit(false)
+    }
   }
 
   async function signOut() {
@@ -332,33 +372,80 @@ export default function AgentsDashboard() {
                         {draft.source_title}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        onClick={() => setPreviewDraft(draft)}
-                        className="inline-flex items-center gap-1 text-xs text-charcoal hover:text-gold-deep border border-line/60 hover:border-gold/40 rounded px-2 py-1 transition-colors"
-                      >
-                        <Eye size={11} />
-                        Preview
-                      </button>
-                      <button
-                        onClick={() => void patchDraft(draft.id, 'approved')}
-                        className="inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-900 border border-green-200 hover:border-green-400 rounded px-2 py-1 transition-colors"
-                      >
-                        <CheckCircle2 size={11} />
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => void patchDraft(draft.id, 'dismissed')}
-                        className="text-stone hover:text-charcoal transition-colors p-1"
-                        aria-label="Dismiss"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
+                    {editingId !== draft.id && (
+                      <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+                        <button
+                          onClick={() => startEdit(draft)}
+                          className="inline-flex items-center gap-1 text-xs text-charcoal hover:text-gold-deep border border-line/60 hover:border-gold/40 rounded px-2 py-1 transition-colors"
+                        >
+                          <Pencil size={11} />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => setPreviewDraft(draft)}
+                          className="inline-flex items-center gap-1 text-xs text-charcoal hover:text-gold-deep border border-line/60 hover:border-gold/40 rounded px-2 py-1 transition-colors"
+                        >
+                          <Eye size={11} />
+                          Preview
+                        </button>
+                        <button
+                          onClick={() => void patchDraft(draft.id, 'approved')}
+                          className="inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-900 border border-green-200 hover:border-green-400 rounded px-2 py-1 transition-colors"
+                        >
+                          <CheckCircle2 size={11} />
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => void patchDraft(draft.id, 'dismissed')}
+                          className="text-stone hover:text-charcoal transition-colors p-1"
+                          aria-label="Dismiss"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  <p className="text-sm text-charcoal leading-relaxed">{draft.caption}</p>
-                  {draft.hashtags && (
-                    <p className="text-xs text-stone mt-1.5">{draft.hashtags}</p>
+
+                  {editingId === draft.id ? (
+                    <div className="space-y-2">
+                      <textarea
+                        value={editCaption}
+                        onChange={(e) => setEditCaption(e.target.value)}
+                        rows={4}
+                        className="w-full bg-cream border border-line rounded-sm px-3 py-2 text-sm text-charcoal focus:outline-none focus:border-gold leading-relaxed"
+                        placeholder="Post caption"
+                      />
+                      <input
+                        value={editHashtags}
+                        onChange={(e) => setEditHashtags(e.target.value)}
+                        className="w-full bg-cream border border-line rounded-sm px-3 py-2 text-xs text-charcoal focus:outline-none focus:border-gold"
+                        placeholder="#Hashtags"
+                      />
+                      <div className="flex items-center gap-2 justify-end">
+                        <button
+                          onClick={() => setEditingId(null)}
+                          className="inline-flex items-center gap-1 text-xs text-stone hover:text-charcoal border border-line/60 hover:border-stone rounded px-2 py-1 transition-colors"
+                        >
+                          <X size={12} />
+                          Cancel
+                        </button>
+                        <button
+                          onClick={() => void saveEdit(draft.id)}
+                          disabled={savingEdit || !editCaption.trim()}
+                          className="inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-900 border border-green-200 hover:border-green-400 rounded px-2 py-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          <Save size={12} />
+                          {savingEdit ? 'Saving…' : 'Save'}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-sm text-charcoal leading-relaxed">{draft.caption}</p>
+                      {draft.hashtags && (
+                        <p className="text-xs text-stone mt-1.5">{draft.hashtags}</p>
+                      )}
+                    </>
                   )}
                 </div>
               ))}
