@@ -38,14 +38,54 @@ const BLOG_CATEGORY_BY_SLUG: Record<string, string> = Object.fromEntries(
 )
 
 /**
- * Branded preview image for a draft — the same dynamic OG endpoint the public
- * pages use (`/og?title=…&eyebrow=…`), so the preview shows a real, on-brand
- * image with copy (post title, eyebrow, award strip) rather than a stock photo.
+ * Pick a related clinic photo for a draft by matching its topic (slug + title)
+ * against treatment keywords. Falls back to a clinic interior shot. Most
+ * specific rules first.
  */
-function previewImageSrc(draft: SocialDraft): string {
+const RELATED_IMAGE_RULES: [RegExp, string][] = [
+  [/profhilo/, '/images/profhilo.jpg'],
+  [/micro.?needling|needling/, '/images/micro-needling.jpg'],
+  [/filler|lip|cheek|tear.?trough|jaw/, '/images/dermal-filler.jpg'],
+  [/aqualyx|fat.?dissolv/, '/images/aqualyx.jpg'],
+  [/hyperhidrosis|sweat/, '/images/hyperhidrosis.jpg'],
+  [/migraine/, '/images/migraines.jpg'],
+  [/mole/, '/images/map-my-mole.jpg'],
+  [/\bmen\b|male/, '/images/mens-aesthetics.jpg'],
+  [/botox|anti.?wrinkle|wrinkle|platysma|neck|brow|frown|forehead|toxin/, '/images/anti-wrinkle.jpg'],
+]
+
+function relatedImage(draft: SocialDraft): string {
+  const hay = `${draft.source_slug} ${draft.source_title}`.toLowerCase()
+  for (const [re, img] of RELATED_IMAGE_RULES) if (re.test(hay)) return img
+  return '/images/clinic-wide.jpg'
+}
+
+/** Clinic photos staff can pick from when changing a draft's image. */
+const IMAGE_OPTIONS: { label: string; src: string }[] = [
+  { label: 'Anti-wrinkle', src: '/images/anti-wrinkle.jpg' },
+  { label: 'Dermal filler', src: '/images/dermal-filler.jpg' },
+  { label: 'Profhilo', src: '/images/profhilo.jpg' },
+  { label: 'Micro-needling', src: '/images/micro-needling.jpg' },
+  { label: 'Aqualyx', src: '/images/aqualyx.jpg' },
+  { label: 'Hyperhidrosis', src: '/images/hyperhidrosis.jpg' },
+  { label: "Men's", src: '/images/mens-aesthetics.jpg' },
+  { label: 'Mole check', src: '/images/map-my-mole.jpg' },
+  { label: 'Clinic', src: '/images/clinic-wide.jpg' },
+  { label: 'Clinic room', src: '/images/clinic-1.jpg' },
+  { label: 'Before / after', src: '/images/before-after.jpg' },
+]
+
+/**
+ * Branded preview image for a draft — the same dynamic OG endpoint the public
+ * pages use (`/og?title=…&eyebrow=…&img=…`), so the preview shows a real,
+ * on-brand image: a clinic photo composited with the post copy (title,
+ * eyebrow, award strip). `image` is the chosen photo path.
+ */
+function previewImageSrc(draft: SocialDraft, image: string): string {
   const params = new URLSearchParams({
     title: draft.source_title || CLINIC.name,
     eyebrow: BLOG_CATEGORY_BY_SLUG[draft.source_slug] || `${CLINIC.name}, ${CLINIC.addressLocality}`,
+    img: image,
   })
   return `/og?${params.toString()}`
 }
@@ -214,6 +254,7 @@ export default function AgentsDashboard() {
   const [running, setRunning] = useState<Partial<Record<AgentId, boolean>>>({})
   const [results, setResults] = useState<Partial<Record<AgentId, RunResult>>>({})
   const [previewDraft, setPreviewDraft] = useState<SocialDraft | null>(null)
+  const [imageByDraft, setImageByDraft] = useState<Record<string, string>>({})
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editCaption, setEditCaption] = useState('')
   const [editHashtags, setEditHashtags] = useState('')
@@ -632,11 +673,44 @@ export default function AgentsDashboard() {
             </div>
 
             <div className="flex-1 min-h-0 overflow-y-auto bg-stone-100 p-4">
-              {previewDraft.platform === 'instagram' ? (
-                <InstagramPreview draft={previewDraft} />
-              ) : (
-                <FacebookPreview draft={previewDraft} />
-              )}
+              {(() => {
+                const chosen = imageByDraft[previewDraft.id] ?? relatedImage(previewDraft)
+                return previewDraft.platform === 'instagram' ? (
+                  <InstagramPreview draft={previewDraft} image={chosen} />
+                ) : (
+                  <FacebookPreview draft={previewDraft} image={chosen} />
+                )
+              })()}
+
+              {/* Image picker */}
+              <div className="mt-4">
+                <div className="eyebrow text-stone mb-2 flex items-center gap-1.5">
+                  <ImageIcon size={12} strokeWidth={1.75} /> Change image
+                </div>
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  {IMAGE_OPTIONS.map((opt) => {
+                    const chosen = imageByDraft[previewDraft.id] ?? relatedImage(previewDraft)
+                    const active = chosen === opt.src
+                    return (
+                      <button
+                        key={opt.src}
+                        onClick={() =>
+                          setImageByDraft((prev) => ({ ...prev, [previewDraft.id]: opt.src }))
+                        }
+                        title={opt.label}
+                        aria-label={opt.label}
+                        className={`shrink-0 rounded-sm overflow-hidden border-2 transition-colors ${
+                          active ? 'border-gold' : 'border-transparent hover:border-gold/40'
+                        }`}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element -- staff-area convention; static public path */}
+                        <img src={opt.src} alt={opt.label} className="w-14 h-14 object-cover block" />
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
               <p className="text-[11px] text-stone text-center mt-3 leading-snug">
                 Approximate preview — branded image generated from the post; captions and hashtags appear as shown.
               </p>
@@ -673,18 +747,18 @@ function ClinicAvatar() {
   )
 }
 
-function PostImage({ draft }: { draft: SocialDraft }) {
+function PostImage({ draft, image }: { draft: SocialDraft; image: string }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element -- matches staff-area convention; same-origin dynamic /og route
     <img
-      src={previewImageSrc(draft)}
+      src={previewImageSrc(draft, image)}
       alt={draft.source_title}
       className="w-full aspect-[1200/630] object-cover border-y border-line/30 bg-cream-soft"
     />
   )
 }
 
-function InstagramPreview({ draft }: { draft: SocialDraft }) {
+function InstagramPreview({ draft, image }: { draft: SocialDraft; image: string }) {
   return (
     <div className="bg-white max-w-sm mx-auto border border-line/40 rounded-sm overflow-hidden text-charcoal">
       <div className="flex items-center gap-2.5 px-3 py-2.5">
@@ -697,7 +771,7 @@ function InstagramPreview({ draft }: { draft: SocialDraft }) {
         </div>
       </div>
 
-      <PostImage draft={draft} />
+      <PostImage draft={draft} image={image} />
 
       <div className="flex items-center gap-4 px-3 pt-2.5">
         <Heart size={20} strokeWidth={1.75} />
@@ -717,7 +791,7 @@ function InstagramPreview({ draft }: { draft: SocialDraft }) {
   )
 }
 
-function FacebookPreview({ draft }: { draft: SocialDraft }) {
+function FacebookPreview({ draft, image }: { draft: SocialDraft; image: string }) {
   return (
     <div className="bg-white max-w-sm mx-auto border border-line/40 rounded-sm overflow-hidden text-charcoal">
       <div className="flex items-center gap-2.5 px-3 py-2.5">
@@ -737,7 +811,7 @@ function FacebookPreview({ draft }: { draft: SocialDraft }) {
         )}
       </div>
 
-      <PostImage draft={draft} />
+      <PostImage draft={draft} image={image} />
 
       <div className="flex items-center justify-around px-3 py-1.5 border-t border-line/30 text-stone">
         <span className="inline-flex items-center gap-1.5 text-xs py-1">
