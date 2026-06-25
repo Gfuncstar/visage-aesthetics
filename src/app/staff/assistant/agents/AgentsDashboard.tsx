@@ -30,10 +30,23 @@ import { notifyDone } from '@/lib/staff-toast'
 import { CLINIC } from '@/lib/clinic'
 import { blogPosts } from '@/lib/blog-posts'
 
-/** source_slug → hero image path, so previews can show the real post image. */
-const BLOG_IMAGE_BY_SLUG: Record<string, string> = Object.fromEntries(
-  blogPosts.flatMap((p) => (p.image ? [[p.slug, p.image]] : [])),
+/** source_slug → blog category, used as the eyebrow on the branded preview image. */
+const BLOG_CATEGORY_BY_SLUG: Record<string, string> = Object.fromEntries(
+  blogPosts.map((p) => [p.slug, p.category]),
 )
+
+/**
+ * Branded preview image for a draft — the same dynamic OG endpoint the public
+ * pages use (`/og?title=…&eyebrow=…`), so the preview shows a real, on-brand
+ * image with copy (post title, eyebrow, award strip) rather than a stock photo.
+ */
+function previewImageSrc(draft: SocialDraft): string {
+  const params = new URLSearchParams({
+    title: draft.source_title || CLINIC.name,
+    eyebrow: BLOG_CATEGORY_BY_SLUG[draft.source_slug] || `${CLINIC.name}, ${CLINIC.addressLocality}`,
+  })
+  return `/og?${params.toString()}`
+}
 
 type AgentId =
   | 'stock-expiry'
@@ -538,9 +551,7 @@ export default function AgentsDashboard() {
                 <FacebookPreview draft={previewDraft} />
               )}
               <p className="text-[11px] text-stone text-center mt-3 leading-snug">
-                {BLOG_IMAGE_BY_SLUG[previewDraft.source_slug]
-                  ? 'Approximate preview using the source post image — captions and hashtags appear as shown.'
-                  : 'Approximate preview. The image is attached when the post is published — captions and hashtags appear as shown.'}
+                Approximate preview — branded image generated from the post; captions and hashtags appear as shown.
               </p>
             </div>
 
@@ -576,25 +587,13 @@ function ClinicAvatar() {
 }
 
 function PostImage({ draft }: { draft: SocialDraft }) {
-  const src = BLOG_IMAGE_BY_SLUG[draft.source_slug]
-  if (src) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element -- matches staff-area convention; static public path
-      <img
-        src={src}
-        alt={draft.source_title}
-        className="w-full aspect-square object-cover border-y border-line/30"
-      />
-    )
-  }
   return (
-    <div className="aspect-square bg-gradient-to-br from-cream-soft to-stone-200 flex flex-col items-center justify-center text-center px-6 border-y border-line/30">
-      <ImageIcon size={28} strokeWidth={1.5} className="text-stone mb-2" />
-      <p className="text-[11px] text-stone uppercase tracking-wide">Image added at publish</p>
-      {draft.source_title && (
-        <p className="text-xs text-ink-soft mt-1.5 max-w-[80%] leading-snug">{draft.source_title}</p>
-      )}
-    </div>
+    // eslint-disable-next-line @next/next/no-img-element -- matches staff-area convention; same-origin dynamic /og route
+    <img
+      src={previewImageSrc(draft)}
+      alt={draft.source_title}
+      className="w-full aspect-[1200/630] object-cover border-y border-line/30 bg-cream-soft"
+    />
   )
 }
 
