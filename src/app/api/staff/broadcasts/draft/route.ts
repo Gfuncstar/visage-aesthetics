@@ -6,7 +6,7 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
-const MODEL = 'claude-opus-4-7'
+const MODEL = 'claude-opus-4-8'
 
 const SYSTEM_PROMPT = `You write short patient broadcast emails for Visage Aesthetics, a small private clinic in Braintree, Essex. They are bylined by Bernadette Tobin, a registered nurse with 20+ years of clinical experience.
 

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { isStaffAuthed } from '@/lib/staff-auth'
+import { AGENT_MODEL } from '@/lib/assistant/model'
 import { assistantConfigured } from '@/lib/assistant/db'
 import { londonToday } from '@/lib/booking-engine/time'
 import { runReport, type ReportQuery } from '@/lib/assistant/reports'
@@ -63,7 +64,7 @@ Rules:
 
   try {
     const res = await client.messages.create({
-      model: 'claude-opus-4-7',
+      model: AGENT_MODEL,
       max_tokens: 300,
       system,
       messages: [{ role: 'user', content: text }],

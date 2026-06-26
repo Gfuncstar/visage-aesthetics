@@ -3,6 +3,7 @@ import { Resend } from 'resend'
 import Anthropic from '@anthropic-ai/sdk'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, insert, select } from '@/lib/assistant/db'
+import { AGENT_MODEL } from '@/lib/assistant/model'
 import { sendPush } from '@/lib/assistant/push'
 import { CLINIC_PROFILE } from '@/lib/assistant/opportunities'
 
@@ -132,9 +133,9 @@ Rules:
 
   try {
     const res = await client.messages.create({
-      model: 'claude-opus-4-7',
+      model: AGENT_MODEL,
       max_tokens: 4000,
-      tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 15 } as never],
+      tools: [{ type: 'web_search_20260209', name: 'web_search', max_uses: 15 } as never],
       messages: [{ role: 'user', content: prompt }],
     })
 

@@ -3,6 +3,7 @@ import { Resend } from 'resend'
 import Anthropic from '@anthropic-ai/sdk'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, insert } from '@/lib/assistant/db'
+import { AGENT_MODEL } from '@/lib/assistant/model'
 import { reviews as staticReviews } from '@/lib/reviews'
 
 export const runtime = 'nodejs'
@@ -75,7 +76,7 @@ Return valid JSON only: {"positive_themes":["..."],"concern_themes":["..."],"sum
 
   try {
     const msg = await client.messages.create({
-      model: 'claude-opus-4-7',
+      model: AGENT_MODEL,
       max_tokens: 400,
       messages: [{ role: 'user', content: prompt }],
     })

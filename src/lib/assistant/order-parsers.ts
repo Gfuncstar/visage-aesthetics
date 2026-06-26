@@ -168,7 +168,7 @@ export async function parseWithLlm(email: EmailInput): Promise<ParsedOrder | nul
   const client = new Anthropic({ apiKey })
   try {
     const res = await client.messages.create({
-      model: 'claude-opus-4-7',
+      model: 'claude-opus-4-8',
       max_tokens: 1500,
       system: LLM_SYSTEM,
       messages: [
@@ -223,7 +223,7 @@ export async function parseOrderImage(base64: string, mediaType: string): Promis
   const client = new Anthropic({ apiKey })
   try {
     const res = await client.messages.create({
-      model: 'claude-opus-4-7',
+      model: 'claude-opus-4-8',
       max_tokens: 1500,
       system: LLM_SYSTEM,
       messages: [

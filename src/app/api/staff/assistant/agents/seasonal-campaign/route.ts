@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, insert } from '@/lib/assistant/db'
+import { AGENT_MODEL } from '@/lib/assistant/model'
 import { sendPush } from '@/lib/assistant/push'
 
 export const runtime = 'nodejs'
@@ -116,7 +117,7 @@ Return valid JSON only: {"subject":"...","body":"..."}`
 
   try {
     const msg = await client.messages.create({
-      model: 'claude-opus-4-7',
+      model: AGENT_MODEL,
       max_tokens: 600,
       messages: [{ role: 'user', content: prompt }],
     })

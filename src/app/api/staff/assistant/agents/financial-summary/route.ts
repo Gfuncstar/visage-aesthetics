@@ -3,6 +3,7 @@ import { Resend } from 'resend'
 import Anthropic from '@anthropic-ai/sdk'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, select } from '@/lib/assistant/db'
+import { AGENT_MODEL } from '@/lib/assistant/model'
 import { monthBounds, currentMonthKey, gbp, ukDate } from '@/lib/assistant/format'
 import { monthSummary, revenueByTreatment } from '@/lib/assistant/finance'
 import type { Appointment, Order } from '@/lib/assistant/types'
@@ -80,7 +81,7 @@ async function run() {
         .filter(Boolean)
         .join(' ')
       const msg = await client.messages.create({
-        model: 'claude-opus-4-7',
+        model: AGENT_MODEL,
         max_tokens: 80,
         messages: [{ role: 'user', content: prompt }],
       })

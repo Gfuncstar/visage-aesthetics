@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { isStaffAuthed } from '@/lib/staff-auth'
+import { AGENT_MODEL } from '@/lib/assistant/model'
 import { CLINIC_PROFILE } from '@/lib/assistant/opportunities'
 import { getTreatmentType } from '@/lib/assistant/treatment-types'
 
@@ -153,7 +154,7 @@ export async function POST(req: Request) {
 
   try {
     const msg = await client.messages.create({
-      model: 'claude-opus-4-7',
+      model: AGENT_MODEL,
       max_tokens: 1000,
       messages: [{ role: 'user', content: prompt }],
     })

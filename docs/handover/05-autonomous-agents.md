@@ -19,7 +19,7 @@ This doc is the **Vercel Cron** set.
 | Route | Cron | When (UTC) | What it does |
 |-------|------|-----------|--------------|
 | `/api/staff/assistant/orders/poll` | `0 */6 * * *` | every 6h | Poll for new supplier-order emails/ingest to parse into stock |
-| `/api/staff/assistant/sync` | `30 5 * * *` | daily 05:30 | Daily data sync / housekeeping |
+| `/api/staff/assistant/sync` | `*/30 * * * *` | every 30 min | Incremental Ovatu clients/appointments upsert (NOTE: runs 48×/day, not daily) |
 | `…/agents/seasonal-campaign` | `30 8 * * *` | daily 08:30 | Watch for seasonal/marketing moments, draft campaigns |
 | `…/agents/stock-expiry` | `0 8 * * *` | daily 08:00 | Flag stock nearing expiry; email the clinic |
 | `…/agents/review-sentiment` | `15 8 * * 1` | Mon 08:15 | Analyse recent Google reviews → themes, concerns, summary → `review_sentiment_log`; email if action needed |
@@ -28,6 +28,18 @@ This doc is the **Vercel Cron** set.
 | `…/agents/social-content` | `0 9 * * 5` | Fri 09:00 | Draft social posts from recent blog content → `social_drafts` |
 | `…/agents/clinical-audit` | `0 9 1 * *` | 1st of month 09:00 | Audit clinical records for completeness/compliance; email findings |
 | `…/agents/faq-updater` | `0 10 1 * *` | 1st of month 10:00 | Refresh site FAQ content from recent questions |
+| `/api/book/reminders` | `0 * * * *` | hourly | 48h booking confirm + 24h/4h consent reminders |
+| `/api/staff/assistant/integrity` | `0 6 * * *` | daily 06:00 | Booking-integrity check; emails only on drift |
+| `/api/staff/assistant/weekly-summary` | `0 8 * * 2` | Tue 08:00 | Week-ahead + last week's numbers email |
+| `…/agents/health-safety` | `30 19 * * *` | daily 19:30 | End-of-clinic compliance check + legal advisory email |
+| `/api/staff/assistant/end-of-day-email` | `*/30 * * * *` | every 30 min (self-gating) | End-of-day takings email; fires once shortly after the last appointment ends |
+
+> **Monitoring.** A GitHub Action — the **fleet overseer**
+> (`.github/workflows/overseer-daily.yml`) — runs daily and gives the owner a
+> single hands-off pulse: it checks the GitHub-side agents, confirms the nightly
+> medical backup ran *and was encrypted*, and emails the clinic only when a human
+> is needed. It will also watch these Vercel crons once a `cron_heartbeats` table
+> is added — see `docs/AGENT_FLEET_BOOT_GUIDE.md` §5–6 for the full plan.
 
 > Drafts land in the staff UI at **`/staff/assistant/agents`** (the status route
 > `…/agents/status` surfaces pending `social_drafts`, latest `review_sentiment`,

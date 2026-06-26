@@ -3,6 +3,7 @@ import { Resend } from 'resend'
 import Anthropic from '@anthropic-ai/sdk'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, select, audit } from '@/lib/assistant/db'
+import { AGENT_MODEL } from '@/lib/assistant/model'
 import { ukDate } from '@/lib/assistant/format'
 import type { TreatmentRecord } from '@/lib/assistant/types'
 
@@ -111,7 +112,7 @@ Write a concise, professional end-of-clinic compliance summary (2–3 short para
 Do NOT use generic disclaimers. Be specific about what needs to be done and why it matters legally. Write in the first person as Bernadette's compliance advisor. Data: ${dataJson}`
 
       const msg = await client.messages.create({
-        model: 'claude-opus-4-8',
+        model: AGENT_MODEL,
         max_tokens: 600,
         messages: [{ role: 'user', content: prompt }],
       })
