@@ -3,7 +3,9 @@ import { Resend } from 'resend'
 import Anthropic from '@anthropic-ai/sdk'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, select, audit } from '@/lib/assistant/db'
+import { AGENT_MODEL } from '@/lib/assistant/model'
 import { monthBounds, ukDate, gbp } from '@/lib/assistant/format'
+import { withHeartbeat } from '@/lib/assistant/heartbeat'
 import type { TreatmentRecord } from '@/lib/assistant/types'
 
 export const runtime = 'nodejs'
@@ -96,7 +98,7 @@ async function run() {
       })
       const prompt = `You are writing a monthly clinical audit note for Bernadette Tobin RGN MSc, NMC PIN 05G1755E, a solo nurse prescriber running a private aesthetics clinic. Write 2 concise paragraphs in the first person: (1) overall compliance summary for the month, noting any flags, (2) treatment activity and batch traceability. Professional, factual, NMC-standard language. Data: ${dataJson}`
       const msg = await client.messages.create({
-        model: 'claude-opus-4-7',
+        model: AGENT_MODEL,
         max_tokens: 400,
         messages: [{ role: 'user', content: prompt }],
       })
@@ -171,7 +173,7 @@ async function run() {
 
 export async function GET(req: Request) {
   if (!(await authorised(req))) return NextResponse.json({ error: 'Not authorised' }, { status: 401 })
-  return run()
+  return withHeartbeat('clinical-audit', () => run())
 }
 
 export async function POST(req: Request) {

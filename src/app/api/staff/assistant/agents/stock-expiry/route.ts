@@ -4,6 +4,7 @@ import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, select } from '@/lib/assistant/db'
 import { sendPush } from '@/lib/assistant/push'
 import { ukDate } from '@/lib/assistant/format'
+import { withHeartbeat } from '@/lib/assistant/heartbeat'
 import type { TreatmentRecord } from '@/lib/assistant/types'
 
 export const runtime = 'nodejs'
@@ -130,7 +131,7 @@ async function run() {
 
 export async function GET(req: Request) {
   if (!(await authorised(req))) return NextResponse.json({ error: 'Not authorised' }, { status: 401 })
-  return run()
+  return withHeartbeat('stock-expiry', () => run())
 }
 
 export async function POST(req: Request) {

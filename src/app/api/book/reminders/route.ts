@@ -7,6 +7,7 @@ import { consentFormForService } from '@/lib/consent/forms'
 import { consentBookingIdsOnFile, consentChaseState } from '@/lib/assistant/consent'
 import { sendConsentForm } from '@/lib/consent/send'
 import { goLiveTimestamp } from '@/lib/assistant/go-live'
+import { withHeartbeat } from '@/lib/assistant/heartbeat'
 import type { Booking } from '@/lib/booking-engine/types'
 
 export const runtime = 'nodejs'
@@ -54,6 +55,7 @@ export async function GET(req: Request) {
   }
   if (!bearerOk && !secretOk && !isStaff) return NextResponse.json({ error: 'Not authorised' }, { status: 401 })
 
+  return withHeartbeat('book-reminders', async () => {
   const now = new Date()
   // The "please confirm your appointment" email goes out ~48 hours before the
   // appointment: a single reminder, sent well outside the 24-hour change cut-off
@@ -152,4 +154,5 @@ export async function GET(req: Request) {
   }
 
   return NextResponse.json({ ok: true, dueCount: due.length, sms, email, consent, consentResent })
+  })
 }

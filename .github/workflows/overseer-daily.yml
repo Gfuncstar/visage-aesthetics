@@ -1,0 +1,75 @@
+name: Fleet overseer (Visage Aesthetics)
+
+# Runs every morning at 08:07 UTC — after the night's backup (02:00) and the
+# morning watchdogs (ai-visibility 07:30) have produced fresh signal. The single
+# hands-off "seat" that watches the whole agent fleet at once and only bothers a
+# human when one is needed:
+#
+#   - every scheduled GitHub workflow ran recently and passed (and none has gone
+#     missing or been disabled by GitHub for inactivity);
+#   - the nightly medical backup actually ran AND was encrypted (read from the
+#     backup_log table — the costliest silent failure in the fleet);
+#   - any issue the other watchdogs already raised is surfaced;
+#   - the 15 Vercel crons, once the cron_heartbeats table exists (boot guide §5).
+#
+# On a problem it emails the clinic (Resend) AND opens/updates ONE deduped
+# "fleet-overseer" issue. Green days are silent; a short "all healthy" pulse
+# emails once a week (Mondays) so the silence stays trustworthy.
+#
+# NOTE: scheduled workflows only fire from the default branch, so this does
+# nothing until merged to main — review it first. Run it any time via the
+# "Run workflow" button on the Actions tab.
+#
+# Repo secrets it uses (all already present for the other agents; each is
+# optional and degrades gracefully if missing):
+#   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY  — backup + Vercel-heartbeat checks
+#   RESEND_API_KEY, CLINIC_EMAIL             — the owner email
+
+on:
+  schedule:
+    - cron: '7 8 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
+jobs:
+  oversee:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run overseer
+        id: oversee
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          CLINIC_EMAIL: ${{ secrets.CLINIC_EMAIL }}
+        run: node scripts/overseer.mjs
+
+      - name: Open or update the fleet-overseer issue
+        if: steps.oversee.outputs.needs_human != '0' && steps.oversee.outputs.needs_human != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create fleet-overseer --color B60205 \
+            --description "The fleet overseer found something that needs a human" 2>/dev/null || true
+          existing=$(gh issue list --label fleet-overseer --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file overseer-report.md
+          else
+            gh issue create \
+              --title "⚠️ Fleet overseer: something needs your attention" \
+              --body-file overseer-report.md \
+              --label fleet-overseer
+          fi

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { isStaffAuthed } from '@/lib/staff-auth'
+import { AGENT_MODEL } from '@/lib/assistant/model'
 import { assistantConfigured, select, insertMany, audit } from '@/lib/assistant/db'
 import { describeAvailability, firstFreeStart, friendlyTime, type DayAppt } from '@/lib/assistant/slots'
 import { ukDate } from '@/lib/assistant/format'
@@ -142,7 +143,7 @@ Rules:
 - Do not invent details that are not in the note.`
   try {
     const res = await client.messages.create({
-      model: 'claude-opus-4-7',
+      model: AGENT_MODEL,
       max_tokens: 1200,
       system,
       messages: [{ role: 'user', content: text }],

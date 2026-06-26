@@ -31,7 +31,7 @@ import { CLINIC_PROFILE, fingerprint, type OpportunityKind } from '../src/lib/as
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
 
-const MODEL = 'claude-opus-4-7'
+const MODEL = 'claude-opus-4-8'
 
 type Find = {
   kind: OpportunityKind
@@ -165,7 +165,7 @@ Return between 0 and 8 items. If you find nothing solid, return [].`
     const res = await client.messages.create({
       model: MODEL,
       max_tokens: 4000,
-      tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 6 } as never],
+      tools: [{ type: 'web_search_20260209', name: 'web_search', max_uses: 6 } as never],
       messages: [{ role: 'user', content: prompt }],
     })
     const text = res.content

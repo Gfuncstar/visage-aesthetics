@@ -3,7 +3,9 @@ import { Resend } from 'resend'
 import Anthropic from '@anthropic-ai/sdk'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, insert } from '@/lib/assistant/db'
+import { AGENT_MODEL } from '@/lib/assistant/model'
 import { reviews as staticReviews } from '@/lib/reviews'
+import { withHeartbeat } from '@/lib/assistant/heartbeat'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -75,7 +77,7 @@ Return valid JSON only: {"positive_themes":["..."],"concern_themes":["..."],"sum
 
   try {
     const msg = await client.messages.create({
-      model: 'claude-opus-4-7',
+      model: AGENT_MODEL,
       max_tokens: 400,
       messages: [{ role: 'user', content: prompt }],
     })
@@ -160,7 +162,7 @@ Return valid JSON only: {"positive_themes":["..."],"concern_themes":["..."],"sum
 
 export async function GET(req: Request) {
   if (!(await authorised(req))) return NextResponse.json({ error: 'Not authorised' }, { status: 401 })
-  return run()
+  return withHeartbeat('review-sentiment', () => run())
 }
 
 export async function POST(req: Request) {

@@ -194,7 +194,7 @@ export async function POST(req: Request) {
           .filter(Boolean)
           .join('\n')
         const msg = await ai.messages.create({
-          model: 'claude-opus-4-7',
+          model: 'claude-opus-4-8',
           max_tokens: 400,
           messages: [{ role: 'user', content: prompt }],
         })

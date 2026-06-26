@@ -3,8 +3,10 @@ import { Resend } from 'resend'
 import Anthropic from '@anthropic-ai/sdk'
 import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, insert, select } from '@/lib/assistant/db'
+import { AGENT_MODEL } from '@/lib/assistant/model'
 import { sendPush } from '@/lib/assistant/push'
 import { CLINIC_PROFILE } from '@/lib/assistant/opportunities'
+import { withHeartbeat } from '@/lib/assistant/heartbeat'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -132,9 +134,9 @@ Rules:
 
   try {
     const res = await client.messages.create({
-      model: 'claude-opus-4-7',
+      model: AGENT_MODEL,
       max_tokens: 4000,
-      tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 15 } as never],
+      tools: [{ type: 'web_search_20260209', name: 'web_search', max_uses: 15 } as never],
       messages: [{ role: 'user', content: prompt }],
     })
 
@@ -288,7 +290,7 @@ Rules:
 
 export async function GET(req: Request) {
   if (!(await authorised(req))) return NextResponse.json({ error: 'Not authorised' }, { status: 401 })
-  return run()
+  return withHeartbeat('seo-monitor', () => run())
 }
 
 export async function POST(req: Request) {
