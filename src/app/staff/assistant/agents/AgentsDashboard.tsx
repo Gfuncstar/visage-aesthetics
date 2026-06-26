@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import {
+  Activity,
   Bot,
   Bookmark,
   Calendar,
@@ -141,7 +142,7 @@ const AGENTS: AgentDef[] = [
   {
     id: 'social-content',
     name: 'Social content',
-    schedule: 'Tuesdays 09:00',
+    schedule: 'Fridays 09:00',
     description: 'Instagram and Facebook captions from recent blog posts.',
     hint: 'Drafts social posts from treatments and season',
     Icon: ImageIcon,
@@ -177,13 +178,62 @@ const AGENTS: AgentDef[] = [
   {
     id: 'seo-monitor',
     name: 'SEO competitor monitor',
-    schedule: 'Thursdays 07:00',
+    schedule: 'Fridays 07:00',
     description: 'Tracks Essex competitor rankings for 12 keywords. Finds gaps, competitor threats, and award citation opportunities.',
     hint: 'Checks clinic rankings for key local search terms',
     Icon: Search,
     output: 'both',
   },
 ]
+
+type Heartbeat = {
+  agent_name: string
+  last_run: string | null
+  last_ok: string | null
+  last_error: string | null
+}
+
+/**
+ * The full scheduled fleet (every cron job), for the at-a-glance health panel.
+ * `slug` matches the heartbeat agent name written by withHeartbeat(); `maxStaleHours`
+ * is the cadence + grace margin used to decide healthy vs overdue.
+ */
+const FLEET: { slug: string; name: string; does: string; when: string; maxStaleHours: number }[] = [
+  { slug: 'sync', name: 'Calendar sync', does: 'Pulls bookings & clients in from Ovatu', when: 'Every 30 min', maxStaleHours: 2 },
+  { slug: 'end-of-day-email', name: 'End-of-day takings', does: "Emails the day's takings after the last appointment", when: 'Every 30 min', maxStaleHours: 2 },
+  { slug: 'book-reminders', name: 'Booking reminders', does: 'Sends appointment confirmations & consent reminders', when: 'Hourly', maxStaleHours: 3 },
+  { slug: 'orders-poll', name: 'Order inbox', does: 'Reads supplier order emails into stock', when: 'Every 6 hours', maxStaleHours: 8 },
+  { slug: 'integrity', name: 'Booking integrity', does: 'Checks booking data for clashes & gaps', when: 'Daily 06:00', maxStaleHours: 30 },
+  { slug: 'stock-expiry', name: 'Stock expiry', does: 'Flags stock expiring within 30 days', when: 'Daily 08:00', maxStaleHours: 30 },
+  { slug: 'seasonal-campaign', name: 'Seasonal campaigns', does: 'Drafts a campaign 6 weeks before key dates', when: 'Daily 08:30', maxStaleHours: 30 },
+  { slug: 'health-safety', name: 'Health & safety', does: 'End-of-clinic compliance & H&S check', when: 'Daily 19:30', maxStaleHours: 30 },
+  { slug: 'financial-summary', name: 'Financial summary', does: 'Weekly revenue & profit summary', when: 'Mondays 07:00', maxStaleHours: 192 },
+  { slug: 'review-sentiment', name: 'Review sentiment', does: 'Summarises recent Google review themes', when: 'Mondays 08:15', maxStaleHours: 192 },
+  { slug: 'weekly-summary', name: 'Weekly summary', does: 'Week ahead plus last week’s numbers', when: 'Tuesdays 08:00', maxStaleHours: 192 },
+  { slug: 'seo-monitor', name: 'SEO monitor', does: 'Tracks local competitor rankings & gaps', when: 'Fridays 07:00', maxStaleHours: 192 },
+  { slug: 'social-content', name: 'Social content', does: 'Drafts Instagram & Facebook captions', when: 'Fridays 09:00', maxStaleHours: 192 },
+  { slug: 'clinical-audit', name: 'Clinical audit', does: 'Monthly NMC compliance audit', when: '1st of month 09:00', maxStaleHours: 792 },
+  { slug: 'faq-updater', name: 'FAQ updater', does: 'Suggests FAQ updates from recent enquiries', when: '1st of month 10:00', maxStaleHours: 792 },
+]
+
+function timeAgo(iso: string): string {
+  const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins}m ago`
+  const hrs = Math.round(mins / 60)
+  if (hrs < 24) return `${hrs}h ago`
+  return `${Math.round(hrs / 24)}d ago`
+}
+
+type FleetTone = 'good' | 'bad' | 'idle'
+function fleetHealth(hb: Heartbeat | undefined, maxStaleHours: number): { tone: FleetTone; label: string } {
+  if (!hb || !hb.last_ok) {
+    return { tone: 'idle', label: hb?.last_error ? 'Last run errored' : 'Awaiting first check-in' }
+  }
+  const hours = (Date.now() - new Date(hb.last_ok).getTime()) / 3_600_000
+  if (hours > maxStaleHours) return { tone: 'bad', label: `Overdue · last ${timeAgo(hb.last_ok)}` }
+  return { tone: 'good', label: `Healthy · ${timeAgo(hb.last_ok)}` }
+}
 
 type SocialDraft = {
   id: string
@@ -218,6 +268,7 @@ type StatusData = {
   social_drafts: SocialDraft[]
   sentiment: Sentiment | null
   seo_report: SeoReport | null
+  heartbeats: Heartbeat[]
   configured: boolean
 }
 
@@ -344,6 +395,9 @@ export default function AgentsDashboard() {
   const drafts = status?.social_drafts ?? []
   const sentiment = status?.sentiment ?? null
   const seoReport = status?.seo_report ?? null
+  const heartbeats = status?.heartbeats ?? []
+  const hbByName: Record<string, Heartbeat> = Object.fromEntries(heartbeats.map((h) => [h.agent_name, h]))
+  const fleetHealthy = FLEET.filter((f) => fleetHealth(hbByName[f.slug], f.maxStaleHours).tone === 'good').length
 
   let positiveThemes: string[] = []
   let concernThemes: string[] = []
@@ -384,6 +438,43 @@ export default function AgentsDashboard() {
             <LogOut size={14} strokeWidth={1.75} />
             <span className="hidden sm:inline">Sign out</span>
           </button>
+        </div>
+
+        {/* Fleet health */}
+        <div className="mb-10">
+          <div className="eyebrow text-stone mb-3 flex items-center gap-1.5">
+            <Activity size={12} strokeWidth={1.75} />
+            Fleet health &nbsp;·&nbsp; {fleetHealthy}/{FLEET.length} healthy
+          </div>
+          <div className="bg-cream-soft border border-line/40 rounded-sm divide-y divide-line/30">
+            {FLEET.map((f) => {
+              const h = fleetHealth(hbByName[f.slug], f.maxStaleHours)
+              const dot =
+                h.tone === 'good' ? 'bg-green-500' : h.tone === 'bad' ? 'bg-red-500' : 'bg-stone/40'
+              const labelColor =
+                h.tone === 'good' ? 'text-green-700' : h.tone === 'bad' ? 'text-red-600' : 'text-stone'
+              return (
+                <div key={f.slug} className="flex items-center gap-3 px-4 py-2.5">
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${dot}`} aria-hidden />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-x-2 gap-y-0.5 flex-wrap">
+                      <span className="text-sm text-charcoal">{f.name}</span>
+                      <span className="text-[11px] text-stone flex items-center gap-1">
+                        <Clock size={10} />
+                        {f.when}
+                      </span>
+                    </div>
+                    <p className="text-xs text-ink-soft leading-snug mt-0.5">{f.does}</p>
+                  </div>
+                  <span className={`text-[11px] shrink-0 text-right ${labelColor}`}>{h.label}</span>
+                </div>
+              )
+            })}
+          </div>
+          <p className="text-[11px] text-stone mt-2 leading-snug">
+            Green = checked in on schedule · grey = awaiting first check-in · red = overdue.
+            The overseer emails the clinic automatically if anything goes red.
+          </p>
         </div>
 
         {/* Social drafts */}
