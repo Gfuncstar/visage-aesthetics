@@ -4,6 +4,7 @@ import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, insert } from '@/lib/assistant/db'
 import { AGENT_MODEL } from '@/lib/assistant/model'
 import { sendPush } from '@/lib/assistant/push'
+import { withHeartbeat } from '@/lib/assistant/heartbeat'
 import { blogPosts } from '@/lib/blog-posts'
 
 export const runtime = 'nodejs'
@@ -133,7 +134,7 @@ Return valid JSON only:
 
 export async function GET(req: Request) {
   if (!(await authorised(req))) return NextResponse.json({ error: 'Not authorised' }, { status: 401 })
-  return run()
+  return withHeartbeat('social-content', () => run())
 }
 
 export async function POST(req: Request) {

@@ -3,6 +3,19 @@
 > Generated from a fleet-wide audit (6 parallel reviewers + synthesis) on 2026-06-26.
 > Scope: every scheduled agent across GitHub Actions, Vercel Cron, and Supabase pg_cron.
 
+> **Status (2026-06-26) — shipped on this branch:**
+> - ✅ **The overseer (§6)** — `overseer-daily.yml` + `scripts/overseer.mjs`.
+> - ✅ **The Vercel-cron heartbeat (§5)** — `withHeartbeat()` wired into all 15
+>   crons + `cron_heartbeats` migration; overseer reads it. **One activation step
+>   left: apply the migration and redeploy** (writes no-op until the table exists).
+> - ✅ **Backup hardening (issue #2)** — encryption now mandatory and applied to
+>   *every* file, `fetchTable` aborts instead of truncating, random per-file salt,
+>   plus `scripts/restore-medical.ts` so backups are recoverable.
+> - ✅ **Streamlining** — one shared model constant on `claude-opus-4-8`, upgraded
+>   web-search variant, doc drift reconciled.
+> - ⏭️ **Still open (deliberately, for a future PR):** auto-blog auto-publish gate
+>   (issue #3), dependency pinning (#13), email-agent idempotency guards (#7).
+
 ## 1. Executive summary
 
 The fleet is **functionally healthy and impressively broad** — 20+ scheduled agents

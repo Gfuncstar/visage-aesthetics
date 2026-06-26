@@ -38,8 +38,12 @@ This doc is the **Vercel Cron** set.
 > (`.github/workflows/overseer-daily.yml`) — runs daily and gives the owner a
 > single hands-off pulse: it checks the GitHub-side agents, confirms the nightly
 > medical backup ran *and was encrypted*, and emails the clinic only when a human
-> is needed. It will also watch these Vercel crons once a `cron_heartbeats` table
-> is added — see `docs/AGENT_FLEET_BOOT_GUIDE.md` §5–6 for the full plan.
+> is needed. Each cron above now also writes a liveness **heartbeat**
+> (`src/lib/assistant/heartbeat.ts` → `cron_heartbeats`), and the overseer alerts
+> if any stops reporting. **Activation:** apply the migration
+> `supabase/migrations/20260626120000_cron_heartbeats.sql` and redeploy — until
+> then the heartbeat writes simply no-op. See `docs/AGENT_FLEET_BOOT_GUIDE.md`
+> §5–6 for the full design.
 
 > Drafts land in the staff UI at **`/staff/assistant/agents`** (the status route
 > `…/agents/status` surfaces pending `social_drafts`, latest `review_sentiment`,

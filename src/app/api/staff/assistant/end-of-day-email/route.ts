@@ -6,6 +6,7 @@ import { londonToday } from '@/lib/booking-engine/time'
 import { dayTakings } from '@/lib/assistant/treatment-pricing'
 import { buildBroadcastHtml, buildBroadcastText } from '@/lib/broadcast-email'
 import { gbp } from '@/lib/assistant/format'
+import { withHeartbeat } from '@/lib/assistant/heartbeat'
 import type { Booking } from '@/lib/booking-engine/types'
 
 export const runtime = 'nodejs'
@@ -47,6 +48,7 @@ export async function GET(req: Request) {
   }
   if (!bearerOk && !secretOk && !isStaff) return NextResponse.json({ error: 'Not authorised' }, { status: 401 })
 
+  return withHeartbeat('end-of-day-email', async () => {
   const now = new Date()
   const today = londonToday()
   const since = new Date(now.getTime() - 24 * 3600_000).toISOString()
@@ -121,4 +123,5 @@ These figures are the website value of the treatments seen today — an honest e
   await audit('end-of-day-email', 'day', today, { attended, total })
 
   return NextResponse.json({ ok: true, today, sent: true, attended, total })
+  })
 }

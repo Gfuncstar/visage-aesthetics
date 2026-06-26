@@ -6,6 +6,7 @@ import { assistantConfigured, insert, select } from '@/lib/assistant/db'
 import { AGENT_MODEL } from '@/lib/assistant/model'
 import { sendPush } from '@/lib/assistant/push'
 import { CLINIC_PROFILE } from '@/lib/assistant/opportunities'
+import { withHeartbeat } from '@/lib/assistant/heartbeat'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -289,7 +290,7 @@ Rules:
 
 export async function GET(req: Request) {
   if (!(await authorised(req))) return NextResponse.json({ error: 'Not authorised' }, { status: 401 })
-  return run()
+  return withHeartbeat('seo-monitor', () => run())
 }
 
 export async function POST(req: Request) {

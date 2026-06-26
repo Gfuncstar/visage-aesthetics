@@ -3,6 +3,7 @@ import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, insertMany, select, audit } from '@/lib/assistant/db'
 import { ovatuConfigured, fetchClients, fetchAppointments } from '@/lib/assistant/ovatu'
 import { cutoverLive } from '@/lib/assistant/go-live'
+import { withHeartbeat } from '@/lib/assistant/heartbeat'
 import type { Appointment, Client } from '@/lib/assistant/types'
 
 const FALLBACK_DAYS = 400
@@ -103,7 +104,7 @@ async function run() {
 
 export async function GET(req: Request) {
   if (!(await authorised(req))) return NextResponse.json({ error: 'Not authorised' }, { status: 401 })
-  return run()
+  return withHeartbeat('sync', () => run())
 }
 
 export async function POST(req: Request) {

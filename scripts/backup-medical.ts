@@ -11,9 +11,13 @@
  *   BACKUP_DROPBOX_TOKEN   — Dropbox API access token
  *   RESEND_API_KEY
  *
+ *   BACKUP_ENCRYPTION_KEY  — REQUIRED. Every uploaded file is AES-256-GCM
+ *                            encrypted; the job refuses to run without it so
+ *                            patient data can never land on Dropbox in cleartext.
+ *                            Decrypt with scripts/restore-medical.ts.
+ *
  * Optional:
  *   CLINIC_EMAIL           — defaults to ber.parsons@outlook.com
- *   BACKUP_ENCRYPTION_KEY  — if set, files are AES-256-GCM encrypted
  *   BLOB_READ_WRITE_TOKEN  — if set, photo metadata from Vercel Blob is included
  */
 
@@ -24,7 +28,8 @@ const SUPABASE_KEY = required('SUPABASE_SERVICE_ROLE_KEY')
 const DROPBOX_TOKEN = required('BACKUP_DROPBOX_TOKEN')
 const RESEND_KEY = required('RESEND_API_KEY')
 const CLINIC_EMAIL = process.env.CLINIC_EMAIL ?? 'ber.parsons@outlook.com'
-const ENCRYPTION_KEY = process.env.BACKUP_ENCRYPTION_KEY
+// Mandatory: refuse to run unencrypted rather than silently upload cleartext.
+const ENCRYPTION_KEY = required('BACKUP_ENCRYPTION_KEY')
 
 // Medical-priority tables — always included
 const MEDICAL_TABLES = [
@@ -87,8 +92,8 @@ async function fetchTable(table: string): Promise<unknown[]> {
     )
     if (!res.ok) {
       const text = await res.text()
-      console.warn(`  [warn] ${table}: ${res.status} — ${text.slice(0, 100)}`)
-      return rows
+      // Throw — never return a half-fetched table as if it were complete.
+      throw new Error(`${table}: ${res.status} — ${text.slice(0, 100)} (aborted to avoid a truncated backup)`)
     }
     const batch = await res.json() as unknown[]
     rows = rows.concat(batch)
@@ -102,17 +107,22 @@ function checksum(data: string): string {
   return createHash('sha256').update(data).digest('hex').slice(0, 16)
 }
 
-function encrypt(plaintext: string): { data: string; iv: string; tag: string } {
-  if (!ENCRYPTION_KEY) throw new Error('No encryption key')
-  const key = scryptSync(ENCRYPTION_KEY, 'visage-backup-salt', 32)
+// AES-256-GCM with a RANDOM per-file salt (stored alongside the ciphertext) so
+// two files never share a derived key. Format is read back by restore-medical.ts.
+function encrypt(plaintext: string): { v: number; alg: string; salt: string; iv: string; tag: string; data: string } {
+  const salt = randomBytes(16)
+  const key = scryptSync(ENCRYPTION_KEY, salt, 32)
   const iv = randomBytes(16)
   const cipher = createCipheriv('aes-256-gcm', key, iv)
   const encrypted = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()])
   const tag = cipher.getAuthTag()
   return {
-    data: encrypted.toString('base64'),
+    v: 1,
+    alg: 'aes-256-gcm',
+    salt: salt.toString('base64'),
     iv: iv.toString('base64'),
     tag: tag.toString('base64'),
+    data: encrypted.toString('base64'),
   }
 }
 
@@ -130,6 +140,13 @@ async function uploadToDropbox(path: string, content: Buffer): Promise<void> {
     const text = await res.text()
     throw new Error(`Dropbox upload failed for ${path}: ${res.status} — ${text.slice(0, 200)}`)
   }
+}
+
+// Every backup artifact goes through here — encrypt, then upload as `<path>.enc`.
+// There is deliberately no cleartext upload path.
+async function uploadEncrypted(path: string, plaintext: string): Promise<void> {
+  const enc = encrypt(plaintext)
+  await uploadToDropbox(`${path}.enc`, Buffer.from(JSON.stringify(enc), 'utf8'))
 }
 
 async function logToSupabase(summary: {
@@ -177,7 +194,7 @@ async function main() {
 
   console.log(`\nVisage Medical Backup — ${startedAt.toISOString()}`)
   console.log(`Destination: Dropbox${folderPath}`)
-  console.log(`Encryption: ${ENCRYPTION_KEY ? 'AES-256-GCM' : 'none (set BACKUP_ENCRYPTION_KEY to enable)'}`)
+  console.log('Encryption: AES-256-GCM (mandatory, per-file salt)')
 
   const allTables = [...MEDICAL_TABLES, ...BUSINESS_TABLES]
   const backupRows: BackupRow[] = []
@@ -209,45 +226,35 @@ async function main() {
     region: 'eu-west-2 (London)',
     tables: backupRows.map((r) => ({ table: r.table, count: r.count, checksum: r.checksum })),
     total_rows: totalRows,
-    encrypted: Boolean(ENCRYPTION_KEY),
+    encrypted: true,
     note: 'Medical records backup — Visage Aesthetics, Braintree, Essex. Bernadette Tobin RGN.',
   }
 
-  // Upload manifest
-  console.log('\n  Uploading to Dropbox…')
-  await uploadToDropbox(
-    `${folderPath}/manifest.json`,
-    Buffer.from(JSON.stringify(manifest, null, 2), 'utf8'),
-  )
+  // Upload manifest (encrypted, like everything else)
+  console.log('\n  Uploading to Dropbox (all files AES-256-GCM encrypted)…')
+  await uploadEncrypted(`${folderPath}/manifest.json`, JSON.stringify(manifest, null, 2))
 
   // Upload each table's data
   for (const backup of backupRows) {
     const content = JSON.stringify({ ...backup, rows: backup.rows }, null, 2)
-    let uploadContent: Buffer
-
-    if (ENCRYPTION_KEY) {
-      const enc = encrypt(content)
-      uploadContent = Buffer.from(JSON.stringify(enc), 'utf8')
-      await uploadToDropbox(`${folderPath}/${backup.table}.json.enc`, uploadContent)
-    } else {
-      uploadContent = Buffer.from(content, 'utf8')
-      await uploadToDropbox(`${folderPath}/${backup.table}.json`, uploadContent)
-    }
+    await uploadEncrypted(`${folderPath}/${backup.table}.json`, content)
     process.stdout.write(`  ${backup.table} uploaded ✓\n`)
   }
 
-  // Upload combined medical-only backup (most important)
-  const medicalOnly = backupRows.filter((r) => MEDICAL_TABLES.includes(r.table))
-  const combined = JSON.stringify({
-    manifest,
-    data: Object.fromEntries(medicalOnly.map((r) => [r.table, r.rows])),
-  }, null, 2)
-  await uploadToDropbox(
-    `${folderPath}/MEDICAL-RECORDS-COMPLETE.json`,
-    Buffer.from(combined, 'utf8'),
-  )
-
-  console.log('\n  Complete combined backup uploaded ✓')
+  // Upload combined medical-only backup (most important) — but never label an
+  // incomplete export "COMPLETE": skip it if any medical table failed to fetch.
+  const failedMedical = MEDICAL_TABLES.filter((t) => errors.some((e) => e.startsWith(`${t}:`)))
+  if (failedMedical.length) {
+    console.warn(`\n  ⚠️  Skipping MEDICAL-RECORDS-COMPLETE — medical table(s) failed: ${failedMedical.join(', ')}`)
+  } else {
+    const medicalOnly = backupRows.filter((r) => MEDICAL_TABLES.includes(r.table))
+    const combined = JSON.stringify({
+      manifest,
+      data: Object.fromEntries(medicalOnly.map((r) => [r.table, r.rows])),
+    }, null, 2)
+    await uploadEncrypted(`${folderPath}/MEDICAL-RECORDS-COMPLETE.json`, combined)
+    console.log('\n  Complete combined backup uploaded ✓')
+  }
 
   // Log to Supabase
   const emailSent = errors.length === 0
@@ -257,7 +264,7 @@ async function main() {
       tables_included: backupRows.length,
       total_rows: totalRows,
       dropbox_path: folderPath,
-      encrypted: Boolean(ENCRYPTION_KEY),
+      encrypted: true,
       email_sent: emailSent,
     })
     console.log('  Logged to backup_log ✓')
@@ -284,7 +291,7 @@ async function main() {
       </div>
 
       <p style="font-size:13px;color:#5C4F44;margin:0 0 4px;">Location: <code>Dropbox${folderPath}</code></p>
-      <p style="font-size:13px;color:#5C4F44;margin:0 0 16px;">Total records: <strong>${totalRows.toLocaleString()}</strong> &middot; ${ENCRYPTION_KEY ? 'Encrypted' : 'Unencrypted'}</p>
+      <p style="font-size:13px;color:#5C4F44;margin:0 0 16px;">Total records: <strong>${totalRows.toLocaleString()}</strong> &middot; Encrypted</p>
 
       <table style="border-collapse:collapse;width:100%;">
         <thead><tr style="background:#F5F0EC;">

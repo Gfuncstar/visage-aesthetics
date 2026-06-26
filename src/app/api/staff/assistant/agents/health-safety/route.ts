@@ -5,6 +5,7 @@ import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, select, audit } from '@/lib/assistant/db'
 import { AGENT_MODEL } from '@/lib/assistant/model'
 import { ukDate } from '@/lib/assistant/format'
+import { withHeartbeat } from '@/lib/assistant/heartbeat'
 import type { TreatmentRecord } from '@/lib/assistant/types'
 
 export const runtime = 'nodejs'
@@ -203,7 +204,7 @@ Do NOT use generic disclaimers. Be specific about what needs to be done and why 
 
 export async function GET(req: Request) {
   if (!(await authorised(req))) return NextResponse.json({ error: 'Not authorised' }, { status: 401 })
-  return run()
+  return withHeartbeat('health-safety', () => run())
 }
 
 export async function POST(req: Request) {

@@ -4,6 +4,7 @@ import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, insert } from '@/lib/assistant/db'
 import { AGENT_MODEL } from '@/lib/assistant/model'
 import { sendPush } from '@/lib/assistant/push'
+import { withHeartbeat } from '@/lib/assistant/heartbeat'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -158,7 +159,7 @@ Return valid JSON only: {"subject":"...","body":"..."}`
 
 export async function GET(req: Request) {
   if (!(await authorised(req))) return NextResponse.json({ error: 'Not authorised' }, { status: 401 })
-  return run()
+  return withHeartbeat('seasonal-campaign', () => run())
 }
 
 export async function POST(req: Request) {

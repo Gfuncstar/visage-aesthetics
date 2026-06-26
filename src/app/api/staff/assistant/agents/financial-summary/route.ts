@@ -6,6 +6,7 @@ import { assistantConfigured, select } from '@/lib/assistant/db'
 import { AGENT_MODEL } from '@/lib/assistant/model'
 import { monthBounds, currentMonthKey, gbp, ukDate } from '@/lib/assistant/format'
 import { monthSummary, revenueByTreatment } from '@/lib/assistant/finance'
+import { withHeartbeat } from '@/lib/assistant/heartbeat'
 import type { Appointment, Order } from '@/lib/assistant/types'
 
 export const runtime = 'nodejs'
@@ -189,7 +190,7 @@ async function run() {
 
 export async function GET(req: Request) {
   if (!(await authorised(req))) return NextResponse.json({ error: 'Not authorised' }, { status: 401 })
-  return run()
+  return withHeartbeat('financial-summary', () => run())
 }
 
 export async function POST(req: Request) {

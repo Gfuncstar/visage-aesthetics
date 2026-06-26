@@ -8,6 +8,7 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { isStaffAuthed } from '@/lib/staff-auth'
+import { withHeartbeat } from '@/lib/assistant/heartbeat'
 import { assistantConfigured, select } from '@/lib/assistant/db'
 import { londonToday, addDaysStr, clockLabel } from '@/lib/booking-engine/time'
 import { buildBroadcastHtml, buildBroadcastText } from '@/lib/broadcast-email'
@@ -76,6 +77,8 @@ function localDate(iso: string): string {
 
 export async function GET(req: Request) {
   if (!(await authorised(req))) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
+
+  return withHeartbeat('weekly-summary', async () => {
   if (!assistantConfigured()) return NextResponse.json({ error: 'Not configured' }, { status: 503 })
 
   const apiKey = process.env.RESEND_API_KEY
@@ -225,4 +228,5 @@ export async function GET(req: Request) {
     console.error('[weekly-summary] send failed', err)
     return NextResponse.json({ error: err instanceof Error ? err.message : 'Send failed' }, { status: 502 })
   }
+  })
 }

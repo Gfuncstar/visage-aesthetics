@@ -169,8 +169,29 @@ async function checkOpenIssues(broken, healthy) {
   }
 }
 
-async function checkVercelHeartbeats(warnings, healthy, notes) {
-  // Graceful: only meaningful once the §5 heartbeat table exists. Until then,
+// The 15 Vercel crons + how stale (hours) each is allowed to get before it's a
+// problem, derived from its schedule in vercel.json (cadence + a grace margin).
+// This is also the allow-list: an expected agent with NO heartbeat row is flagged.
+const EXPECTED_CRONS = {
+  'orders-poll': 8, // every 6h
+  'book-reminders': 3, // hourly
+  sync: 2, // every 30 min
+  integrity: 30, // daily 06:00
+  'stock-expiry': 30, // daily 08:00
+  'seasonal-campaign': 30, // daily 08:30
+  'health-safety': 30, // daily 19:30
+  'end-of-day-email': 2, // every 30 min (self-gating)
+  'financial-summary': 192, // Mon (8d)
+  'review-sentiment': 192, // Mon (8d)
+  'seo-monitor': 192, // Fri (8d)
+  'social-content': 192, // Fri (8d)
+  'weekly-summary': 192, // Tue (8d)
+  'clinical-audit': 792, // monthly (33d)
+  'faq-updater': 792, // monthly (33d)
+}
+
+async function checkVercelHeartbeats(broken, warnings, healthy, notes) {
+  // Graceful: only meaningful once the cron_heartbeats table exists. Until then,
   // keep the gap VISIBLE rather than pretending the Vercel crons are covered.
   if (!SUPABASE_URL || !SUPABASE_KEY) {
     notes.push('Vercel crons (15): not monitored — overseer has no Supabase credentials.')
@@ -184,22 +205,26 @@ async function checkVercelHeartbeats(warnings, healthy, notes) {
     return
   }
   if (rows?.__missing) {
-    notes.push('Vercel crons (15): NOT independently monitored yet. Add the `cron_heartbeats` table (boot guide §5) and the overseer will cover them automatically.')
+    notes.push('Vercel crons (15): NOT monitored yet. Apply the cron_heartbeats migration and redeploy; the overseer then covers them automatically.')
     return
   }
-  if (!Array.isArray(rows) || rows.length === 0) {
-    notes.push('Vercel crons: `cron_heartbeats` exists but is empty — no agent has reported in yet.')
-    return
-  }
-  // Conservative default staleness: 36h (catches any daily-or-tighter agent).
+  const seen = new Map((Array.isArray(rows) ? rows : []).map((r) => [r.agent_name, r]))
   let stale = 0
-  for (const r of rows) {
-    if (!r.last_ok || hoursAgo(r.last_ok) > 36) {
-      warnings.push(`**Vercel cron \`${r.agent_name}\`** — no success in ${r.last_ok ? Math.round(hoursAgo(r.last_ok)) + 'h' : 'ever'}.${r.last_error ? ` Last error: ${String(r.last_error).slice(0, 120)}` : ''}`)
+  for (const [name, maxH] of Object.entries(EXPECTED_CRONS)) {
+    const r = seen.get(name)
+    if (!r || !r.last_ok) {
+      // No row yet is expected right after deploy — a soft warning, not an alarm.
+      warnings.push(`**Vercel cron \`${name}\`** — no successful heartbeat yet (expected within ${maxH}h).`)
+      stale++
+      continue
+    }
+    const age = hoursAgo(r.last_ok)
+    if (age > maxH) {
+      broken.push(`**Vercel cron \`${name}\`** — no success in ${Math.round(age)}h (expected within ${maxH}h). It may have stopped firing.${r.last_error ? ` Last error: ${String(r.last_error).slice(0, 120)}` : ''}`)
       stale++
     }
   }
-  if (!stale) healthy.push(`Vercel crons — all ${rows.length} reporting healthy heartbeats`)
+  if (!stale) healthy.push(`Vercel crons — all ${Object.keys(EXPECTED_CRONS).length} reporting healthy heartbeats`)
 }
 
 async function sendEmail(subject, html, text) {
@@ -238,7 +263,7 @@ async function main() {
   await checkGithubFleet(broken, warnings, healthy)
   await checkBackup(broken, healthy)
   await checkOpenIssues(broken, healthy)
-  await checkVercelHeartbeats(warnings, healthy, notes)
+  await checkVercelHeartbeats(broken, warnings, healthy, notes)
 
   const needsHuman = broken.length > 0
   const stamp = new Date().toISOString().slice(0, 10)

@@ -3,6 +3,7 @@ import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured } from '@/lib/assistant/db'
 import { graphConfigured, inboxConnection, fetchRecentMessages, looksLikeOrder } from '@/lib/assistant/graph-inbox'
 import { ingestOrderEmail, htmlToText } from '@/lib/assistant/order-ingest'
+import { withHeartbeat } from '@/lib/assistant/heartbeat'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -83,7 +84,7 @@ async function run() {
 
 export async function GET(req: Request) {
   if (!(await authorised(req))) return NextResponse.json({ error: 'Not authorised' }, { status: 401 })
-  return run()
+  return withHeartbeat('orders-poll', () => run())
 }
 
 export async function POST(req: Request) {

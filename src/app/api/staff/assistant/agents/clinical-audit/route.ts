@@ -5,6 +5,7 @@ import { isStaffAuthed } from '@/lib/staff-auth'
 import { assistantConfigured, select, audit } from '@/lib/assistant/db'
 import { AGENT_MODEL } from '@/lib/assistant/model'
 import { monthBounds, ukDate, gbp } from '@/lib/assistant/format'
+import { withHeartbeat } from '@/lib/assistant/heartbeat'
 import type { TreatmentRecord } from '@/lib/assistant/types'
 
 export const runtime = 'nodejs'
@@ -172,7 +173,7 @@ async function run() {
 
 export async function GET(req: Request) {
   if (!(await authorised(req))) return NextResponse.json({ error: 'Not authorised' }, { status: 401 })
-  return run()
+  return withHeartbeat('clinical-audit', () => run())
 }
 
 export async function POST(req: Request) {
