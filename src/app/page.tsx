@@ -37,7 +37,7 @@ export const metadata: Metadata = {
 // Hand-picked before/afters for the homepage Results strip. Add or
 // swap ids here when fresh photos land — the catalogue lives in
 // src/lib/before-after.ts.
-const HOMEPAGE_RESULTS_IDS = ['profhilo-01-jawline', 'anti-wrinkle-01', 'lip-filler-02'] as const
+const HOMEPAGE_RESULTS_IDS = ['profhilo-01-jawline', 'lip-filler-02'] as const
 // IDs that should only appear on mobile (hidden at md+). Keep desktop
 // layout balanced — currently the lip filler quality isn't quite the
 // standard the bigger desktop frames deserve.
